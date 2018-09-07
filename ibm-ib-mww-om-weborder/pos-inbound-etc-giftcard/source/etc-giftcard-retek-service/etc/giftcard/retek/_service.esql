@@ -1,0 +1,142 @@
+
+
+BROKER SCHEMA etc.giftcard.retek
+--
+-- 2015-03-18 VK
+CREATE PROCEDURE checkGiftCardSelectResult(IN giftCardNumber INTEGER) RETURNS CHARACTER
+BEGIN
+	DECLARE outparm CHARACTER;
+	-- SET outparm = cast(giftCardValue as character);
+	if giftCardNumber is null then SET outparm = '2';
+	else SET outparm = '0';
+	end if;
+	RETURN outparm;
+END;
+--
+-- 2015-03-18 VK
+CREATE PROCEDURE checkGiftCardValue(IN giftCardValue DECIMAL) RETURNS CHARACTER
+BEGIN
+	DECLARE outparm CHARACTER;
+	-- SET outparm = cast(giftCardValue as character);
+	if giftCardValue is null then SET outparm = 'Gift card not found';
+	else SET outparm = cast(giftCardValue as character);
+	end if;
+	-- SET outparm = UPPER(outparm);
+	RETURN outparm;
+END;
+
+create procedure checkGiftCardExpDate(IN expDate DATE) returns character
+begin
+	DECLARE outparm CHARACTER;
+	if expDate is null then SET outparm = 'None';
+	else SET outparm = cast(expDate as character format 'yyyy-MM-dd');
+	end if;
+	RETURN outparm;
+end;
+--
+-- 2015-04-21 VK
+CREATE COMPUTE MODULE mod_error_handler
+	CREATE FUNCTION Main() RETURNS BOOLEAN
+	BEGIN
+		--Copy the message properties
+		SET OutputRoot.Properties = InputRoot.Properties;
+		-- Reference declaration
+		DECLARE refOut,refOutBody REFERENCE TO OutputRoot;
+		DECLARE rEnv REFERENCE TO Environment;
+		DECLARE refInpMsg REFERENCE TO InputRoot.DFDL.InputMsg.body;
+		DECLARE refExcpType REFERENCE TO InputExceptionList.*[1];
+		-- Store GivexMsgIdFormat in a variable
+		DECLARE GivexMsgIdFmt CHARACTER FIELDVALUE(refInpMsg.GivexMsdIdFrmt);
+		DECLARE excptFlag,covnExcptFlag,crtFlg BOOLEAN FALSE;
+		CREATE LASTCHILD OF OutputRoot AS refOut DOMAIN 'DFDL';
+		-- Based on the givexMsgIdFormat create the output message
+		IF (GivexMsgIdFmt = '906') THEN
+			SET OutputRoot.Properties.MessageType = '{}:Output_906';
+			CREATE LASTCHILD OF refOut.Output906 AS refOutBody NAME 'body';
+		ELSEIF (GivexMsgIdFmt = '909') THEN
+			SET OutputRoot.Properties.MessageType = '{}:Output_909';
+			CREATE LASTCHILD OF refOut.Output909 AS refOutBody NAME 'body';
+		ELSEIF (GivexMsgIdFmt = '918') THEN
+			SET OutputRoot.Properties.MessageType = '{}:Output_918';
+			CREATE LASTCHILD OF refOut.Output918 AS refOutBody NAME 'body';
+		ELSEIF (GivexMsgIdFmt = '902') THEN
+			SET OutputRoot.Properties.MessageType = '{}:Output_902';
+			CREATE LASTCHILD OF refOut.Output902 AS refOutBody NAME 'body';
+		ELSEIF (GivexMsgIdFmt = '927') THEN
+			SET OutputRoot.Properties.MessageType = '{}:Output_927';
+			CREATE LASTCHILD OF refOut.Output927 AS refOutBody NAME 'body';
+		ELSEIF (GivexMsgIdFmt = '904') THEN
+			SET OutputRoot.Properties.MessageType = '{}:Output_904';
+			CREATE LASTCHILD OF refOut.Output904 AS refOutBody NAME 'body';
+			SET crtFlg = TRUE;
+		END IF;
+		SET refOutBody.TransactionCode = COALESCE(refInpMsg.Elem[2],'');		
+		-- Check for Parser or User Exception
+		WHILE LASTMOVE(refExcpType) DO
+			IF (FIELDNAME(refExcpType) = 'UserException' ) THEN
+				SET excptFlag = TRUE;
+			END IF;
+			IF (FIELDNAME(refExcpType) = 'ConversionException' ) THEN
+				SET excptFlag = TRUE;
+				SET covnExcptFlag = TRUE;
+			END IF;
+			MOVE refExcpType LASTCHILD;
+		END WHILE;
+		
+		IF (crtFlg)  THEN
+			SET refOutBody.Result = '1';
+		ELSE
+			-- If not Parser or User Exception then populate the actual exception information
+		IF (excptFlag) THEN
+			IF (covnExcptFlag) THEN
+				SET refOutBody.Result = '3';
+				SET refOutBody.Msg = 'Invalid card number';
+				SET refOutBody.ISOSer = '14';
+
+			ELSEIF CONTAINS(refExcpType,'Invalid Operation') THEN
+				THROW USER EXCEPTION MESSAGE 2999 VALUES('What?');
+
+			ELSE
+				SET refOutBody.Result = SUBSTRING( refExcpType FROM 1 FOR 1);
+				SET refOutBody.Msg = SUBSTRING(refExcpType FROM 6);
+				SET refOutBody.ISOSer = SUBSTRING(refExcpType FROM 3 FOR 2);
+			END IF;
+
+		ELSE		
+			SET refOutBody.Result = '1';
+			SET refOutBody.Msg = 'Error';
+			SET refOutBody.ISOSer = '06';
+
+		END IF;
+		END IF;
+		
+		-- To log the exception list and the failure reason
+		DECLARE errTxt CHARACTER FIELDVALUE(refExcpType);
+		SET Environment.__ExceptionList__ = InputExceptionList.*[1];
+		CALL core.audit.AuditState(rEnv, 'FAIL');
+		CALL core.audit.AuditStateComment(rEnv, errTxt); 
+		CALL core.log.Info(MessageFlowLabel||'Module name:mod_error_handler'||' Exception :'||CAST(errTxt AS CHARACTER));
+		RETURN TRUE;
+	END;
+END MODULE;
+--
+-- 2015-04-21 VK
+CREATE COMPUTE MODULE mod_junkDataHandler
+	CREATE FUNCTION Main() RETURNS BOOLEAN
+	BEGIN
+		--Copy the message properties
+		SET OutputRoot.Properties = InputRoot.Properties;
+		SET OutputRoot.Properties.MessageType = '{}:Output';
+		
+		DECLARE rEnv REFERENCE TO Environment;
+		DECLARE refOut REFERENCE TO OutputRoot;
+		CREATE LASTCHILD OF OutputRoot AS refOut DOMAIN 'DFDL';
+		CREATE LASTCHILD OF refOut.Output NAME 'body';
+		
+		-- To log the exception list and the failure reason
+		
+		CALL core.audit.AuditState(rEnv, 'FAIL');
+		CALL core.audit.AuditStateComment(rEnv, 'Non compliant Data connect message'); 
+		RETURN TRUE;
+	END;
+END MODULE;

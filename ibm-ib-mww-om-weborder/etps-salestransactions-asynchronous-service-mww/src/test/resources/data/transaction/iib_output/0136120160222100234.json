@@ -1,0 +1,57 @@
+{
+  "msgType": "transaction",
+  "transactionId": "0136120160222100234",
+  "transactionTypeCode": "SaleTransaction",
+  "majorVersion": 4,
+  "retailStoreId": "013",
+  "workstationId": "61",
+  "sequenceNumber": "100234",
+  "beginDateTime": "2016-02-22T21:26:21-07:00",
+  "endDateTime": "2016-02-22T21:26:21-07:00",
+  "operatorId": "0",
+  "sourceSystem": "ETPS",
+  "retailTransaction": {
+    "productLineItems": [
+      {
+        "lineItemSeqNumber": "1",
+        "itemNumber": "400005804168",
+        "merchandiseHierarchyLevel": "4",
+        "merchandiseHierarchyId": "2C",
+        "regularSalesUnitPrice": 19.99,
+        "actualSalesPrice": 19.99,
+        "basePrice": 19.99,
+        "quantity": 1,
+
+        "taxes": [
+          {
+            "type": "GST",
+            "taxAmountPerItem": 1.00
+          }
+        ],
+        "transactionLink": {
+          "endDateTime": "2016-02-22T00:00:00-00:00",
+          "retailStoreId": "780",
+          "sequenceNumber": "100928",
+          "workstationId": "01"
+        }
+      }
+    ],
+    "taxes": [
+      {
+        "type": "GST",
+        "typeCode": "Sale",
+        "amount": 1.00
+      }
+    ],
+    "tenders": [
+      {
+        "amount": 20.99,
+        "subTenderType": "CAD",
+        "tenderType": "GiftCard",
+        "giftCardNumber": "902606693"
+      }
+    ],
+    "transactionSubtotal": 19.99,
+    "transactionGrossAmount": 20.99
+  }
+}

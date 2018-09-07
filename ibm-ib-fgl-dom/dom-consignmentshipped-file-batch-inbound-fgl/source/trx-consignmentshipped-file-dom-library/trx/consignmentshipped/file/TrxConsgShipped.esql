@@ -1,0 +1,80 @@
+
+--* File name : TrxConsgShipped.esql
+--* Purpose : To implement trx-ConsignmentShipped-file-dom flow.
+--* Authors : Rohit Sharma
+--* Create Date : 16th Aug 2016
+--* Version : 1.0
+--* Revision Date:
+--* @copyright MWW-FGLSPORTS 2015. All Rights Reserved.
+
+BROKER SCHEMA trx.consignmentshipped.file
+--Decalre Constants-----
+DECLARE theSchema CONSTANT CHARACTER 'trx.consignmentshipped.file';
+-- DECLARE yfc NAMESPACE 'http://www.sterlingcommerce.com/documentation/YFS/createOrder/input'; -- Dom namespace are not there
+
+CREATE FILTER MODULE dom_Filter
+	DECLARE theModule CONSTANT CHARACTER theSchema||'.'||'dom_Filter';
+	CREATE FUNCTION Main() RETURNS BOOLEAN
+	BEGIN
+		DECLARE rEnv REFERENCE TO Environment;
+		DECLARE MSG_ID CHARACTER rEnv.__MsgIdForLog4J__;
+		CALL core.log.Debug(theModule||' - ID# : '||MSG_ID||' >> BEGIN');
+		DECLARE returnValue BOOLEAN TRUE;
+		--No-op implementation for wms_Filter - for future purposes as required by business/functional requirements
+		CALL core.log.Debug(theModule||' - RETURN '||CAST(returnValue AS CHARACTER));
+		CALL core.log.Debug(theModule||' - ID# : '||MSG_ID||' << END');
+		CALL core.log.Info(theModule||' - RETURN '||CAST(returnValue AS CHARACTER));
+		CALL core.log.Info(theModule||' - ID# : '||MSG_ID||' << END');
+		RETURN returnValue;
+	END;
+END MODULE;
+
+CREATE COMPUTE MODULE dom_BuildOutputMessage
+	DECLARE theModule CONSTANT CHARACTER theSchema||'.'||'dom_BuildOutputMessage';
+	CREATE FUNCTION Main() RETURNS BOOLEAN
+	BEGIN
+		DECLARE rEnv REFERENCE TO Environment;
+		-- DECLARE returnValue BOOLEAN TRUE;
+		DECLARE rInput REFERENCE TO InputRoot;
+		DECLARE rOutput REFERENCE TO OutputRoot;
+		DECLARE E CONSTANT CHARACTER 'E';
+		DECLARE BLANK CONSTANT CHARACTER '';
+		DECLARE SPACE CONSTANT CHARACTER ' ';
+		DECLARE recordNo INTEGER 1;
+		DECLARE recordCount INTEGER;
+		DECLARE MSG_ID CHARACTER rEnv.__MsgIdForLog4J__;
+		CALL core.log.Info(theModule||' - ID# : '||MSG_ID||' >> BEGIN');
+
+		DECLARE refToInMainfestItem REFERENCE To InputRoot.XMLNSC.manifestitems_suffix;
+		
+		CALL common.common_CopyMessageHeaders(rInput, rOutput);
+		CALL common.common_CreateLastChildOfOutputRootDomainXmlnsc(rOutput);
+
+		CREATE FIELD rOutput.XMLNSC.Shipment;
+		DECLARE rShipment REFERENCE TO rOutput.XMLNSC.Shipment;
+		SET recordCount = CARDINALITY(refToInMainfestItem.record[]);
+		WHILE recordNo <= recordCount DO
+			
+			SET rShipment.(XMLNSC.Attribute)ShipmentKey = COALESCE(refToInMainfestItem.record[recordNo].ItemRef2, BLANK);
+			IF SUBSTRING(refToInMainfestItem.record[recordNo].ItemRef2 FROM 1 FOR 1) = 'E' THEN
+				SET rShipment.(XMLNSC.Attribute)SellerOrganizationCode = 'SPORTCHEK';
+			Else
+				SET rShipment.(XMLNSC.Attribute)SellerOrganizationCode = 'ATMOSPHERE';
+			END IF;          
+            
+			SET rShipment.(XMLNSC.Attribute)ActualShipmentDate = CURRENT_DATE;
+			SET rShipment.(XMLNSC.Attribute)SCAC = 'CANADA_POST';
+			SET rShipment.Containers.Container.(XMLNSC.Attribute)TrackingNo = COALESCE(refToInMainfestItem.record[recordNo].BarCodeId, BLANK);
+			SET rShipment.Containers.Container.(XMLNSC.Attribute)ContainerNo = COALESCE(refToInMainfestItem.record[recordNo].ImportedOrderID, BLANK);
+			
+			CALL core.log.Info(theModule||' - ShipmentKey # : '||rShipment.(XMLNSC.Attribute)ShipmentKey);
+			CALL core.log.Info(theModule||' - TrackingNo # : '||rShipment.Containers.Container.(XMLNSC.Attribute)TrackingNo);
+			CALL core.log.Info(theModule||' - ContainerNo # : '||rShipment.Containers.Container.(XMLNSC.Attribute)ContainerNo);
+			
+			PROPAGATE DELETE NONE;
+			
+			SET recordNo = recordNo + 1;
+		END WHILE;
+		RETURN FALSE;
+	END;
+END MODULE;

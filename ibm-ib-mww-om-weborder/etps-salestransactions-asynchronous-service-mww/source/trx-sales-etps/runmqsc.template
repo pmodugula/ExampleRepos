@@ -1,0 +1,15 @@
+** trx-sales-etps: runmqsc.template
+DEFINE QLOCAL(${SALES_ETPS_IN_BO}) MAXMSGL(10485760) MAXDEPTH(999999999) DESCR('trx-sales-etps backout queue') DEFPSIST(YES) REPLACE
+DEFINE QLOCAL(${SALES_ETPS_IN}) MAXMSGL(10485760) MAXDEPTH(999999999) BOTHRESH(5) BOQNAME(${SALES_ETPS_IN_BO}) DEFPSIST(YES) REPLACE
+DEFINE QALIAS(RECV.${SALES_ETPS_IN}) TARGET(${SALES_ETPS_IN}) DEFPSIST(YES) REPLACE
+
+DEFINE QLOCAL(${SALES_ETPS_OUT_BO}) MAXMSGL(10485760) MAXDEPTH(999999999) DESCR('trx-sales-etps output backout queue') DEFPSIST(YES) REPLACE
+DEFINE QLOCAL(${SALES_ETPS_OUT}) MAXMSGL(10485760) MAXDEPTH(999999999) BOQNAME(${SALES_ETPS_OUT_BO}) DESCR('trx-sales-etps output output queue') DEFPSIST(YES) REPLACE
+
+** disable alias creation as it is different between environments and has already been created
+** DEFINE QALIAS(SEND.${SALES_ETPS_OUT}) TARGET(${EPAM_CLUST_OUT}) DEFPSIST(YES) DESCR('trx-sales-etps output queue to CSS') REPLACE
+
+** output alias is going to point to different cluster queue in different environments - because of this it will be run manually as part of the deploy process
+** QA - MWW.DIG.SALESRAW.EPM_POS.QA.6 - (which gets it to AMB and CSS Fast Find instance- this was a decision made by Epam 02/29)
+** PP - MWW.DIG.SALESRAW.EPM_POS.PP - goes to Marks CSS instance
+** DEFINE QALIAS(SEND.${SALES_ETPS_OUT}) TARGET(MWW.DIG.SALESRAW.EPM_POS.${ENV}.6) DEFPSIST(YES) DESCR('trx-sales-etps output queue to CSS EPAM instance') REPLACE

@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<!-- edited with XMLSpy v2014 rel. 2 (http://www.altova.com) by Ron Matyjanka (FGL SPORTS LTD) -->
+<!--
+ * ER/Studio Data Architect XE3 %s XML Schema Generation
+ * Company:		FGL Sports
+ * Project:		FGL Corporate Data Warehouse
+ * Author:		Warren Whale
+ * Version:		1.0
+ * Date Created:	2015-01-23
+-->
+<xs:schema xmlns:arts="http://www.fgl.com/ARTS" xmlns:xs="http://www.w3.org/2001/XMLSchema" targetNamespace="http://www.fgl.com/ARTS" elementFormDefault="qualified">
+	<xs:include schemaLocation="AttributeGroupsV1_00_00.xsd"/>
+	<xs:complexType name="ArtsTaxType">
+		<xs:sequence>
+			<xs:element name="Index"/>
+			<xs:element name="TaxTypeCode">
+				<xs:annotation>
+					<xs:documentation>A retailer assigned mnemonic code denoting a kind of tax.  Eg: SalesTax, GST, PST, HST, VAT</xs:documentation>
+				</xs:annotation>
+				<xs:complexType>
+					<xs:simpleContent>
+						<xs:extension base="xs:string">
+							<xs:attributeGroup ref="arts:ElementControlAttributeGroup"/>
+						</xs:extension>
+					</xs:simpleContent>
+				</xs:complexType>
+			</xs:element>
+			<xs:element name="TaxTypeName">
+				<xs:annotation>
+					<xs:documentation>The name of the kind of tax.</xs:documentation>
+				</xs:annotation>
+				<xs:complexType>
+					<xs:simpleContent>
+						<xs:extension base="xs:string">
+							<xs:attributeGroup ref="arts:ElementControlAttributeGroup"/>
+						</xs:extension>
+					</xs:simpleContent>
+				</xs:complexType>
+			</xs:element>
+		</xs:sequence>
+		<xs:attributeGroup ref="arts:ElementControlAttributeGroup"/>
+	</xs:complexType>
+</xs:schema>

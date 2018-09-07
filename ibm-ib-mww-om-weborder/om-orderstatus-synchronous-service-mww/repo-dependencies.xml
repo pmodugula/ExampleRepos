@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<dependencies>
+	<build>development</build>
+	<core-from-cvs>development</core-from-cvs>
+	<message-schemas>development</message-schemas>
+	<folders>
+			<folder type="build">build</folder>
+			<folder type="build">deployment</folder>
+			<folder type="build">resources</folder>
+			<folder type="message-schemas">message-schemas</folder>
+			<folder type="core-from-cvs">common-library</folder>
+			<folder type="core-from-cvs">common-library-java</folder>
+			<folder type="core-from-cvs">core-audit-handler-library</folder>
+			<folder type="core-from-cvs">core-audit-handler-library-java</folder>
+			<folder type="core-from-cvs">core-cache-library</folder>
+			<folder type="core-from-cvs">core-cache-library-java</folder>
+			<folder type="core-from-cvs">core-log-handler-library</folder>
+			<folder type="core-from-cvs">core-message-processor-library</folder>
+
+		<!-- XSD Schema Dependencies -->
+		<folder type="message-schemas">message-schemas</folder>
+		<!-- Comment: Build Dependencies -->
+		<folder type="build">build</folder>
+		<folder type="build">deployment</folder>
+		<folder type="build">resources</folder>
+	</folders>
+	<schemas>
+	</schemas>
+</dependencies>

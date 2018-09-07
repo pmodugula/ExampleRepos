@@ -1,0 +1,71 @@
+<eai:Exchange xmlns:eai="http://www.fgl.com/exchange/" xmlns:arts="http://www.fgl.com/ARTS" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" MajorVersion="2" MinorVersion="3" FixVersion="0">
+  <eai:MessageRouting>
+    <eai:Guid>E44BD396A26F4190976E5631A0E1963E</eai:Guid>
+    <eai:MessageId>414d51204142515146504f53202020203be41d5924a03522</eai:MessageId>
+    <eai:MessageType>PubSub</eai:MessageType>
+    <eai:SubjectArea>Normal Retail Sales Transactions</eai:SubjectArea>
+    <eai:SbuNumber>3</eai:SbuNumber>
+    <eai:SbuCode>FGL</eai:SbuCode>
+    <eai:SbuName>FGL Sports Ltd.</eai:SbuName>
+    <eai:DataSourceCode>POE</eai:DataSourceCode>
+    <eai:DataSourceCodeName>POE POS FGL</eai:DataSourceCodeName>
+    <eai:MessageIndex>1</eai:MessageIndex>
+    <eai:MessageCount>1</eai:MessageCount>
+    <eai:SubjectAreaRunName>salestransactions-155-20170607-161400</eai:SubjectAreaRunName>
+  </eai:MessageRouting>
+  <eai:Messages>
+    <eai:Count>1</eai:Count>
+    <eai:SourceSystems>
+      <eai:Count>1</eai:Count>
+      <eai:SourceSystem>
+        <eai:Index>1</eai:Index>
+        <eai:SbuNumber>3</eai:SbuNumber>
+        <eai:SbuCode>FGL</eai:SbuCode>
+        <eai:SbuName>FGL Sports Ltd.</eai:SbuName>
+        <eai:MessageSourceCode>CSS</eai:MessageSourceCode>
+        <eai:MessageSourceCodeName>Central Sales Server</eai:MessageSourceCodeName>
+      </eai:SourceSystem>
+    </eai:SourceSystems>
+    <eai:POSLog>
+      <arts:Count>1</arts:Count>
+      <arts:Transaction TypeCode="POSEOD">
+        <arts:BusinessUnit>
+          <arts:Index>1</arts:Index>
+          <arts:BusinessUnitNumber>155</arts:BusinessUnitNumber>
+          <arts:BusinessUnitTypeCode>RT</arts:BusinessUnitTypeCode>
+          <arts:BusinessUnitShortName>CM155</arts:BusinessUnitShortName>
+          <arts:BusinessUnitName>CMS DEERFOOT MEADOWS</arts:BusinessUnitName>
+        </arts:BusinessUnit>
+        <arts:WorkstationID>101</arts:WorkstationID>
+        <arts:SequenceNumber>2</arts:SequenceNumber>
+        <arts:BeginDateTime>2017-06-07T15:48:21</arts:BeginDateTime>
+        <arts:EndDateTime>2017-06-07T16:13:39</arts:EndDateTime>
+        <arts:OperatorID OperatorName="QA1 SSS" LastName="SSS" FirstName="QA1">000004031</arts:OperatorID>
+        <arts:ControlTransaction>
+          <arts:POSEOD>
+            <arts:SessionSettle>
+              <arts:PaymentsCollected>
+                <arts:Tender>
+                  <arts:TenderTotal TenderType="Cash" SubTenderType="CAD">49.50</arts:TenderTotal>
+                  <arts:Reason />
+                  <arts:ExpectedTenderTotal TenderType="Cash" SubTenderType="CAD">49.50</arts:ExpectedTenderTotal>
+                </arts:Tender>
+                <arts:Tender>
+                  <arts:TenderTotal TenderType="PennyRounding">-0.01</arts:TenderTotal>
+                  <arts:Reason />
+                  <arts:ExpectedTenderTotal TenderType="PennyRounding">-0.01</arts:ExpectedTenderTotal>
+                </arts:Tender>
+                <arts:Tender>
+                  <arts:TenderTotal TenderType="Coupon">150.00</arts:TenderTotal>
+                  <arts:Reason />
+                  <arts:ExpectedTenderTotal TenderType="Coupon">150.00</arts:ExpectedTenderTotal>
+                </arts:Tender>
+              </arts:PaymentsCollected>
+            </arts:SessionSettle>
+          </arts:POSEOD>
+        </arts:ControlTransaction>
+        <arts:TransactionSubtypeCode>ControlTransaction</arts:TransactionSubtypeCode>
+      </arts:Transaction>
+    </eai:POSLog>
+  </eai:Messages>
+</eai:Exchange>

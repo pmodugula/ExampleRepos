@@ -1,0 +1,473 @@
+BROKER SCHEMA trx.sales.etps
+/*
+* Authors: Rhett,Raju
+* Create Date: 14-01-2016
+* Version History:
+* Version 	ModuleName 			RevisionDate 	Revision Details
+* =======	================	============= 	========================================================================
+* 1.0 		_ArtsToCSSJSON 		14-Jan-16 		Inital Version of Arts to CSS Json
+* 1.25      _ArtsToETPS      	10-Jul-17		Enterprise Loyalty changes(Loyalty redemption) by Madanlal Tulsiram.
+*/
+-- Namespace Declaration
+DECLARE ns1  NAMESPACE 'http://www.marks.com/Retek';
+DECLARE eai  NAMESPACE 'http://www.fgl.com/exchange/';
+DECLARE arts NAMESPACE 'http://www.fgl.com/ARTS';
+DECLARE xsi  NAMESPACE 'http://www.w3.org/2001/XMLSchema-instance';
+
+CREATE COMPUTE MODULE _ArtsToETPS
+	CREATE FUNCTION Main() RETURNS BOOLEAN
+	BEGIN 
+		
+		--For logging entire message
+	 	DECLARE	refEnv REFERENCE TO Environment; 
+	 	-- Copying InputRoot to OutputRoot
+	 	DECLARE schemaName CHARACTER 'trx.sales.etps';
+	 	DECLARE moduleName CHARACTER '_ArtsToETPS';
+		SET Environment.Variables.Message = CAST(ASBITSTREAM( InputRoot.XMLNSC OPTIONS FolderBitStream) AS CHAR CCSID CAST(InputRoot.MQMD.CodedCharSetId AS INT) ENCODING CAST(InputRoot.MQMD.Encoding AS INT));
+		CALL core.log.InfoMessage(refEnv, schemaName || '.' || moduleName, Environment.Variables.Message); 
+	 
+		CALL CopyMessageHeaders();
+		-- Declare Reference Variable
+		DECLARE rInExch 		REFERENCE TO InputRoot.XMLNSC.eai:Exchange;
+		DECLARE rInPosLog		REFERENCE TO rInExch.eai:Messages.eai:POSLog;
+		DECLARE rInTrxDtls 		REFERENCE TO rInExch.eai:Messages.eai:POSLog.arts:Transaction;
+		DECLARE rInControlTrxn  REFERENCE TO rInTrxDtls.arts:ControlTransaction;
+		DECLARE rInRtlTrxn 		REFERENCE TO rInTrxDtls.arts:RetailTransaction;
+		DECLARE rLineItm 		REFERENCE TO rInRtlTrxn.arts:LineItem;
+		DECLARE rInTax 			REFERENCE TO rLineItm.arts:Tax;
+		DECLARE rInSale 		REFERENCE TO rLineItm.arts:Sale;
+	    DECLARE rInCust 		REFERENCE TO rInRtlTrxn.arts:Customer;
+		DECLARE rInMsgRtng 		REFERENCE TO rInExch.MessageRouting;
+		DECLARE rOut,rOutP,rTrxDtls,rCmpsits,rPayments,rPosLineItms,rPosLineItmsDtls,rRtnLineItms,rReductions,rCustInfo REFERENCE TO OutputRoot;
+		DECLARE rLineitems,rLineitems1,rTotals,rLineitemsReductions,rLineitemsDetails,rLineitemsReturnLineItms,rLineitemsPayments,rLineitemsSaleMarkdown,rLineitemsSaleTax,rLineitemsTax,rLineitemsMerHrchySale,rLineitemsMerHrchyReturn	REFERENCE TO InputRoot;
+		-- Declare Variables
+		DECLARE endDate CHARACTER;
+		DECLARE retailStoreId CHARACTER;
+		DECLARE workStationId CHARACTER;
+		DECLARE endDateTime,startDateTime TIMESTAMP;
+		
+		CREATE LASTCHILD OF OutputRoot AS rOut DOMAIN 'JSON';
+		
+		SET rOut.Data.msgType 				= 'transaction';
+		SET rOut.Data.transactionId			= rInTrxDtls.arts:TransactionID;
+		SET rOut.Data.transactionTypeCode	= 'SaleTransaction';
+		SET rOut.Data.majorVersion 			= 4;
+		SET rOut.Data.retailStoreId 		= rInTrxDtls.arts:RetailStoreID;
+		SET rOut.Data.workstationId 		= rInTrxDtls.arts:WorkstationID;
+		SET rOut.Data.sequenceNumber 		= rInTrxDtls.arts:SequenceNumber;
+		SET rOut.Data.beginDateTime 		= rInTrxDtls.arts:BeginDateTime;
+		SET rOut.Data.endDateTime	 		= rInTrxDtls.arts:EndDateTime;
+		SET rOut.Data.operatorId	 		= rInTrxDtls.arts:OperatorID;
+		--New IONS Mapping Change
+		SET rOut.Data.sourceSystem			= rInPosLog.arts:DataSource.arts:DataSourceCode;
+		--looping over lineitems
+		MOVE rLineitems TO rInRtlTrxn.arts:LineItem[1];
+		-- Creating Json Array elements
+		-- LoyaltyTransactionID mapping, Enteprise Loyalty program. mapping v1.25.
+		IF EXISTS(rInTrxDtls.arts:LoyaltyTransactionID[]) THEN
+			CREATE FIELD rOut.Data.retailTransaction.loyaltyCardRecord IDENTITY(JSON.Array)loyaltyCardRecord;					
+			SET rOut.Data.retailTransaction.loyaltyCardRecord.Item[1].loyaltyTransactionId = rInTrxDtls.arts:LoyaltyTransactionID;
+		END IF;
+	
+		CREATE FIELD rOut.Data.retailTransaction.productLineItems IDENTITY(JSON.Array)productLineItems;
+		DECLARE I INTEGER 1;
+		DECLARE L INTEGER 1;
+		DECLARE M INTEGER 1;
+		DECLARE N INTEGER 1;
+		DECLARE P INTEGER 1;
+		DECLARE T INTEGER 1;
+		WHILE LASTMOVE(rLineitems) DO
+			-- Checking for Sale/SaleOfGiftCard/Return/Tender Condition
+			-- eTPS currently only supports sale line items!
+			IF FIELDNAME(rLineitems.arts:Sale)='Sale' THEN
+				DECLARE qty INTEGER ROUND(CAST(rLineitems.arts:Sale.arts:Quantity AS DECIMAL), 0);
+				
+				SET rOut.Data.retailTransaction.productLineItems.Item[I].lineItemSeqNumber 			= rLineitems.arts:SequenceNumber;
+				SET rOut.Data.retailTransaction.productLineItems.Item[I].itemNumber					= rLineitems.arts:Sale.arts:ItemID; 
+    			SET rOut.Data.retailTransaction.productLineItems.Item[I].merchandiseHierarchyLevel	= rLineitems.arts:Sale.arts:MerchandiseHierarchy.(XMLNSC.Attribute)Level;
+    			SET rOut.Data.retailTransaction.productLineItems.Item[I].merchandiseHierarchyId		= rLineitems.arts:Sale.arts:MerchandiseHierarchy.(XMLNSC.Attribute)ID;
+    			SET rOut.Data.retailTransaction.productLineItems.Item[I].regularSalesUnitPrice		= CAST(rLineitems.arts:Sale.arts:RegularSalesUnitPrice AS DECIMAL);
+    			SET rOut.Data.retailTransaction.productLineItems.Item[I].actualSalesPrice			= CAST(rLineitems.arts:Sale.arts:ActualSalesUnitPrice AS DECIMAL);
+    			SET rOut.Data.retailTransaction.productLineItems.Item[I].basePrice					= CAST(rLineitems.arts:Sale.arts:ActualSalesUnitPrice AS DECIMAL);
+    			SET rOut.Data.retailTransaction.productLineItems.Item[I].proratedPrice				= CAST(rLineitems.arts:Sale.arts:ActualSalesUnitPrice AS DECIMAL);
+    			SET rOut.Data.retailTransaction.productLineItems.Item[I].discountAmount				= CAST(rLineitems.arts:Sale.arts:DiscountAmount AS DECIMAL);
+    			SET rOut.Data.retailTransaction.productLineItems.Item[I].quantity					= qty;
+    				-- Looping Over Multiple LineItem/Sale/RetailPriceModifiers
+    				IF EXISTS(rLineitems.arts:Sale.arts:RetailPriceModifier[]) THEN
+    				MOVE rLineitemsSaleMarkdown TO rLineitems.arts:Sale.arts:RetailPriceModifier[1];
+	    			CREATE FIELD rOut.Data.retailTransaction.productLineItems.Item[I].priceModifiers IDENTITY(JSON.Array)priceModifiers;
+	    			DECLARE K INTEGER 1;
+	    			
+	    			-- this logic only handles scenarios for transactions coming from qUniform or AX - any other type of markdown is not supported.
+	    			WHILE LASTMOVE(rLineitemsSaleMarkdown) DO
+	    				
+	    				-- this should only be ACCOUNT_DISCOUNT from AX - anything else and it's bad news for CSS
+	    				SET rOut.Data.retailTransaction.productLineItems.Item[I].priceModifiers.Item[K].reason.reasonCode 		= rLineitemsSaleMarkdown.arts:ReasonCode; 
+	    				-- hardcode the reasonUniqueId to 4 for CSS - this may be a problem if we get different markdowns
+	    				SET rOut.Data.retailTransaction.productLineItems.Item[I].priceModifiers.Item[K].reason.reasonUniqueId 	= 4;
+	    				
+	    				SET rOut.Data.retailTransaction.productLineItems.Item[I].priceModifiers.Item[K].amount 					= CAST(rLineitemsSaleMarkdown.arts:Amount AS DECIMAL);
+	    				SET rOut.Data.retailTransaction.productLineItems.Item[I].priceModifiers.Item[K].action 					= rLineitemsSaleMarkdown.arts:Amount.(XMLNSC.Attribute)Action;
+	    				    
+	    				-- only qUniform and AX supported - hardcode the priceDerivationRuleType based on the context (ie where it is coming from)			
+	    				IF rInTrxDtls.arts:WorkstationID = 62 THEN 
+	    					SET rOut.Data.retailTransaction.productLineItems.Item[I].priceModifiers.Item[K].priceDerivationRuleType = 'APPLIED_IMAGEWEAR_PROMOTION';
+	    				ELSEIF rInTrxDtls.arts:WorkstationID = 78 THEN 
+	    					SET rOut.Data.retailTransaction.productLineItems.Item[I].priceModifiers.Item[K].priceDerivationRuleType = 'PROMOTION'; -- all AX transactions should just have 
+	    				END IF;
+	    				
+	    				-- hardcode to DISCOUNT as per CSS requirements
+	    				SET rOut.Data.retailTransaction.productLineItems.Item[I].priceModifiers.Item[K].type 	= 'DISCOUNT';
+	     				SET rOut.Data.retailTransaction.productLineItems.Item[I].priceModifiers.Item[K].quantity = qty;
+	    				
+	    				MOVE rLineitemsSaleMarkdown NEXTSIBLING REPEAT TYPE NAME;
+						SET K=K+1;
+	    			END WHILE;
+	    			END IF;
+	    			-- Looping Over Multiple LineItem/Sale/Taxes
+	    		IF EXISTS(rLineitems.arts:Sale.arts:Tax[]) THEN
+	    			MOVE rLineitemsSaleTax TO rLineitems.arts:Sale.arts:Tax[1];
+	    			CREATE FIELD rOut.Data.retailTransaction.productLineItems.Item[I].taxes IDENTITY(JSON.Array)taxes;
+	    			DECLARE J INTEGER 1;
+	    			WHILE LASTMOVE(rLineitemsSaleTax) DO
+	    				SET rOut.Data.retailTransaction.productLineItems.Item[I].taxes.Item[J].type 				= rLineitemsSaleTax.(XMLNSC.Attribute)TaxType;
+	    				SET rOut.Data.retailTransaction.productLineItems.Item[I].taxes.Item[J].taxAmountPerItem 	= CAST(rLineitemsSaleTax.arts:Amount AS DECIMAL);
+	    			  --SET rOut.Data.retailTransaction.productLineItems.Item[I].taxes.Item[J].percent 	= rLineitemsSaleTax.arts:Percent;
+	    			  
+		    			-- line tax exemption
+		    			IF EXISTS(rLineitemsSaleTax.arts:TaxExemption[]) THEN
+		    					SET rOut.Data.retailTransaction.productLineItems.Item[I].taxes.Item[J].taxExemption.exemptTaxAmount = CAST(rLineitemsSaleTax.arts:TaxExemption.arts:ExemptTaxAmount AS DECIMAL);
+		    					SET rOut.Data.retailTransaction.productLineItems.Item[I].taxes.Item[J].taxExemption.exemptTaxableAmount = CAST(rLineitemsSaleTax.arts:TaxExemption.arts:ExemptTaxableAmount AS DECIMAL);
+		    					SET rOut.Data.retailTransaction.productLineItems.Item[I].taxes.Item[J].taxExemption.reason.reasonCode = rLineitemsSaleTax.arts:TaxExemption.arts:ReasonCode;
+		    					
+		    					DECLARE reasonUniqueId CHARACTER;
+    							CALL mapReasonCodeToReasonUniqueID(rLineitemsSaleTax.arts:TaxExemption.arts:ReasonCode) INTO reasonUniqueId;
+    						    SET rOut.Data.retailTransaction.productLineItems.Item[I].taxes.Item[J].taxExemption.reason.reasonUniqueId = reasonUniqueId;
+		    					
+		    					-- exemptionId is the only valid identifier on a line item tax exemption
+		    					SET rOut.Data.retailTransaction.productLineItems.Item[I].taxes.Item[J].taxExemption.customer.exemptionId = rLineitemsSaleTax.arts:TaxExemption.arts:CustomerExemptionID;
+		    			END IF;
+	    			  
+	    				MOVE rLineitemsSaleTax NEXTSIBLING REPEAT TYPE NAME;
+						SET J=J+1;
+							
+						
+	    			END WHILE;
+	    			
+	    			
+	    			
+	    		END IF;	
+	    		IF EXISTS(rLineitems.arts:Sale.arts:TransactionLink[]) THEN
+			    	SET rOut.Data.retailTransaction.productLineItems.Item[I].transactionLink.endDateTime		= rLineitems.arts:Sale.arts:TransactionLink.arts:EndDateTime;
+			    	SET rOut.Data.retailTransaction.productLineItems.Item[I].transactionLink.retailStoreId		= rLineitems.arts:Sale.arts:TransactionLink.arts:RetailStoreID;
+			    	SET rOut.Data.retailTransaction.productLineItems.Item[I].transactionLink.sequenceNumber		= rLineitems.arts:Sale.arts:TransactionLink.arts:SequenceNumber;
+			    	SET rOut.Data.retailTransaction.productLineItems.Item[I].transactionLink.workstationId		= rLineitems.arts:Sale.arts:TransactionLink.arts:WorkstationID;
+			    	SET rOut.Data.retailTransaction.productLineItems.Item[I].transactionLink.OperatorId			= rLineitems.arts:Sale.arts:TransactionLink.arts:OperatorID;	
+	    		END IF;	
+	    			ELSEIF FIELDNAME(rLineitems.arts:SaleOfGiftCard)=	'SaleOfGiftCard' THEN
+					SET rOut.Data.retailTransaction.productLineItems.Item[P].itemNumber		= rLineitems.arts:SaleOfGiftCard.arts:ItemID;
+					SET rOut.Data.retailTransaction.productLineItems.Item[P].cardNumber		= rLineitems.arts:SaleOfGiftCard.arts:CardNumber;
+					SET rOut.Data.retailTransaction.productLineItems.Item[P].initialBalance	= CAST(rLineitems.arts:SaleOfGiftCard.arts:InitialBalance AS DECIMAL);
+					SET rOut.Data.retailTransaction.transactionGrossAmount					= CAST(rLineitems.arts:SaleOfGiftCard.arts:InitialBalance AS DECIMAL);
+					SET P=P+1;
+			ELSEIF FIELDNAME(rLineitems.arts:Tax)='Tax' THEN
+				CREATE FIELD rOut.Data.retailTransaction.taxes IDENTITY(JSON.Array)taxes;
+				SET rOut.Data.retailTransaction.taxes.Item[M].type 		= rLineitems.arts:Tax.(XMLNSC.Attribute)TaxType;
+				SET rOut.Data.retailTransaction.taxes.Item[M].typeCode 	= rLineitems.arts:Tax.(XMLNSC.Attribute)TypeCode;
+	    		SET rOut.Data.retailTransaction.taxes.Item[M].amount 	= CAST(rLineitems.arts:Tax.arts:Amount AS DECIMAL);
+	    		
+	    		-- transaction tax exemption
+    			IF EXISTS(rLineitems.arts:Tax.arts:TaxExemption[]) THEN
+    					SET rOut.Data.retailTransaction.taxes.Item[M].taxExemption.exemptTaxAmount = CAST(rLineitems.arts:Tax.arts:TaxExemption.arts:ExemptTaxAmount AS DECIMAL);
+    					SET rOut.Data.retailTransaction.taxes.Item[M].taxExemption.exemptTaxableAmount = CAST(rLineitems.arts:Tax.arts:TaxExemption.arts:ExemptTaxableAmount AS DECIMAL);
+    					SET rOut.Data.retailTransaction.taxes.Item[M].taxExemption.customer.nativeBandNumber = rLineitems.arts:Tax.arts:TaxExemption.arts:NativeBandNumber;
+    					SET rOut.Data.retailTransaction.taxes.Item[M].taxExemption.customer.certificateNumber = rLineitems.arts:Tax.arts:TaxExemption.arts:CertificateNumber;
+    					SET rOut.Data.retailTransaction.taxes.Item[M].taxExemption.customer.exemptionId = rLineitems.arts:Tax.arts:TaxExemption.arts:CustomerExemptionID;
+    					SET rOut.Data.retailTransaction.taxes.Item[M].taxExemption.reason.reasonCode = rLineitems.arts:Tax.arts:TaxExemption.arts:ReasonCode;	
+    					
+    					DECLARE reasonUniqueId CHARACTER;
+    					CALL mapReasonCodeToReasonUniqueID(rLineitems.arts:Tax.arts:TaxExemption.arts:ReasonCode) INTO reasonUniqueId;
+    					SET rOut.Data.retailTransaction.taxes.Item[M].taxExemption.reason.reasonUniqueId = reasonUniqueId;
+    			END IF;
+	    		
+	    		
+	    		
+	    		
+	    		
+	    		
+	    		SET M=M+1;		
+	    	ELSEIF FIELDNAME(rLineitems.arts:Tender)='Tender' THEN
+				-- Declaring UUIDASCHAR value for UUID
+				DECLARE CreditDebitUUID CHARACTER UUIDASCHAR;
+				CREATE FIELD rOut.Data.retailTransaction.tenders IDENTITY(JSON.Array)tenders;
+				IF FIELDVALUE(rLineitems.arts:Tender.arts:Amount) <> '' THEN
+					SET rOut.Data.retailTransaction.tenders.Item[L].amount 		= CAST(rLineitems.arts:Tender.arts:Amount AS DECIMAL);
+				END IF;
+				-- set the foreign currency 
+				IF EXISTS(rLineitems.arts:Tender.arts:ForeignCurrency[])THEN
+					SET rOut.Data.retailTransaction.tenders.Item[L].originalCurrencyAmount = CAST(rLineitems.arts:Tender.arts:ForeignCurrency.arts:OriginalFaceAmount AS DECIMAL);
+					SET rOut.Data.retailTransaction.tenders.Item[L].originalCurrency 		= rLineitems.arts:Tender.arts:ForeignCurrency.arts:CurrencyCode;
+				END IF;			
+				-- set the subTenderType directly from the ARTS input (Added new logic for BA)
+				IF rLineitems.arts:Tender.(XMLNSC.Attribute)TenderType = 'BusinessAccount' THEN
+					SET rOut.Data.retailTransaction.tenders.Item[L].subTenderType 		= 'CAD';
+				-- Mapping v1.25. Enterprise Loyalty changes for Loyalty redemption.
+				ELSEIF rLineitems.arts:Tender.(XMLNSC.Attribute)TenderType = 'LoyaltyRedemption' THEN					
+					DECLARE rInLoyaltyRedemption REFERENCE TO rLineitems.arts:Tender.arts:LoyaltyRedemption; 
+					DECLARE rInLoyaltyCurrency REFERENCE TO rInLoyaltyRedemption.arts:LoyaltyCurrencies.arts:LoyaltyCurrency;					
+					SET rOut.Data.retailTransaction.tenders.Item[L].amount 	= rInLoyaltyCurrency.arts:MonetaryValueAmount.arts:Amount;					
+					SET rOut.Data.retailTransaction.tenders.Item[L].loyaltyCardNumber 	= rInLoyaltyRedemption.arts:LoyaltyCardNumber; 
+					SET rOut.Data.retailTransaction.tenders.Item[L].subTenderType 	= rInLoyaltyCurrency.arts:LoyaltyCurrencyTypeCode;
+				ELSE
+					SET rOut.Data.retailTransaction.tenders.Item[L].subTenderType 		= rLineitems.arts:Tender.(XMLNSC.Attribute)SubTenderType;
+				END IF;	
+				IF FIELDVALUE(rLineitems.arts:Tender.(XMLNSC.Attribute)TenderType)='CreditDebit' THEN
+		    		SET rOut.Data.retailTransaction.tenders.Item[L].successfulPedTransactionUuid	= CreditDebitUUID;
+		    	END IF;
+					SET rOut.Data.retailTransaction.tenders.Item[L].tenderType 		= rLineitems.arts:Tender.(XMLNSC.Attribute)TenderType;
+				IF FIELDVALUE(rLineitems.arts:Tender.arts:GiftCard.arts:CardNumber) <> '' THEN	
+		    		SET rOut.Data.retailTransaction.tenders.Item[L].giftCardNumber	= rLineitems.arts:Tender.arts:GiftCard.arts:CardNumber;
+				END IF;	
+				IF FIELDVALUE(rLineitems.arts:Tender.arts:CashbackAmount) <> '' THEN			    			
+	    			SET rOut.Data.retailTransaction.tenders.Item[L].change 			= CAST(rLineitems.arts:Tender.arts:CashbackAmount AS DECIMAL);
+				END IF;	
+				-- IONS New Change for the BA.
+				IF FIELDVALUE(rLineitems.arts:Tender.(XMLNSC.Attribute)TenderType)= 'BusinessAccount' THEN
+					SET rOut.Data.retailTransaction.tenders.Item[L].businessAccountNumber = rInCust.arts:AccountNumber;
+				END IF;	
+				-- Creating allPedTransactions of CreditDebit
+	    		IF FIELDVALUE(rLineitems.arts:Tender.(XMLNSC.Attribute)TenderType)='CreditDebit' THEN
+	    			CREATE FIELD rOut.Data.retailTransaction.allPedTransactions IDENTITY(JSON.Array)allPedTransactions;
+	    			-- Base64Encoding 
+	    			DECLARE PrimaryAcNo CHARACTER CAST(rLineitems.arts:Tender.arts:CreditDebit.arts:PrimaryAccountNumber AS CHARACTER);
+					DECLARE DecodedPriAcNo BLOB BASE64DECODE(PrimaryAcNo);
+		          	DECLARE DE_PrimaryAcNo CHARACTER CAST(DecodedPriAcNo AS CHARACTER CCSID 1208);
+		       --   DECLARE IN_PrimaryAcNo INTEGER CAST(DE_PrimaryAcNo AS INTEGER);
+		    		DECLARE expDate CHARACTER RIGHT(REPLACE(rLineitems.arts:Tender.arts:CreditDebit.arts:ExpirationDate,'-'),4);
+		    		IF FIELDVALUE(rLineitems.arts:Tender.arts:CreditDebit.arts:PrimaryAccountNumber) <> '' THEN
+		    			SET rOut.Data.retailTransaction.allPedTransactions.Item[N].accountNumber					= DE_PrimaryAcNo;
+		    		END IF;		    		
+		    		IF FIELDVALUE(rLineitems.arts:Tender.arts:Amount) <> '' THEN
+		    			SET rOut.Data.retailTransaction.allPedTransactions.Item[N].amount 							= CAST(rLineitems.arts:Tender.arts:Amount AS DECIMAL);
+		    		END IF;		    		
+		    		IF FIELDVALUE(rLineitems.arts:Tender.arts:Authorization.arts:AuthorizationCode) <> '' THEN
+		    			SET rOut.Data.retailTransaction.allPedTransactions.Item[N].approvalNumber					= rLineitems.arts:Tender.arts:Authorization.arts:AuthorizationCode;
+		    		END IF;		    		
+		    		IF FIELDVALUE(rLineitems.arts:Tender.(XMLNSC.Attribute)SubTenderType) <> '' THEN
+		    			SET rOut.Data.retailTransaction.allPedTransactions.Item[N].cardName 						= UCASE(rLineitems.arts:Tender.(XMLNSC.Attribute)SubTenderType);
+		    		END IF;		    		
+		    		SET rOut.Data.retailTransaction.allPedTransactions.Item[N].cashBackAmount					= 0;
+		    		IF FIELDVALUE(rLineitems.arts:Tender.(XMLNSC.Attribute)SubTenderType) <> '' THEN
+		    			SET rOut.Data.retailTransaction.allPedTransactions.Item[N].creditDebitCardType 				= rLineitems.arts:Tender.(XMLNSC.Attribute)SubTenderType;
+		    		END IF;		    		
+		    		IF FIELDVALUE(rLineitems.arts:Tender.arts:CreditDebit.arts:ExpirationDate) <> '' THEN
+		    			SET rOut.Data.retailTransaction.allPedTransactions.Item[N].expiryDate						= expDate;
+		    		END IF;		    		
+		    		IF FIELDVALUE(rLineitems.arts:Tender.arts:CreditDebit.arts:BankResponseSequenceNumber)<> '' THEN
+		    			SET rOut.Data.retailTransaction.allPedTransactions.Item[N].pedTransactionUid				= rLineitems.arts:Tender.arts:CreditDebit.arts:BankResponseSequenceNumber;
+		    		END IF;
+		    		IF FIELDVALUE(rInTrxDtls.arts:RetailStoreID) <> '' THEN
+		    			SET rOut.Data.retailTransaction.allPedTransactions.Item[N].storeCode						= rInTrxDtls.arts:RetailStoreID;
+		    		END IF;		    		
+		    		IF FIELDVALUE(rInTrxDtls.arts:PinpadNumber) <> '' THEN
+		    			SET rOut.Data.retailTransaction.allPedTransactions.Item[N].pedNumber						= rInTrxDtls.arts:PinpadNumber;
+		    		END IF;
+		    		SET rOut.Data.retailTransaction.allPedTransactions.Item[N].uuid								= CreditDebitUUID;
+		    		SET rOut.Data.retailTransaction.allPedTransactions.Item[N].pedTransactionStatus				= 'APPROVED';
+		    		SET N=N+1;
+		    	END IF;
+		    	SET L=L+1;
+		    	-- creating Tender Items for Rounding    			
+	    		ELSEIF FIELDNAME(rLineitems.arts:Rounding)='Rounding' THEN
+		    		CREATE FIELD rOut.Data.retailTransaction.tenders IDENTITY(JSON.Array)tenders;	
+		    	--	DECLARE Q INTEGER 1;
+		    		IF CAST(FIELDVALUE(rLineitems.arts:Rounding.arts:RoundingAmount) AS DECIMAL)>0 THEN
+		    			DECLARE RAmount DECIMAL CAST(rLineitems.arts:Rounding.arts:RoundingAmount AS DECIMAL);
+		    			SET rOut.Data.retailTransaction.tenders.Item[L].tenderType = 'Rounding';
+		    			SET rOut.Data.retailTransaction.tenders.Item[L].subTenderType = 'CAD';		    				
+		    			IF rLineitems.arts:Rounding.(XMLNSC.Attribute)Action = 'Add' THEN
+		    				SET rOut.Data.retailTransaction.tenders.Item[L].amount =  RAmount*-1;
+		    			ELSEIF rLineitems.arts:Rounding.(XMLNSC.Attribute)Action = 'Subtract' THEN
+		    				SET rOut.Data.retailTransaction.tenders.Item[L].amount =  CAST(rLineitems.arts:Rounding.arts:RoundingAmount AS DECIMAL);
+		    			END IF;	
+		    			SET L=L+1;
+	    			END IF;
+	    			    	 		
+	    	END IF;
+			MOVE rLineitems NEXTSIBLING REPEAT TYPE NAME;
+			SET I=I+1;
+		END WHILE;
+				
+		-- Customer Information for any Imagewear transaction or Quniform/IONS
+			IF EXISTS(rInRtlTrxn.arts:Customer[]) THEN
+				
+				-- assume any customer information is for an Imagewear/IONS scenario, not a return
+				SET rOut.Data.retailTransaction.customerInformation.businessCustomerFlag = 'true'; 
+				
+				-- if first name or last name is not passed in (it may not be set from AX then DO NOT create the JSON element at all
+				IF FIELDVALUE(rInRtlTrxn.arts:Customer.arts:Worker.arts:Name.arts:Name[1]) <> '' THEN
+					SET rOut.Data.retailTransaction.customerInformation.firstName = FIELDVALUE(rInRtlTrxn.arts:Customer.arts:Worker.arts:Name.arts:Name[1]);
+				END IF;
+				
+				IF FIELDVALUE(rInRtlTrxn.arts:Customer.arts:Worker.arts:Name.arts:Name[2]) <> '' THEN
+					SET rOut.Data.retailTransaction.customerInformation.lastName  = FIELDVALUE(rInRtlTrxn.arts:Customer.arts:Worker.arts:Name.arts:Name[2]);
+				END IF;
+				
+				-- IONS
+				SET rOut.Data.retailTransaction.customerInformation.imagewearEmployeeNumber = rInRtlTrxn.arts:Customer.arts:Worker.arts:WorkerID;
+				
+			END IF;	
+				
+		-- Only populate when it is IONS Order (62) or Imagewear/AX Transaction (78) and there is customer information
+			IF (EXISTS(rInRtlTrxn.arts:Customer[]) AND rInTrxDtls.arts:WorkstationID IN ('62','78')) THEN
+				
+				-- this needs to be set based on it being IONS or Imagewear (AX)
+				IF rInTrxDtls.arts:WorkstationID = '78' THEN
+					SET rOut.Data.retailTransaction.imagewearTransaction.type='NON_IONS';
+				ELSEIF rInTrxDtls.arts:WorkstationID = '62' THEN
+					SET rOut.Data.retailTransaction.imagewearTransaction.type='IONS';
+				END IF;
+				
+				
+			 	SET rOut.Data.retailTransaction.imagewearTransaction.customerAccount.number = rInCust.arts:AccountNumber;
+			 	
+			 	--TODO where is the customerAccount.name??
+			 	
+			 	-- AX customer address -> imagewearTransaction.customerAccount
+				IF FIELDVALUE(rInCust.arts:Address.arts:AddressLine[1])<> '' THEN
+					SET rOut.Data.retailTransaction.imagewearTransaction.customerAccount.addressLine1 = rInCust.arts:Address.arts:AddressLine[1];
+				END IF;
+				
+				IF FIELDVALUE(rInCust.arts:Address.arts:AddressLine[2])<> '' THEN
+					SET rOut.Data.retailTransaction.imagewearTransaction.customerAccount.addressLine2 = rInCust.arts:Address.arts:AddressLine[2];
+				END IF;
+				
+				IF FIELDVALUE(rInCust.arts:Address.arts:City)<> '' THEN
+					SET rOut.Data.retailTransaction.imagewearTransaction.customerAccount.city = rInCust.arts:Address.arts:City;
+				END IF;
+				
+				IF FIELDVALUE(rInCust.arts:Address.arts:State)<> '' THEN
+					SET rOut.Data.retailTransaction.imagewearTransaction.customerAccount.provinceState = rInCust.arts:Address.arts:State;
+					SET rOut.Data.retailTransaction.imagewearTransaction.taxAreaCode = rInCust.arts:Address.arts:State;
+				END IF;
+				
+				IF FIELDVALUE(rInCust.arts:Address.arts:PostalCode)<> '' THEN
+					SET rOut.Data.retailTransaction.imagewearTransaction.customerAccount.postalCode = rInCust.arts:Address.arts:PostalCode;
+				END IF;
+			 	
+			 	IF FIELDVALUE(rInCust.arts:Note)<> '' THEN
+			 		SET rOut.Data.retailTransaction.imagewearTransaction.poVoucherNumber = COALESCE(CAST(rInCust.arts:Note AS CHARACTER),'');
+			 	END IF;
+			 				 		
+			END IF;	
+			
+			
+			
+			MOVE rTotals TO rInRtlTrxn.arts:Total[1];
+			-- Lopoing over Totals
+			WHILE LASTMOVE(rTotals) DO
+					-- Checking TotalType in RetailTransaction
+				IF rTotals.(XMLNSC.Attribute)TotalType = 'TransactionGrossAmount' THEN
+					SET rOut.Data.retailTransaction.transactionGrossAmount 		= CAST(rTotals AS DECIMAL);	
+				ELSEIF rTotals.(XMLNSC.Attribute)TotalType = 'TransactionSubtotal' THEN
+					SET rOut.Data.retailTransaction.transactionSubtotal  		= CAST(rTotals AS DECIMAL); 
+				ELSEIF rTotals.(XMLNSC.Attribute)TotalType = 'TransactionDiscountTotal' THEN
+					SET rOut.Data.retailTransaction.transactionDiscountTotal	= CAST(rTotals AS DECIMAL);
+				END IF;	
+				MOVE rTotals NEXTSIBLING REPEAT TYPE NAME;
+			END WHILE;
+			IF EXISTS (rInRtlTrxn.arts:Associate[]) THEN
+				SET rOut.Data.retailTransaction.associateId = rInRtlTrxn.arts:Associate.arts:AssociateID;
+			END IF;
+			-- New mapping changesto check the IONS and FF Order
+			IF rInTrxDtls.arts:WorkstationID = '61' THEN
+				SET rOut.Data.retailTransaction.sourceSystem = 'FF';
+			ELSEIF rInTrxDtls.arts:WorkstationID = '62' THEN
+				SET rOut.Data.retailTransaction.sourceSystem = 'IONS';
+			END IF;	
+			
+			--	CALL core.log.LogMessage('TRACE', message);
+			DECLARE	rEnv REFERENCE TO Environment; 
+		 	SET Environment.Variables.Message = CAST(ASBITSTREAM( rOut.Data OPTIONS FolderBitStream) AS CHAR CCSID CAST(InputRoot.MQMD.CodedCharSetId AS INT) ENCODING CAST(InputRoot.MQMD.Encoding AS INT));
+		--	CALL core.log.Debug('ID#'||Environment.__MsgIdForLog4J__||' CID#'||Environment.__CorrelIdForLog4J__||' [_FLOW - Message] Body='||Environment.__OriginalBody__);
+			CALL core.log.InfoMessage(rEnv, schemaName || '.' || moduleName, Environment.Variables.Message);
+			
+			
+			
+		RETURN TRUE;
+		END;
+		
+		CREATE PROCEDURE CopyMessageHeaders() BEGIN
+		DECLARE I INTEGER 1;
+		DECLARE J INTEGER;
+		SET J = CARDINALITY(InputRoot.*[]);
+		WHILE I < J DO
+			SET OutputRoot.*[I] = InputRoot.*[I];
+			SET I = I + 1;
+		END WHILE;
+		END;
+		
+	-- set the reasonUniqueId to be an arbitrary set value between 250-300 for CSS- this should force a new entry in CSS REASON table and give us the ARTS XML we want out
+	CREATE PROCEDURE mapReasonCodeToReasonUniqueID(IN reasonCode CHARACTER) returns CHARACTER
+
+	BEGIN
+		
+	DECLARE reasonUniqueID CHARACTER;
+	
+		IF (reasonCode='TE01') THEN
+			SET reasonUniqueID='250';
+		ELSEIF (reasonCode='TE04') THEN
+			SET reasonUniqueID='251';
+		ELSEIF (reasonCode='TE07') THEN
+			SET reasonUniqueID='252';
+		ELSEIF (reasonCode='TE08') THEN
+			SET reasonUniqueID='253';
+		ELSEIF (reasonCode='TE09') THEN
+			SET reasonUniqueID='254'; 
+		ELSEIF (reasonCode='TE010') THEN
+			SET reasonUniqueID='255';
+		ELSEIF (reasonCode='TE011') THEN
+			SET reasonUniqueID='256';
+		ELSEIF (reasonCode='IE06') THEN
+			SET reasonUniqueID='257';
+		ELSEIF (reasonCode='IE07') THEN
+			SET reasonUniqueID='258';
+		ELSEIF (reasonCode='IE08') THEN
+			SET reasonUniqueID='259';
+		ELSE
+			SET reasonUniqueID='260';
+		END IF;
+		
+		RETURN reasonUniqueID;
+		
+	END;
+			
+END MODULE;
+
+
+
+
+
+
+CREATE COMPUTE MODULE _ArtsToETPS
+	CREATE FUNCTION Main() RETURNS BOOLEAN
+	BEGIN
+		-- CALL CopyMessageHeaders();
+		-- CALL CopyEntireMessage();
+		RETURN TRUE;
+	END;
+
+	CREATE PROCEDURE CopyMessageHeaders() BEGIN
+		DECLARE I INTEGER 1;
+		DECLARE J INTEGER;
+		SET J = CARDINALITY(InputRoot.*[]);
+		WHILE I < J DO
+			SET OutputRoot.*[I] = InputRoot.*[I];
+			SET I = I + 1;
+		END WHILE;
+	END;
+
+	CREATE PROCEDURE CopyEntireMessage() BEGIN
+		SET OutputRoot = InputRoot;
+	END;
+END MODULE;

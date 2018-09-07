@@ -1,0 +1,111 @@
+{
+  "msgType": "transaction",
+  "transactionId": "5527820161219100005",
+  "transactionTypeCode": "SaleTransaction",
+  "majorVersion": 4,
+  "retailStoreId": "0552",
+  "workstationId": "78",
+  "sequenceNumber": "100005",
+  "beginDateTime": "2016-12-28T17:33:56.631-07:00",
+  "endDateTime": "2016-12-28T17:33:56.631-07:00",
+  "operatorId": "0",
+  "sourceSystem": "MC",
+  "retailTransaction": {
+    "productLineItems": [
+      {
+        "lineItemSeqNumber": "1",
+        "itemNumber": "410010644383",
+        "merchandiseHierarchyLevel": "4",
+        "merchandiseHierarchyId": "6C",
+        "regularSalesUnitPrice": 24.99,
+        "actualSalesPrice": 0,
+        "basePrice": 0,
+        "proratedPrice": 0,
+        "discountAmount": 0,
+        "quantity": 5,
+        "priceModifiers": [
+          {
+            "reason": {
+              "reasonCode": "ACCOUNT_DISCOUNT",
+              "reasonUniqueId": 4
+            },
+            "amount": 0,
+            "action": "Subtract",
+            "priceDerivationRuleType": "PROMOTION",
+            "type": "DISCOUNT",
+            "quantity": 5
+          }
+        ],
+        "taxes": [
+          {
+            "type": "GST",
+            "taxAmountPerItem": 6.25000000000000000000
+          },
+          {
+            "type": "QST",
+            "taxAmountPerItem": 12.46000000000000000000
+          }
+        ]
+      }
+    ],
+    "taxes": [
+      {
+        "type": "GST",
+        "typeCode": "Sale",
+        "amount": 6.25000000000000000000
+      },
+      {
+        "type": "QST",
+        "typeCode": "Sale",
+        "amount": 12.46000000000000000000
+      }
+    ],
+    "tenders": [
+      {
+        "amount": 71.83,
+        "subTenderType": "CAD",
+        "tenderType": "CustomerAccount"
+      },
+      {
+        "amount": 71.83,
+        "subTenderType": "MasterCard",
+        "successfulPedTransactionUuid": "12345",
+        "tenderType": "CreditDebit"
+      }
+    ],
+    "allPedTransactions": [
+      {
+        "accountNumber": "519123******0373",
+        "amount": 71.83,
+        "approvalNumber": "843424",
+        "cardName": "MASTERCARD",
+        "cashBackAmount": 0,
+        "creditDebitCardType": "MasterCard",
+        "expiryDate": "2003",
+        "storeCode": "0552",
+        "uuid": "12345",
+        "pedTransactionStatus": "APPROVED"
+      }
+    ],
+    "customerInformation": {
+      "businessCustomerFlag": "true",
+      "firstName": "Madanlal",
+      "lastName": "Tulsiram",
+      "imagewearEmployeeNumber":"10"
+    },
+    "imagewearTransaction": {
+      "type": "NON_IONS",
+      "customerAccount": {
+        "number": "00208888",
+        "addressLine1": "5 PLACE-VILL-MARIE BUREAU 1700",
+        "addressLine2": "ATTN:ACCOUNTS PAYABLE",
+        "city": "MONTREAL",
+        "provinceState": "QC",
+        "postalCode": "H3B 0B3"
+      },
+      "taxAreaCode": "QC",
+      "poVoucherNumber": "PO5557777"
+    },
+    "transactionGrossAmount": 124.95000000000000000000
+  }
+}

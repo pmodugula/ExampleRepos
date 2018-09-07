@@ -1,0 +1,104 @@
+<eai:Exchange MinorVersion="0" MajorVersion="2" FixVersion="0" xmlns:eai="http://www.fgl.com/exchange/" xmlns:arts="http://www.fgl.com/ARTS">
+   <eai:MessageRouting>
+      <eai:Guid>0A2384AE72EB46E995CA3A58A2E9FA99</eai:Guid>
+      <eai:MessageId/>
+      <eai:MessageType>PointToPoint</eai:MessageType>
+      <eai:SubjectArea>Normal Retail Sales Transactions</eai:SubjectArea>
+      <eai:SbuNumber>3</eai:SbuNumber>
+      <eai:SbuCode>FGL</eai:SbuCode>
+      <eai:SbuName>FGL Sports Ltd.</eai:SbuName>
+      <eai:DataSourceCode>POE</eai:DataSourceCode>
+      <eai:DataSourceCodeName>POE POS FGL</eai:DataSourceCodeName>
+      <eai:MessageIndex>1</eai:MessageIndex>
+      <eai:MessageCount>1</eai:MessageCount>
+      <eai:SubjectAreaRunName>salestransactions-371-20160930-124400</eai:SubjectAreaRunName>
+   </eai:MessageRouting>
+   <eai:Messages>
+      <eai:Count>1</eai:Count>
+      <eai:SourceSystems>
+         <eai:Count>1</eai:Count>
+         <eai:SourceSystem>
+            <eai:Index>1</eai:Index>
+            <eai:SbuNumber>3</eai:SbuNumber>
+            <eai:SbuCode>FGL</eai:SbuCode>
+            <eai:SbuName>FGL Sports Ltd.</eai:SbuName>
+            <eai:MessageSourceCode>CSS</eai:MessageSourceCode>
+            <eai:MessageSourceCodeName>Central Sales Server</eai:MessageSourceCodeName>
+         </eai:SourceSystem>
+      </eai:SourceSystems>
+      <eai:POSLog>
+         <arts:Count>1</arts:Count>
+         <arts:Transaction TypeCode="SaleTransaction">
+            <arts:BusinessUnit>
+               <arts:Index>1</arts:Index>
+               <arts:BusinessUnitNumber>373</arts:BusinessUnitNumber>
+               <arts:BusinessUnitTypeCode>RT</arts:BusinessUnitTypeCode>
+               <arts:BusinessUnitShortName>SC VILLAGE SHOPPING CENTRE</arts:BusinessUnitShortName>
+               <arts:BusinessUnitName>SC371</arts:BusinessUnitName>
+            </arts:BusinessUnit>
+            <arts:WorkstationID>3</arts:WorkstationID>
+            <arts:SequenceNumber>000015</arts:SequenceNumber>
+            <arts:BeginDateTime>2016-09-30T12:43:09+03:00</arts:BeginDateTime>
+            <arts:EndDateTime>2016-09-30T12:43:16+03:00</arts:EndDateTime>
+            <arts:OperatorID OperatorName="ikurganova Cashier" LastName="Cashier" FirstName="ikurganova">000002446</arts:OperatorID>
+            <arts:RetailTransaction>
+               <arts:LineItemCount>3</arts:LineItemCount>
+               <arts:CustomerCount>0</arts:CustomerCount>
+               <arts:AssociateCount>0</arts:AssociateCount>
+               <arts:LineItem VoidFlag="false">
+                  <arts:Index>1</arts:Index>
+                  <arts:SequenceNumber>2</arts:SequenceNumber>
+                  <arts:Sale TaxableFlag="true" ItemType="Stock">
+                     <arts:TaxCount>1</arts:TaxCount>
+                     <arts:RetailPriceModifierCount>0</arts:RetailPriceModifierCount>
+                     <arts:Item>
+                        <arts:ItemNumber>330765439</arts:ItemNumber>
+                        <arts:ItemName>TM R9 DEMO DRIVER-NBG 92 07</arts:ItemName>
+                        <arts:UPCNumber>440004585286</arts:UPCNumber>
+                     </arts:Item>
+                     <arts:MerchandiseHierarchy Level="4" ID="9232"/>
+                     <arts:RegularSalesUnitPrice>199.00</arts:RegularSalesUnitPrice>
+                     <arts:ActualSalesUnitPrice>199.00</arts:ActualSalesUnitPrice>
+                     <arts:DiscountAmount>0.00</arts:DiscountAmount>
+                     <arts:Quantity>1</arts:Quantity>
+                     <arts:Tax TypeCode="Sale" TaxType="NFHST" SourceSystemTaxExemptionFlag="false">
+                        <arts:Index>1</arts:Index>
+                        <arts:Amount>29.85</arts:Amount>
+                        <arts:Percent>15.00</arts:Percent>
+                     </arts:Tax>
+                     <arts:SerialNumber/>
+                  </arts:Sale>
+               </arts:LineItem>
+               <arts:LineItem>
+                  <arts:Index>2</arts:Index>
+                  <arts:SequenceNumber>3</arts:SequenceNumber>
+                  <arts:Tax TypeCode="Sale" TaxType="NFHST">
+                     <arts:Index>1</arts:Index>
+                     <arts:Amount>29.85</arts:Amount>
+                     <arts:Percent>15.00</arts:Percent>
+                  </arts:Tax>
+               </arts:LineItem>
+               <arts:LineItem>
+                  <arts:Index>3</arts:Index>
+                  <arts:SequenceNumber>4</arts:SequenceNumber>
+                  <arts:Tender TypeCode="Sale" TenderType="Cash" SubTenderType="CAD">
+                     <arts:Amount>228.85</arts:Amount>
+                  </arts:Tender>
+               </arts:LineItem>
+               <arts:Total TotalType="TransactionGrossAmount">228.85</arts:Total>
+               <arts:Total TotalType="TransactionSubtotal">199.00</arts:Total>
+               <arts:LoyaltyAccount>
+                  <arts:LineItemSequenceNumber>1</arts:LineItemSequenceNumber>
+                  <arts:LoyaltyProgram>
+                     <arts:LoyaltyAccountID>6046461234567890</arts:LoyaltyAccountID>
+                     <arts:LoyaltyPointsDetail>
+                        <arts:PointsEarned>199</arts:PointsEarned>
+                     </arts:LoyaltyPointsDetail>
+                  </arts:LoyaltyProgram>
+               </arts:LoyaltyAccount>
+            </arts:RetailTransaction>
+            <arts:TransactionSubtypeCode>RetailTransaction</arts:TransactionSubtypeCode>
+         </arts:Transaction>
+      </eai:POSLog>
+   </eai:Messages>
+</eai:Exchange>

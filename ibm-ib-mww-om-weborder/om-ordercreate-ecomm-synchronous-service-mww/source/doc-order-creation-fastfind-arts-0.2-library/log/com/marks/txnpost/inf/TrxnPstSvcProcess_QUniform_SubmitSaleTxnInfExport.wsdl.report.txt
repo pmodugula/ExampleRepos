@@ -1,0 +1,25 @@
+
+
+Importing file: D:\POS-Upgrade-Project\XSD\TPS\New\TrxnPstSvcProcess_QUniform_SubmitSaleTxnInfExport.wsdl
+
+Copying source WSDL TrxnPstSvcProcess_QUniform_SubmitSaleTxnInfExport.wsdl to TrxnPstSvcProcess_QUniform_SubmitSaleTxnInfExport.wsdl.
+The WSDL import will proceed with bindings SubmitSaleTxnInfExport_SubmitSaleTxnInfHttpBinding.
+Creating wsdl schema document for file:///D:/POS-Upgrade-Project/XSD/TPS/New/TrxnPstSvcProcess_QUniform_SubmitSaleTxnInfExport.wsdl.
+Parsing wsdl binding {http://com/marks/TxnPost/inf}SubmitSaleTxnInfExport_SubmitSaleTxnInfHttpBinding.
+Parsing wsdl binding input submitTxn.
+Parsing wsdl binding output submitTxn.
+Parsing wsdl binding fault error.
+Processing doc style for operation submitTxn.
+Populating WSDL schema TrxnPstSvcProcess_QUniform_SubmitSaleTxnInfExport.xsd.
+Creating file TrxnPstSvcProcess_QUniform_SubmitSaleTxnInfExport.xsd in the workspace.
+Creating file TrxnPstSvcProcess_QUniform_SubmitSaleTxnInfExport_InlineSchema1.xsd in the workspace.
+Creating file TrxnPstSvcProcess_QUniform_SubmitSaleTxnInfExport_InlineSchema2.xsd in the workspace.
+Creating file /doc-order-creation-fastfind-arts-0.2-library/TrxnPstSvcProcess_QUniform_SubmitSaleTxnInfExport_InlineSchema3.xsd in the workspace.
+
+Elapsed time processing this message definition file: 1.381 seconds
+Number of warnings for this message definition file: 0
+
+
+Number of files processed: 1
+
+

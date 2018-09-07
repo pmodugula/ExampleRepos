@@ -1,0 +1,128 @@
+<eai:Exchange MinorVersion="0" MajorVersion="2" FixVersion="0" xmlns:eai="http://www.fgl.com/exchange/" xmlns:arts="http://www.fgl.com/ARTS">
+   <eai:MessageRouting>
+      <eai:Guid>93E6354A728F40678E1BC8217CFCE81D</eai:Guid>
+      <eai:MessageId/>
+      <eai:MessageType>PointToPoint</eai:MessageType>
+      <eai:SubjectArea>Normal Retail Sales Transactions</eai:SubjectArea>
+      <eai:SbuNumber>3</eai:SbuNumber>
+      <eai:SbuCode>FGL</eai:SbuCode>
+      <eai:SbuName>FGL Sports Ltd.</eai:SbuName>
+      <eai:DataSourceCode>POE</eai:DataSourceCode>
+      <eai:DataSourceCodeName>POE POS FGL</eai:DataSourceCodeName>
+      <eai:MessageIndex>1</eai:MessageIndex>
+      <eai:MessageCount>1</eai:MessageCount>
+      <eai:SubjectAreaRunName>salestransactions-380-20161006-040000</eai:SubjectAreaRunName>
+   </eai:MessageRouting>
+   <eai:Messages>
+      <eai:Count>1</eai:Count>
+      <eai:SourceSystems>
+         <eai:Count>1</eai:Count>
+         <eai:SourceSystem>
+            <eai:Index>1</eai:Index>
+            <eai:SbuNumber>3</eai:SbuNumber>
+            <eai:SbuCode>FGL</eai:SbuCode>
+            <eai:SbuName>FGL Sports Ltd.</eai:SbuName>
+            <eai:MessageSourceCode>CSS</eai:MessageSourceCode>
+            <eai:MessageSourceCodeName>Central Sales Server</eai:MessageSourceCodeName>
+         </eai:SourceSystem>
+      </eai:SourceSystems>
+      <eai:POSLog>
+         <arts:Count>1</arts:Count>
+         <arts:Transaction TypeCode="SaleTransaction">
+            <arts:BusinessUnit>
+               <arts:Index>1</arts:Index>
+               <arts:BusinessUnitNumber>380</arts:BusinessUnitNumber>
+               <arts:BusinessUnitTypeCode>RT</arts:BusinessUnitTypeCode>
+               <arts:BusinessUnitShortName>SC CHARLOTTETOWN</arts:BusinessUnitShortName>
+               <arts:BusinessUnitName>SC380</arts:BusinessUnitName>
+            </arts:BusinessUnit>
+            <arts:WorkstationID>1</arts:WorkstationID>
+            <arts:SequenceNumber>000046</arts:SequenceNumber>
+            <arts:BeginDateTime>2016-10-06T03:59:10-06:00</arts:BeginDateTime>
+            <arts:EndDateTime>2016-10-06T03:59:55-06:00</arts:EndDateTime>
+            <arts:OperatorID OperatorName="nkirichenko Cashier" LastName="Cashier" FirstName="nkirichenko">000002746</arts:OperatorID>
+            <arts:RetailTransaction>
+               <arts:LineItemCount>4</arts:LineItemCount>
+               <arts:CustomerCount>1</arts:CustomerCount>
+               <arts:AssociateCount>0</arts:AssociateCount>
+               <arts:LineItem VoidFlag="false">
+                  <arts:Index>1</arts:Index>
+                  <arts:SequenceNumber>1</arts:SequenceNumber>
+                  <arts:Sale TaxableFlag="true" ItemType="Stock">
+                     <arts:TaxCount>2</arts:TaxCount>
+                     <arts:RetailPriceModifierCount>0</arts:RetailPriceModifierCount>
+                     <arts:Item>
+                        <arts:ItemNumber>331515802</arts:ItemNumber>
+                        <arts:ItemName>SCOTT 250 RACE 99 05</arts:ItemName>
+                        <arts:UPCNumber>886118245133</arts:UPCNumber>
+                     </arts:Item>
+                     <arts:MerchandiseHierarchy Level="4" ID="3810"/>
+                     <arts:RegularSalesUnitPrice>139.00</arts:RegularSalesUnitPrice>
+                     <arts:ActualSalesUnitPrice>139.00</arts:ActualSalesUnitPrice>
+                     <arts:DiscountAmount>0.00</arts:DiscountAmount>
+                     <arts:Quantity>1</arts:Quantity>
+                     <arts:Tax TypeCode="Sale" TaxType="PEHSTF" SourceSystemTaxExemptionFlag="false">
+                        <arts:Index>1</arts:Index>
+                        <arts:Amount>6.95</arts:Amount>
+                        <arts:Percent>5</arts:Percent>
+                     </arts:Tax>
+                     <arts:Tax TypeCode="Sale" TaxType="PEHSTP" SourceSystemTaxExemptionFlag="false">
+                        <arts:Index>2</arts:Index>
+                        <arts:Amount>0.00</arts:Amount>
+                        <arts:Percent>10</arts:Percent>
+                        <arts:TaxExemption>
+                           <arts:CustomerExemptionID>Detail Federal</arts:CustomerExemptionID>
+                           <arts:ExemptTaxableAmount>139.00</arts:ExemptTaxableAmount>
+                           <arts:ExemptTaxAmount>13.90</arts:ExemptTaxAmount>
+                           <arts:ReasonCode>IE06</arts:ReasonCode>
+                           <arts:ReasonDescriptionText>Other - Exempt Fed Tax</arts:ReasonDescriptionText>
+                        </arts:TaxExemption>
+                     </arts:Tax>
+                  </arts:Sale>
+                  <arts:LineItemSubtypeCode>Sale</arts:LineItemSubtypeCode>
+               </arts:LineItem>
+               <arts:LineItem>
+                  <arts:Index>2</arts:Index>
+                  <arts:SequenceNumber>2</arts:SequenceNumber>
+                  <arts:Tax TypeCode="Sale" TaxType="PEHSTF">
+                     <arts:Index>1</arts:Index>
+                     <arts:Amount>6.95</arts:Amount>
+                     <arts:Percent>5</arts:Percent>
+                  </arts:Tax>
+                  <arts:LineItemSubtypeCode>Tax</arts:LineItemSubtypeCode>
+               </arts:LineItem>
+               <arts:LineItem>
+                  <arts:Index>3</arts:Index>
+                  <arts:SequenceNumber>3</arts:SequenceNumber>
+                  <arts:Tax TypeCode="Sale" TaxType="PEHSTP">
+                     <arts:Index>1</arts:Index>
+                     <arts:Amount>0.00</arts:Amount>
+                     <arts:Percent>10</arts:Percent>
+                  </arts:Tax>
+                  <arts:LineItemSubtypeCode>Tax</arts:LineItemSubtypeCode>
+               </arts:LineItem>
+               <arts:LineItem>
+                  <arts:Index>4</arts:Index>
+                  <arts:SequenceNumber>4</arts:SequenceNumber>
+                  <arts:Tender TypeCode="Sale" TenderType="Cash" SubTenderType="CAD">
+                     <arts:Amount>145.95</arts:Amount>
+                  </arts:Tender>
+                  <arts:LineItemSubtypeCode>Tender</arts:LineItemSubtypeCode>
+               </arts:LineItem>
+               <arts:Total TotalType="TransactionGrossAmount">145.95</arts:Total>
+               <arts:Total TotalType="TransactionSubtotal">139.00</arts:Total>
+               <arts:Customer>
+                  <arts:Index>1</arts:Index>
+                  <arts:AddressCount>1</arts:AddressCount>
+                  <arts:TelephoneCount>0</arts:TelephoneCount>
+                  <arts:Address>
+                     <arts:Index>1</arts:Index>
+                     <arts:PostalCode>F4S 5S5</arts:PostalCode>
+                  </arts:Address>
+               </arts:Customer>
+            </arts:RetailTransaction>
+            <arts:TransactionSubtypeCode>RetailTransaction</arts:TransactionSubtypeCode>
+         </arts:Transaction>
+      </eai:POSLog>
+   </eai:Messages>
+</eai:Exchange>

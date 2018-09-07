@@ -1,0 +1,119 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ecore:EPackage xmi:version="2.0"
+    xmlns:xmi="http://www.omg.org/XMI" xmlns:ComIbmCompute.msgnode="ComIbmCompute.msgnode" xmlns:ComIbmFileInput.msgnode="ComIbmFileInput.msgnode" xmlns:ComIbmMQOutput.msgnode="ComIbmMQOutput.msgnode" xmlns:core_message__postprocessor.subflow="core/message/_postprocessor.subflow" xmlns:core_message__preprocessor.subflow="core/message/_preprocessor.subflow" xmlns:ecore="http://www.eclipse.org/emf/2002/Ecore" xmlns:eflow="http://www.ibm.com/wbi/2005/eflow" xmlns:trx_consignmentshipped_file_TrxConsgShipped.subflow="trx/consignmentshipped/file/TrxConsgShipped.subflow"
+    xmlns:utility="http://www.ibm.com/wbi/2005/eflow_utility" nsURI="trx/consignmentshipped/file/TrxConsgShipped.msgflow"
+    nsPrefix="trx_consignmentshipped_file_TrxConsgShipped.msgflow">
+  <eClassifiers xmi:type="eflow:FCMComposite" name="FCMComposite_1">
+    <eSuperTypes href="http://www.ibm.com/wbi/2005/eflow#//FCMBlock"/>
+    <eStructuralFeatures xmi:type="ecore:EAttribute" xmi:id="Property.CanadaPostInput" name="CanadaPostInput" lowerBound="1" defaultValueLiteral="/var/mqsi/staging/canadapost">
+      <eType xmi:type="ecore:EDataType" href="http://www.eclipse.org/emf/2002/Ecore#//EString"/>
+    </eStructuralFeatures>
+    <eStructuralFeatures xmi:type="ecore:EAttribute" xmi:id="Property.DOMOutBoundQueue" name="DOMOutBoundQueue" defaultValueLiteral="SEND.FGL.OMS.DOM.CNSGNSHIPPED_IN.AMB.DV">
+      <eType xmi:type="ecore:EDataType" href="http://www.eclipse.org/emf/2002/Ecore#//EString"/>
+    </eStructuralFeatures>
+    <eStructuralFeatures xmi:type="ecore:EAttribute" xmi:id="Property.CoreAuditDataSource" name="CoreAuditDataSource" defaultValueLiteral="AUDDEV">
+      <eType xmi:type="ecore:EDataType" href="http://www.eclipse.org/emf/2002/Ecore#//EString"/>
+    </eStructuralFeatures>
+    <eStructuralFeatures xmi:type="ecore:EAttribute" xmi:id="Property.CoreAuditEnabled" name="CoreAuditEnabled" lowerBound="1" defaultValueLiteral="false">
+      <eType xmi:type="ecore:EDataType" href="http://www.eclipse.org/emf/2002/Ecore#//EBoolean"/>
+    </eStructuralFeatures>
+    <eStructuralFeatures xmi:type="ecore:EAttribute" xmi:id="Property.CoreAuditDetailEnabled" name="CoreAuditDetailEnabled" lowerBound="1" defaultValueLiteral="false">
+      <eType xmi:type="ecore:EDataType" href="http://www.eclipse.org/emf/2002/Ecore#//EBoolean"/>
+    </eStructuralFeatures>
+    <eStructuralFeatures xmi:type="ecore:EAttribute" xmi:id="Property.CoreMessageValidation1" name="CoreMessageValidation1" lowerBound="1" defaultValueLiteral="false">
+      <eType xmi:type="ecore:EDataType" href="http://www.eclipse.org/emf/2002/Ecore#//EBoolean"/>
+    </eStructuralFeatures>
+    <eStructuralFeatures xmi:type="ecore:EAttribute" xmi:id="Property.CoreMessageValidation2" name="CoreMessageValidation2" lowerBound="1" defaultValueLiteral="false">
+      <eType xmi:type="ecore:EDataType" href="http://www.eclipse.org/emf/2002/Ecore#//EBoolean"/>
+    </eStructuralFeatures>
+    <translation xmi:type="utility:TranslatableString" key="TrxConsgShipped" bundleName="trx/consignmentshipped/file/TrxConsgShipped" pluginId="trx-consignmentshipped-file-dom-inbound-fgl"/>
+    <colorGraphic16 xmi:type="utility:GIFFileGraphic" resourceName="platform:/plugin/trx-consignmentshipped-file-dom-inbound-fgl/icons/full/obj16/TrxConsgShipped.gif"/>
+    <colorGraphic32 xmi:type="utility:GIFFileGraphic" resourceName="platform:/plugin/trx-consignmentshipped-file-dom-inbound-fgl/icons/full/obj30/TrxConsgShipped.gif"/>
+    <longDescription xmi:type="utility:ConstantString" string="Main flow for Placement of orders from Hybris to DOM"/>
+    <version xmi:type="utility:ConstantString" string="1.0"/>
+    <composition>
+      <nodes xmi:type="ComIbmMQOutput.msgnode:FCMComposite_1" xmi:id="FCMComposite_1_2" location="557,139">
+        <translation xmi:type="utility:ConstantString" string="SEND.FGL.OMS.DOM.CNSGNSHIPPED_OUT.AMB.DV"/>
+      </nodes>
+      <nodes xmi:type="core_message__preprocessor.subflow:FCMComposite_1" xmi:id="FCMComposite_1_3" location="193,53">
+        <translation xmi:type="utility:ConstantString" string="CoreMessagePreProcessor"/>
+      </nodes>
+      <nodes xmi:type="core_message__postprocessor.subflow:FCMComposite_1" xmi:id="FCMComposite_1_4" location="719,54">
+        <translation xmi:type="utility:ConstantString" string="CoreMessagePostProcessor"/>
+      </nodes>
+      <nodes xmi:type="ComIbmFileInput.msgnode:FCMComposite_1" xmi:id="FCMComposite_1_6" location="15,51" inputDirectory="/var/mqsi/staging/canadapost" processedFileAction="moveToArchiveWithTimestamp" messageDomainProperty="DFDL" messageTypeProperty="{}:manifestitems_suffix" customDelimiter="2C">
+        <translation xmi:type="utility:ConstantString" string="/staging/canadapost"/>
+      </nodes>
+      <nodes xmi:type="trx_consignmentshipped_file_TrxConsgShipped.subflow:FCMComposite_1" xmi:id="FCMComposite_1_9" location="370,136">
+        <translation xmi:type="utility:ConstantString" string="TrxConsgShipped"/>
+      </nodes>
+      <nodes xmi:type="ComIbmCompute.msgnode:FCMComposite_1" xmi:id="FCMComposite_1_5" location="131,147" computeExpression="esql://routine/trx.consignmentshipped.file#TrxConsgShipped_Compute.Main">
+        <translation xmi:type="utility:ConstantString" string="DFDLtoXML"/>
+      </nodes>
+      <connections xmi:type="eflow:FCMConnection" xmi:id="FCMConnection_4" targetNode="FCMComposite_1_4" sourceNode="FCMComposite_1_3" sourceTerminalName="OutTerminal.Output" targetTerminalName="InTerminal.Input"/>
+      <connections xmi:type="eflow:FCMConnection" xmi:id="FCMConnection_5" targetNode="FCMComposite_1_4" sourceNode="FCMComposite_1_3" sourceTerminalName="OutTerminal.FailureOutput" targetTerminalName="InTerminal.Input2"/>
+      <connections xmi:type="eflow:FCMConnection" xmi:id="FCMConnection_6" targetNode="FCMComposite_1_4" sourceNode="FCMComposite_1_2" sourceTerminalName="OutTerminal.out" targetTerminalName="InTerminal.Input1"/>
+      <connections xmi:type="eflow:FCMConnection" xmi:id="FCMConnection_1" targetNode="FCMComposite_1_3" sourceNode="FCMComposite_1_6" sourceTerminalName="OutTerminal.failure" targetTerminalName="InTerminal.FailureInput"/>
+      <connections xmi:type="eflow:FCMConnection" xmi:id="FCMConnection_3" targetNode="FCMComposite_1_3" sourceNode="FCMComposite_1_6" sourceTerminalName="OutTerminal.catch" targetTerminalName="InTerminal.Input"/>
+      <connections xmi:type="eflow:FCMConnection" xmi:id="FCMConnection_7" targetNode="FCMComposite_1_9" sourceNode="FCMComposite_1_3" sourceTerminalName="OutTerminal.CatchOutput" targetTerminalName="InTerminal.Input"/>
+      <connections xmi:type="eflow:FCMConnection" xmi:id="FCMConnection_8" targetNode="FCMComposite_1_2" sourceNode="FCMComposite_1_9" sourceTerminalName="OutTerminal.Output1" targetTerminalName="InTerminal.in"/>
+      <connections xmi:type="eflow:FCMConnection" xmi:id="FCMConnection_9" targetNode="FCMComposite_1_4" sourceNode="FCMComposite_1_9" sourceTerminalName="OutTerminal.Output" targetTerminalName="InTerminal.Input1"/>
+      <connections xmi:type="eflow:FCMConnection" xmi:id="FCMConnection_13" targetNode="FCMComposite_1_3" sourceNode="FCMComposite_1_5" sourceTerminalName="OutTerminal.out" targetTerminalName="InTerminal.CatchInput"/>
+      <connections xmi:type="eflow:FCMConnection" xmi:id="FCMConnection_14" targetNode="FCMComposite_1_5" sourceNode="FCMComposite_1_6" sourceTerminalName="OutTerminal.out" targetTerminalName="InTerminal.in"/>
+    </composition>
+    <propertyOrganizer>
+      <propertyDescriptor groupName="Group.Basic" propertyEditor="com.ibm.etools.mft.ibmnodes.editors.file.FileInputNodeDirPropertyEditor" configurable="true" describedAttribute="Property.CanadaPostInput">
+        <propertyName xmi:type="utility:TranslatableString" key="Property.CanadaPostInput" bundleName="trx/consignmentshipped/file/TrxConsgShipped" pluginId="trx-consignmentshipped-file-dom-inbound-fgl"/>
+        <propertyDescriptor groupName="Group.Basic" propertyEditor="com.ibm.etools.mft.ibmnodes.editors.mq.MQQueueNameEditor" configurable="true" describedAttribute="Property.DOMOutBoundQueue">
+          <propertyName xmi:type="utility:TranslatableString" key="Property.DOMOutBoundQueue" bundleName="trx/consignmentshipped/file/TrxConsgShipped" pluginId="trx-consignmentshipped-file-dom-inbound-fgl"/>
+          <propertyDescriptor groupName="Group.Basic" configurable="true" describedAttribute="Property.CoreAuditDataSource">
+            <propertyName xmi:type="utility:TranslatableString" key="Property.CoreAuditDataSource" bundleName="core/audit/_audit" pluginId="core-audit-handler-library"/>
+            <propertyDescriptor groupName="Group.Basic" configurable="true" userDefined="true" describedAttribute="Property.CoreAuditEnabled">
+              <propertyName xmi:type="utility:TranslatableString" key="Property.CoreAuditEnabled" bundleName="core/audit/_audit" pluginId="core-audit-handler-library"/>
+              <propertyDescriptor groupName="Group.Basic" configurable="true" userDefined="true" describedAttribute="Property.CoreAuditDetailEnabled">
+                <propertyName xmi:type="utility:TranslatableString" key="Property.CoreAuditDetailEnabled" bundleName="core/audit/_audit_detail" pluginId="core-audit-handler-library"/>
+                <propertyDescriptor groupName="Group.Basic" configurable="true" userDefined="true" describedAttribute="Property.CoreMessageValidation1">
+                  <propertyName xmi:type="utility:TranslatableString" key="Property.CoreMessageValidation1" bundleName="dat/location/dom/_subscriber" pluginId="dat-location-dom-library"/>
+                  <propertyDescriptor groupName="Group.Basic" configurable="true" userDefined="true" describedAttribute="Property.CoreMessageValidation2">
+                    <propertyName xmi:type="utility:TranslatableString" key="Property.CoreMessageValidation2" bundleName="dat/location/dom/_subscriber" pluginId="dat-location-dom-library"/>
+                  </propertyDescriptor>
+                </propertyDescriptor>
+              </propertyDescriptor>
+            </propertyDescriptor>
+          </propertyDescriptor>
+        </propertyDescriptor>
+      </propertyDescriptor>
+    </propertyOrganizer>
+    <attributeLinks promotedAttribute="Property.CanadaPostInput" overriddenNodes="FCMComposite_1_6">
+      <overriddenAttribute href="ComIbmFileInput.msgnode#Property.inputDirectory"/>
+    </attributeLinks>
+    <attributeLinks promotedAttribute="Property.DOMOutBoundQueue" overriddenNodes="FCMComposite_1_2">
+      <overriddenAttribute href="ComIbmMQOutput.msgnode#Property.queueName"/>
+    </attributeLinks>
+    <attributeLinks promotedAttribute="Property.CoreAuditDataSource" overriddenNodes="FCMComposite_1_3">
+      <overriddenAttribute href="core/message/_preprocessor.subflow#Property.CoreAuditDataSource"/>
+    </attributeLinks>
+    <attributeLinks promotedAttribute="Property.CoreAuditDataSource" overriddenNodes="FCMComposite_1_4">
+      <overriddenAttribute href="core/message/_postprocessor.subflow#Property.CoreAuditDataSource"/>
+    </attributeLinks>
+    <attributeLinks promotedAttribute="Property.CoreAuditDataSource" overriddenNodes="FCMComposite_1_9">
+      <overriddenAttribute href="trx/consignmentshipped/file/TrxConsgShipped.subflow#Property.CoreAuditDataSource"/>
+    </attributeLinks>
+    <attributeLinks promotedAttribute="Property.CoreAuditEnabled" overriddenNodes="FCMComposite_1_4">
+      <overriddenAttribute href="core/message/_postprocessor.subflow#Property.CoreAuditEnabled"/>
+    </attributeLinks>
+    <attributeLinks promotedAttribute="Property.CoreAuditEnabled" overriddenNodes="FCMComposite_1_3">
+      <overriddenAttribute href="core/message/_preprocessor.subflow#Property.CoreAuditEnabled"/>
+    </attributeLinks>
+    <attributeLinks promotedAttribute="Property.CoreAuditDetailEnabled" overriddenNodes="FCMComposite_1_9">
+      <overriddenAttribute href="trx/consignmentshipped/file/TrxConsgShipped.subflow#Property.CoreAuditDetailEnabled"/>
+    </attributeLinks>
+    <attributeLinks promotedAttribute="Property.CoreMessageValidation1" overriddenNodes="FCMComposite_1_9">
+      <overriddenAttribute href="trx/consignmentshipped/file/TrxConsgShipped.subflow#Property.CoreMessageValidation1"/>
+    </attributeLinks>
+    <attributeLinks promotedAttribute="Property.CoreMessageValidation2" overriddenNodes="FCMComposite_1_9">
+      <overriddenAttribute href="trx/consignmentshipped/file/TrxConsgShipped.subflow#Property.CoreMessageValidation2"/>
+    </attributeLinks>
+    <stickyBoard/>
+  </eClassifiers>
+</ecore:EPackage>

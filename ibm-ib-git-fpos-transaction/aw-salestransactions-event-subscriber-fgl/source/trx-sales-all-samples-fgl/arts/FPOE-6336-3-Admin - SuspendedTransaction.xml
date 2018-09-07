@@ -1,0 +1,49 @@
+<eai:Exchange FixVersion="1" MinorVersion="4" MajorVersion="1" xmlns:eai="http://www.fgl.com/exchange/" xmlns:arts="http://www.fgl.com/ARTS">
+   <eai:MessageRouting>
+      <eai:Guid>53c30f13-41f8-4c1f-8132-b69652aa5846</eai:Guid>
+      <eai:MessageId>String</eai:MessageId>
+      <eai:MessageType>PubSub</eai:MessageType>
+      <eai:SubjectArea>Normal Retail Sales Transactions</eai:SubjectArea>
+      <eai:SbuNumber>3</eai:SbuNumber>
+      <eai:SbuCode>FGL</eai:SbuCode>
+      <eai:SbuName>FGL2 Sports Ltd.</eai:SbuName>
+      <eai:DataSourceCode>POE</eai:DataSourceCode>
+      <eai:DataSourceCodeName>POE POS FGL</eai:DataSourceCodeName>
+      <eai:MessageIndex>1</eai:MessageIndex>
+      <eai:MessageCount>1</eai:MessageCount>
+      <eai:SubjectAreaRunName>Sting</eai:SubjectAreaRunName>
+   </eai:MessageRouting>
+   <eai:Messages>
+      <eai:Count>0</eai:Count>
+      <eai:SourceSystems>
+         <eai:Count>0</eai:Count>
+         <eai:SourceSystem>
+            <eai:Index>0</eai:Index>
+            <eai:SbuNumber>3</eai:SbuNumber>
+            <eai:SbuCode>FGL</eai:SbuCode>
+            <eai:SbuName>FGL Sports Ltd.</eai:SbuName>
+            <eai:MessageSourceCode>CSS</eai:MessageSourceCode>
+            <eai:MessageSourceCodeName>String</eai:MessageSourceCodeName>
+         </eai:SourceSystem>
+      </eai:SourceSystems>
+      <eai:POSLog>
+         <arts:Count>0</arts:Count>
+         <arts:Transaction TypeCode="SuspendedTransaction">
+            <arts:BusinessUnit>
+               <arts:Index>0</arts:Index>
+               <arts:BusinessUnitNumber>307</arts:BusinessUnitNumber>
+               <arts:BusinessUnitTypeCode>RT</arts:BusinessUnitTypeCode>
+               <arts:BusinessUnitShortName>SC BAYERS LAKE</arts:BusinessUnitShortName>
+               <arts:BusinessUnitName>SC370</arts:BusinessUnitName>
+            </arts:BusinessUnit>
+            <arts:WorkstationID>2</arts:WorkstationID>
+            <arts:SequenceNumber>000438</arts:SequenceNumber>
+            <arts:BeginDateTime>2016-09-21T03:42:01-06:00</arts:BeginDateTime>
+            <arts:EndDateTime>2016-09-21T03:42:22-06:00</arts:EndDateTime>
+            <arts:OperatorID OperatorName="anovakova Manager" LastName="Manager" FirstName="anovakova">000002433</arts:OperatorID>
+            <arts:RetailTransaction/>               
+			<arts:TransactionSubtypeCode>RetailTransaction</arts:TransactionSubtypeCode>
+         </arts:Transaction>
+      </eai:POSLog>
+   </eai:Messages>
+</eai:Exchange>

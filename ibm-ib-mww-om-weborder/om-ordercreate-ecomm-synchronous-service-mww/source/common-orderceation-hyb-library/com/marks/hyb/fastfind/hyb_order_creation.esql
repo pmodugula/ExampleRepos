@@ -1,0 +1,149 @@
+
+
+BROKER SCHEMA com.marks.hyb.fastfind
+
+/*
+* File name : order_status_update.esql
+* Purpose : To implement hyb_order_creation Flow .
+* Authors : V V Surendra Madduri
+* Create Date : 21st Jul 2015
+*
+* Version History
+* Version Module Name Revision Date Revision Details
+* ============= ============================= =============== ========================
+* 1.0 hyb_order_creation 21st Jul 2015 Inital Version
+*
+* @copyright MWW-FGLSPORTS 2015. All rights reserved.
+*/
+
+DECLARE nsOrder NAMESPACE 'http://www.fgl.com/exchange/';
+DECLARE nsOrder1 NAMESPACE 'http://www.fgl.com/ARTS';
+DECLARE nsOrderSharedContainer NAMESPACE 'http://www.marks.com/OrderSharedContainer';
+
+CREATE DATABASE MODULE orderExistingCheck
+	CREATE FUNCTION Main() RETURNS BOOLEAN
+	BEGIN
+		DECLARE EXTERNAL_ORDER CHARACTER FIELDVALUE(Root.XMLNSC.nsOrder:Exchange.nsOrder:Messages.nsOrder:ArtsCustomerOrders.nsOrder1:CustomerOrderNumber);
+		DECLARE selectQuery CHARACTER 'SELECT SSORDERID,EXTERNAL_ORDERID,POS_TRANID from ENTERPRISE.SSORDER_CROSSREF where EXTERNAL_ORDERID = ? and POS_Tranid is not null';
+		CALL core.log.Debug(MessageFlowLabel||'Module name: orderExistingCheck - select start');
+		CALL core.log.Info(MessageFlowLabel||' Module name : orderExistingCheck - EXTERNAL_ORDER :'||CAST(Root.XMLNSC.nsOrder:Exchange.nsOrder:Messages.nsOrder:ArtsCustomerOrders.nsOrder1:CustomerOrderNumber AS CHARACTER));
+		SET Environment.Variables.orderExistingResultSet[] = PASSTHRU(selectQuery, TRIM(COALESCE(EXTERNAL_ORDER,0)));
+		CALL core.log.Debug(MessageFlowLabel||'Module name: orderExistingCheck - select end');
+		SET Environment.Variables.ORDER_EXISTING_CHECK_COUNT = CARDINALITY(Environment.Variables.orderExistingResultSet[]);
+		RETURN TRUE;
+	END;
+END MODULE;
+
+
+CREATE FILTER MODULE isOrderExist
+	CREATE FUNCTION Main() RETURNS BOOLEAN
+	BEGIN
+		--------------Changes for LOgging--------	
+		--    CALL core.log.Debug(MessageFlowLabel||'Module name: isOrderExist:'||CAST ((Environment.Variables.ORDER_EXISTING_CHECK_COUNT) AS CHARACTER));
+              DECLARE isExist BOOLEAN FALSE;
+              DECLARE ORDER_CHECK_COUNT INTEGER CAST ((Environment.Variables.ORDER_EXISTING_CHECK_COUNT) AS INTEGER);
+              IF ORDER_CHECK_COUNT = 0  THEN
+                     SET isExist = FALSE;
+              ELSEIF ORDER_CHECK_COUNT <> 0 THEN
+                     SET isExist = TRUE;
+              END IF;
+              CALL core.log.Info(MessageFlowLabel||'Module name: isOrderExist:RETURN VALUE is '|| CAST(isExist AS CHARACTER));
+              RETURN isExist;
+	-----------------------------------------
+		--CALL core.log.Debug(MessageFlowLabel||'Module name: isOrderExist:'||CAST ((Environment.Variables.ORDER_EXISTING_CHECK_COUNT <> 0) AS CHARACTER));
+		--RETURN Environment.Variables.ORDER_EXISTING_CHECK_COUNT <> 0;
+	END;
+END MODULE;
+
+CREATE DATABASE MODULE getStoreAddress
+	CREATE FUNCTION Main() RETURNS BOOLEAN
+	BEGIN
+		DECLARE EnvRef REFERENCE TO Environment.Variables;
+		DECLARE STORE_NUMBER CHARACTER '344';
+		DECLARE storeDetails_selectQuery CHARACTER 'select trim(a.ADDRESSLINE1) as ADDRESSLINE1 , trim(a.ADDRESSLINE2) as ADDRESSLINE2 , trim(a.ADDRESSLINE3) as ADDRESSLINE3 , a.CITYID, a.PROVINCEID, trim(e.CITYNAME) as CITYNAME , trim(f.PROVINCEABBREV) as PROVINCEABBREV, a.COUNTRYID, trim(g.AREACODE) as AREACODE, trim(g.PHONENUMBER) as PHONENUMBER,  trim(a.POSTALCODE) as POSTALCODE, a.LATTITUDE, a.LONGITUDE, c.STOREID, c.STORENUMBER from ENTERPRISE.ADDRESS a JOIN ENTERPRISE.ORGUNITADDRESS b ON a.ADDRESSID = b.ADDRESSID  JOIN ENTERPRISE.STORE c ON b.ORGANIZATIONUNITID=c.STOREID  JOIN ENTERPRISE.SSORGUNITVIEW d ON b.ORGANIZATIONUNITID=d.ORGANIZATIONUNITID JOIN ENTERPRISE.CITY e ON a.CITYID=e.CITYID  JOIN ENTERPRISE.PROVINCESTATE f ON a.PROVINCEID=f.PROVINCEID  LEFT OUTER JOIN ENTERPRISE.ORGUNITPHONE g ON b.ORGANIZATIONUNITID=g.ORGANIZATIONUNITID where storenumber =?';
+		CALL core.log.Debug(MessageFlowLabel||'Module name: getStoreAddress - select start');
+		SET EnvRef.storeAddressResultSet[] = PASSTHRU(storeDetails_selectQuery, TRIM(COALESCE(STORE_NUMBER,0)));
+		CALL core.log.Debug(MessageFlowLabel||'Module name: getStoreAddress - select end');
+		RETURN TRUE;
+	END;
+END MODULE;
+
+
+
+CREATE DATABASE MODULE insert_Into_SSORDER_CROSSREF_Table
+	CREATE FUNCTION Main() RETURNS BOOLEAN
+	BEGIN
+		SET Environment.Variables.nsFFCreateOrder:createOrderResponse.CustomerOrder.nsFFCreateOrder1:OrderTaxes = Environment.Variables.nsFFCreateOrder1:CustomerOrder.nsFFCreateOrder1:OrderTaxes;
+		SET LocalEnvironment.Variables.nsFFCreateOrder:createOrderResponse = Environment.Variables.nsFFCreateOrder:createOrderResponse;
+		SET LocalEnvironment.Variables.nsOrderSharedContainer:OrderSharedContainer.POS_TRANSACTION_ID = Root.SOAP.Body.nsTPS:submitTxnResponse.submitTxnResponse.id;
+		SET LocalEnvironment.Variables.nsOrderSharedContainer:OrderSharedContainer.VIRTUAL_GIFT_CARD_NUMBER = Environment.Variables.VirtualGiftCard.body.GivxNumb;
+
+		DECLARE SSORDERID INTEGER LocalEnvironment.Variables.nsFFCreateOrder:createOrderResponse.CustomerOrder.nsFFCreateOrder1:CustomerPurchaseOrderNumber;
+		DECLARE EXTERNAL_ORDERID CHARACTER FIELDVALUE(Environment.Variables.nsOrder:Exchange.nsOrder:Messages.nsOrder:ArtsCustomerOrders.nsOrder1:CustomerOrderNumber);
+		DECLARE POS_TRANID CHARACTER Root.SOAP.Body.nsTPS:submitTxnResponse.submitTxnResponse.id;
+		DECLARE CREATENAME CHARACTER 'IIB';
+		DECLARE CREATETIMESTAMP TIMESTAMP CURRENT_TIMESTAMP;
+		DECLARE UPDATENAME CHARACTER 'IIB';
+		DECLARE UPDTIMESTAMP TIMESTAMP CURRENT_TIMESTAMP;
+		DECLARE insertQuery CHARACTER 'INSERT INTO ENTERPRISE.SSORDER_CROSSREF(SSORDERID,EXTERNAL_ORDERID,POS_TRANID,CREATENAME,CREATETIMESTAMP,UPDATENAME,UPDTIMESTAMP) VALUES(?,?,?,?,?,?,?)';
+		CALL core.log.Debug(MessageFlowLabel||'Module name: insert_Into_SSORDER_CROSSREF_Table - insert into reference table start');
+		PASSTHRU(insertQuery, SSORDERID,EXTERNAL_ORDERID,POS_TRANID,CREATENAME,CREATETIMESTAMP,UPDATENAME,UPDTIMESTAMP);
+		CALL core.log.Debug(MessageFlowLabel||'Module name: insert_Into_SSORDER_CROSSREF_Table - insert into reference table end');
+
+		RETURN TRUE;
+	END;
+END MODULE;
+
+
+CREATE COMPUTE MODULE setOrderCreationVariables
+	CREATE FUNCTION Main() RETURNS BOOLEAN
+	BEGIN
+
+		SET OutputLocalEnvironment.Variables.nsOrderSharedContainer:OrderSharedContainer.SHIPPING_SKU = '400002688136';
+		SET OutputLocalEnvironment.Variables.nsOrderSharedContainer:OrderSharedContainer.WEBSTORE_EMAIL = 'estore.support@marks.com';
+		SET OutputLocalEnvironment.Variables.nsOrderSharedContainer:OrderSharedContainer.WEBSTORE_CUSTOMER_FIRSTNAME = 'Web';
+		SET OutputLocalEnvironment.Variables.nsOrderSharedContainer:OrderSharedContainer.WEBSTORE_CUSTOMER_LASTNAME = 'Service';
+		SET OutputLocalEnvironment.Variables.nsOrderSharedContainer:OrderSharedContainer.nsOrderSharedContainer:STOREADDRESS = Environment.Variables.storeAddressResultSet[1];
+
+		SET OutputRoot = InputRoot;
+
+		RETURN TRUE;
+	END;
+END MODULE;
+
+CREATE FILTER MODULE isTransactionPostingServiceFailed
+	CREATE FUNCTION Main() RETURNS BOOLEAN
+	BEGIN
+		RETURN Root.SOAP.Body.nsTPS:submitTxnResponse.submitTxnResponse.code = 'ERROR';
+	END;
+END MODULE;
+
+CREATE COMPUTE MODULE source_products_information
+	CREATE FUNCTION Main() RETURNS BOOLEAN
+	BEGIN
+		DECLARE EnvRef REFERENCE TO Environment.Variables;
+		DECLARE RefToItem REFERENCE TO InputRoot.XMLNSC.nsOrder:Exchange.nsOrder:Messages.nsOrder:ArtsCustomerOrders.nsOrder1:Items.nsOrder1:ItemOrStockItem[1];
+		WHILE LASTMOVE(RefToItem) DO
+			IF(FIELDVALUE(RefToItem.nsOrder1:ItemOrStockItemFlag) = 'StockItem') THEN
+			DECLARE ITEM_NUMBER CHARACTER FIELDVALUE(RefToItem.nsOrder1:StockItem.nsOrder1:ItemNumber);
+			DECLARE itemDetails_selectQuery CHARACTER 'select sku.skuid , trim(sku.SKUNUMBER) as SKUNUMBER, sku.styleid ,  trim(sku.size) as size, trim(sku.SPECIFICCOLOURNAME) as SPECIFICCOLOURNAME, trim(sku.COLOURNAME) as COLOURNAME, trim(sku.FRENCHCOLOURNAME) as FRENCHCOLOURNAME, trim(style.DISPLAYSTYLENBR) as DISPLAYSTYLENBR, trim(style.CATEGORYCODE) as CATEGORYCODE from ENTERPRISE.S2SKUVIEW sku,  ENTERPRISE.S2STYLEVIEW style where sku.styleid = style.styleid and sku.skunumber=?';
+			SET EnvRef.SOURCE_ITEM_DETAILS.ItemDetailsResultSet[] = PASSTHRU(itemDetails_selectQuery, TRIM(COALESCE(ITEM_NUMBER,0)));
+			DECLARE ITEM_DETAIL_COUNT INTEGER CARDINALITY(EnvRef.SOURCE_ITEM_DETAILS.ItemDetailsResultSet[]);
+			IF(ITEM_DETAIL_COUNT = 1) THEN
+			SET RefToItem.nsOrder1:StockItem.nsOrder1:SourcePrdLvlChild = EnvRef.SOURCE_ITEM_DETAILS.ItemDetailsResultSet[1].SKUID;
+		ELSE
+			IF(ITEM_DETAIL_COUNT = 0) THEN
+			THROW USER EXCEPTION VALUES('No Records found for the SKU:'||ITEM_NUMBER||' in ENTERPRISE');
+		ELSE
+			THROW USER EXCEPTION VALUES('More than one record found in ENTERPRISE for the SKU:'||ITEM_NUMBER);
+		END IF;
+	END IF;
+END IF;
+DELETE FIELD EnvRef.SOURCE_ITEM_DETAILS;
+MOVE RefToItem NEXTSIBLING;
+END WHILE;
+
+SET OutputRoot.XMLNSC = InputRoot.XMLNSC;
+RETURN TRUE;
+END;
+END MODULE;

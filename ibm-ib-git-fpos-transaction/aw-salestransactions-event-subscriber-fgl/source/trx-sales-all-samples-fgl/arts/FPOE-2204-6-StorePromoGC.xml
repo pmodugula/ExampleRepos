@@ -1,0 +1,80 @@
+<eai:Exchange 
+MinorVersion="0" MajorVersion="2" FixVersion="0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:eai="http://www.fgl.com/exchange/" xmlns:arts="http://www.fgl.com/ARTS">
+   <eai:MessageRouting>
+      <eai:Guid>7603C75BBD354B3EB2F47281351D8EC0</eai:Guid>
+      <eai:MessageId/>
+      <eai:MessageType>PointToPoint</eai:MessageType>
+      <eai:SubjectArea>Normal Retail Sales Transactions</eai:SubjectArea>
+      <eai:SbuNumber>3</eai:SbuNumber>
+      <eai:SbuCode>FGL</eai:SbuCode>
+      <eai:SbuName>FGL Sports Ltd.</eai:SbuName>
+      <eai:DataSourceCode>POE</eai:DataSourceCode>
+      <eai:DataSourceCodeName>POE POS FGL</eai:DataSourceCodeName>
+      <eai:MessageIndex>1</eai:MessageIndex>
+      <eai:MessageCount>1</eai:MessageCount>
+      <eai:SubjectAreaRunName>salestransactions-371-20161101-072600</eai:SubjectAreaRunName>
+   </eai:MessageRouting>
+   <eai:Messages>
+      <eai:Count>1</eai:Count>
+      <eai:SourceSystems>
+         <eai:Count>1</eai:Count>
+         <eai:SourceSystem>
+            <eai:Index>1</eai:Index>
+            <eai:SbuNumber>3</eai:SbuNumber>
+            <eai:SbuCode>FGL</eai:SbuCode>
+            <eai:SbuName>FGL Sports Ltd.</eai:SbuName>
+            <eai:MessageSourceCode>CSS</eai:MessageSourceCode>
+            <eai:MessageSourceCodeName>Central Sales Server</eai:MessageSourceCodeName>
+         </eai:SourceSystem>
+      </eai:SourceSystems>
+      <eai:POSLog>
+         <arts:Count>1</arts:Count>
+         <arts:Transaction TypeCode="SaleTransaction">
+            <arts:BusinessUnit>
+               <arts:Index>1</arts:Index>
+               <arts:BusinessUnitNumber>371</arts:BusinessUnitNumber>
+               <arts:BusinessUnitTypeCode>RT</arts:BusinessUnitTypeCode>
+               <arts:BusinessUnitShortName>SC371</arts:BusinessUnitShortName>
+               <arts:BusinessUnitName>SC VILLAGE SHOPPING CENTRE</arts:BusinessUnitName>
+            </arts:BusinessUnit>
+            <arts:WorkstationID>105</arts:WorkstationID>
+            <arts:SequenceNumber>000024</arts:SequenceNumber>
+            <arts:BeginDateTime>2016-11-01T10:55:23</arts:BeginDateTime>
+            <arts:EndDateTime>2016-11-01T10:55:45</arts:EndDateTime>
+            <arts:OperatorID OperatorName="anovakova Cashier" LastName="Cashier" FirstName="anovakova">000002436</arts:OperatorID>
+            <arts:RetailTransaction>
+               <arts:LineItemCount>2</arts:LineItemCount>
+               <arts:CustomerCount>0</arts:CustomerCount>
+               <arts:AssociateCount>0</arts:AssociateCount>
+               <arts:LineItem VoidFlag="false">
+                  <arts:Index>1</arts:Index>
+                  <arts:SequenceNumber>1</arts:SequenceNumber>
+                  <arts:SaleOfGiftCard>
+                     <arts:CardNumber>60603910000625</arts:CardNumber>
+                     <arts:DateSold>2016-11-01</arts:DateSold>
+                     <arts:DateActivated>2016-11-01</arts:DateActivated>
+                     <arts:InitialBalance>2000.00</arts:InitialBalance>
+                     <arts:Authorization>
+                        <arts:AuthorizationCode>124810</arts:AuthorizationCode>
+                        <arts:AuthorizationDateTime>2016-11-01T10:55:45-02:30</arts:AuthorizationDateTime>
+                        <arts:SwipeIndicator>1</arts:SwipeIndicator>
+                     </arts:Authorization>
+                  </arts:SaleOfGiftCard>
+                  <arts:LineItemSubtypeCode>SaleOfGiftCard</arts:LineItemSubtypeCode>
+               </arts:LineItem>
+               <arts:LineItem>
+                  <arts:Index>2</arts:Index>
+                  <arts:SequenceNumber>2</arts:SequenceNumber>
+                  <arts:Tender TypeCode="Sale" TenderType="StorePromo">
+                     <arts:Amount>2000.00</arts:Amount>
+                  </arts:Tender>
+                  <arts:LineItemSubtypeCode>Tender</arts:LineItemSubtypeCode>
+               </arts:LineItem>
+               <arts:Total TotalType="TransactionGrossAmount">2000.00</arts:Total>
+               <arts:Total TotalType="TransactionSubtotal">2000.00</arts:Total>
+            </arts:RetailTransaction>
+            <arts:TransactionSubtypeCode>RetailTransaction</arts:TransactionSubtypeCode>
+         </arts:Transaction>
+      </eai:POSLog>
+   </eai:Messages>
+</eai:Exchange>

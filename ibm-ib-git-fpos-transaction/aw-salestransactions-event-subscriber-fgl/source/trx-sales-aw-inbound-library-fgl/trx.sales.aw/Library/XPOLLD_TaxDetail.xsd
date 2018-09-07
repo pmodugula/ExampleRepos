@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- edited with XMLSpy v2014 sp1 (x64) (http://www.altova.com) by FGL SPORTS LTD (FGL SPORTS LTD) -->
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" elementFormDefault="qualified" attributeFormDefault="unqualified">
+	<xs:complexType name="TaxDetail">
+		<xs:sequence>
+			<xs:element name="RecordType" type="xs:string" fixed="T" nillable="false"/>
+			<xs:element name="LineId" type="xs:integer" nillable="false"/>
+			<xs:element name="ExceptionTaxJurisdiction" type="xs:string" minOccurs="0"/>
+			<xs:element name="TaxCategory" type="xs:integer"/>
+			<xs:element name="Taxable" type="xs:string" minOccurs="0"/>
+			<xs:element name="TaxExemptNbr" type="xs:string" minOccurs="0"/>
+			<xs:element name="TaxLevel" type="xs:integer"/>
+		</xs:sequence>
+	</xs:complexType>
+</xs:schema>

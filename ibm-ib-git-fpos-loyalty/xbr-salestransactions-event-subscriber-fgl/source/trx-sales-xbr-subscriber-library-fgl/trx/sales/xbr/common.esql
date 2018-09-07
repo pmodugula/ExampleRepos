@@ -1,0 +1,1661 @@
+BROKER SCHEMA trx.sales.xbr
+
+/***********************************************************************************************************************************************************************
+* Authors: Madanlal Tulsiram																			   
+* Create Date: 27-10-2016   																			   
+* Version History:																			   			   
+* Version 				Module 						Name 				 Date 					Revision Details
+* ======= ==========================  		=====================  =====================  ==================================
+* 1.0 	  Header/Merchandise,Tender,Tax			 Madanlal Tulsiram		 	27/10/2016		 Initial Version
+* 1.1 	  DecodePrimaryAccNbr					 Madanlal Tulsiram		 	30/10/2016		 Initial Version		   
+* 1.2	  Non-Merchandise/Discount	 			 Greeshma Vidyadharan		17/11/2016		 Initial Version. 
+* 1.3 	  UpdateSequenceNumber 	     			 Greeshma Vidyadharan  	    18/11/2016 	     Initial Version			
+* 1.4	  Header/Merchandise					 Greeshma Vidyadharan		22/11/2016		 Added Code Translation, Revised Code
+* 1.5 	  CodeTranslation to use Global cache	 Greeshma Vidyadharan  	    22/11/2016 	     Initial Version
+* 1.6	  Transaction Detail					 Piyush Vaishnav			30/11/2016		 Changes to update mappings. 
+* 1.7	  Tender/Tax							 Greeshma Vidyadharan		06/12/2016		 Changes to update mappings.
+* 1.8	  All/Tender							 Greeshma Vidyadharan		08/12/2016		 V12 mapping doc changes
+* 1.9	  DiscountDetail						 Greeshma Vidyadharan		08/12/2016		 FPOE-15913 	
+* 2.0	  Transaction Header					 Greeshma Vidyadharan		09/12/2016		 FPOE-15997 
+* 2.1	  All records							 Greeshma Vidyadharan		12/12/2016		 V13 mapping doc changes 		
+* 2.2	  Non Merchandise						 Greeshma Vidyadharan		19/12/2016		 Updated Code. 
+* 2.3	  Non Merchandise						 Greeshma Vidyadharan		20/12/2016		 V15 mapping doc changes 
+* 2.4	  DiscountDetail						 Greeshma Vidyadharan		21/12/2016		 FPOE-16521
+* 2.5	  All records							 Greeshma Vidyadharan		22/12/2016		 V16 mapping doc changes, FPOE-16231
+* 2.6	  All records							 Greeshma Vidyadharan		02/01/2017		 V17 mapping doc changes
+* 2.7	  Transaction Detail					 Greeshma Vidyadharan		04/01/2017		 FPOE-16955		
+* 2.8	  All records							 Greeshma Vidyadharan		05/01/2017		 V19 mapping doc changes	
+* 2.9	  All records       					 Greeshma Vidyadharan		09/01/2017		 V20,V21,V22 mapping doc changes	
+								   							 
+************************************************************************************************************************************************************************/
+
+
+
+-- Declaring constants for CodeTranslation
+--CT1
+DECLARE RETURN_REASON_CODES 		CONSTANT CHARACTER 'RETURN REASON CODES';
+--CT2
+DECLARE SALES_MARKDOWN_REASON_CODES CONSTANT CHARACTER 'SALES MARKDOWN REASON CODES';
+DECLARE PRICE_OVERRIDE_CODE 		CONSTANT CHARACTER 'PRICE OVERRIDE CODE';
+--CT3
+DECLARE TAX_TYPE_DETAIL_CODE 		CONSTANT CHARACTER 'TAX TYPE DETAIL CODE';
+--CT4
+DECLARE SERVICE_ITEM_TYPE_CODE 		CONSTANT CHARACTER 'SERVICE ITEM TYPE CODE';
+--CT5
+DECLARE PAYIN_PAYOUT_REASON_CODE CONSTANT CHARACTER 'PAYIN PAYOUT REASON CODE';
+
+DECLARE SBU 						CONSTANT CHARACTER 'FGL';
+DECLARE DATA_SOURCE 				CONSTANT CHARACTER 'XBR';
+
+--Patterns for Formatting
+DECLARE pattern9  			CONSTANT CHARACTER '000000.00';
+DECLARE patternQuantity9  	CONSTANT CHARACTER '00000.000';
+DECLARE pattern11 			CONSTANT CHARACTER '00000000.00';
+DECLARE pattern13 			CONSTANT CHARACTER '0000000000.00';
+
+--Decode the account number
+CREATE PROCEDURE returnPrimaryAccNo(IN PrimaryAcNo CHARACTER)RETURNS CHARACTER
+BEGIN
+    DECLARE DecodAcNo 		BLOB BASE64DECODE(PrimaryAcNo);
+    DECLARE DE_PrimaryAcNo 	CHARACTER CAST(DecodAcNo AS CHARACTER CCSID 1208);
+    DECLARE IN_PrimaryAcNo 	CHARACTER LEFT(DE_PrimaryAcNo,6)||RIGHT(DE_PrimaryAcNo,4); --Take only the first 6 + last 4 characters of the account number
+    RETURN IN_PrimaryAcNo;         
+END;
+
+-- Update the value of sequence Number.
+CREATE PROCEDURE UpdateSequenceNumber(IN SequenceNumber CHARACTER) RETURNS CHARACTER
+BEGIN
+	DECLARE seqNumber CHARACTER MOD(CAST(SequenceNumber AS INTEGER),10000);		
+	RETURN 	COALESCE(RIGHT('0000'||seqNumber,4),'0000');
+END;
+
+
+--Mapping for Header 03 RecordType
+CREATE PROCEDURE Header(IN rIn REFERENCE,IN rEnv REFERENCE,IN rOut REFERENCE)
+BEGIN
+	-- Declare Input references	
+	DECLARE rInTypeCode		   	REFERENCE TO rIn.(XMLNSC.Attribute)TypeCode;
+	DECLARE rInRtlTrn 			REFERENCE TO rIn.arts:RetailTransaction;
+	DECLARE TEMP ROW;
+	
+	SET rOut.StoreNumber 		 = LEFT(rIn.arts:BusinessUnit.arts:BusinessUnitNumber||SPACE(6),6);
+	SET rOut.TransactionDateTime = CAST(CAST(LEFT(rIn.arts:BeginDateTime,19) AS TIMESTAMP FORMAT 'yyyy-MM-dd''T''HH:mm:ss') AS CHARACTER FORMAT 'yyyyMMddHHmmss');		
+	SET rOut.RegisterNumber 	 = COALESCE(LEFT(TRIM(LEADING '0' FROM rIn.arts:WorkstationID)||SPACE(3),3),SPACE(3));
+	SET rOut.RollOverFlag 		 = SPACE(1);					
+	CALL trx.sales.xbr.UpdateSequenceNumber(rIn.arts:SequenceNumber) INTO rOut.TransactionNumber;	 
+	SET rOut.SequenceNumber 	 = SPACE(3);
+	SET rOut.SubSequenceNumber   = SPACE(3);
+	SET rOut.RecordType 		 = '03';
+	
+	--Mapping TransactionType	
+	IF 	   rInTypeCode = 'NoSaleTransaction'	THEN SET rOut.TransactionType = '99';
+	ELSEIF rInTypeCode = 'ZRead' 				THEN SET rOut.TransactionType = '98';
+	ELSEIF rInTypeCode = 'XRead' 				THEN SET rOut.TransactionType = '97'; 			 			
+	ELSEIF rInTypeCode = 'Unsettled' 			THEN SET rOut.TransactionType = '96';
+	ELSEIF rInTypeCode = 'OperatorSignOn' 		THEN SET rOut.TransactionType = '89';
+	ELSEIF rInTypeCode = 'PostVoid' 			THEN SET rOut.TransactionType = '88';
+	ELSEIF rInTypeCode = 'TransactionVoid'  	THEN SET rOut.TransactionType = '87';
+	ELSEIF rInTypeCode = 'OperatorSignOff'  	THEN SET rOut.TransactionType = '86'; 			 			
+	ELSEIF rInTypeCode = 'PayOut' 				THEN SET rOut.TransactionType = '41';
+	ELSEIF rInTypeCode = 'PayIn' 				THEN SET rOut.TransactionType = '40';
+	ELSEIF rInTypeCode = 'SuspendedTransaction' THEN SET rOut.TransactionType = '01';
+	ELSEIF rInTypeCode = 'SaleTransaction' THEN
+		IF NOT EXISTS(rInRtlTrn.arts:Customer.arts:Worker.arts:WorkerID[])  THEN  SET rOut.TransactionType = '01';
+		ELSEIF EXISTS(rInRtlTrn.arts:Customer.arts:Worker.arts:WorkerID[]) 	THEN  SET rOut.TransactionType = '04'; 
+		END IF;			 			 
+	ELSEIF rInTypeCode IN('ReturnTransaction','TenderExchangeTransaction')  THEN
+		IF NOT EXISTS(rInRtlTrn.arts:Customer.arts:Worker.arts:WorkerID[])  THEN SET rOut.TransactionType = '11';
+		ELSEIF EXISTS(rInRtlTrn.arts:Customer.arts:Worker.arts:WorkerID[]) 	THEN SET rOut.TransactionType = '14';
+		END IF;
+	END IF;
+			
+	SET rOut.TillID 				  = SPACE(5);
+	IF rIn.(XMLNSC.Attribute)TypeCode = 'TransactionVoid' THEN SET rOut.Status 			  = 'V';
+	ELSE													   SET rOut.Status 			  = 'A';
+	END IF;
+	
+	--CashierNumber		
+	SET rOut.CashierNumber 	  		  = COALESCE(LEFT(TRIM(LEADING '0' FROM rIn.arts:OperatorID)||SPACE(10),10),SPACE(10));
+	SET rOut.HomeCurrencyCode 		  = SPACE(3);	
+
+	--Mapping TotalTransactionAmount		
+	IF rInTypeCode = 'PayIn' THEN 
+        SET rOut.TotalTransactionAmount 	=  CAST(CAST(rIn.arts:TenderControlTransaction.arts:PayIn.arts:TenderAmount AS DECIMAL)AS CHARACTER FORMAT pattern11);	   
+	ELSEIF rInTypeCode = 'PayOut' THEN 
+        SET rOut.TotalTransactionAmount 	=   CAST(CAST(rIn.arts:TenderControlTransaction.arts:PayOut.arts:TenderAmount AS DECIMAL)AS CHARACTER FORMAT pattern11);
+	ELSEIF rInTypeCode = 'TenderExchangeTransaction' THEN		
+		SET TEMP.TENDER[] =	(SELECT FIELDVALUE(L.arts:Tender.arts:Amount) AS Amount FROM rInRtlTrn.arts:LineItem[] AS L WHERE  L.arts:Tender.(XMLNSC.Attribute)TenderType = 'GiftCard' AND L.arts:Tender.(XMLNSC.Attribute)TypeCode = 'Sale');
+	    SET rOut.TotalTransactionAmount 	=  CAST(CAST( TEMP.TENDER.Amount AS DECIMAL)AS CHARACTER FORMAT pattern11);
+	ELSEIF rInTypeCode IN ('SaleTransaction','ReturnTransaction') THEN
+		SET TEMP.TRANS[] = (SELECT FIELDVALUE(T) AS Amount FROM rInRtlTrn.arts:Total[] AS T WHERE T.(XMLNSC.Attribute)TotalType = 'TransactionGrossAmount');
+		SET rOut.TotalTransactionAmount 	=  CAST(CAST(TEMP.TRANS.Amount AS DECIMAL)AS CHARACTER FORMAT pattern11);
+	ELSE 
+	    SET rOut.TotalTransactionAmount 	= pattern11;
+	END IF;
+
+	--TotalTransactionAmountSign
+	IF rInTypeCode IN('PayOut','ReturnTransaction','TenderExchangeTransaction') OR rInRtlTrn.arts:Total.(XMLNSC.Attribute)TypeCode = 'Refund' THEN	
+		SET rOut.TotalTransactionAmountSign = '-';
+	ELSE
+		SET rOut.TotalTransactionAmountSign = '+';
+	END IF;
+	
+	--Fill with Blank spaces for optional fields, but used by XBR		
+	SET rOut.TotalTenderedAmount 	 = SPACE(11);
+	SET rOut.TotalTenderedAmountSign = SPACE(1);			
+	
+	--CustomerNumber	
+    DECLARE CustomerNumber CHARACTER '';
+	DECLARE rLineItemTend REFERENCE TO rInRtlTrn.arts:LineItem[1];
+	WHILE LASTMOVE(rLineItemTend)  DO
+		IF (rLineItemTend.arts:LineItemSubtypeCode = 'Tender') THEN
+			IF rLineItemTend.arts:Tender.(XMLNSC.Attribute)TenderType = 'ChargeTender' THEN
+				SET CustomerNumber = rLineItemTend.arts:Tender.arts:ChargeTender.arts:AccountNumber;
+			END IF;
+		END IF;
+		MOVE rLineItemTend NEXTSIBLING REPEAT TYPE NAME;	
+	END WHILE;
+	IF CustomerNumber = '' THEN
+		IF EXISTS(rInRtlTrn.arts:Customer.arts:CustomerID[]) THEN 
+			SET CustomerNumber= rInRtlTrn.arts:Customer.arts:CustomerID;
+		END IF;
+	END IF; 
+	SET rOut.CustomerNumber = COALESCE(LEFT(CustomerNumber||SPACE(14),14),SPACE(14));
+	
+	--Fill with Blank spaces for optional fields, but used by XBR
+	SET rOut.MemberNumber 				= SPACE(20);
+	SET rOut.AccountType 				= SPACE(1);			
+	SET rOut.AccountNumber 				= SPACE(20);
+	SET rOut.PostVoidTransactionNumber  = SPACE(5);
+	SET rOut.TransactionReasonCode 		= SPACE(4);	
+	
+	--EmployeeID	
+	SET rOut.EmployeeID 				= COALESCE(LEFT(rInRtlTrn.arts:Customer.arts:Worker.arts:WorkerID||SPACE(10),10),SPACE(10));
+	SET rOut.CustomerZipCode 			= SPACE(9);		
+	
+		--CustomerTaxExemptionNumber  
+	DECLARE CustomerTaxExemptionNumberTax,CustomerTaxExemptionNumberSale,CustomerTaxExemptionNumberRet CHARACTER;
+	DECLARE rLineItem REFERENCE TO rInRtlTrn.arts:LineItem[1];
+	WHILE LASTMOVE(rLineItem)  DO
+		IF (rLineItem.arts:LineItemSubtypeCode = 'Tax') THEN
+			IF EXISTS(rLineItem.arts:Tax[]) THEN 
+				SET TEMP.SCODE1[] = (SELECT FIELDVALUE(T.arts:CustomerExemptionID) AS TAXCUSTID FROM rLineItem.arts:Tax.arts:TaxExemption[] AS T WHERE FIELDVALUE(T.arts:ReasonCode) IN ('TE07', 'TE08', 'TE09', 'TE10', 'TE11'));
+				SET TEMP.SCODE2[] = (SELECT FIELDVALUE(T.arts:CertificateNumber) AS TAXCERT FROM rLineItem.arts:Tax.arts:TaxExemption[] AS T WHERE FIELDVALUE(T.arts:ReasonCode) IN ('TE00', 'TE02', 'TE03', 'TE04', 'TE06'));
+				SET TEMP.SCODE3[] = (SELECT FIELDVALUE(T.arts:NativeBandNumber) AS TAXBANDNUM FROM rLineItem.arts:Tax.arts:TaxExemption[] AS T WHERE FIELDVALUE(T.arts:ReasonCode) IN ('TE05'));
+				SET TEMP.SCODE4[] = (SELECT FIELDVALUE(T.arts:GovernmentRegistrationNumber) AS TAXGOVNUM FROM rLineItem.arts:Tax.arts:TaxExemption[] AS T WHERE FIELDVALUE(T.arts:ReasonCode) IN('TE01')); 			  	       		
+				IF TEMP.SCODE1.TAXCUSTID IS NOT NULL THEN	
+					SET CustomerTaxExemptionNumberTax = LEFT(TEMP.SCODE1.TAXCUSTID ||SPACE(20),20);   				
+				ELSEIF TEMP.SCODE2.TAXCERT IS NOT NULL THEN	
+					SET CustomerTaxExemptionNumberTax = LEFT(TEMP.SCODE2.TAXCERT ||SPACE(20),20);   				
+				ELSEIF TEMP.SCODE3.TAXBANDNUM IS NOT NULL THEN
+					SET CustomerTaxExemptionNumberTax = LEFT(TEMP.SCODE3.TAXBANDNUM ||SPACE(20),20);   					
+				ELSEIF TEMP.SCODE4.TAXGOVNUM IS NOT NULL THEN
+					SET CustomerTaxExemptionNumberTax = LEFT(TEMP.SCODE4.TAXGOVNUM||SPACE(20),20);
+				END IF;
+			END IF;
+		
+		ELSEIF (rLineItem.arts:LineItemSubtypeCode = 'Sale') THEN
+			IF EXISTS(rLineItem.arts:Sale.arts:Tax[]) THEN
+				
+				SET TEMP.SCODE[] = (SELECT FIELDVALUE(T.arts:TaxExemption.arts:CustomerExemptionID) AS CUSTID FROM rLineItem.arts:Sale.arts:Tax[] AS T WHERE FIELDVALUE(T.arts:TaxExemption.arts:ReasonCode) IN  ('IE06', 'IE07', 'IE08')); 				 
+				SET CustomerTaxExemptionNumberSale = LEFT(TEMP.SCODE.CUSTID ||SPACE(20),20);
+			END IF;
+		
+		ELSEIF (rLineItem.arts:LineItemSubtypeCode = 'Return') THEN
+			IF EXISTS(rLineItem.arts:Return.arts:Tax[]) THEN 
+				
+				SET TEMP.SCODE1[] = (SELECT FIELDVALUE(T.arts:TaxExemption.arts:CustomerExemptionID) AS TAXCUSTID FROM rLineItem.arts:Return.arts:Tax[] AS T WHERE FIELDVALUE(T.arts:TaxExemption.arts:ReasonCode) IN ('IE06', 'IE07', 'IE08', 'TE07', 'TE08', 'TE09', 'TE10', 'TE11'));
+				SET TEMP.SCODE2[] = (SELECT FIELDVALUE(T.arts:TaxExemption.arts:CertificateNumber) AS TAXCERT FROM rLineItem.arts:Return.arts:Tax[] AS T WHERE FIELDVALUE(T.arts:TaxExemption.arts:ReasonCode) IN ('TE00', 'TE02', 'TE03', 'TE04', 'TE06'));
+				SET TEMP.SCODE3[] = (SELECT FIELDVALUE(T.arts:TaxExemption.arts:NativeBandNumber) AS TAXBANDNUM FROM rLineItem.arts:Return.arts:Tax[] AS T WHERE FIELDVALUE(T.arts:TaxExemption.arts:ReasonCode) IN ('TE05'));
+				SET TEMP.SCODE4[] = (SELECT FIELDVALUE(T.arts:TaxExemption.arts:GovernmentRegistrationNumber) AS TAXGOVNUM FROM rLineItem.arts:Return.arts:Tax[] AS T WHERE FIELDVALUE(T.arts:TaxExemption.arts:ReasonCode) IN('TE01')); 			  	       		
+				
+				IF TEMP.SCODE1.TAXCUSTID IS NOT NULL THEN	
+					SET CustomerTaxExemptionNumberRet = LEFT(TEMP.SCODE1.TAXCUSTID ||SPACE(20),20);   				
+				ELSEIF TEMP.SCODE2.TAXCERT IS NOT NULL THEN	
+					SET CustomerTaxExemptionNumberRet = LEFT(TEMP.SCODE2.TAXCERT ||SPACE(20),20);   				
+				ELSEIF TEMP.SCODE3.TAXBANDNUM IS NOT NULL THEN
+					SET CustomerTaxExemptionNumberRet = LEFT(TEMP.SCODE3.TAXBANDNUM ||SPACE(20),20);   					
+				ELSEIF TEMP.SCODE4.TAXGOVNUM IS NOT NULL THEN
+					SET CustomerTaxExemptionNumberRet = LEFT(TEMP.SCODE4.TAXGOVNUM||SPACE(20),20);
+				END IF;
+			END IF;
+		END IF;
+		
+		MOVE rLineItem NEXTSIBLING REPEAT TYPE NAME;	
+	END WHILE;
+	IF CustomerTaxExemptionNumberTax IS NOT NULL THEN
+		
+		-----EAI-6385 and EAI-6985: Fix for Special Character -----------------
+				DECLARE strinname, OutCustExID CHARACTER;
+				SET strinname = CustomerTaxExemptionNumberTax;
+				CALL specialCharRemove(strinname) INTO OutCustExID;	
+		SET rOut.CustomerTaxExemptionNumber =  LEFT(OutCustExID ||SPACE(20),20);
+		
+	ELSEIF CustomerTaxExemptionNumberSale IS NOT NULL THEN
+		-----EAI-6385 and EAI-6985: Fix for Special Character -----------------
+				DECLARE strinname, OutCustExID CHARACTER;
+				SET strinname = CustomerTaxExemptionNumberSale;
+				CALL specialCharRemove(strinname) INTO OutCustExID;	
+		SET rOut.CustomerTaxExemptionNumber =  LEFT(OutCustExID ||SPACE(20),20);
+		
+	ELSEIF CustomerTaxExemptionNumberRet IS NOT NULL THEN
+		-----EAI-6385 and EAI-6985: Fix for Special Character -----------------
+				DECLARE strinname, OutCustExID CHARACTER;
+				SET strinname = CustomerTaxExemptionNumberRet;
+				CALL specialCharRemove(strinname) INTO OutCustExID;	
+		SET rOut.CustomerTaxExemptionNumber =  LEFT(OutCustExID ||SPACE(20),20);
+	ELSE
+		
+		SET rOut.CustomerTaxExemptionNumber =  SPACE(20);  					
+	END IF;	
+	--Fill with Blank spaces for optional fields, but used by XBR		
+	SET rOut.OriginalTransactionStoreNumber = SPACE(6);						
+	SET rOut.OriginalTransactionDate 		= SPACE(8);		
+	SET rOut.SalesDate 						= SPACE(8);
+	SET rOut.CustomerLastName 				= SPACE(30);
+	SET rOut.CustomerFirstName 				= SPACE(30);
+	SET rOut.CustomerMiddleInitial 			= SPACE(1);
+	SET rOut.CustomerAddressLine1 			= SPACE(30);
+	SET rOut.CustomerAddressLine2 			= SPACE(30);
+	SET rOut.CustomerCity 					= SPACE(30);
+	SET rOut.CustomerProvinceOrState 		= SPACE(30);
+	SET rOut.CustomerPostalOrZipCode 		= SPACE(15);
+	SET rOut.CustomerPhoneNumber 			= SPACE(15);
+	SET rOut.AirmilesNumber 				= SPACE(11);
+	SET rOut.AirmilesCoupon 				= SPACE(20); 	
+	SET rOut.ClientType 					= SPACE(10);   					
+	SET rOut.ItemCount 						= SPACE(4);	
+	
+	--SceneCardNumber				
+	SET rOut.SceneCardNumber 				= COALESCE(LEFT(rInRtlTrn.arts:LoyaltyAccount.arts:LoyaltyProgram.arts:LoyaltyAccountID||SPACE(16),16),SPACE(16)); 
+	SET rOut.SceneCardPoints 				= SPACE(9);
+	
+END;
+
+--Popoulate Transaction Detail o5 record
+CREATE PROCEDURE Merchandise(IN rIn REFERENCE,IN rEnv REFERENCE,IN rInLineItem REFERENCE,IN rOut REFERENCE,INOUT seqNumberMerch INTEGER, INOUT ReasonCodeDiscount BOOLEAN)
+BEGIN
+	-- Declare Input references				
+	DECLARE rInRtlTrn 			REFERENCE TO rIn.arts:RetailTransaction;	
+	DECLARE rInLineItemSubtype  REFERENCE TO rInLineItem.arts:LineItemSubtypeCode;
+	DECLARE rInCust				REFERENCE TO rInRtlTrn.arts:Customer;
+	DECLARE rEnvCodeTranslation REFERENCE TO rEnv.CodeTranslation;
+	DECLARE SubTypeSale,SubTypeReturn BOOLEAN FALSE;
+	DECLARE DiscountAmt 			  DECIMAL 0;
+	DECLARE temp ROW;
+	
+	IF rInLineItemSubtype = 'Sale' THEN
+		--Setting Boolean value to true for SubTypeCode='Sale'
+		SET SubTypeSale =True;		
+		SET temp.RetailPriceModifiers[] = SELECT * FROM rInLineItem.arts:Sale.arts:RetailPriceModifier[] AS S;
+	ELSEIF rInLineItemSubtype = 'Return' THEN
+		--Setting Boolean value to true for SubTypeCode='Return'
+		SET SubTypeReturn =True;
+		SET temp.RetailPriceModifiers[] = SELECT * FROM rInLineItem.arts:Return.arts:RetailPriceModifier[] AS S;
+	END IF;							 		 
+	
+	SET rOut.StoreNumber 			= LEFT(rIn.arts:BusinessUnit.arts:BusinessUnitNumber||SPACE(6),6);
+	SET rOut.TransactionDateTime 	= CAST(CAST(LEFT(rIn.arts:BeginDateTime,19) AS TIMESTAMP FORMAT 'yyyy-MM-dd''T''HH:mm:ss') AS CHARACTER FORMAT 'yyyyMMddHHmmss');		
+	SET rOut.RegisterNumber 	    = COALESCE(LEFT(TRIM(LEADING '0' FROM rIn.arts:WorkstationID)||SPACE(3),3),SPACE(3));
+	SET rOut.RollOverFlag 			= SPACE(1);	
+	--TransactionNumber
+	CALL trx.sales.xbr.UpdateSequenceNumber(rIn.arts:SequenceNumber) INTO rOut.TransactionNumber;	 		 		
+	SET rOut.SequenceNumber			= RIGHT('000'||CAST(seqNumberMerch AS CHARACTER),3); 
+	SET rOut.SubSequenceNumber 		= SPACE(3);
+	SET rOut.RecordType 			= '05';
+	
+	--TransactionType		
+	IF rInLineItem.(XMLNSC.Attribute)VoidFlag IS TRUE 	THEN 	
+		SET rOut.TransactionType = '87';
+	ELSEIF 	SubTypeSale 	 THEN 
+		IF NOT EXISTS(rInCust.arts:Worker.arts:WorkerID[]) 		THEN 	SET rOut.TransactionType = '01';
+		ELSEIF EXISTS(rInCust.arts:Worker.arts:WorkerID[]) 		THEN 	SET rOut.TransactionType = '04'; 	
+		END IF;
+	ELSEIF SubTypeReturn THEN 
+		IF NOT EXISTS(rInCust.arts:Worker.arts:WorkerID[])    	THEN 	SET rOut.TransactionType = '11';			 			
+		ELSEIF EXISTS(rInCust.arts:Worker.arts:WorkerID[]) 		THEN 	SET rOut.TransactionType = '14';
+		END IF;	
+	END IF;	
+	
+	--Fill with blank spaces 			
+	SET rOut.TillID 		 = SPACE(5);		
+	SET rOut.Status 		 = SPACE(1);					
+	SET rOut.CashierNumber   = SPACE(10);
+	
+	--If LineItemSubTypeCode=Sale	
+	IF SubTypeSale THEN	 
+		SET rOut.SKU = LEFT(rInLineItem.arts:Sale.arts:Item.arts:ItemNumber||SPACE(15),15);
+		DECLARE quantity DECIMAL CAST(rInLineItem.arts:Sale.arts:Quantity AS DECIMAL);
+		SET rOut.ItemQuantity = COALESCE(CAST(quantity AS CHARACTER FORMAT patternQuantity9), patternQuantity9);
+		SET rOut.QuantitySign = '+';
+		DECLARE regularSalesUnitPrice DECIMAL CAST(rInLineItem.arts:Sale.arts:RegularSalesUnitPrice AS DECIMAL); 
+		SET rOut.UnitRetailPrice = COALESCE(CAST(regularSalesUnitPrice AS CHARACTER FORMAT pattern11),pattern11);			
+		SET rOut.SellingPrice = SPACE(11);
+		DECLARE actualSaleUnitPrice DECIMAL CAST(rInLineItem.arts:Sale.arts:ActualSalesUnitPrice AS DECIMAL);
+		SET rOut.ExtendedPrice   =  COALESCE(CAST(actualSaleUnitPrice *  quantity AS CHARACTER FORMAT pattern13), pattern13);
+		SET rOut.ExtendedPriceSign = '+';
+		
+		IF rInLineItem.arts:Sale.arts:RetailPriceModifierCount > 0 THEN
+			--DiscountAmount
+			SET temp.RetailPriceModSalesMkd[] = SELECT * FROM temp.RetailPriceModifiers[] AS R WHERE R.arts:ReasonCode IN('COUPON SUBTOTAL DISCOUNT', 
+													'PRICE MATCHING SUBTOTAL DISCOUNT', 														
+													'TEAM SUBTOTAL DISCOUNT',
+													'INCORRECT TICKET SUBTOTAL DISCOUNT',
+													'GST EVENT SUBTOTAL DISCOUNT',
+													'MANAGER OVERRIDE SUBTOTAL DISCOUNT',
+													'EMPLOYEE SUBTOTAL DISCOUNT',
+													'COUPON ITEM DISCOUNT',
+													'DAMAGED ITEM DISCOUNT',
+													'PRICE MATCHING ITEM DISCOUNT',
+													'TEAM ITEM DISCOUNT',
+													'INCORRECT TICKET ITEM DISCOUNT',
+													'GST EVENT ITEM DISCOUNT',
+													'OTHER ITEM DISCOUNT',
+													'MANAGER OVERRIDE ITEM MARKDOWN',
+													'AD PRICE NOT IN SYSTEM ITEM MARKDOWN',
+													'PRICE ADJUSTMENT',
+													'DM APPROVED',
+													'EMPLOYEE ITEM DISCOUNT',
+													'PACKAGE ITEM MARKDOWN');
+											
+			DECLARE totalSaleMarkdown DECIMAL THE (SELECT SUM(CAST(A.arts:Amount AS DECIMAL)) FROM temp.RetailPriceModSalesMkd[] AS A);	    	   	
+	   		SET rOut.DiscountAmount = COALESCE(CAST(totalSaleMarkdown  AS CHARACTER FORMAT pattern11),pattern11);
+			--DiscountAmountSign
+			SET rOut.DiscountAmountSign = '+';
+			--PriceOverrideFlag 
+			SET temp.RetailPriceModPrcOver[] = SELECT * FROM temp.RetailPriceModifiers[] AS R WHERE R.arts:ReasonCode IN('PRICE MATCHING OVER',
+													'TEAM PRICE OVERRIDE',
+													'INCORRECT TICKET PRICE OVER',
+													'MANAGER PRICE OVERRIDE',
+													'AD PRICE NOT IN SYSTEM PRICE OVERRIDE',
+													'JUNIOR TRADE IN PRICE OVERRIDE',
+													'PRICE ADJUSTMENT PRICE OVERRIDE',
+													'DM APPROVED PRICE OVERRIDE');
+														
+			DECLARE posAmt, negAmt DECIMAL 0;			   
+			DECLARE refRetailPrcMocPrcOver REFERENCE TO temp.RetailPriceModPrcOver;
+			IF (CARDINALITY(temp.RetailPriceModPrcOver[]) > 0)  THEN 
+			 	SET rOut.PriceOverrideFlag =  '1';
+			 	DECLARE posAmt DECIMAL COALESCE(THE (SELECT SUM(CAST(A.arts:Amount AS DECIMAL)) FROM rInLineItem.arts:Sale.arts:RetailPriceModifier[] AS A WHERE A.arts:Amount.(XMLNSC.Attribute)Action='Add' AND A.arts:ReasonCode IN('PRICE MATCHING OVER',
+													'TEAM PRICE OVERRIDE',
+													'INCORRECT TICKET PRICE OVER',
+													'MANAGER PRICE OVERRIDE',
+													'AD PRICE NOT IN SYSTEM PRICE OVERRIDE',
+													'JUNIOR TRADE IN PRICE OVERRIDE',
+													'PRICE ADJUSTMENT PRICE OVERRIDE',
+													'DM APPROVED PRICE OVERRIDE')), 0);
+			 	DECLARE negAmt DECIMAL COALESCE(THE (SELECT SUM(CAST(A.arts:Amount AS DECIMAL)) FROM rInLineItem.arts:Sale.arts:RetailPriceModifier[] AS A WHERE A.arts:Amount.(XMLNSC.Attribute)Action='Subtract' AND A.arts:ReasonCode IN('PRICE MATCHING OVER',
+													'TEAM PRICE OVERRIDE',
+													'INCORRECT TICKET PRICE OVER',
+													'MANAGER PRICE OVERRIDE',
+													'AD PRICE NOT IN SYSTEM PRICE OVERRIDE',
+													'JUNIOR TRADE IN PRICE OVERRIDE',
+													'PRICE ADJUSTMENT PRICE OVERRIDE',
+													'DM APPROVED PRICE OVERRIDE')), 0);
+			 	SET rOut.PriceOverrideAmount =  COALESCE(CAST(((posAmt - negAmt)/quantity) + regularSalesUnitPrice AS CHARACTER FORMAT pattern13), pattern13);
+			 ELSE
+				SET rOut.PriceOverrideFlag =  '0';
+				SET rOut.PriceOverrideAmount =  pattern13;
+			END IF;	   					 	
+		ELSE
+			SET rOut.DiscountAmount = pattern11;
+			SET rOut.DiscountAmountSign = '+';
+			SET rOut.PriceOverrideFlag =  '0';
+			SET rOut.PriceOverrideAmount =  pattern13;
+		END IF;
+	   	
+		SET rOut.UPC = COALESCE(RIGHT('000000000000000000'||rInLineItem.arts:Sale.arts:Item.arts:UPCNumber,18), '000000000000000000');
+		SET rOut.DocumentIssuedNumber = SPACE(15);
+				
+		--LineItemReasonCode
+		DECLARE lineItemReasonCode CHARACTER '';
+		IF (CARDINALITY(temp.RetailPriceModPrcOver[]) > 0) THEN
+			CALL CodeTranslationLookup(SBU,DATA_SOURCE,PRICE_OVERRIDE_CODE,temp.RetailPriceModPrcOver[1].arts:ReasonCode,'',rEnv) INTO lineItemReasonCode;
+		END IF;
+		IF lineItemReasonCode = '' THEN
+			IF (CARDINALITY(temp.RetailPriceModSalesMkd[]) > 0) THEN
+				CALL CodeTranslationLookup(SBU,DATA_SOURCE,SALES_MARKDOWN_REASON_CODES,temp.RetailPriceModSalesMkd.arts:ReasonCode,'',rEnv) INTO lineItemReasonCode;				
+			END IF;
+		END IF;	
+		IF lineItemReasonCode = '' THEN
+			DECLARE refTax REFERENCE TO rInLineItem.arts:Sale.arts:Tax;
+			DECLARE  teFlagItem, ieFlagItem BOOLEAN;
+			WHILE LASTMOVE(refTax) DO
+				IF refTax.arts:TaxExemption.arts:ReasonCode LIKE 'TE%' THEN
+					SET teFlagItem = True;
+				ELSEIF refTax.arts:TaxExemption.arts:ReasonCode LIKE 'IE%' THEN
+					SET ieFlagItem = True;
+				END IF;
+				MOVE refTax NEXTSIBLING REPEAT NAME;
+			END WHILE;
+			DECLARE  teFlagTax, ieFlagTax BOOLEAN;	
+			DECLARE rLineItem REFERENCE TO rInRtlTrn.arts:LineItem[1];
+			DECLARE temp ROW;
+			WHILE LASTMOVE(rLineItem)  DO
+				IF (rLineItem.arts:LineItemSubtypeCode = 'Tax') THEN
+					IF EXISTS(rLineItem.arts:Tax[]) THEN 				
+						SET temp.SCODE[] = (SELECT FIELDVALUE(T.arts:ReasonCode) AS REASONCODE FROM rLineItem.arts:Tax.arts:TaxExemption[] AS T WHERE FIELDVALUE(T.arts:ReasonCode) IS NOT NULL);
+						IF temp.SCODE.REASONCODE LIKE 'TE%' THEN
+							SET teFlagTax = True;						 				
+						ELSEIF  temp.SCODE.REASONCODE  LIKE 'IE%' THEN
+							SET ieFlagTax = True;
+						END IF;
+					END IF;
+				END IF;
+				MOVE rLineItem NEXTSIBLING REPEAT TYPE NAME;	
+			END WHILE;
+			IF teFlagItem THEN
+				SET lineItemReasonCode = 'TX1';
+			ELSEIF teFlagTax THEN
+				SET lineItemReasonCode = 'TX1';
+			ELSEIF ieFlagItem THEN
+				SET lineItemReasonCode = 'ITX1';			
+			ELSEIF ieFlagTax THEN
+				SET lineItemReasonCode = 'ITX1';
+			END IF;
+		END IF;			
+			
+		SET rOut.LineItemReasonCode = COALESCE(LEFT(lineItemReasonCode || SPACE(4),4),SPACE(4));
+		
+		--Fill with Blank spaces
+	    SET rOut.ScanFlag 							= SPACE(1);
+	    SET rOut.SalesPerson1EmployeeID 			= COALESCE(LEFT(rInLineItem.arts:Sale.arts:Associate.arts:AssociateID||SPACE(10),10), SPACE(10));		     
+		SET rOut.SalesPerson1CommissionPercent 		= SPACE(5);
+		SET rOut.SalesPerson2EmployeeID 			= SPACE(10);
+		SET rOut.SalesPerson2CommissionPercent 		= SPACE(5);
+		SET rOut.SalesPerson3EmployeeID 			= SPACE(10);
+		SET rOut.SalesPerson3CommissionPercent 		= SPACE(5);
+		SET rOut.TaxArea 							= SPACE(6);
+		SET rOut.TaxAuthority1 						= SPACE(6);
+		SET rOut.TaxCode1 							= SPACE(6);
+		SET rOut.TaxAuthority2 						= SPACE(6);
+		SET rOut.TaxCode2 							= SPACE(6);
+		SET rOut.TaxAuthority3 						= SPACE(6);
+		SET rOut.TaxCode3 							= SPACE(6);
+		SET rOut.TaxAuthority4 						= SPACE(6);
+		SET rOut.TaxCode4 							= SPACE(6);
+		SET rOut.TaxAuthority5 						= SPACE(6);
+		SET rOut.TaxCode5 							= SPACE(6);
+		SET rOut.TaxAuthority6 						= SPACE(6);
+		SET rOut.TaxCode6 							= SPACE(6);
+		SET rOut.TaxAuthority7 						= SPACE(6);
+		SET rOut.TaxCode7 							= SPACE(6);
+		SET rOut.TaxAuthority8 						= SPACE(6);
+		SET rOut.TaxCode8 							= SPACE(6);
+		SET rOut.TaxAmount 							= SPACE(11);
+		SET rOut.TaxAmountSign 						= SPACE(1);
+		SET rOut.CustomerNumber 					= SPACE(14);
+		SET rOut.OriginalTransactionStoreNumber     = SPACE(6);
+		SET rOut.OriginalTransactionDate 			= CAST(CAST(LEFT(rIn.arts:BeginDateTime,10) AS DATE FORMAT 'yyyy-MM-dd') AS CHARACTER FORMAT 'yyyyMMdd'); 
+		SET rOut.OriginalTransactionNumber 			= '0000';	
+		SET rOut.OriginalCashierNumber 				= SPACE(10);		
+		SET rOut.HomeCurrencyCode 					= SPACE(3);
+		SET rOut.ExchangeRate 						= SPACE(15);
+		SET rOut.ExchangeRateFactor 				= SPACE(1);
+		SET rOut.SalesDate 							= SPACE(8);
+		SET rOut.PriceBook 							= SPACE(12);
+		SET rOut.CurrencyCode 						= SPACE(3);
+		SET rOut.ForeignValue 						= SPACE(13);
+		SET rOut.ExtendedPriceSign2					= SPACE(1);
+		SET rOut.DepartmentID 						= SPACE(3);
+		SET rOut.SubDepartmentID 					= SPACE(3);
+		SET rOut.ClassID 							= SPACE(3);
+		SET rOut.SubClassID 						= SPACE(3);
+		SET rOut.Cost								= SPACE(11);
+		SET rOut.OriginalRegisterNumber 			= SPACE(3);
+		
+		--CustomerName
+		DECLARE rLineItemTend REFERENCE TO rInRtlTrn.arts:LineItem[1];
+		DECLARE name CHARACTER '';
+		WHILE LASTMOVE(rLineItemTend)  DO
+			IF (rLineItemTend.arts:LineItemSubtypeCode = 'Tender') THEN
+				IF rLineItemTend.arts:Tender.(XMLNSC.Attribute)TenderType = 'ChargeTender' THEN						
+					SET name = rLineItemTend.arts:Tender.arts:ChargeTender.arts:AccountName;
+				END IF;
+			END IF;
+			MOVE rLineItemTend NEXTSIBLING REPEAT TYPE NAME;				
+		END WHILE;	
+		IF name = '' THEN
+			IF rInRtlTrn.arts:CustomerCount > 0 THEN						
+				IF NOT EXISTS(rInCust.arts:Worker.arts:WorkerID[]) THEN
+					DECLARE refCustName REFERENCE TO rInCust.arts:CustomerName.arts:Name;
+					DECLARE fname, sname,strinname, stroutname CHARACTER '';				
+					WHILE LASTMOVE(refCustName) DO
+						IF refCustName.(XMLNSC.Attribute)TypeCode = 'FirstName' THEN
+					-----EAI-6385: Fix for Special Character -----------------	
+							SET strinname = FIELDVALUE(refCustName);
+							CALL specialCharRemove(strinname) INTO stroutname ;	
+							SET fname= stroutname;
+
+						ELSEIF refCustName.(XMLNSC.Attribute)TypeCode = 'LastName' THEN
+							-----EAI-6385: Fix for Special Character -----------------
+							SET strinname = FIELDVALUE(refCustName);
+							CALL  specialCharRemove(strinname) INTO stroutname ;	
+							SET sname= stroutname;
+
+						END IF;					
+						MOVE refCustName NEXTSIBLING REPEAT NAME;
+					END WHILE;
+					SET name = LEFT(fname || ' ' || sname || SPACE(40), 40);						
+				ELSE
+					DECLARE refWrkrName REFERENCE TO rInCust.arts:Worker.arts:Name.arts:Name;
+					DECLARE fname, sname, strinname, stroutname CHARACTER '';				
+					WHILE LASTMOVE(refWrkrName) DO
+						IF refWrkrName.(XMLNSC.Attribute)TypeCode = 'FirstName' THEN
+							SET strinname = FIELDVALUE(refWrkrName);
+							---------special char removel--------		
+							CALL specialCharRemove(strinname) INTO stroutname ;	
+							SET fname= stroutname;
+						ELSEIF refWrkrName.(XMLNSC.Attribute)TypeCode = 'LastName' THEN
+							-----EAI-6385: Fix for Special Character -----------------
+							SET strinname = FIELDVALUE(refWrkrName);
+							CALL specialCharRemove(strinname) INTO stroutname ;	
+							SET sname= stroutname;
+						END IF;					
+						MOVE refWrkrName NEXTSIBLING REPEAT NAME;
+					END WHILE;
+					SET name = LEFT(fname || ' ' || sname || SPACE(40), 40);
+				END IF;	
+			END IF; 
+		END IF;
+		--CustomerPhoneNumber,CustomerPostalOrZipCode
+		SET rOut.CustomerName = COALESCE(LEFT(name || SPACE(40), 40),SPACE(40));				
+	  	SET rOut.CustomerPhoneNumber = COALESCE(LEFT(rInCust.arts:Telephone.arts:FullTelephoneNumber||SPACE(15),15), SPACE(15));	
+	    SET rOut.CustomerPostalOrZipCode = COALESCE(LEFT(rInCust.arts:Address.arts:PostalCode||SPACE(10),10),SPACE(10));
+	
+		
+		--DealGroupNumber
+		DECLARE refRetailPrcMdfr REFERENCE TO temp.RetailPriceModifiers;
+		DECLARE prcDerRuleNbr CHARACTER '';
+		WHILE LASTMOVE(refRetailPrcMdfr) DO
+			IF refRetailPrcMdfr.arts:PriceDerivationRuleNumber IS NOT NULL THEN
+				SET prcDerRuleNbr = refRetailPrcMdfr.arts:PriceDerivationRuleNumber;				
+			END IF;
+			MOVE refRetailPrcMdfr NEXTSIBLING REPEAT NAME;
+		END WHILE;
+		SET rOut.DealGroupNumber = COALESCE(LEFT(prcDerRuleNbr || SPACE(15), 15), SPACE(15));
+
+		SET rOut.EGCAuthorizationCode 	= SPACE(15);
+		SET rOut.EGCRequestType 		= SPACE(1);
+		SET rOut.SerialNumber 			= SPACE(20);
+		
+	--If LineItemSubTypeCode=Return	
+	ELSEIF SubTypeReturn THEN
+		SET rOut.SKU = LEFT(rInLineItem.arts:Return.arts:Item.arts:ItemNumber || SPACE(15), 15);
+		DECLARE quantity DECIMAL CAST(rInLineItem.arts:Return.arts:Quantity AS DECIMAL);
+		SET rOut.ItemQuantity = COALESCE(CAST(quantity AS CHARACTER FORMAT patternQuantity9), patternQuantity9);
+		SET rOut.QuantitySign = '-';
+		DECLARE regularSalesUnitPrice DECIMAL CAST(rInLineItem.arts:Return.arts:RegularSalesUnitPrice AS DECIMAL);
+		SET rOut.UnitRetailPrice = COALESCE(CAST(regularSalesUnitPrice AS CHARACTER FORMAT pattern11),pattern11);
+		SET rOut.SellingPrice = SPACE(11);
+		DECLARE actualSaleUnitPrice DECIMAL CAST(rInLineItem.arts:Return.arts:ActualSalesUnitPrice AS DECIMAL);
+		SET rOut.ExtendedPrice   =  COALESCE(CAST(actualSaleUnitPrice *  quantity AS CHARACTER FORMAT pattern13), pattern13);
+		SET rOut.ExtendedPriceSign = '-';
+		
+		IF rInLineItem.arts:Return.arts:RetailPriceModifierCount > 0 THEN
+			--DiscountAmount
+			SET temp.RetailPriceModSalesMkd[] = SELECT * FROM temp.RetailPriceModifiers[] AS R WHERE R.arts:ReasonCode IN('COUPON SUBTOTAL DISCOUNT', 
+													'PRICE MATCHING SUBTOTAL DISCOUNT', 														
+													'TEAM SUBTOTAL DISCOUNT',
+													'INCORRECT TICKET SUBTOTAL DISCOUNT',
+													'GST EVENT SUBTOTAL DISCOUNT',
+													'MANAGER OVERRIDE SUBTOTAL DISCOUNT',
+													'EMPLOYEE SUBTOTAL DISCOUNT',
+													'COUPON ITEM DISCOUNT',
+													'DAMAGED ITEM DISCOUNT',
+													'PRICE MATCHING ITEM DISCOUNT',
+													'TEAM ITEM DISCOUNT',
+													'INCORRECT TICKET ITEM DISCOUNT',
+													'GST EVENT ITEM DISCOUNT',
+													'OTHER ITEM DISCOUNT',
+													'MANAGER OVERRIDE ITEM MARKDOWN',
+													'AD PRICE NOT IN SYSTEM ITEM MARKDOWN',
+													'PRICE ADJUSTMENT',
+													'DM APPROVED',
+													'EMPLOYEE ITEM DISCOUNT',
+													'PACKAGE ITEM MARKDOWN');
+			
+			--Populated and returned to the main function to check if the Discount Record needs to be populated or not										
+			IF CARDINALITY(temp.RetailPriceModSalesMkd[]) <> 0 THEN
+				SET ReasonCodeDiscount = TRUE;
+			END IF;
+			
+			DECLARE totalSaleMarkdown DECIMAL THE (SELECT SUM(CAST(A.arts:Amount AS DECIMAL)) FROM temp.RetailPriceModSalesMkd[] AS A);
+			SET rOut.DiscountAmount = COALESCE(CAST(totalSaleMarkdown  AS CHARACTER FORMAT pattern11),pattern11);
+			--DiscountAmountSign
+			IF (CARDINALITY(temp.RetailPriceModSalesMkd[]) > 0) THEN
+				 SET rOut.DiscountAmountSign = '-';
+			ELSE
+				SET rOut.DiscountAmountSign = '+';
+			END IF;
+			
+			--PriceOverrideFlag and PriceoverrideAmount	
+			SET temp.RetailPriceModPrcOver[] = SELECT * FROM temp.RetailPriceModifiers[] AS R WHERE R.arts:ReasonCode IN('PRICE MATCHING OVER',
+													'TEAM PRICE OVERRIDE',
+													'INCORRECT TICKET PRICE OVER',
+													'MANAGER PRICE OVERRIDE',
+													'AD PRICE NOT IN SYSTEM PRICE OVERRIDE',
+													'JUNIOR TRADE IN PRICE OVERRIDE',
+													'PRICE ADJUSTMENT PRICE OVERRIDE',
+													'DM APPROVED PRICE OVERRIDE');
+			DECLARE posAmt, negAmt DECIMAL 0;			   
+			DECLARE refRetailPrcMocPrcOver REFERENCE TO temp.RetailPriceModPrcOver;
+			IF (CARDINALITY(temp.RetailPriceModPrcOver[]) > 0)  THEN 
+			 	SET rOut.PriceOverrideFlag =  '1';
+			 	DECLARE posAmt DECIMAL COALESCE(THE (SELECT SUM(CAST(A.arts:Amount AS DECIMAL)) FROM rInLineItem.arts:Return.arts:RetailPriceModifier[] AS A WHERE A.arts:Amount.(XMLNSC.Attribute)Action='Add' AND A.arts:ReasonCode IN('PRICE MATCHING OVER',
+													'TEAM PRICE OVERRIDE',
+													'INCORRECT TICKET PRICE OVER',
+													'MANAGER PRICE OVERRIDE',
+													'AD PRICE NOT IN SYSTEM PRICE OVERRIDE',
+													'JUNIOR TRADE IN PRICE OVERRIDE',
+													'PRICE ADJUSTMENT PRICE OVERRIDE',
+													'DM APPROVED PRICE OVERRIDE')), 0);
+			 	DECLARE negAmt DECIMAL COALESCE(THE (SELECT SUM(CAST(A.arts:Amount AS DECIMAL)) FROM rInLineItem.arts:Return.arts:RetailPriceModifier[] AS A WHERE A.arts:Amount.(XMLNSC.Attribute)Action='Subtract' AND A.arts:ReasonCode IN('PRICE MATCHING OVER',
+													'TEAM PRICE OVERRIDE',
+													'INCORRECT TICKET PRICE OVER',
+													'MANAGER PRICE OVERRIDE',
+													'AD PRICE NOT IN SYSTEM PRICE OVERRIDE',
+													'JUNIOR TRADE IN PRICE OVERRIDE',
+													'PRICE ADJUSTMENT PRICE OVERRIDE',
+													'DM APPROVED PRICE OVERRIDE')), 0);
+			 	SET rOut.PriceOverrideAmount =  COALESCE(CAST(((posAmt - negAmt)/quantity) + regularSalesUnitPrice AS CHARACTER FORMAT pattern13), pattern13);
+			ELSE
+				SET rOut.PriceOverrideFlag =  '0';
+				SET rOut.PriceOverrideAmount =  pattern13;
+			END IF;
+		ELSE
+			SET rOut.DiscountAmount = pattern11;
+			SET rOut.DiscountAmountSign = '+';
+			SET rOut.PriceOverrideFlag =  '0';
+			SET rOut.PriceOverrideAmount =  pattern13;
+		END IF;		
+			   	
+        --UPC	   		   	
+		SET rOut.UPC 								= COALESCE(RIGHT('000000000000000000'||rInLineItem.arts:Return.arts:Item.arts:UPCNumber,18),'000000000000000000');
+		SET rOut.DocumentIssuedNumber 				= SPACE(15);
+		
+		--LineItemReasonCode	
+		DECLARE lineItemReasonCode CHARACTER '';
+		CALL CodeTranslationLookup(SBU,DATA_SOURCE,RETURN_REASON_CODES,rInLineItem.arts:Return.arts:ReasonCode,'',rEnv) INTO lineItemReasonCode;
+		SET rOut.LineItemReasonCode 				= COALESCE(LEFT(lineItemReasonCode || SPACE(4), 4), SPACE(4));
+		
+		SET rOut.ScanFlag 							= SPACE(1);
+		SET rOut.SalesPerson1EmployeeID 			= COALESCE(LEFT(rInLineItem.arts:Return.arts:Associate.arts:AssociateID||SPACE(10),10), SPACE(10));	
+		--Fill with blank spaces	
+		SET rOut.SalesPerson1CommissionPercent 		= SPACE(5);
+		SET rOut.SalesPerson2EmployeeID 			= SPACE(10);
+		SET rOut.SalesPerson2CommissionPercent 		= SPACE(5);
+		SET rOut.SalesPerson3EmployeeID 			= SPACE(10);
+		SET rOut.SalesPerson3CommissionPercent 		= SPACE(5);
+		SET rOut.TaxArea 							= SPACE(6);
+		SET rOut.TaxAuthority1 						= SPACE(6);
+		SET rOut.TaxCode1 							= SPACE(6);
+		SET rOut.TaxAuthority2 						= SPACE(6);
+		SET rOut.TaxCode2 							= SPACE(6);
+		SET rOut.TaxAuthority3 						= SPACE(6);
+		SET rOut.TaxCode3 							= SPACE(6);
+		SET rOut.TaxAuthority4 						= SPACE(6);
+		SET rOut.TaxCode4 							= SPACE(6);
+		SET rOut.TaxAuthority5 						= SPACE(6);
+		SET rOut.TaxCode5 							= SPACE(6);
+		SET rOut.TaxAuthority6 						= SPACE(6);
+		SET rOut.TaxCode6 							= SPACE(6);
+		SET rOut.TaxAuthority7 						= SPACE(6);
+		SET rOut.TaxCode7 							= SPACE(6);
+		SET rOut.TaxAuthority8 						= SPACE(6);
+		SET rOut.TaxCode8 							= SPACE(6);
+		SET rOut.TaxAmount 							= SPACE(11);
+		SET rOut.TaxAmountSign 						= SPACE(1);
+		SET rOut.CustomerNumber 					= SPACE(14);
+		
+		--OriginalTransactionStoreNumber
+		SET rOut.OriginalTransactionStoreNumber 	= COALESCE(LEFT(rInLineItem.arts:Return.arts:TransactionLink.arts:BusinessUnit.arts:BusinessUnitNumber||SPACE(6),6), SPACE(6));
+		
+		--OriginalTransactionDate
+		IF rInLineItem.arts:Return.arts:SaleReturnTypeCode IN ('RRTN', 'NVRTN') THEN			 
+	    	SET rOut.OriginalTransactionDate 	= CAST(CAST(LEFT(rInLineItem.arts:Return.arts:TransactionLink.arts:BeginDateTime,10) AS DATE FORMAT 'yyyy-MM-dd') AS CHARACTER FORMAT 'yyyyMMdd');
+		ELSE
+			SET rOut.OriginalTransactionDate 	= CAST(CAST(LEFT(rIn.arts:BeginDateTime,10) AS DATE FORMAT 'yyyy-MM-dd') AS CHARACTER FORMAT 'yyyyMMdd'); 
+		END IF;
+		
+		--OriginalTransactionNumber 
+		SET rOut.OriginalTransactionNumber 		= COALESCE(RIGHT('0000'||rInLineItem.arts:Return.arts:TransactionLink.arts:SequenceNumber,4), '0000');
+		
+		--OriginalCashierNumber
+		SET rOut.OriginalCashierNumber 			= COALESCE(LEFT(TRIM(LEADING '0' FROM rInLineItem.arts:Return.arts:TransactionLink.arts:OperatorID)||SPACE(10),10), SPACE(10));	
+		
+		--Fill with Blank spaces
+		SET rOut.HomeCurrencyCode 				= SPACE(3);
+		SET rOut.ExchangeRate 					= SPACE(15);
+		SET rOut.ExchangeRateFactor 			= SPACE(1);
+		SET rOut.SalesDate 						= SPACE(8);
+		SET rOut.PriceBook 						= SPACE(12);
+		SET rOut.CurrencyCode 					= SPACE(3);
+		SET rOut.ForeignValue 					= SPACE(13);
+		SET rOut.ExtendedPriceSign2 			= SPACE(1);
+		SET rOut.DepartmentID 					= SPACE(3);
+		SET rOut.SubDepartmentID 				= SPACE(3);
+		SET rOut.ClassID 						= SPACE(3);
+		SET rOut.SubClassID 					= SPACE(3);
+		SET rOut.Cost							= SPACE(11);
+		
+		--OriginalRegisterNumber
+		SET rOut.OriginalRegisterNumber 		= COALESCE(LEFT(TRIM(LEADING '0' FROM rInLineItem.arts:Return.arts:TransactionLink.arts:WorkstationID)||SPACE(3),3), SPACE(3));
+		
+		--CustomerName
+		DECLARE rLineItemTend REFERENCE TO rInRtlTrn.arts:LineItem[1];
+		DECLARE name CHARACTER '';
+		WHILE LASTMOVE(rLineItemTend)  DO
+			IF (rLineItemTend.arts:LineItemSubtypeCode = 'Tender') THEN
+				IF rLineItemTend.arts:Tender.(XMLNSC.Attribute)TenderType = 'ChargeTender' THEN						
+					SET name = rLineItemTend.arts:Tender.arts:ChargeTender.arts:AccountName;
+				END IF;
+			END IF;
+			MOVE rLineItemTend NEXTSIBLING REPEAT TYPE NAME;				
+		END WHILE;	
+		IF name = '' THEN
+			IF rInRtlTrn.arts:CustomerCount > 0 THEN						
+				IF NOT EXISTS(rInCust.arts:Worker.arts:WorkerID[]) THEN
+					DECLARE refCustName REFERENCE TO rInCust.arts:CustomerName.arts:Name;
+					DECLARE fname, sname, strinname, stroutname CHARACTER '';				
+					WHILE LASTMOVE(refCustName) DO
+						IF refCustName.(XMLNSC.Attribute)TypeCode = 'FirstName' THEN
+							
+							SET strinname = FIELDVALUE(refCustName);
+					-----------Specialchar removal--------------		
+							CALL specialCharRemove(strinname) INTO stroutname ;	
+							SET fname= stroutname;
+						ELSEIF refCustName.(XMLNSC.Attribute)TypeCode = 'LastName' THEN
+							SET strinname = FIELDVALUE(refCustName);
+							-----------Specialchar removal--------------		
+							CALL specialCharRemove(strinname) INTO stroutname ;	
+							SET sname= stroutname;	
+						END IF;					
+						MOVE refCustName NEXTSIBLING REPEAT NAME;
+					END WHILE;
+					SET name = LEFT(fname || ' ' || sname || SPACE(40), 40);						
+				ELSE
+					DECLARE refWrkrName REFERENCE TO rInCust.arts:Worker.arts:Name.arts:Name;
+					DECLARE fname, sname, strinname, stroutname CHARACTER '';				
+					WHILE LASTMOVE(refWrkrName) DO
+						IF refWrkrName.(XMLNSC.Attribute)TypeCode = 'FirstName' THEN
+							SET strinname = FIELDVALUE(refWrkrName);
+					-----------Specialchar removal--------------		
+							CALL specialCharRemove(strinname) INTO stroutname ;	
+							SET fname= stroutname;	
+						ELSEIF refWrkrName.(XMLNSC.Attribute)TypeCode = 'LastName' THEN
+							SET strinname = FIELDVALUE(refWrkrName);
+							-----------Specialchar removal--------------		
+							CALL specialCharRemove(strinname) INTO stroutname ;	
+							SET sname= stroutname;
+						END IF;					
+						MOVE refWrkrName NEXTSIBLING REPEAT NAME;
+					END WHILE;
+					SET name = LEFT(fname || ' ' || sname || SPACE(40), 40);
+				END IF;	
+			END IF; 
+		END IF;
+		--CustomerPhoneNumber,CustomerPostalOrZipCode
+		SET rOut.CustomerName 			 = COALESCE(LEFT(name || SPACE(40), 40),SPACE(40));				
+	  	SET rOut.CustomerPhoneNumber 	 = COALESCE(LEFT(rInCust.arts:Telephone.arts:FullTelephoneNumber||SPACE(15),15), SPACE(15));	
+	    SET rOut.CustomerPostalOrZipCode = COALESCE(LEFT(rInCust.arts:Address.arts:PostalCode||SPACE(10),10),SPACE(10));
+	
+		
+		--DealGroupNumber
+		DECLARE refRetailPrcMdfr REFERENCE TO temp.RetailPriceModifiers;
+		DECLARE prcDerRuleNbr CHARACTER '';
+		WHILE LASTMOVE(refRetailPrcMdfr) DO
+			IF refRetailPrcMdfr.arts:PriceDerivationRuleNumber IS NOT NULL THEN
+				SET prcDerRuleNbr = refRetailPrcMdfr.arts:PriceDerivationRuleNumber;				
+			END IF;
+			MOVE refRetailPrcMdfr NEXTSIBLING REPEAT NAME;
+		END WHILE;
+		SET rOut.DealGroupNumber = COALESCE(LEFT(prcDerRuleNbr || SPACE(15), 15), SPACE(15));
+		
+		--Fill with blank spaces
+		SET rOut.EGCAuthorizationCode 	= SPACE(15);
+		SET rOut.EGCRequestType 		= SPACE(1);
+		SET rOut.SerialNumber 			= SPACE(20);
+	END IF;
+
+END;
+
+--Mapping Tender 04 Record.
+CREATE PROCEDURE Tender(IN rIn REFERENCE,IN rInLineItem REFERENCE,INOUT rOut REFERENCE,IN seqNumberTender INTEGER)
+BEGIN		 		 		
+		DECLARE TEMP ROW;
+		SET rOut.StoreNumber 					= LEFT(rIn.arts:BusinessUnit.arts:BusinessUnitNumber||SPACE(6),6);
+		SET rOut.TransactionDateTime 			= CAST(CAST(LEFT(rIn.arts:BeginDateTime,19) AS TIMESTAMP FORMAT 'yyyy-MM-dd''T''HH:mm:ss') AS CHARACTER FORMAT 'yyyyMMddHHmmss');	
+		SET rOut.RegisterNumber 	 			= COALESCE(LEFT(TRIM(LEADING '0' FROM rIn.arts:WorkstationID)||SPACE(3),3),SPACE(3));
+		SET rOut.RollOverFlag 					= SPACE(1);		
+		--TransactionNumber
+		CALL trx.sales.xbr.UpdateSequenceNumber(rIn.arts:SequenceNumber) INTO rOut.TransactionNumber;	 
+		SET rOut.SequenceNumber 				= RIGHT('000'||CAST(seqNumberTender AS CHARACTER),3); 
+		SET rOut.SubSequenceNumber 				= SPACE(3);
+		SET rOut.RecordType 					= '04';
+		
+		DECLARE rTender REFERENCE TO rInLineItem.arts:Tender;
+		DECLARE rTenderType REFERENCE TO rTender.(XMLNSC.Attribute)TenderType;
+		DECLARE rSubTenderType REFERENCE TO rTender.(XMLNSC.Attribute)SubTenderType;
+		
+		--TransactionType
+		IF rInLineItem.arts:LineItemSubtypeCode = 'Tender'  THEN
+			IF 	   rTenderType = 'CreditDebit' AND NOT EXISTS(rTender.(XMLNSC.Attribute)SubTenderType[]) THEN	SET rOut.TransactionType = 'DT';	 				
+			ELSEIF rTenderType = 'CreditDebit' AND rSubTenderType = 'Visa' 								 THEN  	SET rOut.TransactionType = 'VI';	 				
+			ELSEIF rTenderType = 'CreditDebit' AND rSubTenderType = 'MasterCard' 						 THEN 	SET rOut.TransactionType = 'MA'; 	 							 			
+			ELSEIF rTenderType = 'CreditDebit' AND rSubTenderType = 'Amex'  							 THEN   SET rOut.TransactionType = 'AX';	 				
+			ELSEIF rTenderType = 'Cash' 	   AND rSubTenderType = 'CAD'  								 THEN 	SET rOut.TransactionType = 'CA'; 				
+			ELSEIF rTenderType = 'Cash'        AND rSubTenderType = 'USD'								 THEN	SET rOut.TransactionType = 'US'; 				
+			ELSEIF rTenderType = 'ChargeTender' 														 THEN 	SET rOut.TransactionType = 'AR'; 				
+			ELSEIF rTenderType = 'GiftCertificate' 														 THEN 	SET rOut.TransactionType = 'GC';  							 			
+			ELSEIF rTenderType = 'GiftCard' AND NOT EXISTS(rTender.(XMLNSC.Attribute)SubTenderType[])	 THEN 	SET rOut.TransactionType = 'EG'; 				
+			ELSEIF rTenderType = 'GiftCard' AND rSubTenderType = 'SPORTMARTGIFTCARD' 					 THEN 	SET rOut.TransactionType = 'SM'; 				
+			ELSEIF rTenderType = 'GiftCard' AND rSubTenderType = 'ATHLETESWORLDGIFTCARD'   				 THEN 	SET rOut.TransactionType = 'AW'; 				
+			ELSEIF rTenderType = 'Cheque' 																 THEN  	SET rOut.TransactionType = 'CH';				
+			ELSEIF rTenderType = 'StorePromo'  													 		 THEN  	SET rOut.TransactionType = 'PE';  					 			 
+			ELSEIF rTenderType = 'MallGiftCertificate'  												 THEN 	SET rOut.TransactionType = 'MG'; 				
+			ELSEIF rTenderType = 'Coupon' 																 THEN	SET rOut.TransactionType = 'CP'; 				
+			ELSEIF rTenderType = 'LoyaltyRedemption'  													 THEN 	SET rOut.TransactionType = 'SC'; 				
+			ELSEIF rTenderType = 'PennyRounding'  														 THEN	SET rOut.TransactionType = 'PR'; 
+			END IF;				
+		ELSEIF rIn.arts:TenderControlTransaction.arts:TenderControlTransactionSubtypeCode IN ('PayIn', 'PayOut')  THEN 
+			SET rOut.TransactionType = 'CA';
+		ELSE 
+			SET rOut.TransactionType = SPACE(2);
+		END IF;
+		--Fill with blank spaces
+		SET rOut.TillID 			= SPACE(5);
+		SET rOut.Status 			= SPACE(1);						
+		SET rOut.CashierNumber 		= SPACE(10);
+			
+		IF rInLineItem.arts:LineItemSubtypeCode = 'Tender' THEN
+			--AmountTendered
+			DECLARE Amnt DECIMAL 0;			
+			IF rTenderType = 'GiftCertificate' THEN
+				IF EXISTS(rInLineItem.arts:Tender[]) THEN
+                	SET rOut.AmountTendered = CAST(CAST(FIELDVALUE(rInLineItem.arts:Tender.arts:GiftCertificate.arts:FaceValue) AS DECIMAL) AS CHARACTER FORMAT pattern11);	
+                END IF;  
+			ELSEIF rTenderType = 'Cash' AND rSubTenderType = 'USD' THEN
+				DECLARE rLineItem REFERENCE TO rIn.arts:RetailTransaction.arts:LineItem[1];
+				WHILE LASTMOVE(rLineItem)  DO
+					IF rLineItem.arts:Tender.(XMLNSC.Attribute)TenderType = 'Cash' AND rLineItem.arts:Tender.(XMLNSC.Attribute)SubTenderType = 'USD' THEN
+						SET Amnt=Amnt + CAST(rLineItem.arts:Tender.arts:Amount AS DECIMAL);
+					ELSEIF rLineItem.arts:Tender.(XMLNSC.Attribute)TenderType = 'Cash' AND rLineItem.arts:Tender.(XMLNSC.Attribute)SubTenderType = 'EXCHANGE' THEN
+						SET Amnt=Amnt + CAST(rLineItem.arts:Tender.arts:Amount AS DECIMAL);
+					END IF;
+					MOVE rLineItem NEXTSIBLING REPEAT TYPE NAME;	
+				END WHILE;
+			   	SET rOut.AmountTendered = COALESCE(CAST(Amnt AS CHARACTER FORMAT pattern11),pattern11) ;
+			ELSE 
+				SET rOut.AmountTendered = COALESCE(CAST(CAST(rInLineItem.arts:Tender.arts:Amount AS DECIMAL) AS CHARACTER FORMAT pattern11),pattern11) ;
+			END IF ; 
+								
+			--AmountTenderedSign
+			IF rTender.(XMLNSC.Attribute)TypeCode = 'Sale' THEN
+				IF rTender.(XMLNSC.Attribute)TenderType = 'PennyRounding' THEN
+					SET rOut.AmountTenderedSign = '-';
+				ELSE
+					SET rOut.AmountTenderedSign = '+';
+				END IF;
+			ELSEIF rTender.(XMLNSC.Attribute)TypeCode = 'Refund' THEN
+				IF rTender.(XMLNSC.Attribute)TenderType = 'PennyRounding' THEN
+					SET rOut.AmountTenderedSign = '+';
+				ELSE
+					SET rOut.AmountTenderedSign = '-';
+				END IF;	
+			ELSE
+				SET rOut.AmountTenderedSign = '+';		
+			END IF;	
+		ELSEIF rIn.arts:TransactionSubtypeCode = 'TenderControlTransaction' THEN
+			
+			IF  rIn.arts:TenderControlTransaction.arts:TenderControlTransactionSubtypeCode =  'PayOut'THEN
+				--AmountTendered
+				SET rOut.AmountTendered =  COALESCE(CAST(CAST(rIn.arts:TenderControlTransaction.arts:PayOut.arts:TenderAmount AS DECIMAL) AS CHARACTER FORMAT pattern11),pattern11) ;
+				--AmountTenderedSign
+				SET rOut.AmountTenderedSign = '-';
+			ELSEIF 	rIn.arts:TenderControlTransaction.arts:TenderControlTransactionSubtypeCode  = 'PayIn' THEN   
+				SET rOut.AmountTendered =  COALESCE(CAST(CAST(rIn.arts:TenderControlTransaction.arts:PayIn.arts:TenderAmount AS DECIMAL) AS CHARACTER FORMAT pattern11),pattern11) ; 
+				SET rOut.AmountTenderedSign = '+';		
+			END IF;
+		END IF;
+	
+		--Fill with Blank spaces
+		SET rOut.ForeignTender 		= SPACE(13);		
+		SET rOut.CurrencyCode  		= SPACE(3);				
+		SET rOut.ExchangeRate  		= SPACE(15);		
+		SET rOut.ExchangeRateFactor = SPACE(1);
+		
+		IF rInLineItem.arts:LineItemSubtypeCode = 'Tender' THEN
+			--TenderDocumentNumber
+			IF rTenderType = 'GiftCertificate' THEN
+				SET rOut.TenderDocumentNumber = COALESCE(LEFT(rInLineItem.arts:Tender.arts:GiftCertificate.arts:SerialNumber||SPACE(15),15),SPACE(15));
+			END IF;
+			
+			--CreditCardNumber
+			IF rTenderType = 'CreditDebit' THEN
+   				DECLARE PrimaryAccNbr CHARACTER ;
+   				CALL returnPrimaryAccNo(rInLineItem.arts:Tender.arts:CreditDebit.arts:PrimaryAccountNumber) INTO PrimaryAccNbr;   				
+   				SET rOut.CreditCardNumber = COALESCE(LEFT(PrimaryAccNbr||SPACE(21),21),SPACE(21));    			                               
+   			ELSEIF rTenderType = 'LoyaltyRedemption' THEN
+                 SET rOut.CreditCardNumber = COALESCE(LEFT(rInLineItem.arts:Tender.arts:LoyaltyRedemption.arts:LoyaltyProgram.arts:LoyaltyAccountID||SPACE(21),21),SPACE(21));
+   			ELSEIF rTenderType = 'GiftCard' THEN
+                 SET rOut.CreditCardNumber = COALESCE(LEFT(rInLineItem.arts:Tender.arts:GiftCard.arts:CardNumber||SPACE(21),21),SPACE(21));
+   			ELSEIF rTenderType = 'ChargeTender' THEN
+                 SET rOut.CreditCardNumber = COALESCE(LEFT(rInLineItem.arts:Tender.arts:ChargeTender.arts:PurchaseOrderNumber||SPACE(21),21),SPACE(21));
+   			ELSEIF rTenderType = 'Coupon' THEN
+                 SET rOut.CreditCardNumber = COALESCE(LEFT(rInLineItem.arts:Tender.arts:Coupon.arts:SerialNumber||SPACE(21),21),SPACE(21));
+			ELSE 
+				SET rOut.CreditCardNumber = SPACE(21);
+   			END IF;
+   			
+   			--ExpirationDate
+   			IF rTenderType = 'CreditDebit' THEN
+				SET rOut.ExpirationDate = COALESCE(CAST(CAST(rInLineItem.arts:Tender.arts:CreditDebit.arts:ExpirationDate||'-01' AS DATE FORMAT 'yyyy-MM-dd')AS CHARACTER FORMAT 'MM/YY'),SPACE(5));
+   			ELSE
+   				SET rOut.ExpirationDate = SPACE(5);
+			END IF;
+			
+			--AuthorizationCode
+			IF rTenderType = 'CreditDebit' THEN
+				SET rOut.AuthorizationCode = LEFT(rInLineItem.arts:Tender.arts:Authorization.arts:AuthorizationCode||SPACE(6),6);
+			ELSE
+				SET rOut.AuthorizationCode = SPACE(6);
+			END IF;
+			
+			--SwipeFlag
+			IF rTenderType = 'CreditDebit' THEN
+           		IF rInLineItem.arts:Tender.arts:Authorization.arts:SwipeIndicator = '1' THEN 
+           			SET rOut.SwipeFlag = '0';
+          		ELSE 
+           			SET rOut.SwipeFlag = '1';
+           		END IF;
+     		ELSEIF rTenderType = 'GiftCard' THEN
+           		IF rInLineItem.arts:Tender.arts:GiftCard.arts:Authorization.arts:SwipeIndicator = '1' THEN
+           			SET rOut.SwipeFlag = '0';
+           		ELSE
+		           	SET rOut.SwipeFlag = '1';
+           		END IF;
+     		ELSE      	
+				SET rOut.SwipeFlag = '0';
+			END IF;
+		ELSE
+			--Fill with blank spaces
+			SET rOut.TenderDocumentNumber = SPACE(15);
+			SET rOut.CreditCardNumber 	  = SPACE(21);    			                               
+   			SET rOut.ExpirationDate 	  = SPACE(5);
+			SET rOut.AuthorizationCode    = SPACE(6);
+			SET rOut.SwipeFlag 			  = '0';			
+		END IF;
+		--Fill with blank spaces
+		SET rOut.ItemSettled 			 = SPACE(1);
+		SET rOut.DriverLicenseNumber 	 = SPACE(30);
+		SET rOut.SalesDate 				 = SPACE(8);
+		SET rOut.IssuingGCStore 		 = SPACE(5);
+		
+		--EGCAuthorizationCode
+		IF rInLineItem.arts:LineItemSubtypeCode = 'Tender' THEN
+			IF EXISTS(rInLineItem.arts:Tender.arts:GiftCard[]) THEN 
+				SET rOut.EGCAuthorizationCode = COALESCE(LEFT(rInLineItem.arts:Tender.arts:GiftCard.arts:Authorization.arts:AuthorizationCode||SPACE(15),15),SPACE(15));
+			ELSE
+				SET rOut.EGCAuthorizationCode = SPACE(15);					
+			END IF;
+		ELSE
+			SET rOut.EGCAuthorizationCode = SPACE(15);			
+		END IF;
+END;
+
+--Mapping For Tax 06 Record
+CREATE PROCEDURE Tax(IN rIn REFERENCE,IN rEnv REFERENCE,IN rInLineItem REFERENCE,IN rOut REFERENCE,IN SeqNumberTx INTEGER)
+BEGIN		 		 		
+	
+	SET rOut.StoreNumber 					= LEFT(rIn.arts:BusinessUnit.arts:BusinessUnitNumber||SPACE(6),6);
+	SET rOut.TransactionDateTime 			= CAST(CAST(LEFT(rIn.arts:BeginDateTime,19) AS TIMESTAMP FORMAT 'yyyy-MM-dd''T''HH:mm:ss') AS CHARACTER FORMAT 'yyyyMMddHHmmss');			
+	SET rOut.RegisterNumber 				= COALESCE(LEFT(TRIM(LEADING '0' FROM rIn.arts:WorkstationID)||SPACE(3),3),SPACE(3));
+	SET rOut.RollOverFlag					= SPACE(1);	
+	
+	--TransactionNumber
+	CALL trx.sales.xbr.UpdateSequenceNumber(rIn.arts:SequenceNumber) INTO rOut.TransactionNumber;						 	
+	SET rOut.SequenceNumber 				= RIGHT('000'||CAST(SeqNumberTx AS CHARACTER),3);
+	SET rOut.SubSequenceNumber 				= SPACE(3);
+	SET rOut.RecordType 					= '06';
+	
+	--Fill with Blank spaces
+	SET rOut.TransactionType 				= SPACE(2);		
+	SET rOut.TillID 						= SPACE(5);
+	SET rOut.Status							= SPACE(1);						
+	SET rOut.CashierNumber 					= SPACE(10);
+	SET rOut.TaxArea 						= SPACE(6);
+	
+	--TaxAuthority
+	
+	CALL CodeTranslationLookup(SBU,DATA_SOURCE,TAX_TYPE_DETAIL_CODE,rInLineItem.arts:Tax.(XMLNSC.Attribute)TaxType,'',rEnv) INTO rOut.TaxAuthority;	
+	SET rOut.TaxAuthority					= LEFT(rOut.TaxAuthority||SPACE(6),6);
+	SET rOut.TaxCode1 						= SPACE(6);
+	SET rOut.TaxCode2 						= SPACE(6);
+	
+	--TaxAmount
+	SET rOut.TaxAmount 						= COALESCE(CAST(CAST(rInLineItem.arts:Tax.arts:Amount AS DECIMAL) AS CHARACTER FORMAT pattern11),pattern11);
+	
+	--TaxAmountSign
+	IF rInLineItem.arts:Tax.(XMLNSC.Attribute)TypeCode = 'Sale' THEN 
+		SET rOut.TaxAmountSign 				= '+';
+	ELSEIF rInLineItem.arts:Tax.(XMLNSC.Attribute)TypeCode = 'Refund' THEN 
+		SET rOut.TaxAmountSign 				= '-';
+	END IF;	
+	
+	--Fill with Blank spaces	  		  
+	SET rOut.SalesDate 						= SPACE(8);
+	SET rOut.CurrencyCode1 					= SPACE(3);
+	SET rOut.ExchangeRate 					= SPACE(15);			
+	SET rOut.ExchangeRateFactor 			= SPACE(1);				
+	SET rOut.MCExtendedTaxAmount 			= SPACE(11);		
+	SET rOut.TaxSign 						= SPACE(1);				
+	SET rOut.CurrencyCode2 					= SPACE(3);
+	
+END;
+
+--Mappings for Discount 07 record
+CREATE PROCEDURE Discount(IN rIn REFERENCE,IN rEnv REFERENCE,IN rInLineItem REFERENCE,IN rOut REFERENCE,IN seqNumberDiscount INTEGER, IN SubSeqNumber INTEGER , IN rLineItemRetPricMod REFERENCE)
+BEGIN
+	--Declare references	
+	DECLARE rInLineItemSubtype 		   REFERENCE TO rInLineItem.arts:LineItemSubtypeCode;
+	DECLARE SubTypeSale, SubTypeReturn BOOLEAN FALSE;
+	DECLARE temp 					   ROW;
+	
+	IF rInLineItemSubtype = 'Sale' THEN
+		--Setting Boolean value to true for SubTypeCode='Sale'
+		SET SubTypeSale =True;		
+	ELSEIF rInLineItemSubtype = 'Return' THEN
+		--Setting Boolean value to true for SubTypeCode='Return'
+		SET SubTypeReturn =True;		
+	END IF;	
+	
+	SET rOut.StoreNumber 					= LEFT(rIn.arts:BusinessUnit.arts:BusinessUnitNumber || SPACE(6),6);	
+	SET rOut.TransactionDateTime 			= CAST(CAST(LEFT(rIn.arts:BeginDateTime,19) AS TIMESTAMP FORMAT 'yyyy-MM-dd''T''HH:mm:ss') AS CHARACTER FORMAT 'yyyyMMddHHmmss');
+	SET rOut.RegisterNumber 	 			= COALESCE(LEFT(TRIM(LEADING '0' FROM rIn.arts:WorkstationID)||SPACE(3),3),SPACE(3));
+	SET rOut.RollOverFlag 					= SPACE(1);
+	
+	--TransactionNumber
+	CALL trx.sales.xbr.UpdateSequenceNumber(rIn.arts:SequenceNumber) INTO rOut.TransactionNumber;		
+	SET rOut.SequenceNumber = RIGHT('000'||CAST(seqNumberDiscount AS CHARACTER),3);
+	
+	--lineItemSubTypeCode is Sale
+	IF (SubTypeSale) THEN
+		
+		--SubSequenceNumber
+		SET rOut.SubSequenceNumber 					= COALESCE(RIGHT('000' || CAST(SubSeqNumber AS CHARACTER),3),'000');
+		SET rOut.RecordType 						= '07';
+		
+		--TransactionType
+		IF rInLineItem.(XMLNSC.Attribute)VoidFlag 	= True THEN
+			SET rOut.TransactionType 				= '87';
+		ELSEIF EXISTS(rIn.arts:RetailTransaction.arts:Customer.arts:Worker.arts:WorkerID[]) THEN 
+			SET rOut.TransactionType 				= '04'; 
+		ELSEIF  NOT EXISTS(rIn.arts:RetailTransaction.arts:Customer.arts:Worker.arts:WorkerID[]) THEN 
+			SET rOut.TransactionType 				= '01'; 
+		END IF;
+		
+		--Fill with blank spaces
+		SET rOut.TillID 							= SPACE(5);
+		SET rOut.Status 							= SPACE(1);
+		SET rOut.CashierNumber 						= SPACE(10);
+		SET rOut.SKU 								= SPACE(15);
+		
+		--DiscountAmount
+		DECLARE quantity DECIMAL CAST(rInLineItem.arts:Sale.arts:Quantity AS DECIMAL);		
+		DECLARE totalSaleMarkdown DECIMAL CAST(rLineItemRetPricMod.arts:Amount AS DECIMAL);	    	   	
+   		SET rOut.DiscountAmount = COALESCE(CAST(totalSaleMarkdown AS CHARACTER FORMAT pattern9),pattern9);
+		
+		--DiscountAmountSign
+		SET rOut.DiscountAmountSign1 = '+';
+			
+		--DiscountReasonType
+		DECLARE ReasonType CHARACTER rLineItemRetPricMod.arts:ReasonCode;
+		IF (ReasonType IN('PACKAGE ITEM MARKDOWN')) THEN
+			SET rOut.DiscountReasonType = 'PACK';
+		ELSEIF (ReasonType IN('EMPLOYEE ITEM DISCOUNT')) THEN
+			SET rOut.DiscountReasonType = 'EMP ';
+		ELSEIF (ReasonType LIKE ('%SUBTOTAL%')) THEN
+			SET rOut.DiscountReasonType = 'TDS0';
+		ELSE 
+     		SET rOut.DiscountReasonType = 'IDS0';
+     	END IF;
+     	
+     	--DiscountReasonCode
+ 		DECLARE DiscountReasonCode CHARACTER;
+ 		CALL CodeTranslationLookup(SBU,DATA_SOURCE,SALES_MARKDOWN_REASON_CODES,ReasonType,'',rEnv) INTO DiscountReasonCode;
+ 		SET rOut.DiscountReasonCode = COALESCE(LEFT(DiscountReasonCode || SPACE(4),4),SPACE(4));
+			
+		--Fill with blank spaces
+		SET rOut.SalesDate 								= SPACE(8);
+		SET rOut.HomeCurrencyCode 						= SPACE(3);
+		SET rOut.MCExchangeRate 						= SPACE(15);
+		SET rOut.MultorDivFlag 							= SPACE(1);
+		SET rOut.MCDiscountAmount 						= SPACE(11);
+		SET rOut.DiscountAmountSign2 					= SPACE(1);
+		SET rOut.CurrencyCode 							= SPACE(3);
+		
+		--CouponNumber
+		IF FIELDVALUE(rLineItemRetPricMod.arts:CouponNumber) IS NOT NULL THEN
+	    	SET rOut.CouponCode = COALESCE(LEFT(rLineItemRetPricMod.arts:CouponNumber || SPACE(8),8),SPACE(8));
+		ELSE 
+			DECLARE rLine REFERENCE TO rIn.arts:RetailTransaction.arts:LineItem[1];
+			WHILE LASTMOVE(rLine)  DO
+			IF EXISTS(rLine.arts:Discount[]) THEN
+				SET rOut.CouponCode = COALESCE(LEFT(rLine.arts:Discount.arts:CouponNumber || SPACE(8),8),SPACE(8));	
+			END IF;  
+				MOVE rLine NEXTSIBLING REPEAT TYPE NAME;	
+			END WHILE;			
+		END IF;
+		
+		--Fill with blank spaces
+		SET rOut.EGCRequestType 						= SPACE(1);
+		SET rOut.Competitor 							= SPACE(30);
+		SET rOut.GNCCouponCode 							= SPACE(12);
+	
+	--lineItemSubTypeCode is Return
+	ELSEIF (SubTypeReturn) THEN
+		
+		--SubSequenceNumber
+		SET rOut.SubSequenceNumber 					= COALESCE(RIGHT('000' ||  CAST(SubSeqNumber AS CHARACTER),3),'000');
+		SET rOut.RecordType 						= '07';
+		
+		--TransactionType
+		IF rInLineItem.(XMLNSC.Attribute)VoidFlag   = True THEN
+			SET rOut.TransactionType 				= '87';
+		ELSEIF EXISTS(rIn.arts:RetailTransaction.arts:Customer.arts:Worker.arts:WorkerID[]) THEN 
+			SET rOut.TransactionType 				= '14'; 
+		ELSEIF EXISTS(rInLineItem.arts:Return[]) THEN 
+			SET rOut.TransactionType 				= '11'; 
+		END IF;
+		
+		--Fill with blank spaces
+		SET rOut.TillID 							= SPACE(5);
+		SET rOut.Status 							= SPACE(1);
+		SET rOut.CashierNumber 						= SPACE(10);
+		SET rOut.SKU 								= SPACE(15);
+		
+		--DiscountAmount
+		DECLARE quantity DECIMAL CAST(rInLineItem.arts:Return.arts:Quantity AS DECIMAL);
+		DECLARE totalSaleMarkdown DECIMAL CAST(rLineItemRetPricMod.arts:Amount AS DECIMAL);
+		SET rOut.DiscountAmount = COALESCE(CAST(totalSaleMarkdown AS CHARACTER FORMAT pattern9),pattern9);
+		
+		--DiscountAmountSign			
+		IF totalSaleMarkdown <> 0 THEN
+			SET rOut.DiscountAmountSign1 = '-';
+		ELSE
+			SET rOut.DiscountAmountSign1 = '+';
+		END IF;
+		
+		--DiscountReasonType
+		DECLARE ReasonType CHARACTER rLineItemRetPricMod.arts:ReasonCode;
+		IF (ReasonType IN('PACKAGE ITEM MARKDOWN')) THEN
+			SET rOut.DiscountReasonType = 'PACK';
+		ELSEIF (ReasonType IN('EMPLOYEE ITEM DISCOUNT')) THEN
+			SET rOut.DiscountReasonType = 'EMP ';
+		ELSEIF (ReasonType LIKE ('%SUBTOTAL%')) THEN
+			SET rOut.DiscountReasonType = 'TDS0';
+		ELSE 
+     		SET rOut.DiscountReasonType = 'IDS0';
+     	END IF;
+     	
+     	--DiscountReasonCode
+ 		DECLARE DiscountReasonCode CHARACTER;
+ 		CALL CodeTranslationLookup(SBU,DATA_SOURCE,SALES_MARKDOWN_REASON_CODES,ReasonType,'',rEnv) INTO DiscountReasonCode;
+ 		SET rOut.DiscountReasonCode = COALESCE(LEFT(DiscountReasonCode || SPACE(4),4),SPACE(4));
+		
+		--Fill with blank spaces
+		SET rOut.SalesDate 								= SPACE(8);
+		SET rOut.HomeCurrencyCode 						= SPACE(3);
+		SET rOut.MCExchangeRate 						= SPACE(15);
+		SET rOut.MultorDivFlag 							= SPACE(1);
+		SET rOut.MCDiscountAmount 						= SPACE(11);
+		SET rOut.DiscountAmountSign2 					= SPACE(1);
+		SET rOut.CurrencyCode 							= SPACE(3);
+		
+		--CouponNumber
+		SET rOut.CouponCode = COALESCE(LEFT(rLineItemRetPricMod.arts:CouponNumber || SPACE(8),8),SPACE(8));
+				
+		--Fill with blank spaces
+		SET rOut.EGCRequestType 						= SPACE(1);
+		SET rOut.Competitor 							= SPACE(30);
+		SET rOut.GNCCouponCode 							= SPACE(12);
+	END IF;
+END;
+
+
+
+--Mapping for Non-Merchandise 15 record
+CREATE PROCEDURE NonMerchandise(IN rIn REFERENCE,IN rInLineItem REFERENCE,IN rEnv REFERENCE,IN rOut REFERENCE,INOUT SeqNumber INTEGER, IN recordType CHARACTER)
+BEGIN
+	--Declaring references
+	DECLARE temp ROW;
+	DECLARE VoidFlag BOOLEAN FALSE;
+	
+	SET rOut.StoreNumber 					= LEFT(rIn.arts:BusinessUnit.arts:BusinessUnitNumber || SPACE(6),6);	
+	SET rOut.TransactionDateTime 			= CAST(CAST(LEFT(rIn.arts:BeginDateTime,19) AS TIMESTAMP FORMAT 'yyyy-MM-dd''T''HH:mm:ss') AS CHARACTER FORMAT 'yyyyMMddHHmmss');
+	SET rOut.RegisterNumber 	 			= COALESCE(LEFT(TRIM(LEADING '0' FROM rIn.arts:WorkstationID)||SPACE(3),3),SPACE(3));
+	SET rOut.RollOverFlag 					= SPACE(1);
+	
+	--TransactionNumber
+	CALL trx.sales.xbr.UpdateSequenceNumber(rIn.arts:SequenceNumber) INTO rOut.TransactionNumber;		
+	
+	--Non Merchnadise Line for lineItemsubTypeCode is Sale
+	IF recordType = 'Sale' THEN
+		SET rOut.SequenceNumber 				= RIGHT('000'||CAST(SeqNumber AS CHARACTER),3);
+		SET rOut.SubSequenceNumber 				= SPACE(3);
+		SET rOut.RecordType 					= '15';
+		
+		SET temp.NonSKUItem[] 					= SELECT * FROM rInLineItem.arts:Sale.arts:NonSKUItem[] AS S;
+		IF CARDINALITY(temp.NonSKUItem[]) > 0 THEN			
+			SET temp.NonSKUItemWithCodes[] 		= SELECT * FROM temp.NonSKUItem[] AS R WHERE R.arts:ServiceItemTypeCode IN('SHIPPING','REPAIRS AND ALTERATIONS','HANDLING FEE','ADMIN','SPECIAL ORDER');
+		END IF;
+		
+		CALL CodeTranslationLookup(SBU,DATA_SOURCE,SERVICE_ITEM_TYPE_CODE,temp.NonSKUItemWithCodes[1].arts:ServiceItemTypeCode,'',rEnv) INTO rOut.TransactionType;
+			
+		SET rOut.TillID 						= SPACE(5);
+		SET rOut.Status 						= SPACE(1);
+		SET rOut.CashierNumber 					= SPACE(10);
+		SET rOut.SKU 							= SPACE(15);
+		SET rOut.ItemQuantity 					= CAST(CAST(rInLineItem.arts:Sale.arts:Quantity AS DECIMAL) AS CHARACTER FORMAT patternQuantity9);	
+		SET rOut.QuantitySign 					= '+';
+		SET rOut.UnitRetailPrice 				=  CAST(CAST(rInLineItem.arts:Sale.arts:RegularSalesUnitPrice AS DECIMAL)AS CHARACTER FORMAT pattern11);
+		SET rOut.SellingPrice 					= SPACE(11);
+		SET rOut.ExtendedPrice 					= CAST((CAST(rInLineItem.arts:Sale.arts:ActualSalesUnitPrice AS DECIMAL) * CAST(rInLineItem.arts:Sale.arts:Quantity AS INTEGER)) AS CHARACTER FORMAT pattern13);
+		SET rOut.ExtendedPriceSign 				= '+';
+		SET rOut.DiscountAmount 				= SPACE(11);
+		SET rOut.DiscountAmountSign 			= SPACE(1);
+		SET rOut.PriceOverrideFlag 				= SPACE(1);
+		SET rOut.PriceOverrideAmount 			= SPACE(13);
+		SET rOut.UPC 							= SPACE(18);
+		
+		DECLARE rServiceTypeCode REFERENCE TO temp.NonSKUItemWithCodes[1].arts:ServiceItemTypeCode;	
+        IF rServiceTypeCode						= 'ADMIN' THEN 
+        	SET rOut.DocumentIssueNumber 		= LEFT('1' || SPACE(15) ,15);
+        ELSEIF rServiceTypeCode 				= 'REPAIRS AND ALTERATIONS' THEN 
+        	SET rOut.DocumentIssueNumber 		= LEFT('2' || SPACE(15) ,15);
+        ELSEIF rServiceTypeCode 				= 'HANDLING FEE' THEN 
+        	SET rOut.DocumentIssueNumber 		= LEFT('3' || SPACE(15) ,15);
+        ELSEIF rServiceTypeCode 				= 'SHIPPING' THEN 
+        	SET rOut.DocumentIssueNumber 		= LEFT('4' || SPACE(15) ,15);
+        ELSEIF rServiceTypeCode 				= 'SPECIAL ORDER' THEN 
+        	SET rOut.DocumentIssueNumber 		= LEFT('5' || SPACE(15) ,15);
+        ELSE
+        	SET rOut.DocumentIssueNumber 		= SPACE(15);
+        END IF; 
+               
+		SET rOut.ReasonCode 					= LEFT(rOut.DocumentIssueNumber || SPACE(4) ,4); --Mapping is same as Document Issue Number 
+		SET rOut.ScanFlag 						= '0';
+		SET rOut.SalesPerson1EmployeeID 		= LEFT(rInLineItem.arts:Sale.arts:Associate.arts:AssociateID || SPACE(10), 10);
+		SET rOut.SalesPerson1CommissionPercent	= SPACE(5);
+		SET rOut.SalesPerson2EmployeeID 		= SPACE(10);
+		SET rOut.SalesPerson2CommissionPercent  = SPACE(5);
+		SET rOut.SalesPerson3EmployeeID 		= SPACE(10);
+		SET rOut.SalesPerson3CommissionPercent  = SPACE(5);
+		SET rOut.TaxArea 						= SPACE(6);
+		SET rOut.TaxAuthority1 					= SPACE(6);
+		SET rOut.TaxCode1 						= SPACE(6);
+		SET rOut.TaxAuthority2 					= SPACE(6);
+		SET rOut.TaxCode2 						= SPACE(6);
+		SET rOut.TaxAuthority3 					= SPACE(6);
+		SET rOut.TaxCode3 						= SPACE(6);
+		SET rOut.TaxAuthority4 					= SPACE(6);
+		SET rOut.TaxCode4 						= SPACE(6);
+		SET rOut.TaxAuthority5 					= SPACE(6);
+		SET rOut.TaxCode5 						= SPACE(6);
+		SET rOut.TaxAuthority6 					= SPACE(6);
+		SET rOut.TaxCode6 						= SPACE(6);
+		SET rOut.TaxAuthority7 					= SPACE(6);
+		SET rOut.TaxCode7 						= SPACE(6);
+		SET rOut.TaxAuthority8 					= SPACE(6);
+		SET rOut.TaxCode8 						= SPACE(6);
+		SET rOut.TaxAmount 						= SPACE(11);
+		SET rOut.TaxAmountSign 					= SPACE(1);
+		SET rOut.CustomerNumber 				= SPACE(14);
+		
+		SET rOut.OriginalTransactionStoreNumber = SPACE(6);
+		SET rOut.OriginalTransactionDate 		= CAST(CAST(LEFT(rIn.arts:BeginDateTime,19) AS TIMESTAMP FORMAT 'yyyy-MM-dd''T''HH:mm:ss') AS CHARACTER FORMAT 'yyyyMMdd');
+		SET rOut.OriginalTransactionNumber 		= '0000';
+		SET rOut.OriginalCashierNumber 			= SPACE(10);
+		
+		SET rOut.HomeCurrencyCode 				= SPACE(3);
+		SET rOut.ExchangeRate 					= SPACE(15);
+		SET rOut.ExchangeRateFactor 			= SPACE(1);
+		SET rOut.SalesDate 						= SPACE(8);
+		SET rOut.EGCAuthorizationCode 			= SPACE(15);
+		SET rOut.EGCRequestType 				= SPACE(1);
+		
+	--Non Merchnadise Line for lineItemsubTypeCode is Return	
+	ELSEIF recordType = 'Return' THEN
+		SET rOut.SequenceNumber 				= RIGHT('000'||CAST(SeqNumber AS CHARACTER),3);
+		SET rOut.SubSequenceNumber 				= SPACE(3);
+		SET rOut.RecordType 					= '15';
+		
+		SET temp.NonSKUItem[] 					= SELECT * FROM rInLineItem.arts:Return.arts:NonSKUItem[] AS S;
+		IF CARDINALITY(temp.NonSKUItem[]) > 0 THEN			
+			SET temp.NonSKUItemWithCodes[] 		= SELECT * FROM temp.NonSKUItem[] AS R WHERE R.arts:ServiceItemTypeCode IN('SHIPPING','REPAIRS AND ALTERATIONS','HANDLING FEE','ADMIN','SPECIAL ORDER');
+		END IF;
+		
+		CALL CodeTranslationLookup(SBU,DATA_SOURCE,SERVICE_ITEM_TYPE_CODE,temp.NonSKUItemWithCodes[1].arts:ServiceItemTypeCode,'',rEnv) INTO rOut.TransactionType;	
+		
+		SET rOut.TillID 						= SPACE(5);
+		SET rOut.Status 						= SPACE(1);
+		SET rOut.CashierNumber 					= SPACE(10);
+		SET rOut.SKU 							= SPACE(15);
+		SET rOut.ItemQuantity 					= CAST(CAST(rInLineItem.arts:Return.arts:Quantity AS DECIMAL)AS CHARACTER FORMAT patternQuantity9);		
+		SET rOut.QuantitySign 					= '-';
+		SET rOut.UnitRetailPrice 				= CAST(CAST(rInLineItem.arts:Return.arts:RegularSalesUnitPrice AS DECIMAL)AS CHARACTER FORMAT pattern11);
+		SET rOut.SellingPrice 					= SPACE(11);
+		SET rOut.ExtendedPrice 					= CAST((CAST(rInLineItem.arts:Return.arts:ActualSalesUnitPrice AS DECIMAL) * CAST(rInLineItem.arts:Return.arts:Quantity AS INTEGER)) AS CHARACTER FORMAT pattern13);
+		SET rOut.ExtendedPriceSign 				= '-';
+		SET rOut.DiscountAmount 				= SPACE(11);
+		SET rOut.DiscountAmountSign 			= SPACE(1);
+		SET rOut.PriceOverrideFlag 				= SPACE(1);
+		SET rOut.PriceOverrideAmount 			= SPACE(13);
+		SET rOut.UPC 							= SPACE(18);
+		
+		DECLARE rServiceTypeCode REFERENCE TO temp.NonSKUItemWithCodes[1].arts:ServiceItemTypeCode;	
+		 IF rServiceTypeCode					= 'ADMIN' THEN 
+        	SET rOut.DocumentIssueNumber 		= LEFT('1' || SPACE(15) ,15);
+        ELSEIF rServiceTypeCode 				= 'REPAIRS AND ALTERATIONS' THEN 
+        	SET rOut.DocumentIssueNumber 		= LEFT('2' || SPACE(15) ,15);
+        ELSEIF rServiceTypeCode 				= 'HANDLING FEE' THEN 
+        	SET rOut.DocumentIssueNumber 		= LEFT('3' || SPACE(15) ,15);
+        ELSEIF rServiceTypeCode 				= 'SHIPPING' THEN 
+        	SET rOut.DocumentIssueNumber 		= LEFT('4' || SPACE(15) ,15);
+        ELSEIF rServiceTypeCode 				= 'SPECIAL ORDER' THEN 
+        	SET rOut.DocumentIssueNumber 		= LEFT('5' || SPACE(15) ,15);
+        ELSE
+        	SET rOut.DocumentIssueNumber 		= SPACE(15);
+        END IF; 
+               
+		SET rOut.ReasonCode 					= LEFT(rOut.DocumentIssueNumber || SPACE(4) ,4); --Mapping is same as Document Issue Number
+		SET rOut.ScanFlag 						= '0';
+		IF EXISTS(rInLineItem.arts:Return.arts:AssociateID[]) THEN	               
+	    	SET rOut.SalesPerson1EmployeeID 	= LEFT(rInLineItem.arts:Return.arts:AssociateID || SPACE(10) ,10);
+		END IF;
+			SET rOut.SalesPerson1CommissionPercent  = SPACE(5);			
+			SET rOut.SalesPerson2EmployeeID 			= SPACE(10);
+			SET rOut.SalesPerson2CommissionPercent  = SPACE(5);
+			SET rOut.SalesPerson3EmployeeID 		= SPACE(10);
+			SET rOut.SalesPerson3CommissionPercent  = SPACE(5);
+			SET rOut.TaxArea 						= SPACE(6);
+			SET rOut.TaxAuthority1 					= SPACE(6);
+			SET rOut.TaxCode1 						= SPACE(6);
+			SET rOut.TaxAuthority2 					= SPACE(6);
+			SET rOut.TaxCode2 						= SPACE(6);
+			SET rOut.TaxAuthority3 					= SPACE(6);
+			SET rOut.TaxCode3 						= SPACE(6);
+			SET rOut.TaxAuthority4 					= SPACE(6);
+			SET rOut.TaxCode4 						= SPACE(6);
+			SET rOut.TaxAuthority5 					= SPACE(6);
+			SET rOut.TaxCode5 						= SPACE(6);
+			SET rOut.TaxAuthority6 					= SPACE(6);
+			SET rOut.TaxCode6 						= SPACE(6);
+			SET rOut.TaxAuthority7 					= SPACE(6);
+			SET rOut.TaxCode7 						= SPACE(6);
+			SET rOut.TaxAuthority8 					= SPACE(6);
+			SET rOut.TaxCode8 						= SPACE(6);
+			SET rOut.TaxAmount 						= SPACE(11);
+			SET rOut.TaxAmountSign 					= SPACE(1);
+			SET rOut.CustomerNumber 				= SPACE(14);		
+	
+			SET rOut.OriginalTransactionStoreNumber = COALESCE(LEFT( rInLineItem.arts:Return.arts:TransactionLink.arts:BusinessUnit.arts:BusinessUnitNumber || SPACE(6),6), SPACE(6)) ;
+			IF rInLineItem.arts:Return.arts:SaleReturnTypeCode IN ('RRTN', 'NVRTN') THEN
+				SET rOut.OriginalTransactionDate 	= CAST(CAST(LEFT(rInLineItem.arts:Return.arts:TransactionLink.arts:BeginDateTime,19) AS TIMESTAMP FORMAT 'yyyy-MM-dd''T''HH:mm:ss') AS CHARACTER FORMAT 'yyyyMMdd');
+			END IF;
+			SET rOut.OriginalTransactionNumber 		= COALESCE(RIGHT('0000' || rInLineItem.arts:Return.arts:TransactionLink.arts:SequenceNumber,4), '0000');			
+			SET rOut.OriginalCashierNumber 			= COALESCE(LEFT(TRIM(LEADING '0' FROM rInLineItem.arts:Return.arts:TransactionLink.arts:OperatorID) || SPACE(10) , 10), SPACE(10));
+			
+			SET rOut.HomeCurrencyCode 				= SPACE(3);
+			SET rOut.ExchangeRate 					= SPACE(15);
+			SET rOut.ExchangeRateFactor 			= SPACE(1);
+			SET rOut.SalesDate 						= SPACE(8);
+			SET rOut.EGCAuthorizationCode 			= SPACE(15);
+			SET rOut.EGCRequestType 				= SPACE(1);
+	
+	--Non Merchnadise Line for lineItemsubTypeCode is SaleOfGiftCard		
+	ELSEIF recordType = 'SaleOfGiftCard' THEN
+		
+		IF rInLineItem.(XMLNSC.Attribute)VoidFlag = 'true' THEN
+			SET VoidFlag 						= TRUE;
+		END IF;
+		
+		SET rOut.SequenceNumber 				= RIGHT('000'||CAST(SeqNumber AS CHARACTER),3);
+		SET rOut.SubSequenceNumber 				= SPACE(3);
+		SET rOut.RecordType 					= '15';
+		IF VoidFlag THEN 
+			SET rOut.TransactionType 			= '87';
+		ELSE 
+			SET rOut.TransactionType 			= '63';
+		END IF; 
+		SET rOut.TillID					 		= SPACE(5);
+		SET rOut.Status 						= SPACE(1);
+		SET rOut.CashierNumber 					= SPACE(10);
+		SET rOut.SKU 							= SPACE(15);	
+		SET rOut.ItemQuantity 					= CAST(CAST('1' AS DECIMAL)AS CHARACTER FORMAT patternQuantity9);	
+		IF VoidFlag THEN 
+			SET rOut.QuantitySign 				= '-';
+		ELSE 
+			SET rOut.QuantitySign 				= '+';
+		END IF; 
+		SET rOut.UnitRetailPrice 				= CAST(CAST(rInLineItem.arts:SaleOfGiftCard.arts:InitialBalance AS DECIMAL) AS CHARACTER FORMAT pattern11);
+		SET rOut.SellingPrice 					= SPACE(11);
+		SET rOut.ExtendedPrice 					= CAST(CAST(rInLineItem.arts:SaleOfGiftCard.arts:InitialBalance AS DECIMAL)AS CHARACTER FORMAT pattern13);
+		IF VoidFlag THEN 
+			SET rOut.ExtendedPriceSign 			= '-';
+		ELSE 
+			SET rOut.ExtendedPriceSign 			= '+';
+		END IF; 
+		
+		SET rOut.DiscountAmount 				= SPACE(11);
+		SET rOut.DiscountAmountSign 			= SPACE(1);
+		SET rOut.PriceOverrideFlag 				= SPACE(1);
+		SET rOut.PriceOverrideAmount 			= SPACE(13);
+		IF VoidFlag THEN
+			SET rOut.UPC = RIGHT(SPACE(18)||rInLineItem.arts:SaleOfGiftCard.arts:CardNumber ,18);
+		ELSE
+			SET rOut.UPC 						= SPACE(18);			
+		END IF;
+		SET rOut.DocumentIssueNumber 			=  LEFT(rInLineItem.arts:SaleOfGiftCard.arts:CardNumber || SPACE(15) ,15);
+		SET rOut.ReasonCode 					= SPACE(4);
+		IF rInLineItem.arts:SaleOfGiftCard.arts:Authorization.arts:SwipeIndicator = 1 THEN
+      		SET rOut.ScanFlag 					= '0';		
+      	ELSE 
+      		SET rOut.ScanFlag 					= '1';
+      	END IF;
+      	SET rOut.SalesPerson1EmployeeID 		= SPACE(10);
+      	SET rOut.SalesPerson1CommissionPercent	= SPACE(5);
+		SET rOut.SalesPerson2EmployeeID 		= SPACE(10);
+		SET rOut.SalesPerson2CommissionPercent  = SPACE(5);
+		SET rOut.SalesPerson3EmployeeID 		= SPACE(10);
+		SET rOut.SalesPerson3CommissionPercent  = SPACE(5);
+		SET rOut.TaxArea 						= SPACE(6);
+		SET rOut.TaxAuthority1 					= SPACE(6);
+		SET rOut.TaxCode1 						= SPACE(6);
+		SET rOut.TaxAuthority2 					= SPACE(6);
+		SET rOut.TaxCode2 						= SPACE(6);
+		SET rOut.TaxAuthority3 					= SPACE(6);
+		SET rOut.TaxCode3 						= SPACE(6);
+		SET rOut.TaxAuthority4 					= SPACE(6);
+		SET rOut.TaxCode4 						= SPACE(6);
+		SET rOut.TaxAuthority5 					= SPACE(6);
+		SET rOut.TaxCode5 						= SPACE(6);
+		SET rOut.TaxAuthority6 					= SPACE(6);
+		SET rOut.TaxCode6 						= SPACE(6);
+		SET rOut.TaxAuthority7 					= SPACE(6);
+		SET rOut.TaxCode7 						= SPACE(6);
+		SET rOut.TaxAuthority8 					= SPACE(6);
+		SET rOut.TaxCode8 						= SPACE(6);
+		SET rOut.TaxAmount 						= SPACE(11);
+		SET rOut.TaxAmountSign 					= SPACE(1);
+		SET rOut.CustomerNumber 				= SPACE(14);
+		
+		SET rOut.OriginalTransactionStoreNumber = SPACE(6);
+		SET rOut.OriginalTransactionDate 		= CAST(CAST(LEFT(rIn.arts:BeginDateTime,19) AS TIMESTAMP FORMAT 'yyyy-MM-dd''T''HH:mm:ss') AS CHARACTER FORMAT 'yyyyMMdd');
+		SET rOut.OriginalTransactionNumber 		= '0000';
+		SET rOut.OriginalCashierNumber 			= SPACE(10);
+		
+		SET rOut.HomeCurrencyCode 				= SPACE(3);
+		SET rOut.ExchangeRate 					= SPACE(15);
+		SET rOut.ExchangeRateFactor 			= SPACE(1);
+		SET rOut.SalesDate 						= SPACE(8);
+	 	SET rOut.EGCAuthorizationCode 			= LEFT(rInLineItem.arts:SaleOfGiftCard.arts:Authorization.arts:AuthorizationCode || SPACE(15) , 15);
+	 	SET rOut.EGCRequestType 				= SPACE(1);
+	
+	--Non Merchnadise Line for lineItemsubTypeCode is Tender 	
+	ELSEIF recordType = 'TenderExchange' THEN
+		SET rOut.SequenceNumber 				= RIGHT('000'||CAST(SeqNumber AS CHARACTER),3);
+		SET rOut.SubSequenceNumber 				= SPACE(3);
+		SET rOut.RecordType 					= '15';
+		SET rOut.TransactionType 				= '65';
+		SET rOut.TillID 						= SPACE(5);
+		SET rOut.Status 						= SPACE(1);
+		SET rOut.CashierNumber 					= SPACE(10);
+		SET rOut.SKU 							= SPACE(15);
+		SET rOut.ItemQuantity 					= CAST(CAST('1' AS DECIMAL)AS CHARACTER FORMAT patternQuantity9);	
+		SET rOut.QuantitySign 					= '-';
+		SET rOut.UnitRetailPrice 				= CAST(CAST(rInLineItem.arts:Tender.arts:Amount AS DECIMAL)AS CHARACTER FORMAT pattern11);	
+		SET rOut.SellingPrice 					= SPACE(11);
+		SET rOut.ExtendedPrice 					= CAST(CAST(rInLineItem.arts:Tender.arts:Amount AS DECIMAL)AS CHARACTER FORMAT pattern13);
+		SET rOut.ExtendedPriceSign 				= '-';
+		SET rOut.DiscountAmount 				= SPACE(11);
+		SET rOut.DiscountAmountSign 			= SPACE(1);
+		SET rOut.PriceOverrideFlag 				= SPACE(1);
+		SET rOut.PriceOverrideAmount 			= SPACE(13);
+		SET rOut.UPC 							= SPACE(18);
+		SET rOut.DocumentIssueNumber 			= LEFT(rInLineItem.arts:Tender.arts:GiftCard.arts:CardNumber || SPACE(15) ,15);
+		SET rOut.ReasonCode 					= SPACE(4);
+		IF rInLineItem.arts:Tender.arts:GiftCard.arts:Authorization.arts:SwipeIndicator = 1 THEN
+       		SET rOut.ScanFlag 					= '0';	
+        ELSE 
+       		SET rOut.ScanFlag 					= '1'; 
+        END IF;
+		SET rOut.SalesPerson1EmployeeID 		= SPACE(10);
+		SET rOut.SalesPerson1CommissionPercent	= SPACE(5);
+		SET rOut.SalesPerson2EmployeeID 		= SPACE(10);
+		SET rOut.SalesPerson2CommissionPercent  = SPACE(5);
+		SET rOut.SalesPerson3EmployeeID 		= SPACE(10);
+		SET rOut.SalesPerson3CommissionPercent  = SPACE(5);
+		SET rOut.TaxArea 						= SPACE(6);
+		SET rOut.TaxAuthority1 					= SPACE(6);
+		SET rOut.TaxCode1 						= SPACE(6);
+		SET rOut.TaxAuthority2 					= SPACE(6);
+		SET rOut.TaxCode2 						= SPACE(6);
+		SET rOut.TaxAuthority3 					= SPACE(6);
+		SET rOut.TaxCode3 						= SPACE(6);
+		SET rOut.TaxAuthority4 					= SPACE(6);
+		SET rOut.TaxCode4 						= SPACE(6);
+		SET rOut.TaxAuthority5 					= SPACE(6);
+		SET rOut.TaxCode5 						= SPACE(6);
+		SET rOut.TaxAuthority6 					= SPACE(6);
+		SET rOut.TaxCode6 						= SPACE(6);
+		SET rOut.TaxAuthority7 					= SPACE(6);
+		SET rOut.TaxCode7 						= SPACE(6);
+		SET rOut.TaxAuthority8 					= SPACE(6);
+		SET rOut.TaxCode8 						= SPACE(6);
+		SET rOut.TaxAmount 						= SPACE(11);
+		SET rOut.TaxAmountSign 					= SPACE(1);
+		SET rOut.CustomerNumber 				= SPACE(14);
+		
+		SET rOut.OriginalTransactionStoreNumber = COALESCE(LEFT( rInLineItem.arts:Return.arts:TransactionLink.arts:BusinessUnit.arts:BusinessUnitNumber || SPACE(6), 6 ), SPACE(6)) ;
+		SET rOut.OriginalTransactionDate 		= CAST(CAST(LEFT(rIn.arts:BeginDateTime,19) AS TIMESTAMP FORMAT 'yyyy-MM-dd''T''HH:mm:ss') AS CHARACTER FORMAT 'yyyyMMdd');
+		SET rOut.OriginalTransactionNumber 		= '0000';
+		SET rOut.OriginalCashierNumber 			= SPACE(10);
+		
+		SET rOut.HomeCurrencyCode 				= SPACE(3);
+		SET rOut.ExchangeRate 					= SPACE(15);
+		SET rOut.ExchangeRateFactor 			= SPACE(1);
+		SET rOut.SalesDate 						= SPACE(8);
+		SET rOut.EGCAuthorizationCode 			= LEFT(rInLineItem.arts:Tender.arts:GiftCard.arts:Authorization.arts:AuthorizationCode || SPACE(15),15);
+		SET rOut.EGCRequestType 				= SPACE(1);
+	
+	--Non Merchnadise Line for TenderControlTransaction 	
+	ELSEIF recordType = 'TenderControlTransaction' THEN
+		SET rOut.SequenceNumber 				= RIGHT('000'||CAST(SeqNumber AS CHARACTER),3);
+		SET rOut.SubSequenceNumber 				= SPACE(3);
+		SET rOut.RecordType 					= '15';
+		
+		IF rIn.(XMLNSC.Attribute)TypeCode 		= 'PayIn' THEN 
+			SET rOut.TransactionType 			= '40';
+		ELSEIF rIn.(XMLNSC.Attribute)TypeCode 	= 'PayOut' THEN 
+     		SET rOut.TransactionType 			= '41';
+		END IF;
+		
+		SET rOut.TillID 						= SPACE(5);
+		SET rOut.Status 						= SPACE(1);
+		SET rOut.CashierNumber 					= SPACE(10);
+		SET rOut.SKU 							= SPACE(15);	
+		SET rOut.ItemQuantity 					= CAST(CAST('1' AS DECIMAL)AS CHARACTER FORMAT patternQuantity9);	
+		SET rOut.QuantitySign 					= '+';
+		SET rOut.UnitRetailPrice 				= pattern11;
+		SET rOut.SellingPrice 					= SPACE(11);
+		IF rIn.(XMLNSC.Attribute)TypeCode 		= 'PayIn' THEN 
+			SET rOut.ExtendedPrice 				= CAST(CAST(rIn.arts:TenderControlTransaction.arts:PayIn.arts:TenderAmount AS DECIMAL)AS CHARACTER FORMAT pattern13);
+			SET rOut.ExtendedPriceSign 			= '+';
+		ELSEIF rIn.(XMLNSC.Attribute)TypeCode 	= 'PayOut' THEN 
+     		SET rOut.ExtendedPrice 				= CAST(CAST(rIn.arts:TenderControlTransaction.arts:PayOut.arts:TenderAmount AS DECIMAL)AS CHARACTER FORMAT pattern13);
+     		SET rOut.ExtendedPriceSign 			= '-';
+		END IF;
+				
+		SET rOut.DiscountAmount 				= SPACE(11);
+		SET rOut.DiscountAmountSign 			= SPACE(1);
+		SET rOut.PriceOverrideFlag 				= SPACE(1);
+		SET rOut.PriceOverrideAmount 			= SPACE(13);
+		SET rOut.UPC 							= SPACE(18);
+		SET rOut.DocumentIssueNumber 			= SPACE(15);
+		
+		DECLARE ReasonCode CHARACTER;
+		IF rIn.(XMLNSC.Attribute)TypeCode		= 'PayOut' THEN
+			CALL CodeTranslationLookup(SBU,DATA_SOURCE,PAYIN_PAYOUT_REASON_CODE,rIn.arts:TenderControlTransaction.arts:PayOut.arts:ReasonCode,'',rEnv) INTO ReasonCode;	
+             SET rOut.ReasonCode 				= LEFT(ReasonCode || SPACE(4),4); 
+		ELSEIF rIn.(XMLNSC.Attribute)TypeCode 	= 'PayIn' THEN 
+			CALL CodeTranslationLookup(SBU,DATA_SOURCE,PAYIN_PAYOUT_REASON_CODE,rIn.arts:TenderControlTransaction.arts:PayIn.arts:ReasonCode,'',rEnv) INTO ReasonCode;	                     
+             SET rOut.ReasonCode 				= LEFT(ReasonCode || SPACE(4)  ,4);
+        END IF;
+        
+        SET rOut.ScanFlag 						= '0';
+        SET rOut.SalesPerson1EmployeeID 		= SPACE(10);
+        SET rOut.SalesPerson1CommissionPercent	= SPACE(5);
+		SET rOut.SalesPerson2EmployeeID 		= SPACE(10);
+		SET rOut.SalesPerson2CommissionPercent  = SPACE(5);
+		SET rOut.SalesPerson3EmployeeID 		= SPACE(10);
+		SET rOut.SalesPerson3CommissionPercent  = SPACE(5);
+		SET rOut.TaxArea 						= SPACE(6);
+		SET rOut.TaxAuthority1 					= SPACE(6);
+		SET rOut.TaxCode1 						= SPACE(6);
+		SET rOut.TaxAuthority2 					= SPACE(6);
+		SET rOut.TaxCode2 						= SPACE(6);
+		SET rOut.TaxAuthority3 					= SPACE(6);
+		SET rOut.TaxCode3 						= SPACE(6);
+		SET rOut.TaxAuthority4 					= SPACE(6);
+		SET rOut.TaxCode4 						= SPACE(6);
+		SET rOut.TaxAuthority5 					= SPACE(6);
+		SET rOut.TaxCode5 						= SPACE(6);
+		SET rOut.TaxAuthority6 					= SPACE(6);
+		SET rOut.TaxCode6 						= SPACE(6);
+		SET rOut.TaxAuthority7 					= SPACE(6);
+		SET rOut.TaxCode7 						= SPACE(6);
+		SET rOut.TaxAuthority8 					= SPACE(6);
+		SET rOut.TaxCode8 						= SPACE(6);
+		SET rOut.TaxAmount 						= SPACE(11);
+		SET rOut.TaxAmountSign 					= SPACE(1);
+		SET rOut.CustomerNumber 				= SPACE(14);
+		
+		SET rOut.OriginalTransactionStoreNumber = SPACE(6);
+		SET rOut.OriginalTransactionDate 		= SPACE(8);
+		SET rOut.OriginalTransactionNumber 		= '0000';
+		SET rOut.OriginalCashierNumber 			= SPACE(10);
+		
+		SET rOut.HomeCurrencyCode 				= SPACE(3);
+		SET rOut.ExchangeRate 					= SPACE(15);
+		SET rOut.ExchangeRateFactor 			= SPACE(1);
+		SET rOut.SalesDate 						= SPACE(8);
+		SET rOut.EGCAuthorizationCode 			= SPACE(15);
+		SET rOut.EGCRequestType 				= SPACE(1);
+	END IF; 
+END;
+
+CREATE PROCEDURE specialCharRemove(IN strinname CHARACTER) RETURNS CHARACTER LANGUAGE JAVA EXTERNAL NAME "com.fgl.eai.SpecialCharRemove.specialCharRemove";
+
+

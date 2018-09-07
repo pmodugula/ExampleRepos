@@ -1,0 +1,8 @@
+doc.orderstatus.fastfind.order_status_update#IIBInboundQueue=RECV.${ORDSTS_IN}
+doc.orderstatus.fastfind.order_status_update#IIBOutboundQueue=SEND.${ORDSTS_IN}
+doc.orderstatus.fastfind.order_status_update#IIBOutboundRemoteQueue=SEND.${ORDSTS_OUT}
+doc.orderstatus.fastfind.order_status_update#CoreAuditDataSource=AUD${ENVN}
+doc.orderstatus.fastfind.order_status_update#OMDataSource=ENT${ENVN}
+doc.orderstatus.fastfind.order_status_update#PreProcessorAuditEnabled=False
+doc.orderstatus.fastfind.order_status_update#PostProcessorAuditEnabled=False
+doc.orderstatus.fastfind.order_status_update#CoreMessageValidation=${MESSAGE_VALIDATION}

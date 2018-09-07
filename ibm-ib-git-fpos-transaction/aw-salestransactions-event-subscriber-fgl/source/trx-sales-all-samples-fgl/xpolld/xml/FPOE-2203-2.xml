@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<XPOLLD>
+    <Header>
+        <RecordType>H</RecordType>
+        <StoreNbr>371</StoreNbr>
+        <RegisterNbr>105</RegisterNbr>
+        <EntryDateTime>10/31/2016 07:17:14</EntryDateTime>
+        <TransactionSeries></TransactionSeries>
+        <TransactionNbr>000077</TransactionNbr>
+        <CashierNbr>000002436</CashierNbr>
+        <TransactionCategory>2</TransactionCategory>
+        <BankDepositDeclarationFlg>0</BankDepositDeclarationFlg>
+        <StoreNbrForTaxJurisdictionLkp></StoreNbrForTaxJurisdictionLkp>
+        <SendTaxExceptionForTaxJurisdiction> </SendTaxExceptionForTaxJurisdiction>
+        <TransactionVoidFlag>0</TransactionVoidFlag>
+        <Unused1>0</Unused1>
+        <Unused2>1</Unused2>
+        <PurchasingEmployeeNbr></PurchasingEmployeeNbr>
+        <CloseoutFlg>0</CloseoutFlg>
+        <TransactionRemark></TransactionRemark>
+        <TaxOverrideFlg>0</TaxOverrideFlg>
+    </Header>
+    <Line>
+        <RecordType>L</RecordType>
+        <LineId>1</LineId>
+        <LineObject>1117</LineObject>
+        <LineAction>38</LineAction>
+        <ReferenceNbr></ReferenceNbr>
+        <LineAmount>0</LineAmount>
+        <Unused1>0</Unused1>
+        <LineAmountDivider>1</LineAmountDivider>
+        <Unused2>0</Unused2>
+        <VoidingReversalFlg>1</VoidingReversalFlg>
+        <LineAmountDeduction>0</LineAmountDeduction>
+        <LineAmountMultiplicationFactor>1</LineAmountMultiplicationFactor>
+        <LineVoidFlg>0</LineVoidFlg>
+        <AttachmentQty>0</AttachmentQty>
+        <LineObjectAdjustment>0</LineObjectAdjustment>
+        <LkpPosCode></LkpPosCode>
+    </Line>
+</XPOLLD>

@@ -1,0 +1,9 @@
+dat.businessunit.pmm.publisher#IIBInboundQueue=RECV.${BU_BATCH_IN_DS}
+dat.businessunit.pmm.publisher#IIBPublication=${BU_TOPICSTR}
+dat.businessunit.pmm.publisher#IIBDataSource=FGLRPL${ENVN}${INST}
+dat.businessunit.pmm.publisher#CoreAuditDataSource=AUD${ENVN}${INST}
+dat.businessunit.pmm.publisher#additionalInstances=${EXTRATHREADS}
+dat.businessunit.pmm.publisher#PreProcessorAuditEnabled=False
+dat.businessunit.pmm.publisher#PostProcessorAuditEnabled=False
+dat.businessunit.pmm.publisher#CoreDatastageMessageValidation=${DS_VALIDATION}
+dat.businessunit.pmm.publisher#CoreArtsMessageValidation=${ARTS_VALIDATION}

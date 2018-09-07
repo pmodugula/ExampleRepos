@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="UTF-8"?><xsd:schema xmlns:xsd="http://www.w3.org/2001/XMLSchema" targetNamespace="http://www.marks.com/2014/01/services/IMS/" xmlns:IMS="http://www.marks.com/2014/01/schemas/IMS" xmlns:ibmSchExtn="http://www.ibm.com/schema/extensions" xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/" xmlns:soap12="http://schemas.xmlsoap.org/wsdl/soap12/" xmlns:tns="http://www.marks.com/2014/01/services/IMS/" xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/">
+	
+	<xsd:import namespace="http://www.marks.com/2014/01/schemas/IMS" schemaLocation="arts-ims.xsd"/>
+	
+	<xsd:element ibmSchExtn:docRoot="true" name="getBusinessAccountInformationResponse">
+        <xsd:complexType>
+          <xsd:sequence>
+          	<xsd:element maxOccurs="1" minOccurs="1" name="PacketControlInfo" type="IMS:PacketControlInfo"/>
+          	<xsd:element maxOccurs="1" minOccurs="0" name="Customer" type="IMS:Customer"/>
+          </xsd:sequence>
+        </xsd:complexType>
+      </xsd:element>
+    
+	
+            
+	<xsd:element name="findByAccountNumberRequest" type="tns:RequestByCustomerNumber">
+	</xsd:element>
+	<xsd:element ibmSchExtn:docRoot="true" name="getBusinessAccountInformationRequest" type="tns:RequestByCustomerNumber"/>
+        
+	<xsd:complexType name="RequestByCustomerNumber">
+		<xsd:sequence>
+			<xsd:element name="CustomerNumber" type="xsd:string"/>
+		</xsd:sequence>
+	</xsd:complexType>
+    
+	<xsd:element name="findByAccountNumberResponse" type="IMS:FindByAccountNumberResponse">
+	</xsd:element>
+	<xsd:element ibmSchExtn:docRoot="true" name="getBusinessAccountPricingRequest" type="tns:getBusinessAccountPricingRequest">
+
+	</xsd:element>
+	<xsd:element ibmSchExtn:docRoot="true" name="getBusinessAccountPricingResponse">
+		<xsd:complexType>
+			<xsd:sequence>
+				<xsd:element name="PacketControlInfo" type="IMS:PacketControlInfo"/>
+				<xsd:element name="CustomerAccountPricing" type="IMS:CustomerAccountPricing"/>
+			</xsd:sequence>
+		</xsd:complexType>
+	</xsd:element>
+    
+	<xsd:complexType name="getBusinessAccountPricingRequest">
+		<xsd:sequence>
+			<xsd:element name="CustomerAccountPricing" type="IMS:CustomerAccountPricing"/>
+		</xsd:sequence>
+	</xsd:complexType>
+	<xsd:element ibmSchExtn:docRoot="true" name="chargeBusinessAccountRequest">
+		<xsd:complexType>
+			<xsd:sequence>
+
+				<xsd:element name="ChargeAccount" type="IMS:ChargeAccount"/>
+			</xsd:sequence>
+		</xsd:complexType>
+	</xsd:element>
+	<xsd:element ibmSchExtn:docRoot="true" name="chargeBusinessAccountResponse">
+		<xsd:complexType>
+			<xsd:sequence>
+
+				<xsd:element maxOccurs="1" minOccurs="1" name="PacketControlInfo" type="IMS:PacketControlInfo">
+				</xsd:element>
+				<xsd:element name="return" type="xsd:boolean"/>
+			</xsd:sequence>
+		</xsd:complexType>
+	</xsd:element>
+    </xsd:schema>

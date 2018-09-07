@@ -1,0 +1,146 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ecore:EPackage xmi:version="2.0"
+    xmlns:xmi="http://www.omg.org/XMI" xmlns:ComIbmCompute.msgnode="ComIbmCompute.msgnode" xmlns:ComIbmDatabase.msgnode="ComIbmDatabase.msgnode" xmlns:ComIbmFilter.msgnode="ComIbmFilter.msgnode" xmlns:ComIbmThrow.msgnode="ComIbmThrow.msgnode" xmlns:com_marks_hyb_fastfind_process_fastfind_order.subflow="com/marks/hyb/fastfind/process_fastfind_order.subflow" xmlns:com_marks_hyb_fastfind_submit_epos_txn.subflow="com/marks/hyb/fastfind/submit_epos_txn.subflow" xmlns:com_marks_hyb_fastfind_virtual_giftcard_activation.subflow="com/marks/hyb/fastfind/virtual_giftcard_activation.subflow"
+    xmlns:com_marks_hyb_fastfind_virtual_giftcard_creation.subflow="com/marks/hyb/fastfind/virtual_giftcard_creation.subflow" xmlns:ecore="http://www.eclipse.org/emf/2002/Ecore" xmlns:eflow="http://www.ibm.com/wbi/2005/eflow" xmlns:utility="http://www.ibm.com/wbi/2005/eflow_utility" nsURI="trx/order/hyb/fastfind/_epos_order_creation.subflow"
+    nsPrefix="trx_order_hyb_fastfind__epos_order_creation.subflow">
+  <eClassifiers xmi:type="eflow:FCMComposite" name="FCMComposite_1" useDefaults="true" udpSupport="true">
+    <eSuperTypes href="http://www.ibm.com/wbi/2005/eflow#//FCMBlock"/>
+    <eStructuralFeatures xmi:type="ecore:EAttribute" xmi:id="Property.dataSource" name="dataSource" defaultValueLiteral="ENTDEV">
+      <eType xmi:type="ecore:EDataType" href="http://www.eclipse.org/emf/2002/Ecore#//EString"/>
+    </eStructuralFeatures>
+    <eStructuralFeatures xmi:type="ecore:EAttribute" xmi:id="Property.WSGFFEndPoint" name="WSGFFEndPoint" defaultValueLiteral="http://10.103.1.158:1242/WSG/MARKS/SOAP_FF">
+      <eType xmi:type="ecore:EDataType" href="http://www.eclipse.org/emf/2002/Ecore#//EString"/>
+    </eStructuralFeatures>
+    <eStructuralFeatures xmi:type="ecore:EAttribute" xmi:id="Property.WSGFFEndPoint.internal_npcompiler" name="WSGFFEndPoint.internal_npcompiler">
+      <eType xmi:type="ecore:EDataType" href="http://www.eclipse.org/emf/2002/Ecore#//EString"/>
+    </eStructuralFeatures>
+    <eStructuralFeatures xmi:type="ecore:EAttribute" xmi:id="Property.WSGGivexEndpoint" name="WSGGivexEndpoint" lowerBound="1" defaultValueLiteral="10.103.1.162:6789">
+      <eType xmi:type="ecore:EDataType" href="http://www.eclipse.org/emf/2002/Ecore#//EString"/>
+    </eStructuralFeatures>
+    <eStructuralFeatures xmi:type="ecore:EAttribute" xmi:id="Property.eTPSRequestQueue" name="eTPSRequestQueue" defaultValueLiteral="TEST">
+      <eType xmi:type="ecore:EDataType" href="http://www.eclipse.org/emf/2002/Ecore#//EString"/>
+    </eStructuralFeatures>
+    <translation xmi:type="utility:TranslatableString" key="_epos_order_creation" bundleName="trx/order/hyb/fastfind/_epos_order_creation" pluginId="trx-instoreordercreation-hyb-inbound-mww"/>
+    <colorGraphic16 xmi:type="utility:GIFFileGraphic" resourceName="platform:/plugin/trx-instoreordercreation-hyb-inbound-mww/icons/full/obj16/_epos_order_creation.gif"/>
+    <colorGraphic32 xmi:type="utility:GIFFileGraphic" resourceName="platform:/plugin/trx-instoreordercreation-hyb-inbound-mww/icons/full/obj30/_epos_order_creation.gif"/>
+    <composition>
+      <nodes xmi:type="eflow:FCMSource" xmi:id="InTerminal.Input" location="10,20">
+        <translation xmi:type="utility:TranslatableString" key="InTerminal.Input" bundleName="trx/order/hyb/fastfind/_epos_order_creation" pluginId="trx-instoreordercreation-hyb-inbound-mww"/>
+      </nodes>
+      <nodes xmi:type="eflow:FCMSink" xmi:id="OutTerminal.Output" location="2457,415">
+        <translation xmi:type="utility:TranslatableString" key="OutTerminal.Output" bundleName="trx/order/hyb/fastfind/_epos_order_creation" pluginId="trx-instoreordercreation-hyb-inbound-mww"/>
+      </nodes>
+      <nodes xmi:type="ComIbmDatabase.msgnode:FCMComposite_1" xmi:id="FCMComposite_1_1" location="93,20" dataSource="ENTDEV" statement="esql://routine/com.marks.hyb.fastfind#orderExistingCheck.Main">
+        <translation xmi:type="utility:ConstantString" string="OrderExistingCheck"/>
+      </nodes>
+      <nodes xmi:type="ComIbmFilter.msgnode:FCMComposite_1" xmi:id="FCMComposite_1_2" location="276,99" filterExpression="esql://routine/com.marks.hyb.fastfind#isOrderExist.Main">
+        <translation xmi:type="utility:ConstantString" string="IsOrderExist?"/>
+      </nodes>
+      <nodes xmi:type="ComIbmDatabase.msgnode:FCMComposite_1" xmi:id="FCMComposite_1_9" location="1798,336" dataSource="ENTDEV" statement="esql://routine/com.marks.hyb.fastfind#insert_Into_SSORDER_CROSSREF_Table.Main">
+        <translation xmi:type="utility:ConstantString" string="Insert Entry In SSORDER_CROSSREF Table"/>
+      </nodes>
+      <nodes xmi:type="ComIbmDatabase.msgnode:FCMComposite_1" xmi:id="FCMComposite_1_4" location="578,178" dataSource="ENTDEV" statement="esql://routine/com.marks.hyb.fastfind#getStoreAddress.Main">
+        <translation xmi:type="utility:ConstantString" string="Get Originating Store Address"/>
+      </nodes>
+      <nodes xmi:type="ComIbmCompute.msgnode:FCMComposite_1" xmi:id="FCMComposite_1_10" location="761,257" computeExpression="esql://routine/com.marks.hyb.fastfind#setOrderCreationVariables.Main" computeMode="destinationAndMessage">
+        <translation xmi:type="utility:ConstantString" string="Set_Order_Creation_Variables_Compute"/>
+      </nodes>
+      <nodes xmi:type="ComIbmThrow.msgnode:FCMComposite_1" xmi:id="FCMComposite_1_12" location="456,99" messageNumber="2002" messageText="ORDER_ALREADY_EXISTS">
+        <translation xmi:type="utility:ConstantString" string="OrderExists"/>
+      </nodes>
+      <nodes xmi:type="ComIbmThrow.msgnode:FCMComposite_1" xmi:id="FCMComposite_1_3" location="227,20" messageNumber="2001" messageText="FAILURE_ACCESS_DATA_ORDER">
+        <translation xmi:type="utility:ConstantString" string="ErrorChekingIfOrderAlreadyExists"/>
+      </nodes>
+      <nodes xmi:type="ComIbmThrow.msgnode:FCMComposite_1" xmi:id="FCMComposite_1_11" location="786,178" messageNumber="2003" messageText="FAILURE_ACCESS_DATA_STORE">
+        <translation xmi:type="utility:ConstantString" string="ErrorFetchingWebStoreDetails"/>
+      </nodes>
+      <nodes xmi:type="ComIbmThrow.msgnode:FCMComposite_1" xmi:id="FCMComposite_1_13" location="2113,336" messageNumber="2004" messageText="FAILURE_UPDATE_DATA_ORDER">
+        <translation xmi:type="utility:ConstantString" string="ErrorInsertDeatils"/>
+      </nodes>
+      <nodes xmi:type="ComIbmCompute.msgnode:FCMComposite_1" xmi:id="FCMComposite_1_17" location="430,178" computeExpression="esql://routine/com.marks.hyb.fastfind#mod_store_shipping_details.Main">
+        <translation xmi:type="utility:ConstantString" string="Store_shipping_details"/>
+      </nodes>
+      <nodes xmi:type="ComIbmCompute.msgnode:FCMComposite_1" xmi:id="FCMComposite_1_18" location="1186,336" computeExpression="esql://routine/com.marks.hyb.fastfind#fastfind_order_creation_Req.Main" computeMode="destinationAndMessage">
+        <translation xmi:type="utility:ConstantString" string="FastFind_Request_Create"/>
+      </nodes>
+      <nodes xmi:type="com_marks_hyb_fastfind_virtual_giftcard_creation.subflow:FCMComposite_1" xmi:id="FCMComposite_1_20" location="1352,336">
+        <translation xmi:type="utility:ConstantString" string="virtual_giftcard_creation"/>
+      </nodes>
+      <nodes xmi:type="com_marks_hyb_fastfind_process_fastfind_order.subflow:FCMComposite_1" xmi:id="FCMComposite_1_22" location="2305,415">
+        <translation xmi:type="utility:ConstantString" string="process_fastfind_order"/>
+      </nodes>
+      <nodes xmi:type="com_marks_hyb_fastfind_submit_epos_txn.subflow:FCMComposite_1" xmi:id="FCMComposite_1_5" location="1676,336">
+        <translation xmi:type="utility:ConstantString" string="submit_epos_txn"/>
+      </nodes>
+      <nodes xmi:type="ComIbmCompute.msgnode:FCMComposite_1" xmi:id="FCMComposite_1_6" location="2047,415" computeExpression="esql://routine/trx.order.hyb.fastfind#mod_save_TransactionId_Giftcard_number.Main">
+        <translation xmi:type="utility:ConstantString" string="Override_TransactionId and  Giftcard number"/>
+      </nodes>
+      <nodes xmi:type="ComIbmCompute.msgnode:FCMComposite_1" xmi:id="FCMComposite_1_7" location="996,257" dataSource="ENTDEV" computeExpression="esql://routine/com.marks.hyb.fastfind#source_products_information.Main" computeMode="all">
+        <translation xmi:type="utility:ConstantString" string="GetSourceProductInfoCompute"/>
+      </nodes>
+      <nodes xmi:type="ComIbmThrow.msgnode:FCMComposite_1" xmi:id="FCMComposite_1_14" location="1205,257" messageNumber="2005" messageText="LINE_ITEM_NOT_FOUND">
+        <translation xmi:type="utility:ConstantString" string="LineItemNotFound"/>
+      </nodes>
+      <nodes xmi:type="com_marks_hyb_fastfind_virtual_giftcard_activation.subflow:FCMComposite_1" xmi:id="FCMComposite_1_8" location="1496,337">
+        <translation xmi:type="utility:ConstantString" string="virtual_giftcard_activation"/>
+      </nodes>
+      <connections xmi:type="eflow:FCMConnection" xmi:id="FCMConnection_2" targetNode="FCMComposite_1_2" sourceNode="FCMComposite_1_1" sourceTerminalName="OutTerminal.out" targetTerminalName="InTerminal.in"/>
+      <connections xmi:type="eflow:FCMConnection" xmi:id="FCMConnection_8" targetNode="FCMComposite_1_12" sourceNode="FCMComposite_1_2" sourceTerminalName="OutTerminal.true" targetTerminalName="InTerminal.in"/>
+      <connections xmi:type="eflow:FCMConnection" xmi:id="FCMConnection_9" targetNode="FCMComposite_1_3" sourceNode="FCMComposite_1_1" sourceTerminalName="OutTerminal.failure" targetTerminalName="InTerminal.in"/>
+      <connections xmi:type="eflow:FCMConnection" xmi:id="FCMConnection_12" targetNode="FCMComposite_1_12" sourceNode="FCMComposite_1_2" sourceTerminalName="OutTerminal.unknown" targetTerminalName="InTerminal.in"/>
+      <connections xmi:type="eflow:FCMConnection" xmi:id="FCMConnection_14" targetNode="FCMComposite_1_12" sourceNode="FCMComposite_1_2" sourceTerminalName="OutTerminal.failure" targetTerminalName="InTerminal.in"/>
+      <connections xmi:type="eflow:FCMConnection" xmi:id="FCMConnection_15" targetNode="FCMComposite_1_11" sourceNode="FCMComposite_1_4" sourceTerminalName="OutTerminal.failure" targetTerminalName="InTerminal.in"/>
+      <connections xmi:type="eflow:FCMConnection" xmi:id="FCMConnection_16" targetNode="FCMComposite_1_13" sourceNode="FCMComposite_1_9" sourceTerminalName="OutTerminal.failure" targetTerminalName="InTerminal.in"/>
+      <connections xmi:type="eflow:FCMConnection" xmi:id="FCMConnection_7" targetNode="FCMComposite_1_17" sourceNode="FCMComposite_1_2" sourceTerminalName="OutTerminal.false" targetTerminalName="InTerminal.in"/>
+      <connections xmi:type="eflow:FCMConnection" xmi:id="FCMConnection_17" targetNode="FCMComposite_1_4" sourceNode="FCMComposite_1_17" sourceTerminalName="OutTerminal.out" targetTerminalName="InTerminal.in"/>
+      <connections xmi:type="eflow:FCMConnection" xmi:id="FCMConnection_20" targetNode="FCMComposite_1_10" sourceNode="FCMComposite_1_4" sourceTerminalName="OutTerminal.out" targetTerminalName="InTerminal.in"/>
+      <connections xmi:type="eflow:FCMConnection" xmi:id="FCMConnection_3" targetNode="FCMComposite_1_1" sourceNode="InTerminal.Input" sourceTerminalName="OutTerminal.out" targetTerminalName="InTerminal.in"/>
+      <connections xmi:type="eflow:FCMConnection" xmi:id="FCMConnection_13" targetNode="OutTerminal.Output" sourceNode="FCMComposite_1_22" sourceTerminalName="OutTerminal.Output" targetTerminalName="InTerminal.in"/>
+      <connections xmi:type="eflow:FCMConnection" xmi:id="FCMConnection_11" targetNode="FCMComposite_1_20" sourceNode="FCMComposite_1_18" sourceTerminalName="OutTerminal.out" targetTerminalName="InTerminal.Input"/>
+      <connections xmi:type="eflow:FCMConnection" xmi:id="FCMConnection_18" targetNode="FCMComposite_1_9" sourceNode="FCMComposite_1_5" sourceTerminalName="OutTerminal.Output" targetTerminalName="InTerminal.in"/>
+      <connections xmi:type="eflow:FCMConnection" xmi:id="FCMConnection_19" targetNode="FCMComposite_1_6" sourceNode="FCMComposite_1_9" sourceTerminalName="OutTerminal.out" targetTerminalName="InTerminal.in"/>
+      <connections xmi:type="eflow:FCMConnection" xmi:id="FCMConnection_21" targetNode="FCMComposite_1_22" sourceNode="FCMComposite_1_6" sourceTerminalName="OutTerminal.out" targetTerminalName="InTerminal.Input"/>
+      <connections xmi:type="eflow:FCMConnection" xmi:id="FCMConnection_4" targetNode="FCMComposite_1_7" sourceNode="FCMComposite_1_10" sourceTerminalName="OutTerminal.out" targetTerminalName="InTerminal.in"/>
+      <connections xmi:type="eflow:FCMConnection" xmi:id="FCMConnection_5" targetNode="FCMComposite_1_18" sourceNode="FCMComposite_1_7" sourceTerminalName="OutTerminal.out" targetTerminalName="InTerminal.in"/>
+      <connections xmi:type="eflow:FCMConnection" xmi:id="FCMConnection_6" targetNode="FCMComposite_1_14" sourceNode="FCMComposite_1_7" sourceTerminalName="OutTerminal.failure" targetTerminalName="InTerminal.in"/>
+      <connections xmi:type="eflow:FCMConnection" xmi:id="FCMConnection_1" targetNode="FCMComposite_1_8" sourceNode="FCMComposite_1_20" sourceTerminalName="OutTerminal.Output" targetTerminalName="InTerminal.Input"/>
+      <connections xmi:type="eflow:FCMConnection" xmi:id="FCMConnection_10" targetNode="FCMComposite_1_5" sourceNode="FCMComposite_1_8" sourceTerminalName="OutTerminal.Output" targetTerminalName="InTerminal.Input"/>
+    </composition>
+    <propertyOrganizer>
+      <propertyDescriptor groupName="Group.ENTERPRISE" configurable="true" describedAttribute="Property.dataSource">
+        <propertyName xmi:type="utility:TranslatableString" key="Property.dataSource" bundleName="ComIbmDatabase" pluginId="com.ibm.etools.mft.ibmnodes"/>
+        <propertyDescriptor groupName="Group.ServiceEndpoints" propertyEditor="com.ibm.etools.mft.ibmnodes.editors.soap.http.SOAP_Over_HTTP_WebServicesURLPropertyEditor" compiler="com.ibm.etools.mft.ibmnodes.compilers.GenericSOAPCompiler" configurable="true" describedAttribute="Property.WSGFFEndPoint">
+          <propertyName xmi:type="utility:TranslatableString" key="Property.WSGFFEndPoint" bundleName="trx/order/hyb/fastfind/_epos_order_creation" pluginId="trx-instoreordercreation-hyb-inbound-mww"/>
+          <propertyDescriptor groupName="Group.InternalRuntimeGroup" readOnly="true" hidden="true" describedAttribute="Property.WSGFFEndPoint.internal_npcompiler">
+            <propertyName xmi:type="utility:TranslatableString" key="Property.WSGFFEndPoint.internal_npcompiler" bundleName="trx/order/hyb/fastfind/_epos_order_creation" pluginId="trx-instoreordercreation-hyb-inbound-mww"/>
+            <propertyDescriptor groupName="Group.ServiceEndpoints" propertyEditor="com.ibm.etools.mft.ibmnodes.editors.tcpip.TCPIPConnectionPropertyEditor" configurable="true" describedAttribute="Property.WSGGivexEndpoint">
+              <propertyName xmi:type="utility:TranslatableString" key="Property.WSGGivexEndpoint" bundleName="com/marks/hyb/fastfind/virtual_giftcard_creation" pluginId="common-orderceation-hyb-library"/>
+              <propertyDescriptor groupName="Group.eTPS" propertyEditor="com.ibm.etools.mft.ibmnodes.editors.mq.MQQueueNameEditor" configurable="true" describedAttribute="Property.eTPSRequestQueue">
+                <propertyName xmi:type="utility:TranslatableString" key="Property.eTPSRequestQueue" bundleName="com/marks/hyb/fastfind/submit_epos_txn" pluginId="common-orderceation-hyb-library"/>
+              </propertyDescriptor>
+            </propertyDescriptor>
+          </propertyDescriptor>
+        </propertyDescriptor>
+      </propertyDescriptor>
+    </propertyOrganizer>
+    <attributeLinks promotedAttribute="Property.dataSource" overriddenNodes="FCMComposite_1_4 FCMComposite_1_9 FCMComposite_1_1">
+      <overriddenAttribute href="ComIbmDatabase.msgnode#Property.dataSource"/>
+    </attributeLinks>
+    <attributeLinks promotedAttribute="Property.dataSource" overriddenNodes="FCMComposite_1_7">
+      <overriddenAttribute href="ComIbmCompute.msgnode#Property.dataSource"/>
+    </attributeLinks>
+    <attributeLinks promotedAttribute="Property.WSGFFEndPoint" overriddenNodes="FCMComposite_1_22">
+      <overriddenAttribute href="com/marks/hyb/fastfind/process_fastfind_order.subflow#Property.WSGFFEndpoint"/>
+    </attributeLinks>
+    <attributeLinks promotedAttribute="Property.WSGGivexEndpoint" overriddenNodes="FCMComposite_1_20">
+      <overriddenAttribute href="com/marks/hyb/fastfind/virtual_giftcard_creation.subflow#Property.WSGGivexEndpoint"/>
+    </attributeLinks>
+    <attributeLinks promotedAttribute="Property.WSGGivexEndpoint" overriddenNodes="FCMComposite_1_8">
+      <overriddenAttribute href="com/marks/hyb/fastfind/virtual_giftcard_activation.subflow#Property.WSGGivexEndpoint"/>
+    </attributeLinks>
+    <attributeLinks promotedAttribute="Property.eTPSRequestQueue" overriddenNodes="FCMComposite_1_5">
+      <overriddenAttribute href="com/marks/hyb/fastfind/submit_epos_txn.subflow#Property.eTPSRequestQueue"/>
+    </attributeLinks>
+    <stickyBoard/>
+  </eClassifiers>
+</ecore:EPackage>

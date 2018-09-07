@@ -1,0 +1,109 @@
+<?xml version="1.0" encoding="UTF-8"?><wsdl:definitions name="FFSOAP" targetNamespace="http://www.marks.com/2014/01/services/FF/" xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/" xmlns:tns="http://www.marks.com/2014/01/services/FF/" xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+  <wsdl:documentation>
+    <wsdl:appinfo source="WMQI_APPINFO">
+      <MRWSDLAppInfo imported="true">
+        <generatedXSD location="xsd/fastfind_ws/Library/OrderProcessingWebServicetypeV0_00_00.xsd"/>
+        <binding hasEncoding="false" imported="true" name="FFSOAPSOAP" originalBindingStyle="document"/>
+      </MRWSDLAppInfo>
+    </wsdl:appinfo>
+  </wsdl:documentation>
+  <wsdl:types>
+    <xsd:schema targetNamespace="http://www.marks.com/2014/01/services/FF/" xmlns:ARTS="http://www.marks.com/2014/01/schemas/ARTS">
+<xsd:import namespace="http://www.marks.com/2014/01/schemas/ARTS" schemaLocation="xsd/fastfind_ws/Library/OrderProcessingSubtypeV0_00_00.xsd"/>
+<xsd:include schemaLocation="xsd/fastfind_ws/Library/OrderProcessingWebServicetypeV0_00_00.xsd"/>
+    </xsd:schema>
+  </wsdl:types>
+  <wsdl:message name="getOrdersDetailListRequest">
+    <wsdl:part element="tns:getOrdersDetailListRequest" name="getOrdersDetailListRequest"/>
+  </wsdl:message>
+  <wsdl:message name="getOrdersDetailListResponse">
+    <wsdl:part element="tns:getOrdersDetailListResponse" name="getOrdersDetailListResponse"/>
+  </wsdl:message>
+  <wsdl:message name="updateOrderStatusRequest">
+  	<wsdl:part element="tns:updateOrderStatusRequest" name="parameters"/>
+  </wsdl:message>
+  <wsdl:message name="updateOrderStatusResponse">
+  	<wsdl:part element="tns:updateOrderStatusResponse" name="parameters"/>
+  </wsdl:message>
+  <wsdl:message name="processOrderRequest">
+  	<wsdl:part element="tns:processOrderRequest" name="parameters"/>
+  </wsdl:message>
+  <wsdl:message name="processOrderResponse">
+  	<wsdl:part element="tns:processOrderResponse" name="parameters"/>
+  </wsdl:message>
+  <wsdl:message name="createOrderRequest">
+  	<wsdl:part element="tns:createOrderRequest" name="parameters"/>
+  </wsdl:message>
+  <wsdl:message name="createOrderResponse">
+  	<wsdl:part element="tns:createOrderResponse" name="parameters"/>
+  </wsdl:message>
+  <wsdl:portType name="FFSOAP">
+    <wsdl:operation name="getOrdersDetailList">
+      <wsdl:input message="tns:getOrdersDetailListRequest"/>
+      <wsdl:output message="tns:getOrdersDetailListResponse"/>
+    </wsdl:operation>
+    <wsdl:operation name="updateOrderStatus">
+    	<wsdl:input message="tns:updateOrderStatusRequest"/>
+    	<wsdl:output message="tns:updateOrderStatusResponse"/>
+    </wsdl:operation>
+    <wsdl:operation name="processOrder">
+    	<wsdl:input message="tns:processOrderRequest"/>
+    	<wsdl:output message="tns:processOrderResponse"/>
+    </wsdl:operation>
+    <wsdl:operation name="createOrder">
+    	<wsdl:input message="tns:createOrderRequest"/>
+    	<wsdl:output message="tns:createOrderResponse"/>
+    </wsdl:operation>
+  </wsdl:portType>
+  <wsdl:binding name="FFSOAPSOAP" type="tns:FFSOAP">
+
+  	<soap:binding style="document" transport="http://schemas.xmlsoap.org/soap/http"/>
+  	<wsdl:operation name="getOrdersDetailList">
+
+  		<soap:operation soapAction="http://www.marks.com/2014/01/services/FF/getOrdersDetailList"/>
+  		<wsdl:input>
+
+  			<soap:body use="literal"/>
+  		</wsdl:input>
+  		<wsdl:output>
+
+  			<soap:body use="literal"/>
+  		</wsdl:output>
+  	</wsdl:operation>
+  	<wsdl:operation name="updateOrderStatus">
+
+  		<soap:operation soapAction="http://www.marks.com/2014/01/services/FF/updateOrderStatus"/>
+  		<wsdl:input>
+
+  			<soap:body use="literal"/>
+  		</wsdl:input>
+  		<wsdl:output>
+
+  			<soap:body use="literal"/>
+  		</wsdl:output>
+  	</wsdl:operation>
+  	<wsdl:operation name="processOrder">
+  		<soap:operation soapAction="http://www.marks.com/2014/01/services/FF/processOrder"/>
+  		<wsdl:input>
+  			<soap:body use="literal"/>
+  		</wsdl:input>
+  		<wsdl:output>
+  			<soap:body use="literal"/>
+  		</wsdl:output>
+  	</wsdl:operation>
+  	<wsdl:operation name="createOrder">
+  		<soap:operation soapAction="http://www.marks.com/2014/01/services/FF/createOrder"/>
+  		<wsdl:input>
+  			<soap:body use="literal"/>
+  		</wsdl:input>
+  		<wsdl:output>
+  			<soap:body use="literal"/>
+  		</wsdl:output>
+  	</wsdl:operation>
+  </wsdl:binding>
+  <wsdl:service name="FFSOAP">
+    <wsdl:port binding="tns:FFSOAPSOAP" name="FFSOAPSOAP">
+      <soap:address location="http://10.100.10.71:1242/WSG/MARKS/SOAP_FF"/>
+    </wsdl:port>
+  </wsdl:service>
+</wsdl:definitions>

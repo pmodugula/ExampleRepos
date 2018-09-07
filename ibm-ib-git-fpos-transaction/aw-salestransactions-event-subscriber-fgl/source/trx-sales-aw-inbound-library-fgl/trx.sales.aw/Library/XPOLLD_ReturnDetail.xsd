@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- edited with XMLSpy v2014 sp1 (x64) (http://www.altova.com) by FGL SPORTS LTD (FGL SPORTS LTD) -->
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" elementFormDefault="qualified" attributeFormDefault="unqualified">
+	<xs:complexType name="ReturnDetail">
+		<xs:sequence>
+			<xs:element name="RecordType" type="xs:string" fixed="R" nillable="false"/>
+			<xs:element name="LineId" type="xs:integer" nillable="false"/>
+			<xs:element name="ReturnReasonMessage" type="xs:string" minOccurs="0"/>
+			<xs:element name="ReturnReasonCode" type="xs:integer" minOccurs="0"/>
+			<xs:element name="MerchandiseDispositionCode" type="xs:integer" minOccurs="0"/>
+			<xs:element name="ViaWarehouseFlg" type="xs:string" minOccurs="0"/>
+			<xs:element name="ReturnFromStoreNbr" type="xs:string" minOccurs="0"/>
+			<xs:element name="ReturnFromRegisterNbr" type="xs:string" minOccurs="0"/>
+			<xs:element name="ReturnFromDate" type="xs:string" minOccurs="0"/>
+			<xs:element name="ReturnFromTransactionNbr" type="xs:string" minOccurs="0"/>
+			<xs:element name="OriginalSalesPerson" type="xs:string" minOccurs="0" maxOccurs="2"/>
+		</xs:sequence>
+	</xs:complexType>
+</xs:schema>

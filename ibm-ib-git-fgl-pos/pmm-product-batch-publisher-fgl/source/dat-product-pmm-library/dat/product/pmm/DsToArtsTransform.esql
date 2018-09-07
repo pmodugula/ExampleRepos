@@ -1,0 +1,379 @@
+BROKER SCHEMA dat.product.pmm
+/*
+ * File name: ProductPublisher.esql
+ *
+ * Purpose: ESQL file for Product Publisher to create Arts xml for Product main feed. 
+ *              
+ */
+DECLARE PRODUCT_STATUS_CODE CONSTANT CHARACTER 'PRODUCT STATUS CODE';
+DECLARE CMN_CODE_DSCRPT_TXT CONSTANT CHARACTER 'CMN_CODE_DSCRPT_TXT';
+--Datastage message namespace declaration.
+DECLARE ds NAMESPACE 'http://www.fgl.com/SourceStagingProductPmmFgl';
+			
+CREATE COMPUTE MODULE pmm_SetupCodeTranslation
+	CREATE FUNCTION Main() RETURNS BOOLEAN
+	BEGIN
+		DECLARE rEnv REFERENCE TO Environment;
+		DECLARE SBU CHARACTER InputRoot.XMLNSC.ds:Exchange.ds:MessageRouting.ds:SBU_CD;
+		DECLARE DATA_SOURCE CHARACTER InputRoot.XMLNSC.ds:Exchange.ds:MessageRouting.ds:DATA_SOURCE_CD;
+		-- condition added by Piyush Vaishnav to tackle double call to common_InitCodeTranslation
+		IF rEnv.__InitCodeTranslation__ IS NULL OR rEnv.__InitCodeTranslation__ <> TRUE THEN
+			CALL common.common_translateCodeInit(rEnv);
+		END IF;
+		DECLARE rProduct REFERENCE TO InputRoot.XMLNSC.ds:Exchange.ds:Message.ds:Product;
+		DECLARE rPrdcmnDtlResult REFERENCE TO rProduct.ds:ProductDetails;
+		CALL common.common_TranslateCodeWithSuffix(rEnv,SBU,DATA_SOURCE,PRODUCT_STATUS_CODE,'',rPrdcmnDtlResult.ds:PRD_STATUS);		
+		CALL common.common_TranslateCodeWithSuffix(rEnv,SBU,DATA_SOURCE,PRODUCT_STATUS_CODE,'',rPrdcmnDtlResult.ds:StyleStatus);
+		SET OutputRoot = InputRoot;
+		RETURN TRUE;
+	END;
+END MODULE;
+/*
+ * This Module creates Arts xml for product from Datastage output message.  
+ */
+CREATE COMPUTE MODULE pmm_BuildOutputMessage
+	CREATE FUNCTION Main() RETURNS BOOLEAN
+	BEGIN
+				
+		-- copy message headers
+		SET OutputRoot.Properties = InputRoot.Properties;
+		SET OutputRoot.MQMD = InputRoot.MQMD;
+		-- Namespace Declaration
+		DECLARE eai NAMESPACE 'http://www.fgl.com/exchange/';
+		DECLARE arts NAMESPACE 'http://www.fgl.com/ARTS';		
+		DECLARE xsi NAMESPACE 'http://www.w3.org/2001/XMLSchema-instance';
+		-- Input Reference Variable declaration 
+		DECLARE rInPrdDescrptn,rInPrdUpcRow,rInPrdHrchyRow,refInPrAttRow REFERENCE TO InputRoot;
+		DECLARE rInExch REFERENCE TO InputRoot.XMLNSC.ds:Exchange;
+		DECLARE rInMsgRtng REFERENCE TO rInExch.ds:MessageRouting;
+		DECLARE rInPrd REFERENCE TO rInExch.ds:Message.ds:Product;
+		DECLARE rInPrDtls REFERENCE TO rInExch.ds:Message.ds:Product.ds:ProductDetails;
+		DECLARE rInPrdHrchy REFERENCE TO rInExch.ds:Message.ds:Product.ds:ProductHierarchy;
+		DECLARE rInPrCol REFERENCE TO rInExch.ds:Message.ds:Product.ds:ProductColour;
+		DECLARE rInPrDim REFERENCE TO rInExch.ds:Message.ds:Product.ds:ProductDimension;
+		DECLARE rInPrCost REFERENCE TO rInExch.ds:Message.ds:Product.ds:ProductCurrentCost;
+		DECLARE rInPrdSz REFERENCE TO rInExch.ds:Message.ds:Product.ds:ProductSize;
+		DECLARE rInPrdAtt REFERENCE TO rInExch.ds:Message.ds:Product.ds:ProductAttributes;
+		DECLARE rInMsg REFERENCE TO rInExch.ds:Message;
+		DECLARE rInPrdOrgnlPrc REFERENCE TO rInMsg.ds:Product.ds:ProductOriginalPrice;
+		DECLARE rInPrdUpcs REFERENCE TO rInExch.ds:Message.ds:Product.ds:ProductUpcs;
+		DECLARE rInPrdDescrptns REFERENCE TO rInMsg.ds:Product.ds:ProductDescriptions;
+		-- Output Reference Variable Declaration
+		DECLARE rOut,rExch,rOutMsgRtng,rOutMsg,rSrcSys,rArtsItm,refStock,refColor,refStockIn,refSzFam,refSzs,refSz,refUpCodes,refUpCod,refStyl,refVendor,refStyAliases,refStyAlias,refPHiers,refPHier,refMerHrchyLvls,refMerHrchyLvl,refItmAliases,refItmAlias REFERENCE TO OutputRoot;
+		DECLARE rEnv REFERENCE TO Environment;
+		DECLARE schemaName CHARACTER 'dat.product.pmm';
+		DECLARE moduleName CHARACTER 'pmm_BuildOutputMessage';
+		--DECLARE msgIndex CHARACTER CAST(InputRoot.XMLNSC.ds:Exchange.ds:MessageRouting.ds:MessageIndex AS CHARACTER);
+        --DECLARE msgCount CHARACTER CAST(InputRoot.XMLNSC.ds:Exchange.ds:MessageRouting.ds:MessageCount AS CHARACTER);
+      	--DECLARE SubjectAreaRunName CHARACTER CAST(InputRoot.XMLNSC.ds:Exchange.ds:MessageRouting.ds:SubjectAreaRunName AS CHARACTER);
+		DECLARE SbuNum, SbuCd, SbuNm , DSCd, DSNm CHARACTER;				
+		SET SbuNum = rInMsgRtng.ds:SBU_NBR;		
+		SET SbuCd = rInMsgRtng.ds:SBU_CD;					
+		SET SbuNm = rInMsgRtng.ds:SBU_NM;				
+		SET DSCd = rInMsgRtng.ds:DATA_SOURCE_CD;		
+		SET DSNm = rInMsgRtng.ds:DATA_SOURCE_NM;
+		
+		CALL core.log.DebugMessage(rEnv, schemaName || '.' || moduleName,  ' [_MODULE - START]' );		
+		
+		CREATE LASTCHILD OF OutputRoot AS rOut DOMAIN 'XMLNSC';
+		CREATE LASTCHILD OF rOut AS rExch NAMESPACE eai NAME 'Exchange';
+		SET rExch.(XMLNSC.NamespaceDecl)xmlns:"eai" = eai;
+		SET rExch.(XMLNSC.NamespaceDecl)xmlns:"arts" = arts;		   
+		SET rExch.(XMLNSC.NamespaceDecl)xmlns:"xsi" = xsi;
+        SET rExch.(XMLNSC.Attribute)"MajorVersion" = 1;
+        SET rExch.(XMLNSC.Attribute)"MinorVersion" = 2;
+        SET rExch.(XMLNSC.Attribute)"FixVersion" = 0;
+        
+        -- Message Header declaration 	   
+	  	CREATE LASTCHILD OF rExch AS rOutMsgRtng NAMESPACE eai NAME 'MessageRouting';		   	
+		SET rOutMsgRtng.eai:Guid = rInMsgRtng.ds:Guid;
+		SET rOutMsgRtng.eai:MessageId = InputRoot.MQMD.MsgId;
+		SET rOutMsgRtng.eai:MessageType = 'PubSub';
+		SET rOutMsgRtng.eai:SubjectArea = rInMsgRtng.ds:SubjectArea;
+		SET rOutMsgRtng.eai:SbuNumber = SbuNum;
+		SET rOutMsgRtng.eai:SbuCode = SbuCd;	
+		SET rOutMsgRtng.eai:SbuName = SbuNm;
+		SET rOutMsgRtng.eai:DataSourceCode = DSCd;
+		SET rOutMsgRtng.eai:DataSourceCodeName = DSNm;
+		SET rOutMsgRtng.eai:MessageIndex = rInMsgRtng.ds:MessageIndex ;
+		SET rOutMsgRtng.eai:MessageCount = rInMsgRtng.ds:MessageCount;
+		SET rOutMsgRtng.eai:SubjectAreaRunName = rInMsgRtng.ds:SubjectAreaRunName;
+		--CREATE Messages
+		CREATE LASTCHILD OF rExch AS rOutMsg NAMESPACE eai NAME 'Messages';				
+		SET rOutMsg.eai:Count = 1;
+		--CREATE SourceSystems
+		CREATE LASTCHILD OF rOutMsg AS rSrcSys NAMESPACE eai NAME 'SourceSystems';						
+		SET rSrcSys.eai:Count = 1;					
+		SET rSrcSys.eai:SourceSystem.eai:Index = 1;
+		SET rSrcSys.eai:SourceSystem.eai:SbuNumber = SbuNum;
+		SET rSrcSys.eai:SourceSystem.eai:SbuCode = SbuCd;
+		SET rSrcSys.eai:SourceSystem.eai:SbuName = SbuNm;	
+		SET rSrcSys.eai:SourceSystem.eai:MessageSourceCode = rInMsgRtng.ds:MessageSourceCode;		
+		SET rSrcSys.eai:SourceSystem.eai:MessageSourceCodeName = rInMsgRtng.ds:MessageSourceCodeName;
+		--CREATE ArtsItem
+		CREATE LASTCHILD OF rOutMsg as rArtsItm NAMESPACE eai NAME 'ArtsItem';		
+		CALL common.mapChangeActionFlagOrActionFromEtlToArts(rInPrd.(XMLNSC.Attribute)Action) INTO rArtsItm.(XMLNSC.Attribute)Action;
+        CREATE FIRSTCHILD OF rArtsItm NAMESPACE arts NAME 'Index' VALUE 1;		
+		SET rArtsItm.arts:ItemNumber = COALESCE(rInPrDtls.ds:PRD_LVL_NUMBER,'');
+		SET rArtsItm.arts:ItemName = COALESCE(rInPrDtls.ds:PRD_NAME_FULL,'');
+		SET rArtsItm.arts:ItemNameDescriptionText = COALESCE(rInPrDtls.ds:PRD_NAME_FULL,'');
+		SET rArtsItm.arts:ItemNameLongDescriptionText = COALESCE(rInPrDtls.ds:PRD_NAME_FULL,'');
+		IF (rInPrDtls.ds:PRD_PDD_NOT = 'T' AND rInPrDtls.ds:PRD_LVL_ACTIVE ='T') OR  
+		   (rInPrDtls.ds:PRD_PDD_NOT = 'F' AND rInPrDtls.ds:PRD_LVL_ACTIVE ='T') OR
+		   (rInPrDtls.ds:PRD_PDD_NOT = 'T' AND rInPrDtls.ds:PRD_LVL_ACTIVE ='F') THEN
+			SET rArtsItm.arts:ItemActiveFlag = 'Y';
+		ELSE 
+			SET rArtsItm.arts:ItemActiveFlag = 'N';
+		END IF;
+		SET rArtsItm.arts:AuthorizedForSaleFlag = COALESCE(rInPrDtls.ds:PRD_PDD_NOT,'');
+		SET rArtsItm.arts:CustomerDisplayItemName = COALESCE(rInPrDtls.ds:PRD_NAME_FULL,'');
+		SET rArtsItm.arts:CustomerDisplayItemDescriptionText = COALESCE(rInPrDtls.ds:PRD_NAME_FULL,'');
+		-- Code translation 
+		CALL common.common_TranslateCodeGet_Code(rEnv,SbuCd,DSCd,PRODUCT_STATUS_CODE,rInPrDtls.ds:PRD_STATUS) INTO rArtsItm.arts:SellingStatusCode;	
+		CALL common.common_TranslateCodeGet_Code_Description(rEnv,SbuCd,DSCd,PRODUCT_STATUS_CODE,CMN_CODE_DSCRPT_TXT,rInPrDtls.ds:PRD_STATUS) INTO rArtsItm.arts:SellingStatusCodeDescriptionText;	
+		SET rArtsItm.arts:SellingStatusCodeEffectiveDate = SUBSTRING(rInPrDtls.ds:ProductStatusDate FROM 1 FOR 10);
+		MOVE rInPrdHrchyRow TO rInPrdHrchy.ds:Row[1];
+		X:WHILE LASTMOVE(rInPrdHrchyRow) DO		
+			IF (rInPrdHrchyRow.ds:PRD_LVL_NUMBER = '9110' AND rInPrdHrchyRow.ds:PRD_LVL_ID = '4') OR 
+			   (rInPrdHrchyRow.ds:PRD_LVL_NUMBER = '93' AND rInPrdHrchyRow.ds:PRD_LVL_ID = '5')   THEN
+				SET rArtsItm.arts:ItemSubtypeCode = 'SERVICE ITEM';
+				LEAVE X;
+			ELSE 
+				SET rArtsItm.arts:ItemSubtypeCode= 'STOCK ITEM';
+		END IF;	
+		MOVE rInPrdHrchyRow NEXTSIBLING REPEAT NAME;
+		END WHILE;
+		IF rArtsItm.arts:ItemSubtypeCode = 'STOCK ITEM' THEN
+			--CREATE Stock Item Block
+			CREATE LASTCHILD OF rArtsItm as refStock NAMESPACE arts NAME 'StockItem';	
+			--CREATE Color Block				
+			CREATE LASTCHILD OF refStock as refColor NAMESPACE arts NAME 'Color';
+			SET refColor.arts:Index = 1;	
+			SET refColor.arts:ColorCode = COALESCE(rInPrCol.ds:BasicColourCode,'');
+			SET refColor.arts:ColorName = COALESCE(rInPrCol.ds:BasicColourName,'');
+			SET refColor.arts:ColorDescriptionText = COALESCE(rInPrCol.ds:BasicColourName,'');
+			SET refColor.arts:ColorGroupName = COALESCE(rInPrCol.ds:ColourRangeName,'');
+			--Inner StockItem Block				
+			CREATE LASTCHILD OF refStock as refStockIn NAMESPACE arts NAME 'StockItem';
+			SET refStockIn.arts:DimensionCode = COALESCE(rInPrDim.ds:DimensionCode,'');
+			SET refStockIn.arts:DimensionName = COALESCE(rInPrDim.ds:DimensionName,'');
+			SET refStockIn.arts:DimensionCodeDescriptionText = COALESCE(rInPrDim.ds:DimensionName,'');
+			SET refStockIn.arts:DimensionGroupName = COALESCE(rInPrDim.ds:DimensionRangeName,'');
+			IF FIELDVALUE(rInPrCost.ds:CurrentUnitCost) <> '' AND FIELDVALUE(rInPrCost.ds:CurrentUnitCost) IS NOT NULL THEN
+				SET refStockIn.arts:SellUnitNetAverageCostAmount = rInPrCost.ds:CurrentUnitCost;
+			END IF;
+			-- StockItem Size Family											
+			CREATE LASTCHILD OF refStockIn as refSzFam NAMESPACE arts NAME 'SizeFamily';		
+			SET refSzFam.arts:Index = 1;
+			SET refSzFam.arts:SourceSizeFamilyNumber = COALESCE(rInPrdSz.ds:SizeRangeKey,'');
+			SET refSzFam.arts:SizeFamilyName = COALESCE(rInPrdSz.ds:SizeRangeName,'');
+			--Sizes block
+			CREATE LASTCHILD OF refSzFam as refSzs NAMESPACE arts NAME 'Sizes';
+			SET refSzs.arts:Count = 1;	
+			--Size block
+			CREATE LASTCHILD OF refSzs as refSz NAMESPACE arts NAME 'Size';
+			IF rInPrdSz.ds:SizeKey <> '0' OR rInPrdSz.ds:SizeKey <> '' OR rInPrdSz.ds:SizeKey IS NOT NULL THEN
+				SET refSz.arts:Index = 1;
+				SET refSz.arts:SequenceNumber = COALESCE(rInPrdSz.ds:SizeSequence,'');			
+				SET refSz.arts:SourceSizeNumber = COALESCE(rInPrdSz.ds:SizeKey,'');			
+			END IF;
+			IF rInPrdSz.ds:SizeKey <> '' OR rInPrdSz.ds:SizeKey IS NOT NULL THEN
+				SET refSz.arts:SizeCode = COALESCE(rInPrdSz.ds:SizeCode,'');			
+				SET refSz.arts:SizeName = COALESCE(rInPrdSz.ds:SizeName,'');
+			END IF;	
+			-- Store ProductAttribute rows for ATR_TYPE_DESC = 'SERIAL NUMBER PROMPT'
+			DECLARE PrdAttrRowsSeriNumReqFlg ROW;
+			SET PrdAttrRowsSeriNumReqFlg.Rows[] = SELECT * FROM rInPrdAtt.ds:Row[] AS a WHERE UPPER(a.ds:ATR_TYPE_DESC) = 'SERIAL NUMBER PROMPT';
+			IF CARDINALITY(PrdAttrRowsSeriNumReqFlg.Rows[])>= '1' THEN 
+				SET refStock.arts:SerializedItem.arts:SerialNumberRequiredFlag = 'Y';
+			ELSE
+				SET refStock.arts:SerializedItem.arts:SerialNumberRequiredFlag = 'N';
+			END IF;
+		END IF;
+		IF rArtsItm.arts:ItemSubtypeCode = 'SERVICE ITEM' THEN
+			SET rArtsItm.arts:ServiceItem = '';	
+		END IF;
+		-- Store ProductAttribute rows for ATR_TYPE_DESC = '1_REQ_BRAND' and PRD_LVL_ID = '0'
+		DECLARE PrdAttrRowsForBrand ROW;
+		SET PrdAttrRowsForBrand.Rows[] = SELECT * FROM rInPrdAtt.ds:Row[] AS b WHERE UPPER(b.ds:ATR_TYPE_DESC) = '1_REQ_BRAND' AND b.ds:PRD_LVL_ID = '0';
+		IF CARDINALITY(PrdAttrRowsForBrand.Rows[])>= '1' THEN 
+			SET rArtsItm.arts:BrandCode = PrdAttrRowsForBrand.Rows.ds:ATR_CODE;
+			SET rArtsItm.arts:BrandName = PrdAttrRowsForBrand.Rows.ds:ATR_CODE_DESC;
+		END IF;
+		IF FIELDVALUE(rInPrdOrgnlPrc.ds:OriginalRetailPriceAmount) <> '' AND FIELDVALUE(rInPrdOrgnlPrc.ds:OriginalRetailPriceAmount) IS NOT NULL THEN
+			SET rArtsItm.arts:OriginalRetailPriceAmount = rInPrdOrgnlPrc.ds:OriginalRetailPriceAmount;
+		END IF;
+		IF FIELDVALUE(rInPrdOrgnlPrc.ds:OriginalRetailPriceEffectDate) <> '' AND FIELDVALUE(rInPrdOrgnlPrc.ds:OriginalRetailPriceEffectDate) IS NOT NULL THEN
+			SET rArtsItm.arts:OriginalRetailPriceEffectiveDate = SUBSTRING(rInPrdOrgnlPrc.ds:OriginalRetailPriceEffectDate FROM 1 FOR 10);
+		END IF;				
+		IF  rInPrDtls.ds:ProductUpdateDate <> '' THEN
+			SET rArtsItm.arts:SourceUpdateTms = SUBSTRING(rInPrDtls.ds:ProductUpdateDate FROM 1 FOR 10)||'T'||SUBSTRING(rInPrDtls.ds:ProductUpdateDate FROM 12 FOR 19);
+		ELSE
+			SET rArtsItm.arts:SourceUpdateTms.(XMLNSC.Attribute)xsi:nil = 'true';
+		END IF;
+		IF  rInPrDtls.ds:ProductCreateDate <> '' THEN
+			SET rArtsItm.arts:SourceCreateTms = SUBSTRING(rInPrDtls.ds:ProductCreateDate FROM 1 FOR 10)||'T'||SUBSTRING(rInPrDtls.ds:ProductCreateDate FROM 12 FOR 19);
+		ELSE
+			SET rArtsItm.arts:SourceCreateTms.(XMLNSC.Attribute)xsi:nil = 'true';
+		END IF;
+		--CREATE UpcCodes Block
+		CREATE LASTCHILD OF rArtsItm as refUpCodes NAMESPACE arts NAME 'UpcCodes';	
+		SET refUpCodes.arts:Count = COALESCE(CARDINALITY(rInPrdUpcs.ds:Row[]),'');		
+		DECLARE Index_upc INTEGER 0;
+		MOVE rInPrdUpcRow TO rInPrdUpcs.ds:Row[1];
+		WHILE LASTMOVE(rInPrdUpcRow) DO				
+			CREATE LASTCHILD OF refUpCodes as refUpCod NAMESPACE arts NAME 'UpcCode';														
+			SET Index_upc = Index_upc + 1;
+			SET refUpCod.arts:Index = Index_upc;		
+			SET refUpCod.arts:UpcNumber = COALESCE(rInPrdUpcRow.ds:PRD_UPC,'');
+			SET refUpCod.arts:PrimaryUpcFlag = COALESCE(rInPrdUpcRow.ds:PRD_PRIMARY_FLAG,'');	
+			SET refUpCod.arts:UpcTypeCode = COALESCE(rInPrdUpcRow.ds:UPC_TYPE,'');
+			SET refUpCod.arts:UpcTypeDescriptionText = COALESCE(rInPrdUpcRow.ds:UPC_TYPE_DESC,'');
+			SET refUpCod.arts:UpcTypeExpectedLengthQty = COALESCE(rInPrdUpcRow.ds:UPC_LENGTH,'');	
+		MOVE rInPrdUpcRow NEXTSIBLING REPEAT NAME;
+		END WHILE;
+		--CREATE Style Block		
+		CREATE LASTCHILD OF rArtsItm as refStyl NAMESPACE arts NAME 'Style';
+		DECLARE rInPrDtlsPrdLvlPrnt REFERENCE TO rInPrDtls.ds:PRD_LVL_PARENT;
+		CALL common.mapChangeActionFlagOrActionFromEtlToArts(rInPrDtlsPrdLvlPrnt.(XMLNSC.Attribute)Action) INTO rArtsItm.arts:Style.(XMLNSC.Attribute)Action;
+        SET refStyl.arts:Index = 1;
+		SET refStyl.arts:StyleNumber = COALESCE(rInPrDtls.ds:StyleLvlNumber,'');
+		SET refStyl.arts:StyleName = COALESCE(rInPrDtls.ds:StyleNameFull,'');
+		--Code translation for SellingStatusCode,SellingStatusCodeDescriptionText
+		CALL common.common_TranslateCodeGet_Code(rEnv,SbuCd,DSCd,PRODUCT_STATUS_CODE,rInPrDtls.ds:StyleStatus) INTO refStyl.arts:SellingStatusCode;		
+		CALL common.common_TranslateCodeGet_Code_Description(rEnv,SbuCd,DSCd,PRODUCT_STATUS_CODE,CMN_CODE_DSCRPT_TXT,rInPrDtls.ds:StyleStatus) INTO refStyl.arts:SellingStatusCodeDescriptionText;	
+		
+		SET refStyl.arts:SellingStatusCodeEffectiveDate = SUBSTRING(rInPrDtls.ds:StyleStatusDate FROM 1 FOR 10);
+		--CREATE Vendor Block
+		CREATE LASTCHILD OF refStyl as refVendor NAMESPACE arts NAME 'Vendor';		
+		SET refVendor.arts:Index = 1;
+		SET refVendor.arts:VendorNumber = COALESCE(rInPrDtls.ds:VENDOR_NUMBER,'');
+		SET refVendor.arts:VendorName = COALESCE(rInPrDtls.ds:VENDOR_NAME,'');
+		IF  rInPrDtls.ds:StyleCreateDate <> '' THEN
+			SET refStyl.arts:SourceCreateTms = SUBSTRING(rInPrDtls.ds:StyleCreateDate FROM 1 FOR 10)||'T'||SUBSTRING(rInPrDtls.ds:StyleCreateDate FROM 12 FOR 19);
+		ELSE
+			SET refStyl.arts:SourceCreateTms.(XMLNSC.Attribute)xsi:nil = 'true';
+		END IF;	
+		IF  rInPrDtls.ds:StyleUpdateDate <> '' THEN
+			SET refStyl.arts:SourceUpdateTms = SUBSTRING(rInPrDtls.ds:StyleUpdateDate FROM 1 FOR 10)||'T'||SUBSTRING(rInPrDtls.ds:StyleUpdateDate FROM 12 FOR 19);
+		ELSE
+			SET refStyl.arts:SourceUpdateTms.(XMLNSC.Attribute)xsi:nil = 'true';
+		END IF;
+		SET refStyl.arts:GiftWrappableFlag.(XMLNSC.Attribute)xsi:nil ='true';
+		-- Store ProductAttribute rows for ATR_TYPE_DESC = '1_REQ_BRAND' and PRD_LVL_ID = '1'
+		DECLARE PrdAttrRowsForArtsBrand ROW;
+		SET PrdAttrRowsForArtsBrand.Rows[] = SELECT * FROM rInPrdAtt.ds:Row[] AS c WHERE UPPER(c.ds:ATR_TYPE_DESC) = '1_REQ_BRAND' AND c.ds:PRD_LVL_ID = '1';
+		IF CARDINALITY(PrdAttrRowsForArtsBrand.Rows[])>= '1' THEN 
+			SET refStyl.arts:BrandCode = COALESCE(PrdAttrRowsForArtsBrand.Rows.ds:ATR_CODE,'');
+			SET refStyl.arts:BrandName = COALESCE(PrdAttrRowsForArtsBrand.Rows.ds:ATR_CODE_DESC,'');
+		END IF;
+		--CREATE StyleAliases Block
+		
+		DECLARE Index_sa INTEGER 1;
+		MOVE rInPrdDescrptn TO rInPrdDescrptns.ds:Row[1];								
+		WHILE LASTMOVE(rInPrdDescrptn) DO
+			IF rInPrDtls.ds:PRD_LVL_PARENT = CAST(rInPrdDescrptn.ds:PRD_LVL_CHILD AS CHARACTER) THEN
+				IF Index_sa = 1 THEN
+					CREATE LASTCHILD OF refStyl as refStyAliases NAMESPACE arts NAME 'StyleAliases';
+				END IF;
+				CREATE LASTCHILD OF refStyAliases as refStyAlias NAMESPACE arts NAME 'StyleAlias';
+				SET refStyAlias.arts:Index = Index_sa;	
+				SET refStyAlias.arts:AliasTypeCode = rInPrdDescrptn.ds:PRD_DESC_NAME;
+				SET refStyAlias.arts:PurposeDataSourceCode.(XMLNSC.Attribute)xsi:nil ='true';
+				SET refStyAlias.arts:AliasTypeDescriptionText = rInPrdDescrptn.ds:PRD_DESC_NAME;
+				SET refStyAlias.arts:StrategicBusinessUnitId.(XMLNSC.Attribute)xsi:nil = 'true';
+				SET refStyAlias.arts:AliasText = rInPrdDescrptn.ds:PRD_DESC;
+				SET Index_sa = Index_sa + 1;
+			END IF;
+		MOVE rInPrdDescrptn NEXTSIBLING REPEAT NAME;			
+		END WHILE;
+		IF EXISTS(refStyAliases.arts:StyleAlias[]) THEN
+			CREATE FIRSTCHILD OF refStyAliases NAMESPACE arts NAME 'Count' VALUE Index_sa-1;
+		END IF;
+		-- Store ProductAttribute rows for ATR_TYPE_DESC = 'PRODUCT GROUP' and ATR_HEADER_DESC = 'PRODUCT CONCEPT' and get minimum PRD_LEVEL_ID
+		DECLARE PrdAttrRowsForConcShop,PrdAttrRowForConcShop ROW;
+		SET PrdAttrRowsForConcShop.Rows[] = SELECT * FROM rInPrdAtt.ds:Row[] AS d WHERE UPPER(d.ds:ATR_TYPE_DESC) = 'PRODUCT GROUP' AND UPPER(d.ds:ATR_HEADER_DESC) = 'PRODUCT CONCEPT';
+		SET PrdAttrRowForConcShop.Rows[] = SELECT * FROM PrdAttrRowsForConcShop.Rows[] AS d WHERE d.ds:PRD_LVL_ID = (SELECT MIN(d.ds:PRD_LVL_ID) FROM PrdAttrRowsForConcShop.Rows[] AS d);
+		IF CARDINALITY(PrdAttrRowForConcShop.Rows[])>= '1' THEN 
+			SET refStyl.arts:ConceptShopCode = PrdAttrRowForConcShop.Rows[1].ds:ATR_CODE;
+			SET refStyl.arts:ConceptShopName = PrdAttrRowForConcShop.Rows[1].ds:ATR_CODE_DESC;
+		END IF;
+		--CREATE Product Hierarchies Block
+		CREATE LASTCHILD OF rArtsItm as refPHiers NAMESPACE arts NAME 'ProductHierarchies';
+			SET refPHiers.arts:Count = '1';	
+		--CREATE Product Hierarchy Block
+		CREATE LASTCHILD OF refPHiers as refPHier NAMESPACE arts NAME 'ProductHierarchy';
+			SET refPHier.arts:Index = '1';
+		--CREATE Merchandise Hierarchies Block
+		CREATE LASTCHILD OF refPHier AS refMerHrchyLvls NAMESPACE arts NAME 'MerchandiseHierarchyLevels';
+			SET refMerHrchyLvls.arts:Count = COALESCE(CARDINALITY(rInPrdHrchy.ds:Row[]),'');	
+			SET refMerHrchyLvls.arts:MerchandiseHierarchyFunctionName = 'Product  Hierarchy';
+		DECLARE K INTEGER 1;
+		MOVE rInPrdHrchyRow TO rInPrdHrchy.ds:Row[1];							
+		WHILE LASTMOVE(rInPrdHrchyRow) DO
+			CREATE LASTCHILD OF refMerHrchyLvls AS refMerHrchyLvl NAMESPACE arts NAME 'MerchandiseHierarchyLevel';
+			DECLARE refMerch REFERENCE TO refMerHrchyLvls.arts:MerchandiseHierarchyLevel[K];
+			SET refMerHrchyLvl.arts:Index = K;
+	  		SET refMerHrchyLvl.arts:MerchandiseHierarchyGroupNumber = COALESCE(rInPrdHrchyRow.ds:PRD_LVL_NUMBER,'');	
+	  		IF rInPrdHrchy.ds:Row[K+1].ds:PRD_LVL_ID = CAST(rInPrdHrchy.ds:Row[K].ds:PRD_LVL_ID AS INTEGER) + 1 THEN		
+				SET refMerHrchyLvl.arts:ParentMerchandiseHierarchyLevelNumber =  COALESCE(rInPrdHrchy.ds:Row[K+1].ds:PRD_LVL_ID,'');
+				SET refMerHrchyLvl.arts:ParentMerchandiseHierarchyGroupNumber =  COALESCE(rInPrdHrchy.ds:Row[K+1].ds:PRD_LVL_NUMBER,'');
+			ELSEIF rInPrdHrchy.ds:Row[K].ds:PRD_LVL_ID = '6' THEN
+				SET refMerHrchyLvl.arts:ParentMerchandiseHierarchyLevelNumber.(XMLNSC.Attribute)xsi:nil ='true';
+				SET refMerHrchyLvl.arts:ParentMerchandiseHierarchyGroupNumber.(XMLNSC.Attribute)xsi:nil ='true';
+			END IF;
+			SET refMerHrchyLvl.arts:MerchandiseHierarchyGroupName = COALESCE(rInPrdHrchyRow.ds:PRD_NAME_FULL,'');
+			SET refMerHrchyLvl.arts:MerchandiseHierarchyLevelNumber = COALESCE(rInPrdHrchyRow.ds:PRD_LVL_ID,'');
+			SET refMerHrchyLvl.arts:MerchandiseHierarchyLevelCode = COALESCE(rInPrdHrchyRow.ds:PRD_LVL_ID,'');
+			SET refMerHrchyLvl.arts:MerchandiseHierarchyLevelName =  COALESCE(rInPrdHrchyRow.ds:PRD_LVL_NAME,'');
+			SET K = K+1;
+		MOVE rInPrdHrchyRow NEXTSIBLING REPEAT NAME;
+		END WHILE;
+		-- Store ProductAttribute rows for ATR_CODE_DESC = 'DISCOUNT IS ALLOWED'
+		DECLARE PrdAttrRowsForAllowPriceFlg ROW;
+		SET PrdAttrRowsForAllowPriceFlg.Rows[] = SELECT * FROM rInPrdAtt.ds:Row[] AS e WHERE UPPER(e.ds:ATR_CODE_DESC) = 'DISCOUNT IS ALLOWED';
+		IF CARDINALITY(PrdAttrRowsForAllowPriceFlg.Rows[])>= '1' THEN 
+			SET rArtsItm.arts:AllowPOSPriceOverrideFlag = 'Y';
+		ELSE
+			SET rArtsItm.arts:AllowPOSPriceOverrideFlag = 'N';
+		END IF;	
+		-- Store ProductAttribute rows for ATR_HEADER_DESC = 'CONFIRM PRICE' and ATR_TYPE_DESC = 'WIN/DSS' and get minimum PRD_LEVEL_ID
+		DECLARE PrdAttrRowsForConfirmPriceFlg,PrdAttrRowForConfirmPriceFlg ROW;
+		SET PrdAttrRowsForConfirmPriceFlg.Rows[] = SELECT * FROM rInPrdAtt.ds:Row[] AS f WHERE UPPER(f.ds:ATR_HEADER_DESC)= 'CONFIRM PRICE' AND UPPER(f.ds:ATR_TYPE_DESC) = 'WIN/DSS' AND f.ds:PRD_LVL_ID <> '0';
+		SET PrdAttrRowForConfirmPriceFlg.Rows[] = SELECT * FROM PrdAttrRowsForConfirmPriceFlg.Rows[] AS g WHERE g.ds:PRD_LVL_ID= SELECT MIN(f.ds:PRD_LVL_ID) FROM PrdAttrRowsForConfirmPriceFlg.Rows[] AS f;
+		IF PrdAttrRowForConfirmPriceFlg.Rows[1].ds:ATR_CODE = '02' THEN
+	 		SET rArtsItm.arts:ConfirmPriceAtPosFlag = 'Y';
+	 	ELSEIF PrdAttrRowForConfirmPriceFlg.Rows[1].ds:ATR_CODE = '01' THEN
+			SET rArtsItm.arts:ConfirmPriceAtPosFlag = 'N';
+		ELSE
+			SET rArtsItm.arts:ConfirmPriceAtPosFlag = 'N';
+	 	END IF;
+	 	
+		--CREATE ItemAlias Block		
+		DECLARE Index_ia INTEGER 1;
+		MOVE rInPrdDescrptn TO rInPrdDescrptns.ds:Row[1];								
+		WHILE LASTMOVE(rInPrdDescrptn) DO
+			IF rInPrDtls.ds:PRD_LVL_CHILD = CAST(rInPrdDescrptn.ds:PRD_LVL_CHILD AS CHARACTER) THEN		
+				IF Index_ia = 1 THEN
+					CREATE LASTCHILD OF rArtsItm as refItmAliases NAMESPACE arts NAME 'ItemAliases';		
+				END IF;
+				CREATE LASTCHILD OF refItmAliases as refItmAlias NAMESPACE arts NAME 'ItemAlias';				
+				SET refItmAlias.arts:Index = Index_ia;	
+				SET refItmAlias.arts:AliasTypeCode = rInPrdDescrptn.ds:PRD_DESC_NAME;
+				SET refItmAlias.arts:PurposeDataSourceCode.(XMLNSC.Attribute)xsi:nil ='true';
+				SET refItmAlias.arts:AliasTypeDescriptionText = rInPrdDescrptn.ds:PRD_DESC_NAME;
+				SET refItmAlias.arts:StrategicBusinessUnitId.(XMLNSC.Attribute)xsi:nil ='true';
+				SET refItmAlias.arts:AliasText = rInPrdDescrptn.ds:PRD_DESC;
+				SET Index_ia = Index_ia + 1;
+			END IF;
+		MOVE rInPrdDescrptn NEXTSIBLING REPEAT NAME;
+		END WHILE;
+		IF EXISTS(refItmAliases.arts:ItemAlias[]) THEN 
+			CREATE FIRSTCHILD OF refItmAliases NAMESPACE arts NAME 'Count' VALUE Index_ia-1;
+		END IF;
+		CALL core.log.InfoMessage(rEnv, schemaName || '.' || moduleName, ' [Transformation completed successfully.]');
+		CALL core.log.DebugMessage(rEnv, schemaName || '.' || moduleName, ' [_MODULE - END]');
+		
+		RETURN TRUE;
+	END;	
+END MODULE;

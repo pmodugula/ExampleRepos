@@ -1,0 +1,40 @@
+BROKER SCHEMA trx.sales.aw
+
+DECLARE PollingDoneTime EXTERNAL CHARACTER '';
+
+CREATE COMPUTE MODULE SetTimeoutRequest
+	CREATE FUNCTION Main() RETURNS BOOLEAN
+	BEGIN
+		DECLARE rIn				REFERENCE TO InputRoot;
+		DECLARE rOut, rOutMsg	REFERENCE TO OutputRoot;
+		DECLARE rInLocalEnv		REFERENCE TO InputLocalEnvironment;
+		DECLARE rEnv REFERENCE TO  Environment;
+		DECLARE schemaName CHARACTER 'trx.sales.aw';
+		DECLARE moduleName CHARACTER 'SetTimeoutRequest';
+
+		SET rOut.Properties = rIn.Properties;
+		CREATE LASTCHILD OF rOut DOMAIN ('MQMD');
+		SET rOut.MQMD = rIn.MQMD;
+		CREATE LASTCHILD OF rOut AS rOutMsg DOMAIN ('XMLNSC');
+		CREATE LASTCHILD OF rOutMsg AS rOutMsg NAME 'TimeoutRequest';
+
+		SET rEnv.__MsgIdForLog4J__ = UPPER(REPLACE(UUIDASCHAR, '-', ''));
+
+		SET rOutMsg.Action = 'SET';
+		SET rOutMsg.Identifier = 'aw-poll-done';
+		IF (CURRENT_TIME < CAST(PollingDoneTime AS TIME)) THEN
+			SET rOutMsg.StartDate = CURRENT_DATE;
+		ELSE
+			SET rOutMsg.StartDate = CURRENT_DATE + INTERVAL '1' DAY;
+		END IF;
+		SET rOutMsg.StartTime = CAST(PollingDoneTime AS TIME FORMAT 'HH:mm:ss');
+		SET rOutMsg.Count = 1;
+		SET rOutMsg.Interval = 0;
+		SET rOutMsg.IgnoreMissed = FALSE;
+		SET rOutMsg.AllowOverwrite = TRUE;
+
+		CALL core.log.InfoMessage(rEnv, schemaName || '.' || moduleName, 'IIB Scheduler for placing the Polling Done Flag file on Audit Works Server will be triggered on Date ' || CAST(rOutMsg.StartDate AS CHARACTER FORMAT 'yyyy-MM-dd') || ' at time ' || CAST(rOutMsg.StartTime AS CHARACTER FORMAT 'HH:mm:ss') || ' Hrs');
+
+		RETURN TRUE;
+	END;
+END MODULE;

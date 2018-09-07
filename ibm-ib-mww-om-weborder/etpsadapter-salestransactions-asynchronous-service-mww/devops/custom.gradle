@@ -1,0 +1,4 @@
+ext{
+   buildAll=true
+   repoName='etpsadapter-salestransactions-asynchronous-service-mww'
+}

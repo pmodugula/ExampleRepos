@@ -1,0 +1,16 @@
+BROKER SCHEMA trx.consignmentpacked.dom
+
+
+CREATE FILTER MODULE TrxConsgPacked_Routing
+	CREATE FUNCTION Main() RETURNS BOOLEAN
+	BEGIN
+		DECLARE fgl NAMESPACE 'http://www.fglsports.com/schema/hybris/order/v2';
+		DECLARE BANNERNAME CHARACTER '';
+		SET BANNERNAME = FIELDVALUE(Root.XMLNSC.fgl:OrderConsignmentPaid.(XMLNSC.Attribute)bannerName);
+		 IF BANNERNAME = 'SPORTCHEK' THEN	
+		 	RETURN TRUE;
+		 ELSE
+		 	RETURN FALSE;
+		 END if;
+	END;
+END MODULE;

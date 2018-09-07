@@ -1,0 +1,8 @@
+dat.product.pmm.initial_load#IIBInboundQueue=RECV.${PRD_HRCHY_INIT_IN_DS}
+dat.product.pmm.initial_load#IIBOutboundQueue=SEND.${PRD_HRCHY_INIT_IN_IB}
+dat.product.pmm.initial_load#CoreAuditDataSource=AUD${ENVN}${INST}
+dat.product.pmm.initial_load#additionalInstances=${EXTRATHREADS}
+dat.product.pmm.initial_load#PreProcessorAuditEnabled=False
+dat.product.pmm.initial_load#PostProcessorAuditEnabled=False
+dat.product.pmm.initial_load#CoreArtsMessageValidation=${ARTS_VALIDATION}
+dat.product.pmm.initial_load#CoreDsMessageValidation=${DS_VALIDATION}

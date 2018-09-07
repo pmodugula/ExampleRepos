@@ -1,0 +1,19 @@
+BROKER SCHEMA trx.sales.etps
+/**************************************************************************************
+* Node Name:		GCRedemptionEnabled
+* Module Name:		RedeemGCFilter_Filter
+* Description:		Environment level restriction to call the GC serive.
+***************************************************************************************/
+DECLARE GiftCardRedemptionServiceEnabled EXTERNAL BOOLEAN TRUE;
+
+CREATE FILTER MODULE RedeemGCFilter_Filter
+	CREATE FUNCTION Main() RETURNS BOOLEAN
+	BEGIN
+		IF GiftCardRedemptionServiceEnabled = TRUE THEN
+			RETURN TRUE;
+		ELSE 
+			RETURN FALSE;
+		END IF;
+	END;
+
+END MODULE;

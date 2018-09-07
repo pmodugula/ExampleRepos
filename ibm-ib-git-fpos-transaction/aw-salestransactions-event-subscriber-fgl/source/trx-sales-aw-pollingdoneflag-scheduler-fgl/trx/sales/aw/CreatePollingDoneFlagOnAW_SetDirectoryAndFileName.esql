@@ -1,0 +1,60 @@
+BROKER SCHEMA trx.sales.aw
+
+DECLARE AWStagingDirectoryPath	EXTERNAL CHARACTER '';
+DECLARE AWDirectoryNamePrefix	EXTERNAL CHARACTER '';
+DECLARE AWTargetDirectoryPath	EXTERNAL CHARACTER '';
+DECLARE PollingDoneFileName		EXTERNAL CHARACTER '';
+
+CREATE COMPUTE MODULE CreatePollingDoneFlagOnAW_SetDirectoryAndFileName
+	CREATE FUNCTION Main() RETURNS BOOLEAN
+	BEGIN
+		DECLARE rInReq REFERENCE TO InputRoot;
+		DECLARE rEnv REFERENCE TO  Environment;
+		DECLARE schemaName CHARACTER 'trx.sales.aw';
+		DECLARE moduleName CHARACTER 'CreatePollingDoneFlagOnAW_SetDirectoryAndFileName';
+		DECLARE MMDD CHARACTER;
+		DECLARE PollingDoneDate	DATE;
+
+		SET rEnv.__MsgIdForLog4J__ = SUBSTRING(CAST(COALESCE(InputRoot.MQMD.MsgId, UUIDASBLOB) AS CHARACTER) FROM 3 FOR 48);
+
+		CALL CopyMessageHeaders();
+
+		IF FIELDTYPE(InputRoot.XMLNSC.TimeoutRequest) IS NOT NULL THEN
+			MOVE rInReq TO InputRoot.XMLNSC.TimeoutRequest;
+			SET PollingDoneDate = CAST(rInReq.StartDate AS DATE) - INTERVAL '1' DAY;
+		ELSEIF FIELDTYPE(InputRoot.XMLNSC.Trigger) IS NOT NULL THEN
+			MOVE rInReq TO InputRoot.XMLNSC.Trigger;
+
+			IF ((TRIM(rInReq.OnDemandPollingDoneDate) <> '') AND (rInReq.OnDemandPollingDoneDate IS NOT NULL)) THEN
+				SET PollingDoneDate = CAST(rInReq.OnDemandPollingDoneDate AS DATE);
+			ELSE
+				SET PollingDoneDate = CURRENT_DATE - INTERVAL '1' DAY;
+			END IF;
+		ELSE
+			RETURN FALSE;
+		END IF;
+
+		SET MMDD = CAST(PollingDoneDate AS CHARACTER FORMAT 'MMdd');
+
+		SET OutputLocalEnvironment.Destination.File.Directory = AWStagingDirectoryPath || '/' || AWDirectoryNamePrefix || '.' || MMDD || '.' || 'IP';
+		SET OutputLocalEnvironment.Destination.File.Name = PollingDoneFileName;
+		SET OutputLocalEnvironment.Destination.File.Remote.ServerDirectory = AWTargetDirectoryPath || '/' || AWDirectoryNamePrefix || '.' || MMDD || '.' || 'IP';
+
+		PROPAGATE TO TERMINAL 'out';
+
+		CALL core.log.InfoMessage(rEnv, schemaName || '.' || moduleName, 'Polling Done flag file ' || PollingDoneFileName || ' has been placed successfully in the directory ' || AWTargetDirectoryPath || '/' || AWDirectoryNamePrefix || '.' || MMDD || '.' || 'IP');
+
+
+		RETURN FALSE;
+	END;
+
+	CREATE PROCEDURE CopyMessageHeaders() BEGIN
+		DECLARE I INTEGER 1;
+		DECLARE J INTEGER;
+		SET J = CARDINALITY(InputRoot.*[]);
+		WHILE I < J DO
+			SET OutputRoot.*[I] = InputRoot.*[I];
+			SET I = I + 1;
+		END WHILE;
+	END;
+END MODULE;

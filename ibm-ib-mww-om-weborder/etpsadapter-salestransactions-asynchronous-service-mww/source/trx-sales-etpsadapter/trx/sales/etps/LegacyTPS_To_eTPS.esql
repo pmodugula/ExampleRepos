@@ -1,0 +1,116 @@
+BROKER SCHEMA trx.sales.etps
+
+		-- Namespace Declaration
+		DECLARE soapenv NAMESPACE 'http://schemas.xmlsoap.org/soap/envelope/';
+		DECLARE fo 		NAMESPACE 'http://www.w3.org/1999/XSL/Format';
+		DECLARE inf 	NAMESPACE 'http://com/marks/TxnPost/inf';
+
+CREATE COMPUTE MODULE LegacyTPS_SuccessConfirmation_Construction
+	CREATE FUNCTION Main() RETURNS BOOLEAN
+	BEGIN
+		DECLARE refIn,rInput REFERENCE TO InputRoot;
+		DECLARE refOut,rOut,refXMLNSC,refEnv REFERENCE TO OutputRoot;
+		-- Declaration Of Logging Varaiabes
+		DECLARE schemaName CHARACTER 'trx.sales.etps';
+		DECLARE moduleName CHARACTER 'LegacyTPS_SuccessConfirmation_Construction';
+		
+		SET OutputRoot.Properties = Environment.Properties;
+		SET OutputRoot.MQMD = Environment.MQMD;
+		SET OutputRoot.Properties.ReplyIdentifier = Environment.MQMD.MsgId;
+			
+		CREATE LASTCHILD OF OutputRoot AS refXMLNSC DOMAIN 'XMLNSC';
+		CREATE LASTCHILD OF refXMLNSC AS refEnv NAMESPACE soapenv NAME 'Envelope';
+		SET refEnv.(XMLNSC.Attribute)xmlns:soapenv = soapenv;
+		SET refEnv.soapenv:Body.inf:submitTxnResponse.(XMLNSC.Attribute)xmlns:inf='http://com/marks/TxnPost/inf';
+		SET refEnv.soapenv:Body.inf:submitTxnResponse.submitTxnResponse.code = 'OK';
+		SET refEnv.soapenv:Body.inf:submitTxnResponse.submitTxnResponse.message = 'Transaction posted successfully';
+		SET refEnv.soapenv:Body.inf:submitTxnResponse.submitTxnResponse.id = Environment.Variables.TransID; 
+		--CALL SubmitTxnResp('OK','Transaction posted successfully',transId,refIn,refOut);
+		DECLARE	rEnv REFERENCE TO Environment; 
+	--	SET Environment.Variables.Message = CAST(ASBITSTREAM( rOut.Data OPTIONS FolderBitStream) AS CHAR CCSID CAST(InputRoot.MQMD.CodedCharSetId AS INT) ENCODING CAST(InputRoot.MQMD.Encoding AS INT));
+		CALL core.log.InfoMessage(rEnv, schemaName || '.' || moduleName, 'ETPS adapter Successfully processed, TransactionID is: ' || Environment.Variables.TransID);
+		
+		RETURN TRUE;
+	END;
+END MODULE;
+
+CREATE COMPUTE MODULE LegacyTPS_FailureConfirmation_Construction
+	CREATE FUNCTION Main() RETURNS BOOLEAN
+	BEGIN
+			
+			-- Declaration Of Logging Varaiabes
+			DECLARE schemaName CHARACTER 'trx.sales.etps';
+			DECLARE moduleName CHARACTER 'LegacyTPS_FailureConfirmation_Construction';
+			
+			DECLARE refIn REFERENCE TO InputExceptionList.RecoverableException;
+			DECLARE refOut,rOut,refXMLNSC,refEnv REFERENCE TO OutputRoot;
+			SET OutputRoot.Properties = Environment.Properties;
+			SET OutputRoot.MQMD = Environment.MQMD;
+			SET OutputRoot.Properties.ReplyIdentifier = Environment.MQMD.MsgId;
+			
+			CREATE LASTCHILD OF OutputRoot AS refXMLNSC DOMAIN 'XMLNSC';
+			CREATE LASTCHILD OF refXMLNSC AS refEnv NAMESPACE soapenv NAME 'Envelope';
+			SET refEnv.(XMLNSC.Attribute)xmlns:soapenv = soapenv;
+			SET refEnv.soapenv:Body.inf:submitTxnResponse.(XMLNSC.Attribute)xmlns:inf='http://com/marks/TxnPost/inf';
+			SET refEnv.soapenv:Body.inf:submitTxnResponse.submitTxnResponse.code = 'ERROR';
+		
+			--	    Reference to Exception list
+			DECLARE refExcpList REFERENCE TO InputExceptionList.*[1];
+			DECLARE ErrorSource CHAR refExcpList.Label;
+			DECLARE ExceptionType CHARACTER;
+			DECLARE ErrorDesc,ErrorText CHARACTER '';
+			DECLARE Count INTEGER 1;
+	/* 		To Capture Exception details: 
+ 	 *		Loop Exception list until no more children and popluate Exception details.
+ 	 *		These Exception details will be included in 'ImplementationDetails' section below.
+ 	*/
+ 
+		WHILE refExcpList.Number IS NOT NULL DO
+			SET ExceptionType = FIELDNAME(refExcpList);
+			SET ErrorDesc     = ErrorDesc || FIELDNAME(refExcpList) || '::' || refExcpList.Text ||'.';
+			SET Count         = CARDINALITY(refExcpList.Insert[]);
+			IF ( Count >= 1 ) THEN
+				SET ErrorText = ':' || refExcpList.Insert[Count].Text || '.';
+			END IF;				
+			MOVE refExcpList LASTCHILD; -- Move to last child of current element 
+		END WHILE;
+		
+	--		Concatenate Error Description
+		SET ErrorDesc = ExceptionType || ' ' || ErrorText;
+		
+			SET refEnv.soapenv:Body.inf:submitTxnResponse.submitTxnResponse.message = ErrorDesc;
+			SET refEnv.soapenv:Body.inf:submitTxnResponse.submitTxnResponse.id = Environment.Variables.TransID;
+			DECLARE	rEnv REFERENCE TO Environment; 
+			IF EXISTS(Environment.Variables.TransID[]) THEN
+				CALL core.log.InfoMessage(rEnv, schemaName || '.' || moduleName || 'ETPS adapter Successfully sent Error Response to Router TransactionID is: ' || Environment.Variables.TransID, 'Error Message Is : ' || ErrorDesc);
+			ELSE
+				CALL core.log.InfoMessage(rEnv, schemaName || '.' || moduleName, 'ETPS adapter Successfully sent Error Response to Router : Error Message : ' || ErrorDesc );
+			END IF;
+			
+			
+	END;
+END MODULE;
+
+-- this is used to set the output root again after it has been overriden by the gc/IONS lookup
+CREATE COMPUTE MODULE LegacyTPS_ARTSXMLResponse_Construction
+	CREATE FUNCTION Main() RETURNS BOOLEAN
+	BEGIN
+		
+		DECLARE refXMLNSC REFERENCE TO OutputRoot;
+		IF EXISTS(Environment.Variables.ARTSXML[]) THEN
+			SET OutputRoot.Properties = Environment.Variables.ARTSXML.Properties;
+			SET OutputRoot.MQMD = Environment.Variables.ARTSXML.MQMD;
+			CREATE LASTCHILD OF OutputRoot AS refXMLNSC DOMAIN 'XMLNSC';
+			SET refXMLNSC = Environment.Variables.ARTSXML.XMLNSC;
+		ELSE 
+			SET OutputRoot.Properties = InputRoot.Properties;
+			SET OutputRoot.MQMD		  = InputRoot.MQMD; 
+			SET OutputRoot = InputRoot;
+		END IF;	
+		DELETE FIELD Environment.Variables.ARTSXML;
+		DELETE FIELD Environment.XMLNSC;	
+		RETURN TRUE;
+	END;
+END MODULE;
+
+

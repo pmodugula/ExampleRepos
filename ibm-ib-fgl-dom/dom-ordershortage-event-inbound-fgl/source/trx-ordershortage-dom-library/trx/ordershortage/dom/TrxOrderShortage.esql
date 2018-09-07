@@ -1,0 +1,80 @@
+--* File name : TrxOrderShortage.esql
+--* Purpose : To implement Shortage flow from WM - OMS: trx-ordershortage-dom flow.
+--* Authors : Dinesh 
+--* Create Date : 26th Aug 2016
+--* Version : 1.0
+--* Revision Date: 
+--* @copyright FGLSPORTS 2015. All Rights Reserved. */
+
+BROKER SCHEMA trx.ordershortage.dom
+
+-- Declare Constants--
+DECLARE theSchema CONSTANT CHARACTER 'trx.ordershortage.dom';
+DECLARE ATMOSPHERE CONSTANT CHARACTER 'ATMOSPHERE';
+DECLARE SPORTCHEK CONSTANT CHARACTER 'SPORTCHEK';
+DECLARE N CONSTANT CHARACTER 'N';
+DECLARE MODIFY CONSTANT CHARACTER 'MODIFY';
+DECLARE FULLFILLMENT CONSTANT CHARACTER 'FULLFILLMENT';
+
+--Declare Namespaces --
+DECLARE eai NAMESPACE 'http://www.fgl.com/DataStagePixTransaction';
+
+
+CREATE FILTER MODULE dom_Filter
+	DECLARE theModule CONSTANT CHARACTER theSchema||'.'||'dom_Filter';
+	CREATE FUNCTION Main() RETURNS BOOLEAN
+	BEGIN
+		DECLARE rEnv REFERENCE TO Environment;
+		DECLARE MSG_ID CHARACTER rEnv.__MsgIdForLog4J__;
+		CALL core.log.Info(theModule||' - ID# : '||MSG_ID||' >> BEGIN');
+		DECLARE returnValue BOOLEAN TRUE;
+		--No-op implementation for wms_Filter - for future purposes as required by business/functional requirements
+		CALL core.log.Info(theModule||' - RETURN '||CAST(returnValue AS CHARACTER));
+		CALL core.log.Info(theModule||' - ID# : '||MSG_ID||' << END');
+		RETURN returnValue;
+	END;
+END MODULE;
+
+
+CREATE COMPUTE MODULE dom_BuildOutputMessage
+	DECLARE theModule CONSTANT CHARACTER theSchema||'.'||'dom_BuildOutputMessage';
+	CREATE FUNCTION Main() RETURNS BOOLEAN
+	BEGIN
+		DECLARE rEnv REFERENCE TO Environment;
+		DECLARE rInput REFERENCE TO InputRoot;
+		DECLARE rOutput REFERENCE TO OutputRoot;
+		DECLARE MSG_ID CHARACTER rEnv.__MsgIdForLog4J__;
+		CALL core.log.Info(theModule||' - ID# : '||MSG_ID||' >> BEGIN');		
+		CALL common.common_CopyMessageHeaders(rInput, rOutput);
+		CALL common.common_CreateLastChildOfOutputRootDomainXmlnsc(rOutput);
+	
+		CREATE FIELD OutputRoot.XMLNSC.Shipment.ShipmentLines.ShipmentLine;	
+		DECLARE rShipmentLine REFERENCE TO OutputRoot.XMLNSC.Shipment.ShipmentLines.ShipmentLine;
+		
+		CALL core.log.Info(theModule ||' - ID# : '||MSG_ID||' - SBU    : /eai:Exchange/eai:MessageRouting/eai:SBU_CD - '|| COALESCE(InputRoot.XMLNSC.eai:Exchange.eai:MessageRouting.eai:SBU_CD,''));
+		CALL core.log.Info(theModule ||' - ID# : '||MSG_ID||' - PXTRAN : /eai:Exchange/eai:Message/eai:PixTransaction/eai:PXSTYL00/eai:PXTRAN - '|| COALESCE(InputRoot.XMLNSC.eai:Exchange.eai:Message.eai:PixTransaction.eai:PXSTYL00[1].eai:PXTRAN,''));
+		CALL core.log.Info(theModule ||' - ID# : '||MSG_ID||' - PXBRCD : /eai:Exchange/eai:Message/eai:PixTransaction/eai:PXSTYL00/eai:PXBRCD - '|| COALESCE(InputRoot.XMLNSC.eai:Exchange.eai:Message.eai:PixTransaction.eai:PXSTYL00[1].eai:PXBRCD,''));
+		CALL core.log.Info(theModule ||' - ID# : '||MSG_ID||' - PXSTYL : /eai:Exchange/eai:Message/eai:PixTransaction/eai:PXSTYL00/eai:PXSTYL - '|| COALESCE(InputRoot.XMLNSC.eai:Exchange.eai:Message.eai:PixTransaction.eai:PXSTYL00[1].eai:PXSTYL,''));
+		CALL core.log.Info(theModule ||' - ID# : '||MSG_ID||' - PXENTN : /eai:Exchange/eai:Message/eai:PixTransaction/eai:PXSTYL00/eai:PXENTN - '|| COALESCE(InputRoot.XMLNSC.eai:Exchange.eai:Message.eai:PixTransaction.eai:PXSTYL00[1].eai:PXENTN,''));
+
+		--Prepare output message--	
+		DECLARE refToPixTransaction REFERENCE TO InputRoot.XMLNSC.eai:Exchange.eai:Message.eai:PixTransaction;				
+		SET rOutput.XMLNSC.Shipment.(XMLNSC.Attribute)ShipmentKey = FIELDVALUE(refToPixTransaction.eai:PXSTYL00.eai:PXREF1);
+		
+		IF(SUBSTRING((refToPixTransaction.eai:PXSTYL00.eai:PXREF1) FROM 1 FOR 1) = 'E') THEN
+			SET rOutput.XMLNSC.Shipment.(XMLNSC.Attribute)SellerOrganizationCode = SPORTCHEK;
+		ELSE
+			SET rOutput.XMLNSC.Shipment.(XMLNSC.Attribute)SellerOrganizationCode = ATMOSPHERE;
+		END IF;
+		
+		SET rOutput.XMLNSC.Shipment.(XMLNSC.Attribute)BackOrderRemovedQuantity = N;
+		SET rShipmentLine.(XMLNSC.Attribute)Action = MODIFY;	
+		SET rShipmentLine.(XMLNSC.Attribute)ShipmentLineNo = FIELDVALUE(refToPixTransaction.eai:PDPICK00.eai:PDNUM2);
+		SET rShipmentLine.(XMLNSC.Attribute)BackroomPickComplete = N;
+		SET rShipmentLine.(XMLNSC.Attribute)ShortageQty = FIELDVALUE(refToPixTransaction.eai:PDPICK00.eai:PDPIQT);
+	
+		CALL core.log.Info(theModule||' - ID# : '||MSG_ID||' << END');
+
+		RETURN TRUE;
+	END;
+END MODULE;

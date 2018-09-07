@@ -1,0 +1,86 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ecore:EPackage xmi:version="2.0"
+    xmlns:xmi="http://www.omg.org/XMI" xmlns:ComIbmCompute.msgnode="ComIbmCompute.msgnode" xmlns:ComIbmFileOutput.msgnode="ComIbmFileOutput.msgnode" xmlns:ComIbmMQInput.msgnode="ComIbmMQInput.msgnode" xmlns:ComIbmMQOutput.msgnode="ComIbmMQOutput.msgnode" xmlns:ComIbmTimeoutNotification.msgnode="ComIbmTimeoutNotification.msgnode" xmlns:ecore="http://www.eclipse.org/emf/2002/Ecore" xmlns:eflow="http://www.ibm.com/wbi/2005/eflow" xmlns:utility="http://www.ibm.com/wbi/2005/eflow_utility" nsURI="trx/sales/aw/CreatePollingDoneFlagOnAW.msgflow"
+    nsPrefix="trx_sales_aw_CreatePollingDoneFlagOnAW.msgflow">
+  <eClassifiers xmi:type="eflow:FCMComposite" name="FCMComposite_1">
+    <eSuperTypes href="http://www.ibm.com/wbi/2005/eflow#//FCMBlock"/>
+    <eStructuralFeatures xmi:type="ecore:EAttribute" xmi:id="Property.AWStagingDirectoryPath" name="AWStagingDirectoryPath" lowerBound="1" defaultValueLiteral="/var/mqsi/staging/transactions/auditworks">
+      <eType xmi:type="ecore:EDataType" href="http://www.eclipse.org/emf/2002/Ecore#//EString"/>
+    </eStructuralFeatures>
+    <eStructuralFeatures xmi:type="ecore:EAttribute" xmi:id="Property.AWDirectoryNamePrefix" name="AWDirectoryNamePrefix" lowerBound="1" defaultValueLiteral="AWF">
+      <eType xmi:type="ecore:EDataType" href="http://www.eclipse.org/emf/2002/Ecore#//EString"/>
+    </eStructuralFeatures>
+    <eStructuralFeatures xmi:type="ecore:EAttribute" xmi:id="Property.AWTargetDirectoryPath" name="AWTargetDirectoryPath" lowerBound="1" defaultValueLiteral="/sybwork">
+      <eType xmi:type="ecore:EDataType" href="http://www.eclipse.org/emf/2002/Ecore#//EString"/>
+    </eStructuralFeatures>
+    <eStructuralFeatures xmi:type="ecore:EAttribute" xmi:id="Property.PollingDoneFileName" name="PollingDoneFileName" lowerBound="1" defaultValueLiteral="POLL.DONE">
+      <eType xmi:type="ecore:EDataType" href="http://www.eclipse.org/emf/2002/Ecore#//EString"/>
+    </eStructuralFeatures>
+    <eStructuralFeatures xmi:type="ecore:EAttribute" xmi:id="Property.PollDoneInputQueue" name="PollDoneInputQueue" lowerBound="1" defaultValueLiteral="SEND.FGL.AW.FPOS.POLLDONE_IN.IIB.DV">
+      <eType xmi:type="ecore:EDataType" href="http://www.eclipse.org/emf/2002/Ecore#//EString"/>
+    </eStructuralFeatures>
+    <eStructuralFeatures xmi:type="ecore:EAttribute" xmi:id="Property.PollDoneFailureQueue" name="PollDoneFailureQueue" defaultValueLiteral="SEND.FGL.AW.FPOS.POLLDONE_FAIL.IIB.DV">
+      <eType xmi:type="ecore:EDataType" href="http://www.eclipse.org/emf/2002/Ecore#//EString"/>
+    </eStructuralFeatures>
+    <translation xmi:type="utility:TranslatableString" key="CreatePollingDoneFlagOnAW" bundleName="trx/sales/aw/CreatePollingDoneFlagOnAW" pluginId="trx-sales-aw-pollingdoneflag-scheduler-fgl"/>
+    <colorGraphic16 xmi:type="utility:GIFFileGraphic" resourceName="platform:/plugin/trx-sales-aw-pollingdoneflag-scheduler-fgl/icons/full/obj16/CreatePollingDoneFlagOnAW.gif"/>
+    <colorGraphic32 xmi:type="utility:GIFFileGraphic" resourceName="platform:/plugin/trx-sales-aw-pollingdoneflag-scheduler-fgl/icons/full/obj30/CreatePollingDoneFlagOnAW.gif"/>
+    <composition>
+      <nodes xmi:type="ComIbmTimeoutNotification.msgnode:FCMComposite_1" xmi:id="FCMComposite_1_1" location="170,235" uniqueIdentifier="aw-poll-done" operationMode="controlled">
+        <translation xmi:type="utility:ConstantString" string="ScheduledPolling"/>
+      </nodes>
+      <nodes xmi:type="ComIbmCompute.msgnode:FCMComposite_1" xmi:id="FCMComposite_1_2" location="357,235" computeExpression="esql://routine/trx.sales.aw#CreatePollingDoneFlagOnAW_SetDirectoryAndFileName.Main" computeMode="destinationAndMessage" throwExceptionOnDatabaseError="false">
+        <translation xmi:type="utility:ConstantString" string="SetDirectoryAndFileName"/>
+      </nodes>
+      <nodes xmi:type="ComIbmFileOutput.msgnode:FCMComposite_1" xmi:id="FCMComposite_1_4" location="572,240" writeMode="writeInPlace" fileFtp="true" remoteTransferType="SFTP" fileFtpServer="nfs-aws-brkadm" fileFtpUser="aws-brkadm" fileFtpDirectory="/sybwork" fileFtpRemoteOutputMode="append">
+        <translation xmi:type="utility:ConstantString" string="PlacePollingDoneFile"/>
+      </nodes>
+      <nodes xmi:type="ComIbmMQInput.msgnode:FCMComposite_1" xmi:id="FCMComposite_1_8" location="115,136" queueName="SEND.FGL.AW.FPOS.POLLDONE_IN.IIB.DV" messageDomainProperty="XMLNSC">
+        <translation xmi:type="utility:ConstantString" string="SEND.FGL.AW.FPOS.POLLDONE_IN.IIB"/>
+        <shortDescription xmi:type="utility:ConstantString" string="OnDemandTrigger"/>
+        <longDescription xmi:type="utility:ConstantString" string="Message Structure:&#xD;&#xA;&#xD;&#xA;&lt;Trigger>&#xD;&#xA;&#x9;&lt;OnDemandPollingDoneDate>YYYY-MM-DD&lt;/OnDemandPollingDoneDate>&#xD;&#xA;&lt;/Trigger>"/>
+      </nodes>
+      <nodes xmi:type="ComIbmMQOutput.msgnode:FCMComposite_1" xmi:id="FCMComposite_1_3" location="530,135" queueName="SEND.FGL.AW.FPOS.POLLDONE_FAIL.IIB.DV">
+        <translation xmi:type="utility:ConstantString" string="FGL.AW.FPOS.POLLDONE_FAIL.IIB"/>
+      </nodes>
+      <nodes xmi:type="ComIbmCompute.msgnode:FCMComposite_1" xmi:id="FCMComposite_1_5" location="354,134" computeExpression="esql://routine/trx.sales.aw#CreatePollingDoneFlagOnAW_CaptureInputAndException.Main" throwExceptionOnDatabaseError="false">
+        <translation xmi:type="utility:ConstantString" string="CaptureInputAndException"/>
+      </nodes>
+      <connections xmi:type="eflow:FCMConnection" xmi:id="FCMConnection_6" targetNode="FCMComposite_1_4" sourceNode="FCMComposite_1_2" sourceTerminalName="OutTerminal.out" targetTerminalName="InTerminal.in"/>
+      <connections xmi:type="eflow:FCMConnection" xmi:id="FCMConnection_1" targetNode="FCMComposite_1_2" sourceNode="FCMComposite_1_8" sourceTerminalName="OutTerminal.out" targetTerminalName="InTerminal.in"/>
+      <connections xmi:type="eflow:FCMConnection" xmi:id="FCMConnection_2" targetNode="FCMComposite_1_5" sourceNode="FCMComposite_1_8" sourceTerminalName="OutTerminal.failure" targetTerminalName="InTerminal.in"/>
+      <connections xmi:type="eflow:FCMConnection" xmi:id="FCMConnection_3" targetNode="FCMComposite_1_5" sourceNode="FCMComposite_1_8" sourceTerminalName="OutTerminal.catch" targetTerminalName="InTerminal.in"/>
+      <connections xmi:type="eflow:FCMConnection" xmi:id="FCMConnection_4" targetNode="FCMComposite_1_5" sourceNode="FCMComposite_1_1" sourceTerminalName="OutTerminal.failure" targetTerminalName="InTerminal.in"/>
+      <connections xmi:type="eflow:FCMConnection" xmi:id="FCMConnection_5" targetNode="FCMComposite_1_5" sourceNode="FCMComposite_1_1" sourceTerminalName="OutTerminal.catch" targetTerminalName="InTerminal.in"/>
+      <connections xmi:type="eflow:FCMConnection" xmi:id="FCMConnection_7" targetNode="FCMComposite_1_3" sourceNode="FCMComposite_1_5" sourceTerminalName="OutTerminal.out" targetTerminalName="InTerminal.in"/>
+      <connections xmi:type="eflow:FCMConnection" xmi:id="FCMConnection_8" targetNode="FCMComposite_1_2" sourceNode="FCMComposite_1_1" sourceTerminalName="OutTerminal.out" targetTerminalName="InTerminal.in"/>
+    </composition>
+    <propertyOrganizer>
+      <propertyDescriptor groupName="Group.Basic" configurable="true" userDefined="true" describedAttribute="Property.AWStagingDirectoryPath">
+        <propertyName xmi:type="utility:TranslatableString" key="Property.AWStagingDirectoryPath" bundleName="trx/sales/aw/CreatePollingDoneFlagOnAW" pluginId="trx-sales-aw-pollingdoneflag-scheduler-fgl"/>
+        <propertyDescriptor groupName="Group.Basic" configurable="true" userDefined="true" describedAttribute="Property.AWDirectoryNamePrefix">
+          <propertyName xmi:type="utility:TranslatableString" key="Property.AWDirectoryNamePrefix" bundleName="trx/sales/aw/CreatePollingDoneFlagOnAW" pluginId="trx-sales-aw-pollingdoneflag-scheduler-fgl"/>
+          <propertyDescriptor groupName="Group.Basic" configurable="true" userDefined="true" describedAttribute="Property.AWTargetDirectoryPath">
+            <propertyName xmi:type="utility:TranslatableString" key="Property.AWTargetDirectoryPath" bundleName="trx/sales/aw/CreatePollingDoneFlagOnAW" pluginId="trx-sales-aw-pollingdoneflag-scheduler-fgl"/>
+            <propertyDescriptor groupName="Group.Basic" configurable="true" userDefined="true" describedAttribute="Property.PollingDoneFileName">
+              <propertyName xmi:type="utility:TranslatableString" key="Property.PollingDoneFileName" bundleName="trx/sales/aw/CreatePollingDoneFlagOnAW" pluginId="trx-sales-aw-pollingdoneflag-scheduler-fgl"/>
+              <propertyDescriptor groupName="Group.QueueNames" propertyEditor="com.ibm.etools.mft.ibmnodes.editors.mq.MQQueueNameEditor" configurable="true" describedAttribute="Property.PollDoneInputQueue">
+                <propertyName xmi:type="utility:TranslatableString" key="Property.PollDoneInputQueue" bundleName="trx/sales/aw/CreatePollingDoneFlagOnAW" pluginId="trx-sales-aw-pollingdoneflag-scheduler-fgl"/>
+                <propertyDescriptor groupName="Group.QueueNames" propertyEditor="com.ibm.etools.mft.ibmnodes.editors.mq.MQQueueNameEditor" configurable="true" describedAttribute="Property.PollDoneFailureQueue">
+                  <propertyName xmi:type="utility:TranslatableString" key="Property.PollDoneFailureQueue" bundleName="trx/sales/aw/CreatePollingDoneFlagOnAW" pluginId="trx-sales-aw-pollingdoneflag-scheduler-fgl"/>
+                </propertyDescriptor>
+              </propertyDescriptor>
+            </propertyDescriptor>
+          </propertyDescriptor>
+        </propertyDescriptor>
+      </propertyDescriptor>
+    </propertyOrganizer>
+    <attributeLinks promotedAttribute="Property.PollDoneInputQueue" overriddenNodes="FCMComposite_1_8">
+      <overriddenAttribute href="ComIbmMQInput.msgnode#Property.queueName"/>
+    </attributeLinks>
+    <attributeLinks promotedAttribute="Property.PollDoneFailureQueue" overriddenNodes="FCMComposite_1_3">
+      <overriddenAttribute href="ComIbmMQOutput.msgnode#Property.queueName"/>
+    </attributeLinks>
+    <stickyBoard/>
+  </eClassifiers>
+</ecore:EPackage>

@@ -1,0 +1,204 @@
+<eai:Exchange xmlns:arts="http://www.fgl.com/ARTS" xmlns:eai="http://www.fgl.com/exchange/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" MajorVersion="2" MinorVersion="0" FixVersion="0" xsi:schemaLocation="http://www.fgl.com/exchange/ file:///C:/Users/plam/Documents/GIT-REPO/IIB/xsd/arts/ARTSTransactionMessageV2_00_00.xsd">
+	<eai:MessageRouting>
+		<eai:Guid>37984B5264DA008CE0530A6702465199</eai:Guid>
+		<eai:MessageId/>
+		<eai:MessageType>PointToPoint</eai:MessageType>
+		<eai:SubjectArea>Normal Retail Sales Transactions</eai:SubjectArea>
+		<eai:SbuNumber>3</eai:SbuNumber>
+		<eai:SbuCode>FGL</eai:SbuCode>
+		<eai:SbuName>FGL Sports Ltd.</eai:SbuName>
+		<eai:DataSourceCode>POE</eai:DataSourceCode>
+		<eai:DataSourceCodeName>POE POS FGL</eai:DataSourceCodeName>
+		<eai:MessageIndex>1</eai:MessageIndex>
+		<eai:MessageCount>1</eai:MessageCount>
+		<eai:SubjectAreaRunName>salestransactions-380-20160810-134747</eai:SubjectAreaRunName>
+	</eai:MessageRouting>
+	<eai:Messages>
+		<eai:Count>1</eai:Count>
+		<eai:SourceSystems>
+			<eai:Count>1</eai:Count>
+			<eai:SourceSystem>
+				<eai:Index>1</eai:Index>
+				<eai:SbuNumber>3</eai:SbuNumber>
+				<eai:SbuCode>FGL</eai:SbuCode>
+				<eai:SbuName>FGL Sports Ltd.</eai:SbuName>
+				<eai:MessageSourceCode>CSS</eai:MessageSourceCode>
+				<eai:MessageSourceCodeName>Central Sales Server</eai:MessageSourceCodeName>
+			</eai:SourceSystem>
+		</eai:SourceSystems>
+		<eai:POSLog>
+			<arts:Count>1</arts:Count>
+			<arts:Transaction TypeCode="SaleTransaction">
+				<arts:BusinessUnit>
+					<arts:BusinessUnitNumber>380</arts:BusinessUnitNumber>
+					<arts:BusinessUnitTypeCode>RS</arts:BusinessUnitTypeCode>
+					<arts:BusinessUnitShortName>SC380</arts:BusinessUnitShortName>
+					<arts:BusinessUnitName>SC CHARLOTTETOWN</arts:BusinessUnitName>
+				</arts:BusinessUnit>
+				<arts:WorkstationID>9</arts:WorkstationID>
+				<arts:SequenceNumber>9990</arts:SequenceNumber>
+				<arts:BeginDateTime>2016-08-10T13:47:47Z</arts:BeginDateTime>
+				<arts:EndDateTime>2016-08-10T13:47:47Z</arts:EndDateTime>
+				<arts:OperatorID OperatorName="Lois Lane" FirstName="Lois" LastName="Lane">101</arts:OperatorID>
+				<arts:RetailTransaction>
+					<arts:LineItemCount>5</arts:LineItemCount>
+					<arts:CustomerCount>1</arts:CustomerCount>
+					<arts:AssociateCount>0</arts:AssociateCount>
+					<arts:LineItem VoidFlag="false">
+						<arts:Index>1</arts:Index>
+						<arts:SequenceNumber>1</arts:SequenceNumber>
+						<arts:Return ItemType="Stock" TaxableFlag="true">
+							<arts:TaxCount>2</arts:TaxCount>
+							<arts:RetailPriceModifierCount>0</arts:RetailPriceModifierCount>
+							<arts:Item>
+								<arts:ItemNumber>1010362990001</arts:ItemNumber>
+								<arts:ItemName>BASELINE II(397)M/./7.5</arts:ItemName>
+								<arts:UPCNumber>400100069417</arts:UPCNumber>
+							</arts:Item>
+							<arts:MerchandiseHierarchy Level="4" ID="8001"/>
+							<arts:RegularSalesUnitPrice>41.99</arts:RegularSalesUnitPrice>
+							<arts:ActualSalesUnitPrice>41.99</arts:ActualSalesUnitPrice>
+							<arts:DiscountAmount>0</arts:DiscountAmount>
+							<arts:Quantity>1</arts:Quantity>
+							<arts:Tax TaxType="PEHSTF" TypeCode="Refund" SourceSystemTaxExemptionFlag="false">
+								<arts:Index>1</arts:Index>
+								<arts:Amount>0</arts:Amount>
+								<arts:Percent>5</arts:Percent>
+								<arts:TaxExemption>
+									<arts:CustomerExemptionID>789456</arts:CustomerExemptionID>
+									<arts:ExemptTaxableAmount>41.99</arts:ExemptTaxableAmount>
+									<arts:ExemptTaxAmount>2.10</arts:ExemptTaxAmount>
+									<arts:ReasonCode>TE11</arts:ReasonCode>
+									<arts:ReasonDescriptionText>Other - Exempt Prov &amp; Fed Tax</arts:ReasonDescriptionText>
+								</arts:TaxExemption>
+							</arts:Tax>
+							<arts:Tax TaxType="PEHSTP" TypeCode="Refund" SourceSystemTaxExemptionFlag="false">
+								<arts:Index>2</arts:Index>
+								<arts:Amount>0</arts:Amount>
+								<arts:Percent>9</arts:Percent>
+								<arts:TaxExemption>
+									<arts:CustomerExemptionID>789456</arts:CustomerExemptionID>
+									<arts:ExemptTaxableAmount>41.99</arts:ExemptTaxableAmount>
+									<arts:ExemptTaxAmount>3.78</arts:ExemptTaxAmount>
+									<arts:ReasonCode>TE11</arts:ReasonCode>
+									<arts:ReasonDescriptionText>Other - Exempt Prov &amp; Fed Tax</arts:ReasonDescriptionText>
+								</arts:TaxExemption>
+							</arts:Tax>
+							<arts:TransactionLink>
+								<arts:BusinessUnit>
+									<arts:BusinessUnitNumber>380</arts:BusinessUnitNumber>
+									<arts:BusinessUnitTypeCode>RS</arts:BusinessUnitTypeCode>
+									<arts:BusinessUnitShortName>SC380</arts:BusinessUnitShortName>
+									<arts:BusinessUnitName>SC CHARLOTTETOWN</arts:BusinessUnitName>
+								</arts:BusinessUnit>
+								<arts:WorkstationID>1</arts:WorkstationID>
+								<arts:SequenceNumber>4856</arts:SequenceNumber>
+								<arts:BeginDateTime>2016-03-01T00:00:00Z</arts:BeginDateTime>
+								<arts:EndDateTime>2016-03-01T00:00:00Z</arts:EndDateTime>
+								<arts:OperatorID>1</arts:OperatorID>
+								<arts:AssociateID>6666</arts:AssociateID>
+							</arts:TransactionLink>
+							<arts:SaleReturnTypeCode>RRTN</arts:SaleReturnTypeCode>
+							<arts:SaleReturnTypeDescriptionText>Receipted Return</arts:SaleReturnTypeDescriptionText>
+							<arts:ReasonCode>DEFECTIVE</arts:ReasonCode>
+							<arts:Description>Defective</arts:Description>
+						</arts:Return>
+						<arts:LineItemSubtypeCode>Return</arts:LineItemSubtypeCode>
+					</arts:LineItem>
+					<arts:LineItem VoidFlag="false">
+						<arts:Index>2</arts:Index>
+						<arts:SequenceNumber>2</arts:SequenceNumber>
+						<arts:Sale ItemType="Stock" TaxableFlag="true">
+							<arts:TaxCount>2</arts:TaxCount>
+							<arts:RetailPriceModifierCount>0</arts:RetailPriceModifierCount>
+							<arts:Item>
+								<arts:ItemNumber>331501010</arts:ItemNumber>
+								<arts:ItemName>SAUCONY POWERGRID GUIDE 7 BLU 99 17</arts:ItemName>
+								<arts:UPCNumber>720026865581</arts:UPCNumber>
+							</arts:Item>
+							<arts:MerchandiseHierarchy Level="4" ID="8001"/>
+							<arts:RegularSalesUnitPrice>100.00</arts:RegularSalesUnitPrice>
+							<arts:ActualSalesUnitPrice>100.00</arts:ActualSalesUnitPrice>
+							<arts:DiscountAmount>0</arts:DiscountAmount>
+							<arts:Quantity>1.0</arts:Quantity>
+							<arts:Tax TaxType="PEHSTF" TypeCode="Sale" SourceSystemTaxExemptionFlag="false">
+								<arts:Index>1</arts:Index>
+								<arts:Amount>0</arts:Amount>
+								<arts:Percent>5</arts:Percent>
+							</arts:Tax>
+							<arts:Tax TaxType="PEHSTP" TypeCode="Sale" SourceSystemTaxExemptionFlag="false">
+								<arts:Index>2</arts:Index>
+								<arts:Amount>9.00</arts:Amount>
+								<arts:Percent>9</arts:Percent>
+							</arts:Tax>
+						</arts:Sale>
+						<arts:LineItemSubtypeCode>Sale</arts:LineItemSubtypeCode>
+					</arts:LineItem>
+					<arts:LineItem>
+						<arts:Index>3</arts:Index>
+						<arts:SequenceNumber>3</arts:SequenceNumber>
+						<arts:Tax TaxType="PEHSTF" TypeCode="Sale">
+							<arts:Index>1</arts:Index>
+							<arts:Amount>0</arts:Amount>
+							<arts:Percent>5</arts:Percent>
+							<arts:TaxExemption>
+								<arts:CustomerExemptionID>789456</arts:CustomerExemptionID>
+								<arts:ExemptTaxableAmount>100.00</arts:ExemptTaxableAmount>
+								<arts:ExemptTaxAmount>5.00</arts:ExemptTaxAmount>
+								<arts:ReasonCode>TE10</arts:ReasonCode>
+								<arts:ReasonDescriptionText>Other - Exempt Fed Tax</arts:ReasonDescriptionText>
+							</arts:TaxExemption>
+						</arts:Tax>
+						<arts:LineItemSubtypeCode>Tax</arts:LineItemSubtypeCode>
+					</arts:LineItem>
+					<arts:LineItem>
+						<arts:Index>4</arts:Index>
+						<arts:SequenceNumber>4</arts:SequenceNumber>
+						<arts:Tax TaxType="PEHSTP" TypeCode="Sale">
+							<arts:Index>1</arts:Index>
+							<arts:Amount>9.00</arts:Amount>
+							<arts:Percent>9</arts:Percent>
+						</arts:Tax>
+						<arts:LineItemSubtypeCode>Tax</arts:LineItemSubtypeCode>
+					</arts:LineItem>
+					<arts:LineItem>
+						<arts:Index>5</arts:Index>
+						<arts:SequenceNumber>5</arts:SequenceNumber>
+						<arts:Tender TenderType="CreditDebit" TypeCode="Sale">
+							<arts:Amount>67.01</arts:Amount>
+							<arts:Authorization>
+								<arts:AuthorizationCode>01041Z</arts:AuthorizationCode>
+								<arts:SwipeIndicator>2</arts:SwipeIndicator>
+							</arts:Authorization>
+							<arts:CreditDebit>
+								<arts:PrimaryAccountNumber>MTIzNDU2KioqKioqMTIzNA==</arts:PrimaryAccountNumber>
+								<arts:ExpirationDate>2018-02</arts:ExpirationDate>
+							</arts:CreditDebit>
+						</arts:Tender>
+						<arts:LineItemSubtypeCode>Tender</arts:LineItemSubtypeCode>
+					</arts:LineItem>
+					<arts:Total TotalType="TransactionGrossAmount">67.01</arts:Total>
+					<arts:Total TotalType="TransactionSubtotal">58.01</arts:Total>
+					<arts:Customer>
+						<arts:Index>1</arts:Index>
+						<arts:AddressCount>1</arts:AddressCount>
+						<arts:TelephoneCount>1</arts:TelephoneCount>
+						<arts:CustomerName>
+							<arts:Name TypeCode="FirstName">Clark</arts:Name>
+							<arts:Name TypeCode="LastName">Kent</arts:Name>
+						</arts:CustomerName>
+						<arts:Address>
+							<arts:Index>1</arts:Index>
+							<arts:PostalCode>K9R 9P9</arts:PostalCode>
+						</arts:Address>
+						<arts:Telephone>
+							<arts:Index>1</arts:Index>
+							<arts:FullTelephoneNumber>4033333333</arts:FullTelephoneNumber>
+						</arts:Telephone>
+					</arts:Customer>
+				</arts:RetailTransaction>
+				<arts:TransactionSubtypeCode>RetailTransaction</arts:TransactionSubtypeCode>
+			</arts:Transaction>
+		</eai:POSLog>
+	</eai:Messages>
+</eai:Exchange>

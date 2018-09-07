@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- edited with XMLSpy v2014 sp1 (x64) (http://www.altova.com) by FGL (FGL SPORTS LTD) -->
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" elementFormDefault="qualified" attributeFormDefault="unqualified">
+	<xs:include schemaLocation="Library/XPOLLD_TransactionHeader.xsd"/>
+	<xs:include schemaLocation="Library/XPOLLD_TransactionLine.xsd"/>
+	<xs:include schemaLocation="Library/XPOLLD_MerchandiseDetail.xsd"/>
+	<xs:include schemaLocation="Library/XPOLLD_AuthorizationDetail.xsd"/>
+	<xs:include schemaLocation="Library/XPOLLD_CustomerDetail.xsd"/>
+	<xs:include schemaLocation="Library/XPOLLD_DiscountDetail.xsd"/>
+	<xs:include schemaLocation="Library/XPOLLD_ReturnDetail.xsd"/>
+	<xs:include schemaLocation="Library/XPOLLD_TaxDetail.xsd"/>
+	<xs:include schemaLocation="Library/XPOLLD_LineNotes.xsd"/>
+	<xs:include schemaLocation="Library/XPOLLD_EmailDetail.xsd"/>
+	<xs:element name="XPOLLDS">
+	<xs:complexType>
+	<xs:sequence>
+	<xs:element name="XPOLLD" minOccurs="1" maxOccurs="unbounded">
+		<xs:complexType>
+			<xs:sequence>
+				<xs:element name="Header" type="TransactionHeader" minOccurs="1" maxOccurs="1"/>
+				<xs:element name="Line" type="TransactionLine" minOccurs="0" maxOccurs="unbounded"/>
+				<xs:element name="Customer" type="CustomerDetail" minOccurs="0" maxOccurs="unbounded"/>
+				<xs:element name="Merchandise" type="MerchandiseDetail" minOccurs="0" maxOccurs="unbounded"/>
+				<xs:element name="Discount" type="DiscountDetail" minOccurs="0" maxOccurs="unbounded"/>
+				<xs:element name="LineNote" type="LineNotes" minOccurs="0" maxOccurs="unbounded"/>
+				<xs:element name="Return" type="ReturnDetail" minOccurs="0" maxOccurs="unbounded"/>
+				<xs:element name="Tax" type="TaxDetail" minOccurs="0" maxOccurs="unbounded"/>
+				<xs:element name="Authorization" type="AuthorizationDetail" minOccurs="0" maxOccurs="unbounded"/>
+				<xs:element name="Email" type="EmailDetail" minOccurs="0" maxOccurs="unbounded"/>
+				</xs:sequence>
+			  </xs:complexType>
+			</xs:element>
+		  </xs:sequence>
+		</xs:complexType>
+	</xs:element>
+</xs:schema>
+    
+

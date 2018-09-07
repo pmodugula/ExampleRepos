@@ -1,0 +1,544 @@
+<?xml version="1.0" encoding="UTF-8"?><mappingRoot domainID="com.ibm.msl.mapping.xml" domainIDExtension="mb" mainMap="true" targetNamespace="trx.sales.aw" version="8.0.4.0" xmlns="http://www.ibm.com/2008/ccl/Mapping" xmlns:map="trx.sales.aw">
+    <input path="/trx.sales.aw/XPOLLD.xsd"/>
+    <output path="/XPOLLDCSV.xsd"/>
+    <generation engine="xquery"/>
+    <mappingDeclaration name="Xpolldfilegenerator_Mapping">
+        <input path="mb:msg(XPOLLDS,assembly,XMLNSC,Properties)"/>
+        <output path="mb:msg(XPOLLDCSVS,assembly,DFDL,Properties)"/>
+        <move>
+            <input path="Properties"/>
+            <output path="Properties"/>
+        </move>
+        <foreach>
+            <input path="XPOLLDS/XPOLLD[*]" var="XPOLLD"/>
+            <output path="XPOLLDCSVS/XPOLLDCSV"/>
+            <test lang="xpath">fn:exists($XPOLLD)</test>
+            <local>
+                <input path="$XPOLLD/Header" var="Header"/>
+                <output path="Header"/>
+                <test lang="xpath">fn:exists($Header)</test>
+                <move>
+                    <input path="$Header/RecordType"/>
+                    <output path="RecordType"/>
+                </move>
+                <move>
+                    <input path="$Header/StoreNbr"/>
+                    <output path="StoreNbr"/>
+                </move>
+                <move>
+                    <input path="$Header/RegisterNbr"/>
+                    <output path="RegisterNbr"/>
+                </move>
+                <move>
+                    <input path="$Header/EntryDateTime"/>
+                    <output path="EntryDateTime"/>
+                </move>
+                <move>
+                    <input path="$Header/TransactionSeries"/>
+                    <output path="TransactionSeries"/>
+                </move>
+                <move>
+                    <input path="$Header/TransactionNbr"/>
+                    <output path="TransactionNbr"/>
+                </move>
+                <move>
+                    <input path="$Header/CashierNbr"/>
+                    <output path="CashierNbr"/>
+                </move>
+                <move>
+                    <input path="$Header/TransactionCategory"/>
+                    <output path="TransactionCategory"/>
+                </move>
+                <move>
+                    <input path="$Header/BankDepositDeclarationFlg"/>
+                    <output path="BankDepositDeclarationFlg"/>
+                </move>
+                <move>
+                    <input path="$Header/StoreNbrForTaxJurisdictionLkp"/>
+                    <output path="StoreNbrForTaxJurisdictionLkp"/>
+                </move>
+                <move>
+                    <input path="$Header/SendTaxExceptionForTaxJurisdiction"/>
+                    <output path="SendTaxExceptionForTaxJurisdiction"/>
+                </move>
+                <move>
+                    <input path="$Header/TransactionVoidFlag"/>
+                    <output path="TransactionVoidFlag"/>
+                </move>
+                <move>
+                    <input path="$Header/Unused1"/>
+                    <output path="Unused1"/>
+                </move>
+                <move>
+                    <input path="$Header/Unused2"/>
+                    <output path="Unused2"/>
+                </move>
+                <move>
+                    <input path="$Header/PurchasingEmployeeNbr"/>
+                    <output path="PurchasingEmployeeNbr"/>
+                </move>
+                <move>
+                    <input path="$Header/CloseoutFlg"/>
+                    <output path="CloseoutFlg"/>
+                </move>
+                <move>
+                    <input path="$Header/TransactionRemark"/>
+                    <output path="TransactionRemark"/>
+                </move>
+                <move>
+                    <input path="$Header/TaxOverrideFlg"/>
+                    <output path="TaxOverrideFlg"/>
+                </move>
+            </local>
+            <foreach>
+                <input path="$XPOLLD/Line[*]" var="Line"/>
+                <output path="Line"/>
+                <test lang="xpath">fn:exists($Line)</test>
+                <move>
+                    <input path="$Line/RecordType"/>
+                    <output path="RecordType"/>
+                </move>
+                <move>
+                    <input path="$Line/LineId"/>
+                    <output path="LineId"/>
+                </move>
+                <move>
+                    <input path="$Line/LineObject"/>
+                    <output path="LineObject"/>
+                </move>
+                <move>
+                    <input path="$Line/LineAction"/>
+                    <output path="LineAction"/>
+                </move>
+                <move>
+                    <input path="$Line/ReferenceNbr"/>
+                    <output path="ReferenceNbr"/>
+                </move>
+                <move>
+                    <input path="$Line/LineAmount"/>
+                    <output path="LineAmount"/>
+                </move>
+                <move>
+                    <input path="$Line/Unused1"/>
+                    <output path="Unused1"/>
+                </move>
+                <move>
+                    <input path="$Line/LineAmountDivider"/>
+                    <output path="LineAmountDivider"/>
+                </move>
+                <move>
+                    <input path="$Line/Unused2"/>
+                    <output path="Unused2"/>
+                </move>
+                <move>
+                    <input path="$Line/VoidingReversalFlg"/>
+                    <output path="VoidingReversalFlg"/>
+                </move>
+                <move>
+                    <input path="$Line/LineAmountDeduction"/>
+                    <output path="LineAmountDeduction"/>
+                </move>
+                <move>
+                    <input path="$Line/LineAmountMultiplicationFactor"/>
+                    <output path="LineAmountMultiplicationFactor"/>
+                </move>
+                <move>
+                    <input path="$Line/LineVoidFlg"/>
+                    <output path="LineVoidFlg"/>
+                </move>
+                <move>
+                    <input path="$Line/AttachmentQty"/>
+                    <output path="AttachmentQty"/>
+                </move>
+                <move>
+                    <input path="$Line/LineObjectAdjustment"/>
+                    <output path="LineObjectAdjustment"/>
+                </move>
+                <move>
+                    <input path="$Line/LkpPosCode"/>
+                    <output path="LkpPosCode"/>
+                </move>
+            </foreach>
+            <foreach>
+                <input path="$XPOLLD/Customer[*]" var="Customer"/>
+                <output path="Customer"/>
+                <test lang="xpath">fn:exists($Customer)</test>
+                <move>
+                    <input path="$Customer/RecordType"/>
+                    <output path="RecordType"/>
+                </move>
+                <move>
+                    <input path="$Customer/LineId"/>
+                    <output path="LineId"/>
+                </move>
+                <move>
+                    <input path="$Customer/CustomerRole"/>
+                    <output path="CustomerRole"/>
+                </move>
+                <move>
+                    <input path="$Customer/Title"/>
+                    <output path="Title"/>
+                </move>
+                <move>
+                    <input path="$Customer/FirstName"/>
+                    <output path="FirstName"/>
+                </move>
+                <move>
+                    <input path="$Customer/LastName"/>
+                    <output path="LastName"/>
+                </move>
+                <move>
+                    <input path="$Customer/Address"/>
+                    <output path="Address"/>
+                </move>
+                <move>
+                    <input path="$Customer/City"/>
+                    <output path="City"/>
+                </move>
+                <move>
+                    <input path="$Customer/State"/>
+                    <output path="State"/>
+                </move>
+                <move>
+                    <input path="$Customer/Country"/>
+                    <output path="Country"/>
+                </move>
+                <move>
+                    <input path="$Customer/PostalCode"/>
+                    <output path="PostalCode"/>
+                </move>
+                <move>
+                    <input path="$Customer/TelephoneNbr"/>
+                    <output path="TelephoneNbr"/>
+                </move>
+                <move>
+                    <input path="$Customer/CustomerNbr"/>
+                    <output path="CustomerNbr"/>
+                </move>
+                <move>
+                    <input path="$Customer/County"/>
+                    <output path="County"/>
+                </move>
+                <move>
+                    <input path="$Customer/PosTaxJurisdictionCode"/>
+                    <output path="PosTaxJurisdictionCode"/>
+                </move>
+                <move>
+                    <input path="$Customer/FaxNbr"/>
+                    <output path="FaxNbr"/>
+                </move>
+                <move>
+                    <input path="$Customer/EmailAddress"/>
+                    <output path="EmailAddress"/>
+                </move>
+            </foreach>
+            <foreach>
+                <input path="$XPOLLD/Merchandise" var="Merchandise"/>
+                <output path="Merchandise"/>
+                <filter lang="xpath">fn:exists($Merchandise)</filter>
+                <move>
+                    <input path="$Merchandise/RecordType"/>
+                    <output path="RecordType"/>
+                </move>
+                <move>
+                    <input path="$Merchandise/LineId"/>
+                    <output path="LineId"/>
+                </move>
+                <move>
+                    <input path="$Merchandise/MerchandiseCategory"/>
+                    <output path="MerchandiseCategory"/>
+                </move>
+                <move>
+                    <input path="$Merchandise/Unused1"/>
+                    <output path="Unused1"/>
+                </move>
+                <move>
+                    <input path="$Merchandise/UPC"/>
+                    <output path="UPC"/>
+                </move>
+                <move>
+                    <input path="$Merchandise/Units"/>
+                    <output path="Units"/>
+                </move>
+                <move>
+                    <input path="$Merchandise/UnitsMultiplicationFactor"/>
+                    <output path="UnitsMultiplicationFactor"/>
+                </move>
+                <move>
+                    <input path="$Merchandise/SalesPerson1"/>
+                    <output path="SalesPerson1"/>
+                </move>
+                <move>
+                    <input path="$Merchandise/SalesPerson2"/>
+                    <output path="SalesPerson2"/>
+                </move>
+                <move>
+                    <input path="$Merchandise/PriceOverrideFlg"/>
+                    <output path="PriceOverrideFlg"/>
+                </move>
+                <move>
+                    <input path="$Merchandise/UpcMissingInPosIPLUFileFlg"/>
+                    <output path="UpcMissingInPosIPLUFileFlg"/>
+                </move>
+                <move>
+                    <input path="$Merchandise/PosDeptOrClass"/>
+                    <output path="PosDeptOrClass"/>
+                </move>
+                <move>
+                    <input path="$Merchandise/PosNoHitDeptClass"/>
+                    <output path="PosNoHitDeptClass"/>
+                </move>
+                <move>
+                    <input path="$Merchandise/Unused"/>
+                    <output path="Unused"/>
+                </move>
+                <move>
+                    <input path="$Merchandise/PosItemIdentifier"/>
+                    <output path="PosItemIdentifier"/>
+                </move>
+                <move>
+                    <input path="$Merchandise/ScannedFlg"/>
+                    <output path="ScannedFlg"/>
+                </move>
+                <move>
+                    <input path="$Merchandise/OriginatingStoreNbr"/>
+                    <output path="OriginatingStoreNbr"/>
+                </move>
+            </foreach>
+            <foreach>
+                <input path="$XPOLLD/Discount[*]" var="Discount"/>
+                <output path="Discount"/>
+                <test lang="xpath">fn:exists($Discount)</test>
+                <move>
+                    <input path="$Discount/RecordType"/>
+                    <output path="RecordType"/>
+                </move>
+                <move>
+                    <input path="$Discount/LineId"/>
+                    <output path="LineId"/>
+                </move>
+                <move>
+                    <input path="$Discount/LineIdAdjustment"/>
+                    <output path="LineIdAdjustment"/>
+                </move>
+                <move>
+                    <input path="$Discount/Unused"/>
+                    <output path="Unused"/>
+                </move>
+                <move>
+                    <input path="$Discount/PosDiscountSerialNbr"/>
+                    <output path="PosDiscountSerialNbr"/>
+                </move>
+                <move>
+                    <input path="$Discount/DiscountAmount"/>
+                    <output path="DiscountAmount"/>
+                </move>
+                <move>
+                    <input path="$Discount/DiscountAmountMultiplicationFactor"/>
+                    <output path="DiscountAmountMultiplicationFactor"/>
+                </move>
+                <move>
+                    <input path="$Discount/Unused1"/>
+                    <output path="Unused1"/>
+                </move>
+                <move>
+                    <input path="$Discount/AppliedByLineId"/>
+                    <output path="AppliedByLineId"/>
+                </move>
+                <move>
+                    <input path="$Discount/DiscountAmountDeduction"/>
+                    <output path="DiscountAmountDeduction"/>
+                </move>
+            </foreach>
+            <foreach>
+                <input path="$XPOLLD/LineNote[*]" var="LineNote"/>
+                <output path="LineNote"/>
+                <test lang="xpath">fn:exists($LineNote)</test>
+                <move>
+                    <input path="$LineNote/RecordType"/>
+                    <output path="RecordType"/>
+                </move>
+                <move>
+                    <input path="$LineNote/LineId"/>
+                    <output path="LineId"/>
+                </move>
+                <move>
+                    <input path="$LineNote/LineNoteType"/>
+                    <output path="LineNoteType"/>
+                </move>
+                <move>
+                    <input path="$LineNote/LineNote"/>
+                    <output path="LineNote"/>
+                </move>
+            </foreach>
+            <foreach>
+                <input path="$XPOLLD/Return[*]" var="Return"/>
+                <output path="Return"/>
+                <test lang="xpath">fn:exists($Return)</test>
+                <move>
+                    <input path="$Return/RecordType"/>
+                    <output path="RecordType"/>
+                </move>
+                <move>
+                    <input path="$Return/LineId"/>
+                    <output path="LineId"/>
+                </move>
+                <move>
+                    <input path="$Return/ReturnReasonMessage"/>
+                    <output path="ReturnReasonMessage"/>
+                </move>
+                <move>
+                    <input path="$Return/ReturnReasonCode"/>
+                    <output path="ReturnReasonCode"/>
+                </move>
+                <move>
+                    <input path="$Return/MerchandiseDispositionCode"/>
+                    <output path="MerchandiseDispositionCode"/>
+                </move>
+                <move>
+                    <input path="$Return/ViaWarehouseFlg"/>
+                    <output path="ViaWarehouseFlg"/>
+                </move>
+                <move>
+                    <input path="$Return/ReturnFromStoreNbr"/>
+                    <output path="ReturnFromStoreNbr"/>
+                </move>
+                <move>
+                    <input path="$Return/ReturnFromRegisterNbr"/>
+                    <output path="ReturnFromRegisterNbr"/>
+                </move>
+                <move>
+                    <input path="$Return/ReturnFromDate"/>
+                    <output path="ReturnFromDate"/>
+                </move>
+                <move>
+                    <input path="$Return/ReturnFromTransactionNbr"/>
+                    <output path="ReturnFromTransactionNbr"/>
+                </move>
+                <move>
+                    <input path="$Return/OriginalSalesPerson"/>
+                    <output path="OriginalSalesPerson"/>
+                </move>
+            </foreach>
+            <foreach>
+                <input path="$XPOLLD/Tax[*]" var="Tax"/>
+                <output path="Tax"/>
+                <test lang="xpath">fn:exists($Tax)</test>
+                <move>
+                    <input path="$Tax/RecordType"/>
+                    <output path="RecordType"/>
+                </move>
+                <move>
+                    <input path="$Tax/LineId"/>
+                    <output path="LineId"/>
+                </move>
+                <move>
+                    <input path="$Tax/ExceptionTaxJurisdiction"/>
+                    <output path="ExceptionTaxJurisdiction"/>
+                </move>
+                <move>
+                    <input path="$Tax/TaxCategory"/>
+                    <output path="TaxCategory"/>
+                </move>
+                <move>
+                    <input path="$Tax/Taxable"/>
+                    <output path="Taxable"/>
+                </move>
+                <move>
+                    <input path="$Tax/TaxExemptNbr"/>
+                    <output path="TaxExemptNbr"/>
+                </move>
+                <move>
+                    <input path="$Tax/TaxLevel"/>
+                    <output path="TaxLevel"/>
+                </move>
+            </foreach>
+            <foreach>
+                <input path="$XPOLLD/Authorization" var="Authorization"/>
+                <output path="Authorization"/>
+                <filter lang="xpath">fn:exists($Authorization)</filter>
+                <move>
+                    <input path="$Authorization/RecordType"/>
+                    <output path="RecordType"/>
+                </move>
+                <move>
+                    <input path="$Authorization/LineId"/>
+                    <output path="LineId"/>
+                </move>
+                <move>
+                    <input path="$Authorization/AuthorizationNbr"/>
+                    <output path="AuthorizationNbr"/>
+                </move>
+                <move>
+                    <input path="$Authorization/ExpiryDateFromPos"/>
+                    <output path="ExpiryDateFromPos"/>
+                </move>
+                <move>
+                    <input path="$Authorization/SwipeIndicator"/>
+                    <output path="SwipeIndicator"/>
+                </move>
+                <move>
+                    <input path="$Authorization/ApprovalMessage"/>
+                    <output path="ApprovalMessage"/>
+                </move>
+                <move>
+                    <input path="$Authorization/LicenseNbr"/>
+                    <output path="LicenseNbr"/>
+                </move>
+                <move>
+                    <input path="$Authorization/OtherIdType"/>
+                    <output path="OtherIdType"/>
+                </move>
+                <move>
+                    <input path="$Authorization/OtherId"/>
+                    <output path="OtherId"/>
+                </move>
+                <move>
+                    <input path="$Authorization/CustomerSignatureObtained"/>
+                    <output path="CustomerSignatureObtained"/>
+                </move>
+                <move>
+                    <input path="$Authorization/CardType"/>
+                    <output path="CardType"/>
+                </move>
+                <move>
+                    <input path="$Authorization/DeferredBillingDate"/>
+                    <output path="DeferredBillingDate"/>
+                </move>
+                <move>
+                    <input path="$Authorization/DeferredBillingPlan"/>
+                    <output path="DeferredBillingPlan"/>
+                </move>
+                <move>
+                    <input path="$Authorization/PosStateCode"/>
+                    <output path="PosStateCode"/>
+                </move>
+            </foreach>
+            <foreach>
+                <input path="$XPOLLD/Email" var="Email"/>
+                <output path="Email"/>
+                <filter lang="xpath">fn:exists($Email)</filter>
+                <move>
+                    <input path="$Email/RecordType"/>
+                    <output path="RecordType"/>
+                </move>
+                <move>
+                    <input path="$Email/LineId"/>
+                    <output path="LineId"/>
+                </move>
+                <move>
+                    <input path="$Email/CustomerRole"/>
+                    <output path="CustomerRole"/>
+                </move>
+                <move>
+                    <input path="$Email/CustomerInfoType"/>
+                    <output path="CustomerInfoType"/>
+                </move>
+                <move>
+                    <input path="$Email/CustomerInfo"/>
+                    <output path="CustomerInfo"/>
+                </move>
+            </foreach>
+        </foreach>
+    </mappingDeclaration>
+</mappingRoot>

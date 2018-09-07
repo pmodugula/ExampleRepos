@@ -1,0 +1,333 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- edited with XMLSpy v2014 sp1 (x64) (http://www.altova.com) by FGL SPORTS LTD (FGL SPORTS LTD) -->
+<schema xmlns="http://www.w3.org/2001/XMLSchema" xmlns:tns="http://www.marks.com/2014/01/schemas/ARTS" targetNamespace="http://www.marks.com/2014/01/schemas/ARTS" elementFormDefault="qualified">
+	<complexType name="Customer">
+		<sequence>
+			<element name="CustomerNumber" type="string" nillable="true" minOccurs="0"/>
+			<element name="LifecycleType" type="string"/>
+			<element name="Party" type="tns:Party" minOccurs="1" maxOccurs="1"/>
+			<element name="Site" type="tns:Site" minOccurs="0" maxOccurs="1"/>
+			<element name="CustomerAccounts" type="tns:CustomerAccounts"/>
+		</sequence>
+	</complexType>
+	<complexType name="Party">
+		<sequence>
+			<element name="PartyID" type="string" nillable="false"/>
+			<element name="PartyTypeCode" type="string" default="O" nillable="false"/>
+			<element name="LanguageID" type="string" nillable="true" minOccurs="0"/>
+			<element name="Person" type="tns:Person" minOccurs="0" maxOccurs="1"/>
+			<element name="Organization" type="tns:Organization" minOccurs="0" maxOccurs="1"/>
+			<element name="PartyContactMethods" type="tns:PartyContactMethods" minOccurs="1" maxOccurs="1"/>
+		</sequence>
+	</complexType>
+	<complexType name="Organization">
+		<sequence>
+			<element name="Name" type="string"/>
+		</sequence>
+	</complexType>
+	<complexType name="Address">
+		<sequence>
+			<element name="AddressLine1Text" type="string" nillable="true" minOccurs="0"/>
+			<element name="AddressLine2Text" type="string" nillable="true" minOccurs="0"/>
+			<element name="AddressLine3Text" type="string" nillable="true" minOccurs="0"/>
+			<element name="CityName" type="string" nillable="true" minOccurs="0"/>
+			<element name="ProvinceStateCode" type="string" nillable="true" minOccurs="0"/>
+			<element name="ProvinceStateName" type="string" nillable="true" minOccurs="0"/>
+			<element name="PostalCode" type="string" nillable="true" minOccurs="0"/>
+			<element name="CountryCode" type="string" nillable="true" minOccurs="0"/>
+			<element name="CountryName" type="string" nillable="true" minOccurs="0"/>
+			<element name="Latitude" type="double" nillable="true" minOccurs="0"/>
+			<element name="Longitude" type="double" nillable="true" minOccurs="0"/>
+			<element name="SourceCorrelationID" type="string" nillable="true" minOccurs="0"/>
+			<element name="SourceCorrelationKeyFieldsDescription" type="string" nillable="true" minOccurs="0"/>
+			<element name="SourceCreateTimestamp" type="date" nillable="true" minOccurs="0"/>
+			<element name="SourceCreateUserID" type="string" nillable="true" minOccurs="0"/>
+			<element name="SourceUpdateTimestamp" type="date" nillable="true" minOccurs="0"/>
+			<element name="SourceUpdateUserID" type="string" nillable="true" minOccurs="0"/>
+		</sequence>
+	</complexType>
+	<complexType name="Site">
+		<sequence>
+			<element name="Address" type="tns:Address"/>
+		</sequence>
+	</complexType>
+	<complexType name="TaxExemption">
+		<sequence>
+			<element name="TaxCode" type="string"/>
+			<element name="TaxExemptionCode" type="string"/>
+		</sequence>
+	</complexType>
+	<complexType name="TaxExemptions">
+		<sequence>
+			<element name="TaxExemption" type="tns:TaxExemption" minOccurs="0" maxOccurs="unbounded"/>
+		</sequence>
+	</complexType>
+	<complexType name="PartyContactMethod">
+		<sequence>
+			<element name="ContactPurposeTypeCode" type="string" default="Customer Billing" nillable="false"/>
+			<element name="ContactMethodType" type="string" nillable="false"/>
+			<element name="CompletePhoneNumber" type="string" nillable="true" minOccurs="0"/>
+			<element name="EmailAddress" type="string" nillable="true" minOccurs="0"/>
+			<element name="Address" type="tns:Address" minOccurs="0" maxOccurs="1"/>
+		</sequence>
+	</complexType>
+	<complexType name="PartyContactMethods">
+		<sequence>
+			<element name="PartyContactMethod" type="tns:PartyContactMethod" minOccurs="0" maxOccurs="unbounded"/>
+		</sequence>
+	</complexType>
+	<complexType name="CustomerAccount">
+		<sequence>
+			<element name="CustomerAccountNumber" type="string" nillable="false"/>
+			<element name="CustomerAccountName" type="string" nillable="true" minOccurs="0"/>
+			<element name="TypeCode" type="string" nillable="true" minOccurs="0"/>
+			<element name="AssociatedCustomerStoreNumber" type="string" nillable="true" minOccurs="0"/>
+			<element name="NationalCustomerFlag" type="string" nillable="true" minOccurs="0"/>
+			<element name="POVoucherRequiredFlag" type="string" nillable="true" minOccurs="0"/>
+			<element name="CreditLimit" type="double" nillable="true" minOccurs="0"/>
+			<element name="AvailableCredit" type="double" nillable="true" minOccurs="0"/>
+			<element name="DiscountPercentage" type="string" nillable="true" minOccurs="0"/>
+			<element name="TaxIDAdditionalIndividual" type="string" nillable="true" minOccurs="0"/>
+			<element name="GovernmentProcessingFlag" type="string" nillable="true" minOccurs="0"/>
+			<element name="QuebecProcessingFlag" type="string" nillable="true" minOccurs="0"/>
+			<element name="Url" type="string" nillable="true" minOccurs="0"/>
+			<element name="StatusCode" type="string" nillable="true" minOccurs="0"/>
+			<element name="SourceCorrelationID" type="string" nillable="false"/>
+			<element name="SourceCorrelationKeyFieldsDescription" type="string" nillable="true" minOccurs="0"/>
+			<element name="SourceCreateTimestamp" type="date" nillable="true" minOccurs="0"/>
+			<element name="SourceCreateUserID" type="string" nillable="true" minOccurs="0"/>
+			<element name="SourceUpdateTimestamp" type="date" nillable="true" minOccurs="0"/>
+			<element name="SourceUpdateUserID" type="string" nillable="true" minOccurs="0"/>
+			<element name="TaxExemptions" type="tns:TaxExemptions" nillable="true" minOccurs="0" maxOccurs="1"/>
+		</sequence>
+	</complexType>
+	<complexType name="CustomerAccounts">
+		<sequence>
+			<element name="CustomerAccount" type="tns:CustomerAccount" minOccurs="0" maxOccurs="unbounded"/>
+		</sequence>
+	</complexType>
+	<complexType name="PacketControlInfo">
+		<sequence>
+			<element name="ErrorMessage" type="string" minOccurs="0"/>
+			<element name="Found" type="string"/>
+			<element name="DataClassificationCode" type="string"/>
+			<element name="StrategicBusinessUnitCode" type="string" default="MWW"/>
+			<element name="DataSourceCode" type="string" default="IMS"/>
+		</sequence>
+	</complexType>
+	<complexType name="FindByAccountNumberResponse">
+		<sequence>
+			<element name="CustomerAccount" type="string"/>
+			<element name="PacketControlInfo" type="tns:PacketControlInfo"/>
+		</sequence>
+	</complexType>
+	<complexType name="CustomerAccountItemPricing">
+		<sequence>
+			<element name="CustomerAccountItemPrice" type="tns:CustomerAccountItemPrice" minOccurs="1" maxOccurs="unbounded"/>
+		</sequence>
+	</complexType>
+	<complexType name="CustomerAccountItemPrice">
+		<sequence>
+			<element name="itemNumber" type="string" minOccurs="1" maxOccurs="1"/>
+			<element name="onProgram" type="string" minOccurs="0" maxOccurs="1"/>
+			<element name="hasOverridePrice" type="string" minOccurs="0" maxOccurs="1"/>
+			<element name="overridePrice" type="double" minOccurs="0" maxOccurs="1"/>
+			<element name="programDiscountPercent" type="double" minOccurs="0" maxOccurs="1"/>
+			<element name="ProgramItemCustomization" type="tns:ProgramItemCustomization" minOccurs="0" maxOccurs="unbounded"/>
+		</sequence>
+	</complexType>
+	<complexType name="ProgramItemCustomization">
+		<sequence>
+			<element name="CategoryName" type="string" nillable="false"/>
+			<element name="ItemNumber" type="string" nillable="false"/>
+			<element name="ItemName" type="string" nillable="false"/>
+			<element name="RetailAmount" type="double" nillable="false"/>
+		</sequence>
+	</complexType>
+	<complexType name="CustomerAccountPricing">
+		<sequence>
+			<element name="CustomerAccountNumber" type="string"/>
+			<element name="CustomerAccountItemPrice" type="tns:CustomerAccountItemPrice" minOccurs="1" maxOccurs="unbounded"/>
+		</sequence>
+	</complexType>
+	<complexType name="ChargeAccount">
+		<sequence>
+			<element name="CustomerAccountNumber" type="string"/>
+			<element name="ChargeAmount" type="double"/>
+		</sequence>
+	</complexType>
+	<complexType name="CustomerOrderRequest_IONS">
+		<sequence>
+			<element name="CustomerPurchaseOrderNumber" type="string"/>
+			<element name="BusinessUnitNumber" type="string"/>
+			<element name="ProgramID" type="string"/>
+			<element name="Language" type="string"/>
+		</sequence>
+	</complexType>
+	<complexType name="CustomerOrder">
+		<sequence>
+			<element name="CustomerPurchaseOrderNumber" type="string" nillable="false"/>
+			<element name="FFVersionID" type="string" nillable="true" minOccurs="0"/>
+			<element name="CustomerID" type="string" nillable="false"/>
+			<element name="CustomerOrderCreateDate" type="dateTime" nillable="true" minOccurs="0"/>
+			<element name="CustomerOrderExpirationDate" type="dateTime" nillable="true" minOccurs="0"/>
+			<element name="POSOrderReference" type="string" nillable="true" minOccurs="0"/>
+			<element name="SourceOrderReference" type="string" nillable="true" minOccurs="0"/>
+			<element name="CustomerOrderStatusCode" type="string" nillable="false"/>
+			<element name="CustomerEmployeeID" type="string" nillable="true" minOccurs="0"/>
+			<element name="CustomerEmployeeFirstName" type="string" nillable="true" minOccurs="0"/>
+			<element name="CustomerEmployeeLastName" type="string" nillable="true" minOccurs="0"/>
+			<element name="ContactAreaCode" type="string" nillable="true" minOccurs="0"/>
+			<element name="ContactNumber" type="string" nillable="true" minOccurs="0"/>
+			<element name="SpecialInstructions" type="string" nillable="true" minOccurs="0"/>
+			<element name="InternalOrderComments" type="string" nillable="true" minOccurs="0"/>
+			<element name="OrderSubTotal" type="double" nillable="true" minOccurs="0"/>
+			<element name="OrderTotal" type="double" nillable="true" minOccurs="0"/>
+			<element name="SourceCorrelationID" type="string" nillable="false" minOccurs="0"/>
+			<element name="SourceCorrelationKeyFieldsDescription" type="string" nillable="true" minOccurs="0"/>
+			<element name="SourceCreateTimestamp" type="dateTime" nillable="true" minOccurs="0"/>
+			<element name="SourceCreateUserID" type="string" nillable="true" minOccurs="0"/>
+			<element name="SourceUpdateTimestamp" type="dateTime" nillable="true" minOccurs="0"/>
+			<element name="SourceUpdateUserID" type="string" nillable="true" minOccurs="0"/>
+			<element name="StoreTransaction" type="tns:StoreTransaction" minOccurs="0"/>
+			<element name="OrderTaxes" type="tns:OrderTaxes" minOccurs="0" maxOccurs="1"/>
+			<element name="CustomerOrderLineItems" type="tns:CustomerOrderLineItems" minOccurs="1" maxOccurs="1"/>
+			<element name="Customer" type="tns:Customer" minOccurs="1" maxOccurs="1"/>
+			<element name="Recipient" type="tns:Recipient" minOccurs="0" maxOccurs="1"/>
+			<element name="OrderFacilities" type="tns:OrderFacilities" minOccurs="1" maxOccurs="1"/>
+		</sequence>
+	</complexType>
+	<complexType name="CustomerOrderLineItems">
+		<sequence>
+			<element name="CustomerOrderProductLineItem" type="tns:CustomerOrderProductLineItem" minOccurs="0" maxOccurs="unbounded"/>
+		</sequence>
+	</complexType>
+	<complexType name="CustomerOrderProductLineItem">
+		<sequence>
+			<element name="CustomerOrderLineItemSequenceNumber" type="int" nillable="false"/>
+			<element name="ItemNumber" type="string" nillable="false"/>
+			<element name="ItemID" type="string"/>
+			<element name="StyleNumber" type="string" nillable="false"/>
+			<element name="CategoryNumber" type="string" nillable="true" minOccurs="0"/>
+			<element name="Color" type="string" nillable="true" minOccurs="0"/>
+			<element name="Size" type="string" nillable="true" minOccurs="0"/>
+			<element name="AuthorizedForSaleFlag" type="string" nillable="true" minOccurs="0"/>
+			<element name="CustomerDisplayItemDescriptionText" type="string" nillable="true" minOccurs="0"/>
+			<element name="ItemDescriptionLocale" type="string" nillable="true" minOccurs="0"/>
+			<element name="ColorValue" type="string" nillable="true" minOccurs="0"/>
+			<element name="ColorDescriptionLocale" type="string" nillable="true" minOccurs="0"/>
+			<element name="CustomizationStepID" type="string" nillable="true" minOccurs="0"/>
+			<element name="Comments" type="string" nillable="true" minOccurs="0"/>
+			<element name="OrderedItemCount" type="int" nillable="false"/>
+			<element name="SaleUnitRetailPriceAmount" type="float" nillable="false"/>
+			<element name="ItemPriceFound" type="string" default="Y" nillable="false"/>
+			<element name="OrderLineTotal" type="float" minOccurs="0"/>
+			<element name="OrderLineTaxes" type="tns:OrderLineTaxes"/>
+		</sequence>
+	</complexType>
+	<complexType name="StoreTransaction">
+		<sequence>
+			<element name="StoreTransactionType" type="string" nillable="false"/>
+			<element name="TransactionID" type="string" nillable="true" minOccurs="0"/>
+			<element name="TransactionType" type="string" nillable="true" minOccurs="0"/>
+			<element name="LiabilityID" type="string" nillable="true" minOccurs="0"/>
+			<element name="LiabilityType" type="string" nillable="true" minOccurs="0"/>
+			<element name="LiabilityAmount" type="double" nillable="true" minOccurs="0"/>
+			<element name="Error" type="string" nillable="true" minOccurs="0"/>
+		</sequence>
+	</complexType>
+	<complexType name="OrderTaxAmount">
+		<sequence>
+			<element name="TaxCode" type="string" nillable="false"/>
+			<element name="TaxTotalAmount" type="double" nillable="false"/>
+			<element name="TaxExemptionCode" type="string" nillable="true" minOccurs="0"/>
+		</sequence>
+	</complexType>
+	<complexType name="OrderLineTaxAmount">
+		<sequence>
+			<element name="TaxCode" type="string" nillable="false"/>
+			<element name="TaxUnitAmount" type="double" nillable="true" minOccurs="0"/>
+			<element name="TaxTotalAmount" type="double" nillable="false"/>
+			<element name="TaxExemptionFlag" type="string" nillable="false"/>
+		</sequence>
+	</complexType>
+	<complexType name="Recipient">
+		<sequence>
+			<element name="CustomerNumber" type="string" nillable="true" minOccurs="0"/>
+			<element name="LifecycleType" type="string" nillable="true" minOccurs="0"/>
+			<element name="Party" type="tns:Party" minOccurs="1" maxOccurs="1"/>
+		</sequence>
+	</complexType>
+	<complexType name="Person">
+		<sequence>
+			<element name="FirstName" type="string" nillable="false"/>
+			<element name="LastName" type="string" nillable="false"/>
+		</sequence>
+	</complexType>
+	<complexType name="OrderFacility">
+		<sequence>
+			<element name="OrderFacilityPurpose" type="string" nillable="false"/>
+			<element name="FacilityRetailStore" type="tns:FacilityRetailStore" minOccurs="1" maxOccurs="1"/>
+		</sequence>
+	</complexType>
+	<complexType name="FacilityRetailStore">
+		<sequence>
+			<element name="BusinessUnitNumber" type="string" nillable="false"/>
+			<element name="CompletePhoneNumber" type="string"/>
+			<element name="FacilityBusinessUnitSite" type="tns:FacilityBusinessUnitSite" minOccurs="1" maxOccurs="1"/>
+			<element name="SourceCorrelationID" type="string"/>
+			<element name="SourceCorrelationKeyFieldsDescription" type="string"/>
+		</sequence>
+	</complexType>
+	<complexType name="OrderTaxes">
+		<sequence>
+			<element name="OrderTaxAmount" type="tns:OrderTaxAmount" minOccurs="0" maxOccurs="unbounded"/>
+		</sequence>
+	</complexType>
+	<complexType name="OrderLineTaxes">
+		<sequence>
+			<element name="OrderLineTaxAmount" type="tns:OrderLineTaxAmount" minOccurs="1" maxOccurs="unbounded"/>
+		</sequence>
+	</complexType>
+	<complexType name="OrderFacilities">
+		<sequence>
+			<element name="OrderFacility" type="tns:OrderFacility" minOccurs="1" maxOccurs="2"/>
+		</sequence>
+	</complexType>
+	<complexType name="FacilityBusinessUnitSite">
+		<sequence>
+			<element name="Address" type="tns:Address"/>
+		</sequence>
+	</complexType>
+	<complexType name="GetOrdersDetailListRequest">
+		<sequence>
+			<element name="OriginatingStore" type="tns:OriginatingStore" nillable="false"/>
+			<element name="Status" type="string" nillable="false"/>
+		</sequence>
+	</complexType>
+	<complexType name="OriginatingStore">
+		<sequence>
+			<element name="BusinessUnitNumber" type="string" nillable="false"/>
+		</sequence>
+	</complexType>
+	<complexType name="CustomerOrders">
+		<sequence>
+			<element name="CustomerOrder" type="tns:CustomerOrder" minOccurs="1" maxOccurs="unbounded"/>
+		</sequence>
+	</complexType>
+	<complexType name="UpdateOrderDetailsRequest">
+		<sequence>
+			<element name="CustomerOrder" type="tns:CustomerOrder"/>
+		</sequence>
+	</complexType>
+	<complexType name="ProcessOrderRequest">
+		<sequence>
+			<element name="CustomerOrder" type="tns:CustomerOrder"/>
+		</sequence>
+	</complexType>
+	<complexType name="CreateOrderRequest">
+		<sequence>
+			<element name="CustomerOrder" type="tns:CustomerOrder"/>
+		</sequence>
+	</complexType>
+</schema>

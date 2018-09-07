@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xsd:schema targetNamespace="http://MarkS2/Businessitems"
+	xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+	xmlns:bons0="http://MarkS2/Businessitems">
+	<xsd:include schemaLocation="businessitems.xsd"></xsd:include>
+	<xsd:complexType name="StoreWithQty">
+		<xsd:sequence>
+			<xsd:element minOccurs="0" name="Store"
+				type="bons0:Store">
+			</xsd:element>
+			<xsd:element minOccurs="0" name="SKUQty" type="xsd:int"></xsd:element>
+		</xsd:sequence>
+	</xsd:complexType>
+</xsd:schema>

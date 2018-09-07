@@ -1,0 +1,13 @@
+trx.consignmentcancelled.wms.inbound#IIBInboundQueue=RECV.${WM_IN}
+trx.consignmentcancelled.wms.inbound#WMSCaldcInboundQueue=SEND.${CALDC_DOM_CONSIGNCANCELLED_IN}
+trx.consignmentcancelled.wms.inbound#WMSMisdcInboundQueue=SEND.${MISDC_DOM_CONSIGNCANCELLED_IN}
+trx.consignmentcancelled.wms.inbound#IIBDataSource=INT${ENVN}${INST}
+trx.consignmentcancelled.wms.inbound#WCDCDataSource=${WMCDC}
+trx.consignmentcancelled.wms.inbound#WMDCDataSource=${WMMDC}
+trx.consignmentcancelled.wms.inbound#CALDCSchemaName=${WMSMSN_CALDC}
+trx.consignmentcancelled.wms.inbound#MISDCSchemaName=${WMSMSN_MISDC}
+trx.consignmentcancelled.wms.inbound#CoreAuditDataSource=AUD${ENVN}${INST}
+trx.consignmentcancelled.wms.inbound#PreProcessorAuditEnabled=FALSE
+trx.consignmentcancelled.wms.inbound#PostProcessorAuditEnabled=FALSE
+trx.consignmentcancelled.wms.inbound#additionalInstances=${EXTRATHREADS}
+trx.consignmentcancelled.wms.inbound#DOMOutboundBackupQueue=${WM_IN_BACKUP}

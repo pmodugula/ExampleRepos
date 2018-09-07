@@ -1,0 +1,10 @@
+trx.order.hyb.fastfind.pos_order_creation#IIBInboundQueue=RECV.${SUB_OM_INSTORE_IN}
+trx.order.hyb.fastfind.pos_order_creation#IIBOutboundQueue=SEND.${SUB_OM_INSTORE_OUT}
+trx.order.hyb.fastfind.pos_order_creation#CoreAuditDataSource=AUD${ENVN}
+trx.order.hyb.fastfind.pos_order_creation#OMDataSource=ENT${ENVN}
+trx.order.hyb.fastfind.pos_order_creation#PreProcessorAuditEnabled=False
+trx.order.hyb.fastfind.pos_order_creation#PostProcessorAuditEnabled=False
+trx.order.hyb.fastfind.pos_order_creation#CoreMessageValidation=${MESSAGE_VALIDATION}
+trx.order.hyb.fastfind.pos_order_creation#eTPSRequestQueue=${TPS_REQ_QUEUE}
+trx.order.hyb.fastfind.pos_order_creation#WSGGivexEndPoint=${WSGGivexEndPoint}
+trx.order.hyb.fastfind.pos_order_creation#WSGFFEndPoint=${WSGFFEndPoint}

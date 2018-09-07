@@ -1,0 +1,9 @@
+dat.price.pmm.initial_load#IIBInboundQueue=RECV.${PRICEADV_INIT_IN_DS}
+dat.price.pmm.initial_load#IIBOutboundQueue=SEND.${PRICEADV_INIT_OUT_IB}
+dat.price.pmm.initial_load#IIBDataSource=FGLRPL${ENVN}${INST}
+dat.price.pmm.initial_load#CoreAuditDataSource=AUD${ENVN}${INST}
+dat.price.pmm.initial_load#additionalInstances=${EXTRATHREADS}
+dat.price.pmm.initial_load#PreProcessorAuditEnabled=False
+dat.price.pmm.initial_load#PostProcessorAuditEnabled=False
+dat.price.pmm.initial_load#CoreDatastageMessageValidation=${DS_VALIDATION}
+dat.price.pmm.initial_load#CoreArtsMessageValidation=${ARTS_VALIDATION}

@@ -1,0 +1,158 @@
+<eai:Exchange MinorVersion="4" MajorVersion="1" FixVersion="1" xmlns:eai="http://www.fgl.com/exchange/" xmlns:arts="http://www.fgl.com/ARTS">
+   <eai:MessageRouting>
+      <eai:Guid>8c6502f4-646f-4fdb-88c9-b702733703f9</eai:Guid>
+      <eai:MessageId>String</eai:MessageId>
+      <eai:MessageType>PubSub</eai:MessageType>
+      <eai:SubjectArea>Normal Retail Sales Transactions</eai:SubjectArea>
+      <eai:SbuNumber>3</eai:SbuNumber>
+      <eai:SbuCode>FGL</eai:SbuCode>
+      <eai:SbuName>FGL Sports Ltd.</eai:SbuName>
+      <eai:DataSourceCode>POE</eai:DataSourceCode>
+      <eai:DataSourceCodeName>POE POS FGL</eai:DataSourceCodeName>
+      <eai:MessageIndex>1</eai:MessageIndex>
+      <eai:MessageCount>1</eai:MessageCount>
+      <eai:SubjectAreaRunName>salestransactions-280-20160927-172100</eai:SubjectAreaRunName>
+   </eai:MessageRouting>
+   <eai:Messages>
+      <eai:Count>1</eai:Count>
+      <eai:SourceSystems>
+         <eai:Count>1</eai:Count>
+         <eai:SourceSystem>
+            <eai:Index>1</eai:Index>
+            <eai:SbuNumber>3</eai:SbuNumber>
+            <eai:SbuCode>FGL</eai:SbuCode>
+            <eai:SbuName>FGL Sports Ltd.</eai:SbuName>
+            <eai:MessageSourceCode>CSS</eai:MessageSourceCode>
+            <eai:MessageSourceCodeName>Central Sales Server</eai:MessageSourceCodeName>
+         </eai:SourceSystem>
+      </eai:SourceSystems>
+      <eai:POSLog>
+         <arts:Count>1</arts:Count>
+         <arts:Transaction TypeCode="SaleTransaction">
+            <arts:BusinessUnit>
+               <arts:Index>1</arts:Index>
+               <arts:BusinessUnitNumber>280</arts:BusinessUnitNumber>
+               <arts:BusinessUnitTypeCode>RT</arts:BusinessUnitTypeCode>
+               <arts:BusinessUnitShortName>SC FORT MCMURRAY</arts:BusinessUnitShortName>
+               <arts:BusinessUnitName>SC280</arts:BusinessUnitName>
+            </arts:BusinessUnit>
+            <arts:WorkstationID>3</arts:WorkstationID>
+            <arts:SequenceNumber>000019</arts:SequenceNumber>
+            <arts:BeginDateTime>2016-09-27T17:16:51+03:00</arts:BeginDateTime>
+            <arts:EndDateTime>2016-09-27T17:20:19+03:00</arts:EndDateTime>
+            <arts:OperatorID OperatorName="nkirichenko Cashier" LastName="Cashier" FirstName="nkirichenko">000002746</arts:OperatorID>
+            <arts:RetailTransaction>
+               <arts:CustomerCount>1</arts:CustomerCount>
+               <arts:AssociateCount>0</arts:AssociateCount>
+               <arts:LineItemCount>6</arts:LineItemCount>
+               <arts:LineItem VoidFlag="false">
+                  <arts:Index>1</arts:Index>
+                  <arts:SequenceNumber>1</arts:SequenceNumber>
+                  <arts:SaleOfGiftCard>
+                     <arts:CardNumber>60603951198100003897</arts:CardNumber>
+                     <arts:DateSold>2016-09-27</arts:DateSold>
+                     <arts:DateActivated>2016-09-27</arts:DateActivated>
+                     <arts:InitialBalance>124.37000</arts:InitialBalance>
+                     <arts:Authorization>
+                        <arts:AuthorizationCode>125215</arts:AuthorizationCode>
+                        <arts:AuthorizationDateTime>2016-09-27T17:20:19+03:00</arts:AuthorizationDateTime>
+						<arts:SwipeIndicator>1</arts:SwipeIndicator>
+                     </arts:Authorization>
+                  </arts:SaleOfGiftCard>
+               </arts:LineItem>
+               <arts:LineItem VoidFlag="false">
+                  <arts:Index>2</arts:Index>
+                  <arts:SequenceNumber>2</arts:SequenceNumber>
+                  <arts:Sale TaxableFlag="true" SourceSystemTaxExemptionFlag="false" ItemType="Stock">
+                     <arts:TaxCount>1</arts:TaxCount>
+                     <arts:RetailPriceModifierCount>0</arts:RetailPriceModifierCount>
+                     <arts:Item>
+                        <arts:ItemNumber>319130006990000</arts:ItemNumber>
+                        <arts:ItemName>WINTER CLOTHING/N/C/N/S</arts:ItemName>
+                        <arts:UPCNumber>431913000694</arts:UPCNumber>
+                     </arts:Item>
+                     <arts:MerchandiseHierarchy Level="4" ID="9810"/>
+                     <arts:RegularSalesUnitPrice>7.00</arts:RegularSalesUnitPrice>
+                     <arts:ActualSalesUnitPrice>7.00</arts:ActualSalesUnitPrice>
+                     <arts:DiscountAmount>0.00</arts:DiscountAmount>
+                     <arts:Quantity>1</arts:Quantity>
+                     <arts:Associate>
+                        <arts:Index>1</arts:Index>
+                        <arts:AssociateID OperatorName="nkirichenko Cashier" LastName="Cashier" FirstName="nkirichenko">000002746</arts:AssociateID>
+                     </arts:Associate>
+                     <arts:Tax TypeCode="Sale" TaxType="GST">
+                        <arts:Index>1</arts:Index>
+                        <arts:Amount>0.35</arts:Amount>
+                        <arts:Percent>5.00</arts:Percent>
+                     </arts:Tax>
+                     <arts:SerialNumber/>
+                  </arts:Sale>
+               </arts:LineItem>
+               <arts:LineItem VoidFlag="false">
+                  <arts:Index>3</arts:Index>
+                  <arts:SequenceNumber>3</arts:SequenceNumber>
+                  <arts:Sale TaxableFlag="true" SourceSystemTaxExemptionFlag="false" ItemType="Stock">
+                     <arts:TaxCount>1</arts:TaxCount>
+                     <arts:RetailPriceModifierCount>0</arts:RetailPriceModifierCount>
+                     <arts:Item>
+                        <arts:ItemNumber>331515798</arts:ItemNumber>
+                        <arts:ItemName>SCOTT 250 SOLID WHITE 99 06</arts:ItemName>
+                        <arts:UPCNumber>886118029986</arts:UPCNumber>
+                     </arts:Item>
+                     <arts:MerchandiseHierarchy Level="4" ID="3810"/>
+                     <arts:RegularSalesUnitPrice>139.00</arts:RegularSalesUnitPrice>
+                     <arts:ActualSalesUnitPrice>139.00</arts:ActualSalesUnitPrice>
+                     <arts:DiscountAmount>0.00</arts:DiscountAmount>
+                     <arts:Quantity>1</arts:Quantity>
+                     <arts:Associate>
+                        <arts:Index>1</arts:Index>
+                        <arts:AssociateID OperatorName="nkirichenko Cashier" LastName="Cashier" FirstName="nkirichenko">000002746</arts:AssociateID>
+                     </arts:Associate>
+                     <arts:Tax TypeCode="Sale" TaxType="GST">
+                        <arts:Index>1</arts:Index>
+                        <arts:Amount>6.95</arts:Amount>
+                        <arts:Percent>5.00</arts:Percent>
+                     </arts:Tax>
+                     <arts:SerialNumber/>
+                  </arts:Sale>
+               </arts:LineItem>
+               <arts:LineItem>
+                  <arts:Index>4</arts:Index>
+                  <arts:SequenceNumber>4</arts:SequenceNumber>
+                  <arts:Tax TypeCode="Sale" TaxType="GST">
+                     <arts:Index>1</arts:Index>
+                     <arts:Amount>7.30</arts:Amount>
+                     <arts:Percent>5.00</arts:Percent>
+                  </arts:Tax>
+               </arts:LineItem>
+               <arts:LineItem>
+                  <arts:Index>5</arts:Index>
+                  <arts:SequenceNumber>5</arts:SequenceNumber>
+                  <arts:Tender TypeCode="Sale" TenderType="Cash" SubTenderType="CAD">
+                     <arts:Amount>277.65</arts:Amount>
+                  </arts:Tender>
+               </arts:LineItem>
+               <arts:LineItem>
+                  <arts:Index>6</arts:Index>
+                  <arts:SequenceNumber>6</arts:SequenceNumber>
+                  <arts:Tender TypeCode="Sale" TenderType="PennyRounding">
+                     <arts:Amount>0.02</arts:Amount>
+                  </arts:Tender>
+               </arts:LineItem>
+               <arts:Total TotalType="TransactionGrossAmount">277.65</arts:Total>
+               <arts:Total TotalType="TransactionSubtotal">270.35</arts:Total>
+               <arts:Customer>
+                  <arts:Index>1</arts:Index>
+                  <arts:AddressCount>1</arts:AddressCount>
+                  <arts:TelephoneCount>0</arts:TelephoneCount>
+                  <arts:Address>
+                     <arts:Index>1</arts:Index>
+                     <arts:PostalCode>T5F6D2</arts:PostalCode>
+                  </arts:Address>
+               </arts:Customer>
+            </arts:RetailTransaction>
+            <arts:TransactionSubtypeCode>RetailTransaction</arts:TransactionSubtypeCode>
+         </arts:Transaction>
+      </eai:POSLog>
+   </eai:Messages>
+</eai:Exchange>

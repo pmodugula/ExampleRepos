@@ -1,0 +1,46 @@
+BROKER SCHEMA trx.sales.fgl
+
+-- Declaration of External variable 
+DECLARE IIBPublication  EXTERNAL CHARACTER '';
+
+CREATE COMPUTE MODULE pmm_BuildRFH2
+	CREATE FUNCTION Main() RETURNS BOOLEAN
+	BEGIN
+		
+		-- Namespace Declaration
+		DECLARE eai NAMESPACE 'http://www.fgl.com/exchange/';
+		DECLARE ns NAMESPACE  'http://www.fgl.com/ARTS';
+		DECLARE xsi NAMESPACE 'http://www.w3.org/2001/XMLSchema-instance';
+			
+		SET OutputRoot = InputRoot;
+		IF NOT EXISTS(InputRoot.MQMD[]) THEN
+			CREATE NEXTSIBLING OF OutputRoot.Properties DOMAIN 'MQMD';
+		END IF;
+		IF 0 = CARDINALITY(InputRoot.MQRFH2[]) THEN
+			SET OutputRoot.MQMD.Format = MQFMT_RF_HEADER_2;
+			CREATE NEXTSIBLING OF OutputRoot.MQMD DOMAIN('MQRFH2');
+		END IF;
+		
+		SET OutputRoot.MQRFH2.(MQRFH2.Field)Version = MQRFH_VERSION_2;
+		SET OutputRoot.MQRFH2.(MQRFH2.Field)Encoding = 546;
+		SET OutputRoot.MQRFH2.(MQRFH2.Field)CodedCharSetId = InputRoot.MQMD.CodedCharSetId;
+		SET OutputRoot.MQRFH2.(MQRFH2.Field)Format = InputRoot.MQMD.Format;
+		SET OutputRoot.MQRFH2.psc.Command = 'Publish';
+		SET OutputRoot.MQRFH2.psc.Topic = IIBPublication;	
+			
+		RETURN TRUE;
+	END;
+END MODULE;
+
+/** Module to build log when there is no match for the publication topic **/
+CREATE COMPUTE MODULE pmm_AuditNoMatch
+	CREATE FUNCTION Main() RETURNS BOOLEAN
+	BEGIN
+			DECLARE schemaName CHARACTER 'trx.sales.fgl';
+			DECLARE moduleName CHARACTER 'AuditNoMatch';			
+			DECLARE rEnv REFERENCE TO Environment;                    	
+        	CALL core.log.InfoMessage(rEnv, schemaName || '.' || moduleName, ' [ Publication node propagated out of terminal ''NoMatch''. Message Dropped.]');                            
+            SET OutputRoot = InputRoot;
+            RETURN TRUE;
+      END;
+END MODULE;

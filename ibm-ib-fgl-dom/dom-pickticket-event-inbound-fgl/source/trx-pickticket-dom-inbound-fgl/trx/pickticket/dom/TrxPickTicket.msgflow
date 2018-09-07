@@ -1,0 +1,115 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ecore:EPackage xmi:version="2.0"
+    xmlns:xmi="http://www.omg.org/XMI" xmlns:ComIbmMQInput.msgnode="ComIbmMQInput.msgnode" xmlns:ComIbmMQOutput.msgnode="ComIbmMQOutput.msgnode" xmlns:core_message__postprocessor.subflow="core/message/_postprocessor.subflow" xmlns:core_message__preprocessor.subflow="core/message/_preprocessor.subflow" xmlns:ecore="http://www.eclipse.org/emf/2002/Ecore" xmlns:eflow="http://www.ibm.com/wbi/2005/eflow" xmlns:trx_picticket_dom_TrxPickTicket.subflow="trx/picticket/dom/TrxPickTicket.subflow" xmlns:utility="http://www.ibm.com/wbi/2005/eflow_utility" nsURI="trx/pickticket/dom/TrxPickTicket.msgflow"
+    nsPrefix="trx_pickticket_dom_TrxPickTicket.msgflow">
+  <eClassifiers xmi:type="eflow:FCMComposite" name="FCMComposite_1">
+    <eSuperTypes href="http://www.ibm.com/wbi/2005/eflow#//FCMBlock"/>
+    <eStructuralFeatures xmi:type="ecore:EAttribute" xmi:id="Property.IIBInBoundQueue" name="IIBInBoundQueue" lowerBound="1" defaultValueLiteral="RECV.FGL.CTC.DOM.ORDER_IN.IIB.DV">
+      <eType xmi:type="ecore:EDataType" href="http://www.eclipse.org/emf/2002/Ecore#//EString"/>
+    </eStructuralFeatures>
+    <eStructuralFeatures xmi:type="ecore:EAttribute" xmi:id="Property.DOMInBoundQueue" name="DOMInBoundQueue" defaultValueLiteral="SEND.FGL.CTC.DOM.ORDER_OUT.AMB.DV">
+      <eType xmi:type="ecore:EDataType" href="http://www.eclipse.org/emf/2002/Ecore#//EString"/>
+    </eStructuralFeatures>
+    <eStructuralFeatures xmi:type="ecore:EAttribute" xmi:id="Property.CoreAuditDataSource" name="CoreAuditDataSource" defaultValueLiteral="AUDDEV">
+      <eType xmi:type="ecore:EDataType" href="http://www.eclipse.org/emf/2002/Ecore#//EString"/>
+    </eStructuralFeatures>
+    <eStructuralFeatures xmi:type="ecore:EAttribute" xmi:id="Property.CoreAuditEnabled" name="CoreAuditEnabled" lowerBound="1" defaultValueLiteral="false">
+      <eType xmi:type="ecore:EDataType" href="http://www.eclipse.org/emf/2002/Ecore#//EBoolean"/>
+    </eStructuralFeatures>
+    <eStructuralFeatures xmi:type="ecore:EAttribute" xmi:id="Property.CoreAuditDetailEnabled" name="CoreAuditDetailEnabled" lowerBound="1" defaultValueLiteral="false">
+      <eType xmi:type="ecore:EDataType" href="http://www.eclipse.org/emf/2002/Ecore#//EBoolean"/>
+    </eStructuralFeatures>
+    <eStructuralFeatures xmi:type="ecore:EAttribute" xmi:id="Property.CoreMessageValidation1" name="CoreMessageValidation1" lowerBound="1" defaultValueLiteral="false">
+      <eType xmi:type="ecore:EDataType" href="http://www.eclipse.org/emf/2002/Ecore#//EBoolean"/>
+    </eStructuralFeatures>
+    <eStructuralFeatures xmi:type="ecore:EAttribute" xmi:id="Property.CoreMessageValidation2" name="CoreMessageValidation2" lowerBound="1" defaultValueLiteral="false">
+      <eType xmi:type="ecore:EDataType" href="http://www.eclipse.org/emf/2002/Ecore#//EBoolean"/>
+    </eStructuralFeatures>
+    <translation xmi:type="utility:TranslatableString" key="TrxPickTicket" bundleName="trx/pickticket/dom/TrxPickTicket" pluginId="trx-pickticket-dom-inbound-fgl"/>
+    <colorGraphic16 xmi:type="utility:GIFFileGraphic" resourceName="platform:/plugin/trx-pickticket-dom-inbound-fgl/icons/full/obj16/TrxPickTicket.gif"/>
+    <colorGraphic32 xmi:type="utility:GIFFileGraphic" resourceName="platform:/plugin/trx-pickticket-dom-inbound-fgl/icons/full/obj30/TrxPickTicket.gif"/>
+    <shortDescription xmi:type="utility:ConstantString" string="Main flow for Placement of orders from Hybris to DOM"/>
+    <longDescription xmi:type="utility:ConstantString" string="Main flow for Placement of orders from Hybris to DOM."/>
+    <version xmi:type="utility:ConstantString" string="1.0"/>
+    <composition>
+      <nodes xmi:type="ComIbmMQInput.msgnode:FCMComposite_1" xmi:id="FCMComposite_1_1" location="-66,20">
+        <translation xmi:type="utility:ConstantString" string="RECV.FGL.CTC.DOM.ORDER_IN.IIB.DV"/>
+      </nodes>
+      <nodes xmi:type="ComIbmMQOutput.msgnode:FCMComposite_1" xmi:id="FCMComposite_1_2" location="700,114">
+        <translation xmi:type="utility:ConstantString" string="SEND.FGL.CTC.DOM.ORDER_OUT.AMB.DV"/>
+      </nodes>
+      <nodes xmi:type="core_message__preprocessor.subflow:FCMComposite_1" xmi:id="FCMComposite_1_3" location="277,20">
+        <translation xmi:type="utility:ConstantString" string="CoreMessagePreProcessor"/>
+      </nodes>
+      <nodes xmi:type="core_message__postprocessor.subflow:FCMComposite_1" xmi:id="FCMComposite_1_4" location="895,20">
+        <translation xmi:type="utility:ConstantString" string="CoreMessagePostProcessor"/>
+      </nodes>
+      <nodes xmi:type="trx_picticket_dom_TrxPickTicket.subflow:FCMComposite_1" xmi:id="FCMComposite_1_5" location="531,111">
+        <translation xmi:type="utility:ConstantString" string="trxPickTicketInbound"/>
+      </nodes>
+      <connections xmi:type="eflow:FCMConnection" xmi:id="FCMConnection_1" targetNode="FCMComposite_1_3" sourceNode="FCMComposite_1_1" sourceTerminalName="OutTerminal.failure" targetTerminalName="InTerminal.FailureInput"/>
+      <connections xmi:type="eflow:FCMConnection" xmi:id="FCMConnection_2" targetNode="FCMComposite_1_3" sourceNode="FCMComposite_1_1" sourceTerminalName="OutTerminal.out" targetTerminalName="InTerminal.CatchInput"/>
+      <connections xmi:type="eflow:FCMConnection" xmi:id="FCMConnection_3" targetNode="FCMComposite_1_3" sourceNode="FCMComposite_1_1" sourceTerminalName="OutTerminal.catch" targetTerminalName="InTerminal.Input"/>
+      <connections xmi:type="eflow:FCMConnection" xmi:id="FCMConnection_4" targetNode="FCMComposite_1_4" sourceNode="FCMComposite_1_3" sourceTerminalName="OutTerminal.Output" targetTerminalName="InTerminal.Input"/>
+      <connections xmi:type="eflow:FCMConnection" xmi:id="FCMConnection_5" targetNode="FCMComposite_1_4" sourceNode="FCMComposite_1_3" sourceTerminalName="OutTerminal.FailureOutput" targetTerminalName="InTerminal.Input2"/>
+      <connections xmi:type="eflow:FCMConnection" xmi:id="FCMConnection_6" targetNode="FCMComposite_1_4" sourceNode="FCMComposite_1_2" sourceTerminalName="OutTerminal.out" targetTerminalName="InTerminal.Input1"/>
+      <connections xmi:type="eflow:FCMConnection" xmi:id="FCMConnection_7" targetNode="FCMComposite_1_5" sourceNode="FCMComposite_1_3" sourceTerminalName="OutTerminal.CatchOutput" targetTerminalName="InTerminal.Input"/>
+      <connections xmi:type="eflow:FCMConnection" xmi:id="FCMConnection_8" targetNode="FCMComposite_1_2" sourceNode="FCMComposite_1_5" sourceTerminalName="OutTerminal.Output1" targetTerminalName="InTerminal.in"/>
+      <connections xmi:type="eflow:FCMConnection" xmi:id="FCMConnection_9" targetNode="FCMComposite_1_4" sourceNode="FCMComposite_1_5" sourceTerminalName="OutTerminal.Output" targetTerminalName="InTerminal.Input1"/>
+    </composition>
+    <propertyOrganizer>
+      <propertyDescriptor groupName="Group.Basic" propertyEditor="com.ibm.etools.mft.ibmnodes.editors.mq.MQQueueNameEditor" configurable="true" describedAttribute="Property.IIBInBoundQueue">
+        <propertyName xmi:type="utility:TranslatableString" key="Property.IIBInBoundQueue" bundleName="trx/pickticket/dom/TrxPickTicket" pluginId="trx-pickticket-dom-inbound"/>
+        <propertyDescriptor groupName="Group.Basic" propertyEditor="com.ibm.etools.mft.ibmnodes.editors.mq.MQQueueNameEditor" configurable="true" describedAttribute="Property.DOMInBoundQueue">
+          <propertyName xmi:type="utility:TranslatableString" key="Property.DOMInBoundQueue" bundleName="trx/pickticket/dom/TrxPickTicket" pluginId="trx-pickticket-dom-inbound"/>
+          <propertyDescriptor groupName="Group.Basic" configurable="true" describedAttribute="Property.CoreAuditDataSource">
+            <propertyName xmi:type="utility:TranslatableString" key="Property.CoreAuditDataSource" bundleName="core/audit/_audit" pluginId="core-audit-handler-library"/>
+            <propertyDescriptor groupName="Group.Basic" configurable="true" userDefined="true" describedAttribute="Property.CoreAuditEnabled">
+              <propertyName xmi:type="utility:TranslatableString" key="Property.CoreAuditEnabled" bundleName="core/audit/_audit" pluginId="core-audit-handler-library"/>
+              <propertyDescriptor groupName="Group.Basic" configurable="true" userDefined="true" describedAttribute="Property.CoreAuditDetailEnabled">
+                <propertyName xmi:type="utility:TranslatableString" key="Property.CoreAuditDetailEnabled" bundleName="core/audit/_audit_detail" pluginId="core-audit-handler-library"/>
+                <propertyDescriptor groupName="Group.Basic" configurable="true" userDefined="true" describedAttribute="Property.CoreMessageValidation1">
+                  <propertyName xmi:type="utility:TranslatableString" key="Property.CoreMessageValidation1" bundleName="dat/location/dom/_subscriber" pluginId="dat-location-dom-library"/>
+                  <propertyDescriptor groupName="Group.Basic" configurable="true" userDefined="true" describedAttribute="Property.CoreMessageValidation2">
+                    <propertyName xmi:type="utility:TranslatableString" key="Property.CoreMessageValidation2" bundleName="dat/location/dom/_subscriber" pluginId="dat-location-dom-library"/>
+                  </propertyDescriptor>
+                </propertyDescriptor>
+              </propertyDescriptor>
+            </propertyDescriptor>
+          </propertyDescriptor>
+        </propertyDescriptor>
+      </propertyDescriptor>
+    </propertyOrganizer>
+    <attributeLinks promotedAttribute="Property.IIBInBoundQueue" overriddenNodes="FCMComposite_1_1">
+      <overriddenAttribute href="ComIbmMQInput.msgnode#Property.queueName"/>
+    </attributeLinks>
+    <attributeLinks promotedAttribute="Property.DOMInBoundQueue" overriddenNodes="FCMComposite_1_2">
+      <overriddenAttribute href="ComIbmMQOutput.msgnode#Property.queueName"/>
+    </attributeLinks>
+    <attributeLinks promotedAttribute="Property.CoreAuditDataSource" overriddenNodes="FCMComposite_1_3">
+      <overriddenAttribute href="core/message/_preprocessor.subflow#Property.CoreAuditDataSource"/>
+    </attributeLinks>
+    <attributeLinks promotedAttribute="Property.CoreAuditDataSource" overriddenNodes="FCMComposite_1_4">
+      <overriddenAttribute href="core/message/_postprocessor.subflow#Property.CoreAuditDataSource"/>
+    </attributeLinks>
+    <attributeLinks promotedAttribute="Property.CoreAuditDataSource" overriddenNodes="FCMComposite_1_5">
+      <overriddenAttribute href="trx/picticket/dom/TrxPickTicket.subflow#Property.CoreAuditDataSource"/>
+    </attributeLinks>
+    <attributeLinks promotedAttribute="Property.CoreAuditEnabled" overriddenNodes="FCMComposite_1_4">
+      <overriddenAttribute href="core/message/_postprocessor.subflow#Property.CoreAuditEnabled"/>
+    </attributeLinks>
+    <attributeLinks promotedAttribute="Property.CoreAuditEnabled" overriddenNodes="FCMComposite_1_3">
+      <overriddenAttribute href="core/message/_preprocessor.subflow#Property.CoreAuditEnabled"/>
+    </attributeLinks>
+    <attributeLinks promotedAttribute="Property.CoreAuditDetailEnabled" overriddenNodes="FCMComposite_1_5">
+      <overriddenAttribute href="trx/picticket/dom/TrxPickTicket.subflow#Property.CoreAuditDetailEnabled"/>
+    </attributeLinks>
+    <attributeLinks promotedAttribute="Property.CoreMessageValidation1" overriddenNodes="FCMComposite_1_5">
+      <overriddenAttribute href="trx/picticket/dom/TrxPickTicket.subflow#Property.CoreMessageValidation1"/>
+    </attributeLinks>
+    <attributeLinks promotedAttribute="Property.CoreMessageValidation2" overriddenNodes="FCMComposite_1_5">
+      <overriddenAttribute href="trx/picticket/dom/TrxPickTicket.subflow#Property.CoreMessageValidation2"/>
+    </attributeLinks>
+    <stickyBoard/>
+  </eClassifiers>
+</ecore:EPackage>

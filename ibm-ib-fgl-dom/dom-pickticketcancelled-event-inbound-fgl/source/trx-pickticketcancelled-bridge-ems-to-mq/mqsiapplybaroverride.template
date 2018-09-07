@@ -1,0 +1,4 @@
+trx.pickticket.jms_to_mq.consumer#EMSATMOSourceQueue=FGL.${emsEnvQ}.HYBRIS.ATMO.ORDER.CANCELLED.Q
+trx.pickticket.jms_to_mq.consumer#EMSSCSourceQueue=FGL.${emsEnvQ}.HYBRIS.SC.ORDER.CANCELLED.Q
+trx.pickticket.jms_to_mq.consumer#IIBOutboundQueue=SEND.${ORDER}
+trx.pickticket.jms_to_mq.consumer#HybrisBackupQueue=${ORDER_BACKUP}

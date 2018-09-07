@@ -1,0 +1,106 @@
+<eai:Exchange 
+MinorVersion="0" MajorVersion="2" FixVersion="0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:eai="http://www.fgl.com/exchange/" xmlns:arts="http://www.fgl.com/ARTS">
+   <eai:MessageRouting>
+      <eai:Guid>CA76619CC08E47C084D42E8BB347E428</eai:Guid>
+      <eai:MessageId/>
+      <eai:MessageType>PointToPoint</eai:MessageType>
+      <eai:SubjectArea>Normal Retail Sales Transactions</eai:SubjectArea>
+      <eai:SbuNumber>3</eai:SbuNumber>
+      <eai:SbuCode>FGL</eai:SbuCode>
+      <eai:SbuName>FGL Sports Ltd.</eai:SbuName>
+      <eai:DataSourceCode>POE</eai:DataSourceCode>
+      <eai:DataSourceCodeName>POE POS FGL</eai:DataSourceCodeName>
+      <eai:MessageIndex>1</eai:MessageIndex>
+      <eai:MessageCount>1</eai:MessageCount>
+      <eai:SubjectAreaRunName>salestransactions-379-20161101-084800</eai:SubjectAreaRunName>
+   </eai:MessageRouting>
+   <eai:Messages>
+      <eai:Count>1</eai:Count>
+      <eai:SourceSystems>
+         <eai:Count>1</eai:Count>
+         <eai:SourceSystem>
+            <eai:Index>1</eai:Index>
+            <eai:SbuNumber>3</eai:SbuNumber>
+            <eai:SbuCode>FGL</eai:SbuCode>
+            <eai:SbuName>FGL Sports Ltd.</eai:SbuName>
+            <eai:MessageSourceCode>CSS</eai:MessageSourceCode>
+            <eai:MessageSourceCodeName>Central Sales Server</eai:MessageSourceCodeName>
+         </eai:SourceSystem>
+      </eai:SourceSystems>
+      <eai:POSLog>
+         <arts:Count>1</arts:Count>
+         <arts:Transaction TypeCode="SaleTransaction">
+            <arts:BusinessUnit>
+               <arts:Index>1</arts:Index>
+               <arts:BusinessUnitNumber>379</arts:BusinessUnitNumber>
+               <arts:BusinessUnitTypeCode>RT</arts:BusinessUnitTypeCode>
+               <arts:BusinessUnitShortName>SC379</arts:BusinessUnitShortName>
+               <arts:BusinessUnitName>SC CHAMPLAIN PLACE</arts:BusinessUnitName>
+            </arts:BusinessUnit>
+            <arts:WorkstationID>036</arts:WorkstationID>
+            <arts:SequenceNumber>000248</arts:SequenceNumber>
+            <arts:BeginDateTime>2016-11-01T11:46:09</arts:BeginDateTime>
+            <arts:EndDateTime>2016-11-01T11:47:01</arts:EndDateTime>
+            <arts:OperatorID OperatorName="anovakova Cashier" LastName="Cashier" FirstName="anovakova">000002436</arts:OperatorID>
+            <arts:RetailTransaction>
+               <arts:LineItemCount>3</arts:LineItemCount>
+               <arts:CustomerCount>0</arts:CustomerCount>
+               <arts:AssociateCount>0</arts:AssociateCount>
+               <arts:LineItem VoidFlag="false">
+                  <arts:Index>1</arts:Index>
+                  <arts:SequenceNumber>1</arts:SequenceNumber>
+                  <arts:Sale TaxableFlag="true" ItemType="Stock">
+                     <arts:TaxCount>1</arts:TaxCount>
+                     <arts:RetailPriceModifierCount>0</arts:RetailPriceModifierCount>
+                     <arts:Item>
+                        <arts:ItemNumber>95070559980000</arts:ItemNumber>
+                        <arts:ItemName>STYLE WATCH BAND/SMALL/N/S</arts:ItemName>
+                        <arts:UPCNumber>409500017073</arts:UPCNumber>
+                     </arts:Item>
+                     <arts:MerchandiseHierarchy Level="4" ID="9810"/>
+                     <arts:RegularSalesUnitPrice>1.00</arts:RegularSalesUnitPrice>
+                     <arts:ActualSalesUnitPrice>1.00</arts:ActualSalesUnitPrice>
+                     <arts:DiscountAmount>0.00</arts:DiscountAmount>
+                     <arts:Quantity>5</arts:Quantity>
+                     <arts:Tax TypeCode="Sale" TaxType="NBHST" SourceSystemTaxExemptionFlag="false">
+                        <arts:Index>1</arts:Index>
+                        <arts:Amount>0.75</arts:Amount>
+                        <arts:Percent>15</arts:Percent>
+                     </arts:Tax>
+                  </arts:Sale>
+                  <arts:LineItemSubtypeCode>Sale</arts:LineItemSubtypeCode>
+               </arts:LineItem>
+               <arts:LineItem>
+                  <arts:Index>2</arts:Index>
+                  <arts:SequenceNumber>2</arts:SequenceNumber>
+                  <arts:Tax TypeCode="Sale" TaxType="NBHST">
+                     <arts:Index>1</arts:Index>
+                     <arts:Amount>0.75</arts:Amount>
+                     <arts:Percent>15</arts:Percent>
+                  </arts:Tax>
+                  <arts:LineItemSubtypeCode>Tax</arts:LineItemSubtypeCode>
+               </arts:LineItem>
+               <arts:LineItem>
+                  <arts:Index>3</arts:Index>
+                  <arts:SequenceNumber>3</arts:SequenceNumber>
+                  <arts:Tender TypeCode="Sale" TenderType="CreditDebit">
+                     <arts:Amount>5.75</arts:Amount>
+                     <arts:Authorization>
+                        <arts:AuthorizationCode>584626</arts:AuthorizationCode>
+                        <arts:SwipeIndicator>2</arts:SwipeIndicator>
+                     </arts:Authorization>
+                     <arts:CreditDebit>
+                        <arts:PrimaryAccountNumber>NTAwNzY2KioqKioqMDQ1NA==</arts:PrimaryAccountNumber>
+                        <arts:ExpirationDate>2049-12</arts:ExpirationDate>
+                     </arts:CreditDebit>
+                  </arts:Tender>
+                  <arts:LineItemSubtypeCode>Tender</arts:LineItemSubtypeCode>
+               </arts:LineItem>
+               <arts:Total TotalType="TransactionGrossAmount">5.75</arts:Total>
+               <arts:Total TotalType="TransactionSubtotal">5.00</arts:Total>
+            </arts:RetailTransaction>
+            <arts:TransactionSubtypeCode>RetailTransaction</arts:TransactionSubtypeCode>
+         </arts:Transaction>
+      </eai:POSLog>
+   </eai:Messages>
+</eai:Exchange>

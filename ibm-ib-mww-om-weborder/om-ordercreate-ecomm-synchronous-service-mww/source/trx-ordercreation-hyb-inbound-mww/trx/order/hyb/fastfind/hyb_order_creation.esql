@@ -1,0 +1,92 @@
+
+
+BROKER SCHEMA trx.order.hyb.fastfind
+
+DECLARE nsFFCreateOrder NAMESPACE 'http://www.marks.com/2014/01/services/FF/';
+DECLARE nsFFCreateOrder1 NAMESPACE 'http://www.marks.com/2014/01/schemas/ARTS';
+
+CREATE COMPUTE MODULE mod_hyb_order_creation_Store_ArtsMsg
+	CREATE FUNCTION Main() RETURNS BOOLEAN
+	BEGIN
+		SET OutputRoot = InputRoot;
+
+		DECLARE refEnv REFERENCE TO OutputRoot;
+		DECLARE eai NAMESPACE 'http://www.fgl.com/exchange/';
+		-- store message headers
+		SET Environment.Properties = InputRoot.Properties;
+		SET Environment.MQMD = InputRoot.MQMD;
+
+		CREATE LASTCHILD OF Environment AS refEnv DOMAIN 'XMLNSC';
+		SET refEnv = InputRoot.XMLNSC;
+	END;
+END MODULE;
+
+
+CREATE COMPUTE MODULE mod_finalHybris_response
+	CREATE FUNCTION Main() RETURNS BOOLEAN
+	BEGIN
+
+		DECLARE eai NAMESPACE 'http://www.fgl.com/exchange/';
+		DECLARE eaiChld NAMESPACE 'http://www.fgl.com/ARTS';
+
+		SET OutputRoot.Properties = Environment.Properties;
+		SET OutputRoot.MQMD = Environment.MQMD;
+		SET OutputRoot.XMLNSC = Environment.XMLNSC;
+		SET OutputRoot.MQMD.Format = MQFMT_STRING;
+		--SET OutputRoot.XMLNSC.eai:Exchange = Environment.Variables.eai:Exchange;
+
+		DECLARE refCustOrdrState REFERENCE TO OutputRoot.XMLNSC.eai:Exchange.eai:Messages.eai:ArtsCustomerOrders.eaiChld:CustomerOrderStatus;
+		SET refCustOrdrState.eaiChld:CustomerOrderState.eaiChld:CustomerOrderStateCode = 'PEN';
+		SET refCustOrdrState.eaiChld:CustomerOrderState.eaiChld:CustomerOrderStateName = 'PENDING';
+		
+		DECLARE refCustOrder REFERENCE TO OutputRoot.XMLNSC.eai:Exchange.eai:Messages.eai:ArtsCustomerOrders;
+		
+		SET OutputRoot.XMLNSC.eai:Exchange.eai:Messages.eai:ArtsCustomerOrders.eaiChld:SourceOrderKey = Environment.Variables.nsFFCreateOrder:createOrderResponse.CustomerOrder.nsFFCreateOrder1:CustomerPurchaseOrderNumber;
+		--Environment.Variables.createOrderResponse.CustomerOrder.CustomerPurchaseOrderNumber;
+		
+		--SET refCustOrdrState.eaiChld:CustomerOrderLineItemStates.eaiChld:CustomerOrderLineItemState.eaiChld:CustomerOrderStateCode = 'PENDING';
+		--SET refCustOrdrState.eaiChld:CustomerOrderLineItemStates.eaiChld:CustomerOrderLineItemState.eaiChld:CustomerOrderStateName = 'pending';
+
+		DELETE FIELD OutputRoot.XMLNSC.XmlDeclaration;		
+
+		CALL core.log.info(MessageFlowLabel||'Module name: mod_finalHybris_response - order creation completed and sent to hybris for -'||'EXTERNAL_ORDER :'||CAST(Environment.XMLNSC.nsOrder:Exchange.nsOrder:Messages.nsOrder:ArtsCustomerOrders.nsOrder1:CustomerOrderNumber AS CHARACTER));
+	END;
+END MODULE;
+
+CREATE COMPUTE MODULE mod_FailedHybrisMsg
+	CREATE FUNCTION Main() RETURNS BOOLEAN
+	BEGIN
+		SET OutputRoot.Properties = InputRoot.Properties;
+		SET OutputRoot.MQMD = InputRoot.MQMD;
+		SET OutputRoot.MQMD.Format = MQFMT_STRING;
+		SET OutputRoot.XMLNSC = InputRoot.XMLNSC;
+
+		DECLARE eai NAMESPACE 'http://www.fgl.com/exchange/';
+		DECLARE eaiChld NAMESPACE 'http://www.fgl.com/ARTS';
+		DECLARE refExcpType REFERENCE TO InputExceptionList.*[1];
+		DECLARE excptFlag,covnExcptFlag,crtFlg BOOLEAN FALSE;
+		DECLARE refExcpCode CHARACTER;
+
+		WHILE LASTMOVE(refExcpType) DO
+			IF (FIELDNAME(refExcpType) = 'UserException' ) THEN
+				SET excptFlag = TRUE;
+			END IF;
+			IF refExcpType.Number IS NOT NULL THEN
+				SET refExcpCode = refExcpType.Number;
+			END IF;
+			MOVE refExcpType LASTCHILD;
+		END WHILE;
+
+		DECLARE refCustOrdrState REFERENCE TO OutputRoot.XMLNSC.eai:Exchange.eai:Messages.eai:ArtsCustomerOrders.eaiChld:CustomerOrderStatus;
+
+		IF (excptFlag) THEN
+			SET refCustOrdrState.eaiChld:CustomerOrderState.eaiChld:CustomerOrderStateCode = 'F'||refExcpCode;
+			SET refCustOrdrState.eaiChld:CustomerOrderState.eaiChld:CustomerOrderStateName = refExcpType;
+		ELSE
+			SET refCustOrdrState.eaiChld:CustomerOrderState.eaiChld:CustomerOrderStateCode = 'F1001';
+			SET refCustOrdrState.eaiChld:CustomerOrderState.eaiChld:CustomerOrderStateName = 'UNEXPECTED_ERROR';
+		END IF;
+		--SET refCustOrdrState.eaiChld:CustomerOrderLineItemStates.eaiChld:CustomerOrderLineItemState.eaiChld:CustomerOrderStateCode = 'FAILED';
+		--SET refCustOrdrState.eaiChld:CustomerOrderLineItemStates.eaiChld:CustomerOrderLineItemState.eaiChld:CustomerOrderStateName = 'Failed';
+	END;
+END MODULE;

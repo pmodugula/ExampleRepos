@@ -1,0 +1,31 @@
+{
+	"msgType": "transaction",
+	"transactionId": "0780320170615326534",
+	"transactionTypeCode": "SaleTransaction",
+	"majorVersion": 4,
+	"retailStoreId": "78",
+	"workstationId": "03",
+	"sequenceNumber": "326534",
+	"beginDateTime": "2017-06-15T18:20:35-04:00",
+	"endDateTime": "2017-06-15T18:20:56-04:00",
+	"operatorId": "59172",
+	"sourceSystem": "FF",
+	"retailTransaction": {
+		"loyaltyCardRecord": [{
+			"loyaltyTransactionId": "MKS43001232017053000001234"
+		}],
+		"productLineItems": [{
+			"itemNumber": "400008725941",
+			"cardNumber": "9032642648",
+			"initialBalance": 28.24
+		}],
+		"tenders": [{
+			"amount": "28.24",
+			"loyaltyCardNumber": "6046460454437820",
+			"subTenderType": "CTMONEY",
+			"tenderType": "LoyaltyRedemption"
+		}],
+		"transactionGrossAmount": 28.24,
+		"transactionSubtotal": 28.24
+	}
+}

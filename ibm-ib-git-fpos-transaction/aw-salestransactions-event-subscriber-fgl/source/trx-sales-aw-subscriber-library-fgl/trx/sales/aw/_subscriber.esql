@@ -1,0 +1,1509 @@
+BROKER SCHEMA trx.sales.aw
+/*
+* Authors: Narsimharaju Valivarthi(vnarasimha),Pradeep Kumar Bojja(bpradeep)
+* Create Date: 25-06-2016
+* Version History:
+* Version 	ModuleName 					RevisionDate 	Revision Details
+* =======	================			============= 	==================================================
+* 1.0 		XPOLLD_BuildOutputMessage 			 		Initial Version of Arts to XPOLLD-Like xml
+* 2.0		XPOLLD_BuildOutputMessage	17-05-2017  	Loyalty Changes;EL-167, Mapping document-V61.
+*/
+
+-- Namespace Declaration
+DECLARE eai  NAMESPACE 'http://www.fgl.com/exchange/';
+DECLARE arts NAMESPACE  'http://www.fgl.com/ARTS';
+DECLARE xsi  NAMESPACE 'http://www.w3.org/2001/XMLSchema-instance';
+
+CREATE COMPUTE MODULE XPOLLD_BuildOutputMessage
+	
+	CREATE PROCEDURE CopyMessageHeaders() BEGIN
+		DECLARE I INTEGER 1;
+		DECLARE J INTEGER;
+		SET J = CARDINALITY(InputRoot.*[]);
+		WHILE I < J DO
+			SET OutputRoot.*[I] = InputRoot.*[I];
+			SET I = I + 1;
+		END WHILE;
+	END;
+		
+	CREATE FUNCTION Main() RETURNS BOOLEAN
+	BEGIN
+		
+		CALL CopyMessageHeaders();
+		DECLARE schemaName CHARACTER 'trx.sales.aw';
+		DECLARE moduleName CHARACTER 'XPOLLD_BuildOutputMessage';
+		DECLARE TenderFlag CHARACTER ;
+		-- used by code translation to identify sbu and ds code
+		DECLARE sbu 	   CHARACTER 'FGL';
+		DECLARE dsCode     CHARACTER 'AW';
+		-- Input Reference Variable Declaration 
+		DECLARE rInExchange REFERENCE TO InputRoot.XMLNSC.eai:Exchange;				
+		DECLARE rInPOSLog 			REFERENCE TO InputRoot.XMLNSC.eai:Exchange.eai:Messages.eai:POSLog;
+		DECLARE rInTransaction 		REFERENCE TO rInPOSLog.arts:Transaction;
+		DECLARE	rEnv REFERENCE TO Environment; 
+		DECLARE TransactionNumber CHARACTER rInTransaction.arts:SequenceNumber;
+		DECLARE StoreNumber CHARACTER rInTransaction.arts:BusinessUnit.arts:BusinessUnitNumber;
+		DECLARE WorkstationID CHARACTER rInTransaction.arts:WorkstationID;
+		DECLARE BeginDateTime CHARACTER rInTransaction.arts:BeginDateTime;
+		DECLARE EndDateTime CHARACTER rInTransaction.arts:EndDateTime;
+		DECLARE OperatorID CHARACTER rInTransaction.arts:OperatorID;
+		
+		SET rEnv.Variables.Message = CAST(ASBITSTREAM(rInExchange OPTIONS FolderBitStream) AS CHAR CCSID CAST(InputRoot.MQMD.CodedCharSetId AS INT) ENCODING CAST(InputRoot.MQMD.Encoding AS INT));
+		CALL core.log.InfoMessage(rEnv, schemaName || '.' || moduleName, rEnv.Variables.Message);
+		
+			
+		-- TransactionSubtypeCode for RetailTransaction/ControlTransaction		
+		IF rInTransaction.arts:TransactionSubtypeCode = 'RetailTransaction' THEN
+			-- Declaration of RetailTransaction Reference Variables
+			DECLARE rInRtlTrn 			REFERENCE TO rInTransaction.arts:RetailTransaction;
+			DECLARE rInCust				REFERENCE TO rInRtlTrn.arts:Customer;
+			DECLARE rInLineItem 		REFERENCE TO rInRtlTrn.arts:LineItem;
+			DECLARE rInLoyaltyAc    	REFERENCE TO rInRtlTrn.arts:LoyaltyAccount;
+			
+			-- Input Reference  Variable 
+			DECLARE rLineitems,rLineItemsRetailPriceModifier,rReturnRetailPriceModifierDetails1,rLineItemsReturnRetailPriceModifier,rSaleDetails,rRetailPriceModifierDetails,rLineitems1,rLineitems2,rLineitems3,rLineItemsSaleTax,rLineItemsReturnTax,rLineitems4,rSaleItemTax,rReturnItemTax,DisSeqList REFERENCE TO InputRoot;
+			-- Output Reference Variable Declaration
+			DECLARE rOut,rXPOLLD,rHeader,rLine,rCust,rMerch,rGCSale,rGCSaleAuth,rTenderAuth,rLineNote,rDiscounts,rReturn,rTax,rEmail REFERENCE TO OutputRoot;
+			-- Logging the Input ARTS Message.
+			SET Environment.Variables.Message.ARTSMessage = CAST(ASBITSTREAM(InputRoot.XMLNSC OPTIONS FolderBitStream) AS CHAR CCSID CAST(InputRoot.MQMD.CodedCharSetId AS INT) ENCODING CAST(InputRoot.MQMD.Encoding AS INT));
+			CALL core.log.DebugMessage(rEnv, schemaName || '.' || moduleName, Environment.Variables.Message.ARTSMessage);
+		--    CALL core.log.InfoMessage(rEnv, schemaName || '.' || moduleName, Environment.Variables.Message.ARTSMessage);
+		    
+			-- Discount Falg Check
+			DECLARE DiscountFlag CHARACTER;
+			DECLARE DiscountSeq,ReferenceNbr ROW;
+			DECLARE i,k INTEGER 1;
+			DECLARE DiscountFlagNo INTEGER 0;
+	    	DECLARE ChargeTenderFlag,ChargeTenderAccName,ChargeCustFName,ChargeCustLName CHARACTER;
+			DECLARE ChargeTenderAcNum INTEGER 0;
+	    	-- LineItem Discount Check
+	    	MOVE rLineitems2 TO rInRtlTrn.arts:LineItem[1];
+	       -- Loop Over Each lineItem
+	        WHILE LASTMOVE(rLineitems2) DO
+	        	-- Discount Check 
+	            IF EXISTS(rLineitems2.arts:Discount[]) THEN	            	
+	                SET DiscountFlag = 'TRUE';
+	                SET DiscountSeq.row[i] = rLineitems2.arts:SequenceNumber;
+	                SET i=i+1;
+	                SET DiscountFlagNo = 1;
+	           -- ChargeTender Check
+	            ELSEIF EXISTS(rLineitems2.arts:Tender[]) THEN
+	            	IF rLineitems2.arts:Tender.(XMLNSC.Attribute)TenderType = 'ChargeTender' THEN
+	            		SET ChargeTenderFlag = 'TRUE';
+	            		SET ChargeTenderAcNum = COALESCE(rLineitems2.arts:Tender.arts:ChargeTender.arts:AccountNumber,'');
+	            		SET ChargeTenderAccName = COALESCE(rLineitems2.arts:Tender.arts:ChargeTender.arts:AccountName,'');
+						DECLARE FNamePosition INTEGER POSITION (' ' IN SUBSTRING(ChargeTenderAccName FROM 1 FOR 20) REPEAT -1);
+						
+						IF FNamePosition > 0 THEN
+							SET ChargeCustFName = TRIM(SUBSTRING(ChargeTenderAccName FROM 1 FOR FNamePosition));
+							SET ChargeCustLName = TRIM(SUBSTRING(ChargeTenderAccName FROM (FNamePosition+1) FOR 20)); 
+	            		ELSE
+		            		SET ChargeCustFName = SUBSTRING(ChargeTenderAccName FROM 1 FOR 20); 
+		            	 	SET ChargeCustLName = SUBSTRING(ChargeTenderAccName FROM 21 FOR 20);
+						END IF;
+	            	ELSE
+	            		IF ChargeTenderFlag = 'TRUE' THEN
+	            			SET ChargeTenderFlag = 'TRUE';
+	            		ELSE 
+	            			SET ChargeTenderFlag = 'FALSE';	
+	            		END IF;	
+	            	END IF;
+	            ELSE
+	            	IF DiscountFlagNo > 0 THEN
+	                	SET DiscountFlag = 'TRUE';
+	            	ELSE
+	            		SET DiscountFlag = 'FALSE';	
+	            	END IF;	
+	            END IF;
+	            
+	        MOVE rLineitems2 NEXTSIBLING REPEAT TYPE NAME;
+	        END WHILE;
+			-- Storing LineItem Discount Sequence Numbers 		  
+		    SET OutputLocalEnvironment.Variables.LI[] = LIST{SELECT LI.arts:SequenceNumber, LI.arts:LineItemSubtypeCode FROM rInRtlTrn.arts:LineItem[] AS LI};
+		    SET OutputLocalEnvironment.Variables.DiscountSequenceNumberList[] = (SELECT ITEM L.arts:SequenceNumber FROM OutputLocalEnvironment.Variables.LI[] AS L WHERE L.arts:LineItemSubtypeCode = 'Discount');
+		  
+		    -- Tax Exemptions Falg Check
+			DECLARE TaxExFlag CHARACTER;
+			DECLARE TaxExNbr CHARACTER;
+			DECLARE ItemTaxExSaleFlag CHARACTER;
+			DECLARE TrxTaxType CHARACTER '';
+			DECLARE ItemTaxExSaleNbr CHARACTER;
+	        MOVE rLineitems4 TO rInRtlTrn.arts:LineItem[1];
+	        WHILE LASTMOVE(rLineitems4) DO
+	            IF EXISTS(rLineitems4.arts:Tax.arts:TaxExemption[]) THEN	            	
+	                SET TaxExFlag  = 'TRUE';
+	                SET TrxTaxType = rLineitems4.arts:Tax.(XMLNSC.Attribute)TaxType;
+	                IF rLineitems4.arts:Tax.arts:TaxExemption.arts:ReasonCode IN('TE07','TE08','TE09','TE10','TE11') THEN 
+	                	SET TaxExNbr = rLineitems4.arts:Tax.arts:TaxExemption.arts:CustomerExemptionID;
+                	ELSEIF rLineitems4.arts:Tax.arts:TaxExemption.arts:ReasonCode IN('TE00','TE02','TE03','TE04','TE06') THEN
+						SET TaxExNbr = rLineitems4.arts:Tax.arts:TaxExemption.arts:CertificateNumber;
+					ELSEIF rLineitems4.arts:Tax.arts:TaxExemption.arts:ReasonCode = 'TE05' THEN
+						SET TaxExNbr = rLineitems4.arts:Tax.arts:TaxExemption.arts:NativeBandNumber;
+					ELSEIF rLineitems4.arts:Tax.arts:TaxExemption.arts:ReasonCode = 'TE01' THEN
+						SET TaxExNbr = rLineitems4.arts:Tax.arts:TaxExemption.arts:GovernmentRegistrationNumber;
+	                END IF;
+	               
+	            ELSE 
+	            	IF TaxExNbr IS NOT NULL AND TaxExNbr <> '' THEN
+	            		SET TaxExFlag = 'TRUE';
+	            	ELSE
+	            		SET TaxExFlag = 'FALSE';
+	            	END IF;	
+	            END IF;
+	            --Item level Tax Exemptions Falg Check for Sale
+	            MOVE rSaleItemTax TO rLineitems4.arts:Sale.arts:Tax[1];
+	            Y:WHILE LASTMOVE(rSaleItemTax) DO
+	            	IF EXISTS(rSaleItemTax.arts:TaxExemption[]) THEN
+	            		SET ItemTaxExSaleFlag = 'TRUE';
+	            		SET ItemTaxExSaleNbr = rSaleItemTax.arts:TaxExemption.arts:CustomerExemptionID;
+	            LEAVE Y;
+	            	ELSE
+	            		SET ItemTaxExSaleFlag = 'FALSE';	
+	            	END IF;	
+	            MOVE rSaleItemTax NEXTSIBLING REPEAT TYPE NAME;
+	        	END WHILE;
+--	        	--Item level Tax Exemptions Falg Check for Return
+--	            MOVE rReturnItemTax TO rLineitems4.arts:Return.arts:Tax[1];
+--	            Z:WHILE LASTMOVE(rReturnItemTax) DO
+--	            	IF EXISTS(rReturnItemTax.arts:TaxExemption[]) THEN
+--	            		SET ItemTaxExReturnFlag = 'TRUE';
+--	            		SET ItemTaxExReturnNbr = rReturnItemTax.arts:TaxExemption.arts:CustomerExemptionID;
+--	            LEAVE Z;
+--	            	ELSE
+--	            		SET ItemTaxExReturnFlag = 'FALSE';	
+--	            	END IF;	
+--	            MOVE rReturnItemTax NEXTSIBLING REPEAT TYPE NAME;
+--	        	END WHILE;		
+	        MOVE rLineitems4 NEXTSIBLING REPEAT TYPE NAME;
+	        END WHILE;
+	        
+		    -- XPOLLD XML creation
+			CREATE LASTCHILD OF OutputRoot AS rOut DOMAIN 'XMLNSC';
+			CREATE FIRSTCHILD OF rOut TYPE XMLNSC.XmlDeclaration NAME 'XmlDeclaration';
+			SET rOut.(XMLNSC.XmlDeclaration)*.(XMLNSC.Attribute)Version = '1.0'; 
+			SET rOut.(XMLNSC.XmlDeclaration)*.(XMLNSC.Attribute)Encoding = 'UTF-8'; 
+			CREATE LASTCHILD OF rOut 	AS rXPOLLD NAME 'XPOLLD';
+		--	CREATE LASTCHILD OF rXPOLLD AS rHeader NAME 'Header';
+			-- Calling Header Procedure
+			SET TenderFlag = 'Retail';
+			CALL Header(rInTransaction, rXPOLLD, rHeader,TenderFlag);
+			--Creation of Customer record for ChargeTender
+			IF ChargeTenderFlag = 'TRUE' THEN
+				CREATE LASTCHILD OF rXPOLLD AS rCust NAME 'Customer';
+				SET rCust.RecordType = 'C';
+				SET rCust.LineId = rInRtlTrn.arts:Customer.arts:LineItemSequenceNumber;
+				SET rCust.CustomerRole = 1;	
+				SET rCust.Title = '';
+				SET rCust.FirstName  = '';
+				SET rCust.LastName	 = '';
+				SET rCust.Address[1] 	= '';
+				SET rCust.Address[2] 	= '';
+				SET rCust.City			= '';
+				SET rCust.State			= '';
+				SET rCust.Country		= '';
+				SET rCust.PostalCode	 = '';	
+				SET rCust.TelephoneNbr[1] = '';
+				SET rCust.TelephoneNbr[2]	 = '';
+				SET rCust.CustomerNbr	 	 = ChargeTenderAcNum;
+				SET rCust.County 			 = '';
+				SET rCust.PosTaxJurisdictionCode 		= '';
+				SET rCust.FaxNbr			= '';
+				SET rCust.EmailAddress	= '';
+			END IF;
+			-- Suspended Transactions Customer record Creation(CRM Customer Check) .
+			IF rInTransaction.(XMLNSC.Attribute)TypeCode = 'SuspendedTransaction' AND FIELDVALUE(rInCust.arts:CustomerID) <> '' AND FIELDTYPE(rInCust.arts:CustomerID) IS NOT NULL THEN
+				CREATE LASTCHILD OF rXPOLLD AS rCust NAME 'Customer';
+				SET rCust.RecordType = 'C';
+				SET rCust.LineId = 1;
+				SET rCust.CustomerRole = 1;	
+				SET rCust.Title = '';
+				SET rCust.FirstName  = '';
+				SET rCust.LastName	 = '';
+				SET rCust.Address[1] 	= '';
+				SET rCust.Address[2] 	= '';
+				SET rCust.City			= '';
+				SET rCust.State			= '';
+				SET rCust.Country		= '';
+				SET rCust.PostalCode	 = '';	
+				SET rCust.TelephoneNbr[1] = '';
+				SET rCust.TelephoneNbr[2]	 = '';
+				SET rCust.CustomerNbr	 	 = COALESCE(rInCust.arts:CustomerID,0);
+				SET rCust.County 			 = '';
+				SET rCust.PosTaxJurisdictionCode = '';
+				SET rCust.FaxNbr			= '';
+				SET rCust.EmailAddress	= '';	
+			END IF;	 
+			--Creation of line item for layaltyaccounts(SCENE Line Record)
+			IF FIELDVALUE(rInLoyaltyAc.arts:LoyaltyProgram.arts:LoyaltyAccountID) <> '' AND FIELDTYPE(rInLoyaltyAc.arts:LoyaltyProgram.arts:LoyaltyAccountID) IS NOT NULL THEN
+				CREATE LASTCHILD OF rXPOLLD AS rLine NAME 'Line';
+					SET rLine.RecordType = 'L';
+					SET rLine.LineId = rInLoyaltyAc.arts:LineItemSequenceNumber;
+					SET rLine.LineObject = 6032;
+					SET rLine.LineAction = 28;
+					SET rLine.ReferenceNbr = COALESCE(rInLoyaltyAc.arts:LoyaltyProgram.arts:LoyaltyAccountID,'');
+					SET rLine.LineAmount = 0;
+					SET rLine.Unused1 = 0;
+					SET rLine.LineAmountDivider = 1;
+					SET rLine.Unused2 = 0;
+					SET rLine.VoidingReversalFlg = 1;
+					SET rLine.LineAmountDeduction = 0;
+					SET rLine.LineAmountMultiplicationFactor = 1;
+					-- VoidFlag Check
+					IF UCASE(rLineitems.(XMLNSC.Attribute)VoidFlag) = 'TRUE' THEN
+						SET rLine.LineVoidFlg = 1;
+					ELSEIF UCASE(rLineitems.(XMLNSC.Attribute)VoidFlag) = 'FALSE' THEN
+						SET rLine.LineVoidFlg = 0;	
+					ELSE
+						SET rLine.LineVoidFlg = 0;		
+					END IF;	
+					SET rLine.AttachmentQty = 0;
+					SET rLine.LineObjectAdjustment = 0;
+					SET rLine.LkpPosCode = '';
+				-- Creation of LineNote
+				CREATE LASTCHILD OF rXPOLLD AS rLineNote NAME 'LineNote';
+					SET rLineNote.RecordType = 'N';
+					SET rLineNote.LineId = rInLoyaltyAc.arts:LineItemSequenceNumber;
+					SET rLineNote.LineNoteType = 17;
+					IF rLineNote.LineNoteType = 17 AND FIELDVALUE(rInLoyaltyAc.arts:LoyaltyProgram.arts:LoyaltyPointsDetail.arts:PointsEarned) <> '' AND FIELDTYPE(rInLoyaltyAc.arts:LoyaltyProgram.arts:LoyaltyPointsDetail.arts:PointsEarned) IS NOT NULL THEN
+						SET rLineNote.LineNote = COALESCE(rInLoyaltyAc.arts:LoyaltyProgram.arts:LoyaltyPointsDetail.arts:PointsEarned,0);
+					ELSEIF rLineNote.LineNoteType = 17 AND FIELDVALUE(rInLoyaltyAc.arts:LoyaltyProgram.arts:LoyaltyPointsDetail.arts:PointsReturned) <> '' AND FIELDTYPE(rInLoyaltyAc.arts:LoyaltyProgram.arts:LoyaltyPointsDetail.arts:PointsReturned) IS NOT NULL THEN
+						SET rLineNote.LineNote = COALESCE(CAST(rInLoyaltyAc.arts:LoyaltyProgram.arts:LoyaltyPointsDetail.arts:PointsReturned AS INTEGER)*-1,0);
+					ELSE
+						SET rLineNote.LineNote = 0;
+					END IF; 
+			END IF;	
+			-- Creation of LineNote
+			IF FIELDVALUE(rInTransaction.arts:TransactionApproval.arts:ApproverID) <> '' AND FIELDTYPE(rInTransaction.arts:TransactionApproval.arts:ApproverID) IS NOT NULL THEN
+				CALL TransactionNoteType(rInTransaction,rXPOLLD,rLineNote);
+			END IF;
+			MOVE rLineitems TO rInRtlTrn.arts:LineItem[1];
+			-- Creation of LineItem 
+			WHILE LASTMOVE(rLineitems) DO
+					CREATE LASTCHILD OF rXPOLLD AS rLine NAME 'Line';
+					SET rLine.RecordType = 'L';
+					SET rLine.LineId = rLineitems.arts:SequenceNumber;
+				-- Condition for LineObject(Sale/Tender/Tax)
+				IF FIELDNAME(rLineitems.arts:Sale)='Sale' OR FIELDNAME(rLineitems.arts:Return)='Return' THEN
+						DECLARE SALEFLAG BOOLEAN;				
+						-- Sale or Return Flag Check
+						IF FIELDNAME(rLineitems.arts:Sale)='Sale' THEN	
+							SET SALEFLAG = TRUE;
+						ELSEIF FIELDNAME(rLineitems.arts:Return)='Return' THEN
+							SET SALEFLAG = FALSE;
+						END IF;	
+
+					-- LineObject Check 						
+						IF FIELDTYPE(rLineitems.arts:Sale.arts:NonSKUItem) IS NOT NULL OR FIELDTYPE(rLineitems.arts:Return.arts:NonSKUItem) IS NOT NULL THEN 
+							IF FIELDTYPE(rLineitems.arts:Sale.arts:NonSKUItem) IS NOT NULL THEN
+								CALL CodeTranslationLookup(sbu,dsCode,'SERVICE ITEM TYPE CODE',rLineitems.arts:Sale.arts:NonSKUItem.arts:ServiceItemTypeCode,'',rEnv) INTO rLine.LineObject; 
+							ELSEIF  FIELDTYPE(rLineitems.arts:Return.arts:NonSKUItem) IS NOT NULL THEN 	
+								CALL CodeTranslationLookup(sbu,dsCode,'SERVICE ITEM TYPE CODE',rLineitems.arts:Return.arts:NonSKUItem.arts:ServiceItemTypeCode,'',rEnv) INTO rLine.LineObject; 
+							END IF;
+						ELSEIF FIELDNAME(rInRtlTrn.arts:Customer.arts:Worker.arts:WorkerID)='WorkerID' THEN
+							SET rLine.LineObject = 101;
+						ELSE	
+							SET rLine.LineObject = 100;	
+						END IF;
+						-- LineAction Sale/Return
+						IF FIELDTYPE(rLineitems.arts:Sale.arts:NonSKUItem) IS NOT NULL OR FIELDTYPE(rLineitems.arts:Return.arts:NonSKUItem) IS NOT NULL THEN	
+							IF FIELDTYPE(rLineitems.arts:Sale.arts:NonSKUItem) IS NOT NULL THEN
+								SET rLine.LineAction = 11;
+							ELSEIF FIELDTYPE(rLineitems.arts:Return.arts:NonSKUItem) IS NOT NULL THEN
+								SET rLine.LineAction = 12;
+							END IF;
+						ELSE		
+							IF SALEFLAG  = TRUE THEN	
+								SET rLine.LineAction = 1;
+							ELSE
+								SET rLine.LineAction = 2;
+							END IF;
+						END IF;		
+						-- PriceDerivationRuleNumber Check
+					 	SET ReferenceNbr.row[] = SELECT * FROM rLineitems.arts:Sale.arts:RetailPriceModifier[] AS a WHERE FIELDTYPE(a.arts:PriceDerivationRuleNumber) IS NOT NULL ;
+					 	
+					 	IF SALEFLAG  = TRUE THEN
+					 		SET rLine.ReferenceNbr = COALESCE(ReferenceNbr.row.arts:PriceDerivationRuleNumber,'');
+					 	ELSE 
+					 		SET rLine.ReferenceNbr = '';
+						END IF;	
+					 	
+					 	-- LineAmount Check for Sale and Return
+					 	IF SALEFLAG  = TRUE THEN	
+							SET rLine.LineAmount = COALESCE(CAST(rLineitems.arts:Sale.arts:RegularSalesUnitPrice AS DECIMAL),0);
+						ELSE 
+							SET rLine.LineAmount = COALESCE(CAST(rLineitems.arts:Return.arts:RegularSalesUnitPrice AS DECIMAL),0);
+						END IF;	
+						SET rLine.Unused1 = 0;
+						SET rLine.LineAmountDivider = 1;
+						SET rLine.Unused2 = 0;
+						SET rLine.VoidingReversalFlg = 1;
+						IF SALEFLAG = TRUE THEN
+							SET rLine.LineAmountDeduction = 0;
+						ELSE
+							SET rLine.LineAmountDeduction = COALESCE(CAST(rLineitems.arts:Return.arts:DiscountAmount AS DECIMAL)/CAST(rLineitems.arts:Return.arts:Quantity AS DECIMAL),0);
+						END IF;	
+						-- FPOE-12043 Defect Fix		
+						IF SALEFLAG = TRUE THEN
+							SET rLine.LineAmountMultiplicationFactor = rLineitems.arts:Sale.arts:Quantity;
+						ELSE
+							SET rLine.LineAmountMultiplicationFactor = rLineitems.arts:Return.arts:Quantity;
+						END IF;		
+						-- VoidFlag Check
+						IF UCASE(rLineitems.(XMLNSC.Attribute)VoidFlag) = 'TRUE' THEN
+							SET rLine.LineVoidFlg = 1;
+						ELSEIF UCASE(rLineitems.(XMLNSC.Attribute)VoidFlag) = 'FALSE' THEN
+							SET rLine.LineVoidFlg = 0;	
+						ELSE 
+							SET rLine.LineVoidFlg = 0;	
+						END IF;	
+						SET rLine.AttachmentQty = 0;
+						SET rLine.LineObjectAdjustment = 0;
+						SET rLine.LkpPosCode = '';
+						-- Customer Line Creation 
+						IF EXISTS(rInRtlTrn.arts:Customer[]) THEN
+							IF ChargeTenderFlag = 'TRUE' THEN
+								CREATE LASTCHILD OF rXPOLLD AS rCust NAME 'Customer';
+									SET rCust.RecordType = 'C';
+									SET rCust.LineId = rLineitems.arts:SequenceNumber;
+									SET rCust.CustomerRole = 2;
+									SET rCust.Title = '';
+									SET rCust.FirstName  = COALESCE(ChargeCustFName,'');
+									SET rCust.LastName   = COALESCE(ChargeCustLName,'');					
+									SET rCust.Address[1] 	= '';
+									SET rCust.Address[2] 	= '';
+									SET rCust.City			= '';
+									SET rCust.State			= '';
+									SET rCust.Country		= '';
+									SET rCust.PostalCode	 = '';	
+									SET rCust.TelephoneNbr[1] = '';
+									SET rCust.TelephoneNbr[2]	 = '';			
+									SET rCust.CustomerNbr	 	 = COALESCE(ChargeTenderAcNum,0);
+									SET rCust.County 			 = '';
+									SET rCust.PosTaxJurisdictionCode 		= '';
+									SET rCust.FaxNbr			= '';
+									SET rCust.EmailAddress	= '';
+							ELSE								
+								IF (FIELDVALUE(rInRtlTrn.arts:Customer.arts:Address.arts:PostalCode) <> '' AND FIELDVALUE(rInRtlTrn.arts:Customer.arts:Address.arts:PostalCode) IS NOT NULL) OR (FIELDVALUE(rInCust.arts:eMail) <> '' AND FIELDVALUE(rInCust.arts:eMail) IS NOT NULL) THEN
+									CREATE LASTCHILD OF rXPOLLD AS rCust NAME 'Customer';
+									SET rCust.RecordType = 'C';
+									SET rCust.LineId = rLineitems.arts:SequenceNumber;
+									IF (FIELDVALUE(rInCust.arts:Address.arts:PostalCode) <> '' AND FIELDVALUE(rInCust.arts:Address.arts:PostalCode) IS NOT NULL) OR (FIELDVALUE(rInCust.arts:eMail) <> '' AND FIELDVALUE(rInCust.arts:eMail) IS NOT NULL) THEN  
+										SET rCust.CustomerRole = 2;
+									ELSE
+										SET rCust.CustomerRole = 1;	
+									END IF;	
+									SET rCust.Title = '';
+								-- CustomerName and WorkerName check
+								-- Fix FPOE-7140 added ELSE condition as if there is no source XPATH still needs to popluate the Blank values.
+									IF EXISTS(rInCust.arts:CustomerName[]) THEN
+										SET rCust.FirstName  = rInCust.arts:CustomerName.arts:Name[1];
+										SET rCust.LastName   = rInCust.arts:CustomerName.arts:Name[2];
+									ELSEIF EXISTS(rInCust.arts:Worker[]) THEN
+										SET rCust.FirstName  = rInCust.arts:Worker.arts:Name.arts:Name[1];
+										SET rCust.LastName   = rInCust.arts:Worker.arts:Name.arts:Name[2];
+									ELSE 
+										SET rCust.FirstName  = '';
+										SET rCust.LastName	 = '';
+									END IF;
+									SET rCust.Address[1] 	= '';
+									SET rCust.Address[2] 	= '';
+									SET rCust.City			= '';
+									SET rCust.State			= '';
+									SET rCust.Country		= '';
+									SET rCust.PostalCode	 = COALESCE(rInCust.arts:Address.arts:PostalCode,'');	
+									SET rCust.TelephoneNbr[1] = COALESCE(rInCust.arts:Telephone.arts:FullTelephoneNumber,'');
+									SET rCust.TelephoneNbr[2]	 = '';
+									SET rCust.CustomerNbr	 	 = COALESCE(rInCust.arts:CustomerID,0);
+									SET rCust.County 			 = '';
+									SET rCust.PosTaxJurisdictionCode 		= '';
+									SET rCust.FaxNbr			= '';
+									SET rCust.EmailAddress	= COALESCE(rInCust.arts:eMail,'');
+								END IF;
+								IF FIELDVALUE(rInRtlTrn.arts:Customer.arts:eMail) <> '' AND FIELDVALUE(rInRtlTrn.arts:Customer.arts:eMail) IS NOT NULL THEN
+									CREATE LASTCHILD OF rXPOLLD AS rEmail NAME 'Email';
+									SET rEmail.RecordType = 'E';
+									SET rEmail.LineId = rLineitems.arts:SequenceNumber;
+									IF (FIELDVALUE(rInCust.arts:Address.arts:PostalCode) <> '' AND FIELDVALUE(rInCust.arts:Address.arts:PostalCode) IS NOT NULL) OR (FIELDVALUE(rInCust.arts:eMail) <> '' AND FIELDVALUE(rInCust.arts:eMail) IS NOT NULL) THEN 
+										SET rEmail.CustomerRole = 2;
+									ELSE
+										SET rEmail.CustomerRole = 1;	
+									END IF;
+									SET rEmail.CustomerInfoType = 970;
+									IF rInCust.arts:eMail.(XMLNSC.Attribute)ConsentToUseEmailAddressFlag = 'true' THEN 
+										SET rEmail.CustomerInfo = 'Yes';
+									ELSE
+										SET rEmail.CustomerInfo = 'No';
+									END IF;
+								END IF;
+							END IF;
+						END IF;	
+						-- Merchandise Line creation
+						-- Non Merch Check 
+						IF EXISTS(rLineitems.arts:Sale.arts:Item[]) OR EXISTS(rLineitems.arts:Return.arts:Item[]) THEN
+							CREATE LASTCHILD OF rXPOLLD AS rMerch NAME 'Merchandise';
+							SET rMerch.RecordType = 'M';
+							SET rMerch.LineId = rLineitems.arts:SequenceNumber;
+							SET rMerch.MerchandiseCategory = 1;
+							SET rMerch.Unused1 = 1;
+							-- UPC and Units check for Sale and Return
+							IF SALEFLAG = TRUE THEN
+								SET rMerch.UPC = COALESCE(rLineitems.arts:Sale.arts:Item.arts:UPCNumber,0);
+								SET rMerch.Units = COALESCE(rLineitems.arts:Sale.arts:Quantity,0);
+							ELSE 
+								SET rMerch.UPC = COALESCE(rLineitems.arts:Return.arts:Item.arts:UPCNumber,0);
+								SET rMerch.Units = COALESCE(rLineitems.arts:Return.arts:Quantity,0);
+							END IF;
+							SET rMerch.UnitsMultiplicationFactor = 1;
+							IF SALEFLAG = TRUE THEN
+								SET rMerch.SalesPerson1 = COALESCE(rLineitems.arts:Sale.arts:Associate.arts:AssociateID,'');
+							ELSE 
+								SET rMerch.SalesPerson1 = COALESCE(rLineitems.arts:Return.arts:Associate.arts:AssociateID,'');
+							END IF;	
+							SET rMerch.SalesPerson2 = '';
+							-- FPOE-15801 Bugfix
+							IF EXISTS(rLineitems.arts:Sale.arts:RetailPriceModifier[]) OR  EXISTS(rLineitems.arts:Return.arts:RetailPriceModifier[]) THEN
+								IF (FIELDVALUE(rLineitems.arts:Sale.arts:RetailPriceModifier.arts:Amount) <> '' AND FIELDTYPE(rLineitems.arts:Sale.arts:RetailPriceModifier.arts:Amount) IS NOT NULL) OR (FIELDVALUE(rLineitems.arts:Return.arts:RetailPriceModifier.arts:Amount) <> '' AND FIELDTYPE(rLineitems.arts:Return.arts:RetailPriceModifier.arts:Amount) IS NOT NULL) THEN 
+									SET rMerch.PriceOverrideFlg = 1;
+								ELSE
+									SET rMerch.PriceOverrideFlg = 0;	
+								END IF;
+							ELSE
+								SET rMerch.PriceOverrideFlg = 0;
+							END IF;
+							SET rMerch.UpcMissingInPosIPLUFileFlg = 0;
+							SET rMerch.PosDeptOrClass = 0;
+							SET rMerch.PosNoHitDeptClass = 0;
+							SET rMerch.Unused[1] = 0;
+							SET rMerch.Unused[2] = 0;
+							--SALE or RETURN Check for PosItemIdentifier
+							IF SALEFLAG = TRUE THEN
+								SET rMerch.PosItemIdentifier = rLineitems.arts:Sale.arts:Item.arts:ItemNumber;
+							ELSE 
+								SET rMerch.PosItemIdentifier = rLineitems.arts:Return.arts:Item.arts:ItemNumber;
+							END IF;
+							SET rMerch.ScannedFlg = 0;
+							IF SALEFLAG = TRUE THEN
+								SET rMerch.OriginatingStoreNbr = 0;
+							ELSE
+								SET rMerch.OriginatingStoreNbr = COALESCE(rLineitems.arts:Return.arts:TransactionLink.arts:BusinessUnit.arts:BusinessUnitNumber,0);
+							END IF;
+						END IF;			
+						-- Creation of LineNote
+						IF (FIELDVALUE(rLineitems.arts:Sale.arts:SerialNumber) <> '' AND FIELDTYPE(rLineitems.arts:Sale.arts:SerialNumber) IS NOT NULL) OR (FIELDVALUE(rLineitems.arts:Return.arts:SerialNumber) <> '' AND FIELDTYPE(rLineitems.arts:Return.arts:SerialNumber) IS NOT NULL) THEN
+							CREATE LASTCHILD OF rXPOLLD AS rLineNote NAME 'LineNote';
+							SET rLineNote.RecordType = 'N';
+							SET rLineNote.LineId = rLineitems.arts:SequenceNumber;
+							SET rLineNote.LineNoteType = 15;
+							IF rLineNote.LineNoteType = 15 AND FIELDVALUE(rLineitems.arts:Sale.arts:SerialNumber) <> '' THEN
+								SET rLineNote.LineNote = rLineitems.arts:Sale.arts:SerialNumber;
+							ELSEIF rLineNote.LineNoteType = 15 AND FIELDVALUE(rLineitems.arts:Return.arts:SerialNumber) <> '' THEN
+								SET rLineNote.LineNote = rLineitems.arts:Return.arts:SerialNumber;
+							END IF;
+						END IF; 
+						--Creation of Line and Discount Record for LineItem Sale RetailPriceModifier		
+						IF EXISTS(rLineitems.arts:Sale.arts:RetailPriceModifier[]) THEN
+							MOVE rLineItemsRetailPriceModifier TO rLineitems.arts:Sale.arts:RetailPriceModifier[1];
+							WHILE LASTMOVE(rLineItemsRetailPriceModifier) DO
+								DECLARE DisSeqFlag BOOLEAN FALSE;
+	    						MOVE DisSeqList TO OutputLocalEnvironment.Variables.DiscountSequenceNumberList[1];
+								WHILE LASTMOVE(DisSeqList) DO
+								  	IF rLineItemsRetailPriceModifier.arts:SequenceNumber = DisSeqList THEN
+								  		SET DisSeqFlag = TRUE;
+								  	END IF;
+								MOVE DisSeqList NEXTSIBLING REPEAT TYPE NAME;
+			        			END WHILE;
+								-- Creation of LineNote
+								IF (FIELDVALUE(rLineItemsRetailPriceModifier.arts:CompetitorName) <> '' AND FIELDTYPE(rLineItemsRetailPriceModifier.arts:CompetitorName) IS NOT NULL) AND (DisSeqFlag <> TRUE OR DiscountFlag = 'FALSE') THEN
+									CREATE LASTCHILD OF rXPOLLD AS rLineNote NAME 'LineNote';
+									SET rLineNote.RecordType = 'N';
+									SET rLineNote.LineId = rLineItemsRetailPriceModifier.arts:SequenceNumber;
+									SET rLineNote.LineNoteType = 16;
+									IF rLineNote.LineNoteType = 16 THEN
+										SET rLineNote.LineNote = rLineItemsRetailPriceModifier.arts:CompetitorName;
+									END IF;
+								END IF; 
+							
+						IF FIELDVALUE(rLineItemsRetailPriceModifier.arts:SequenceNumber) <> '' THEN
+								IF DisSeqFlag <> TRUE OR DiscountFlag = 'FALSE' THEN
+									CREATE LASTCHILD OF rXPOLLD AS rLine NAME 'Line';
+										SET rLine.RecordType = 'L';
+										SET rLine.LineId = rLineItemsRetailPriceModifier.arts:SequenceNumber;
+
+										-- code translation replacement for RetailPriceModifier
+										IF FIELDTYPE(rLineItemsRetailPriceModifier.arts:ReasonCode) IS NULL THEN
+											SET rLine.LineObject = 470;
+										-- explicitly check for any of the PRICE OVERRIDE CODE types
+										ELSEIF rLineItemsRetailPriceModifier.arts:ReasonCode IN ('PRICE MATCHING OVER','TEAM PRICE OVERRIDE','INCORRECT TICKET PRICE OVER','MANAGER PRICE OVERRIDE','AD PRICE NOT IN SYSTEM PRICE OVERRIDE','JUNIOR TRADE IN PRICE OVERRIDE','PRICE ADJUSTMENT PRICE OVERRIDE','DM APPROVED PRICE OVERRIDE') THEN
+											CALL CodeTranslationLookup(sbu,dsCode,'PRICE OVERRIDE CODE',rLineItemsRetailPriceModifier.arts:ReasonCode,'',rEnv) INTO rLine.LineObject;
+										ELSE	
+											CALL CodeTranslationLookup(sbu,dsCode,'SALES MARKDOWN REASON CODES',rLineItemsRetailPriceModifier.arts:ReasonCode,'',rEnv) INTO rLine.LineObject; 
+										END IF; 
+
+
+										IF rLineItemsRetailPriceModifier.arts:Amount.(XMLNSC.Attribute)Action = 'Add' THEN
+											SET rLine.LineAction = 21;
+										ELSEIF rLineItemsRetailPriceModifier.arts:Amount.(XMLNSC.Attribute)Action = 'Subtract' THEN
+											SET rLine.LineAction = 20;	
+										END IF;
+										SET rLine.ReferenceNbr 	= COALESCE(rLineItemsRetailPriceModifier.arts:CouponNumber,'');
+										IF rLineItemsRetailPriceModifier.arts:ReasonCode IN ('COUPON ITEM DISCOUNT','PRICE MATCHING SUBTOTAL DISCOUNT','TEAM SUBTOTAL DISCOUNT','GST EVENT SUBTOTAL DISCOUNT','MANAGER OVERRIDE SUBTOTAL DISCOUNT','EMPLOYEE SUBTOTAL DISCOUNT') THEN
+											SET rLine.LineAmount	= COALESCE(ABS(CAST(rLineItemsRetailPriceModifier.arts:Amount AS DECIMAL)),0);
+										ELSE 
+											SET rLine.LineAmount	= COALESCE(ABS(CAST(rLineItemsRetailPriceModifier.arts:Amount AS DECIMAL)),0);	
+										END IF;
+										SET rLine.Unused1 = 0;
+										SET rLine.LineAmountDivider = 1;
+										SET rLine.Unused2 = 0;
+										SET rLine.VoidingReversalFlg = 1;
+										SET rLine.LineAmountDeduction = 0;
+										SET rLine.LineAmountMultiplicationFactor = 1;
+										-- VoidFlag Check
+										IF UCASE(rLineitems.(XMLNSC.Attribute)VoidFlag) = 'TRUE' THEN
+												SET rLine.LineVoidFlg = 1;
+										ELSEIF UCASE(rLineitems.(XMLNSC.Attribute)VoidFlag) = 'FALSE' THEN
+												SET rLine.LineVoidFlg = 0;	
+										ELSE 
+												SET rLine.LineVoidFlg = 0;		
+										END IF;	
+										SET rLine.AttachmentQty = 0;
+										SET rLine.LineObjectAdjustment = 0;
+										SET rLine.LkpPosCode = '';
+									-- Creation of Discount Record	
+										CREATE LASTCHILD OF rXPOLLD AS rDiscounts NAME 'Discount';
+											SET rDiscounts.RecordType = 'D';
+											SET rDiscounts.LineId = rLineitems.arts:SequenceNumber;
+											SET rDiscounts.LineIdAdjustment = 0;
+											SET rDiscounts.Unused[1] = 1;
+											SET rDiscounts.Unused[2] = 9999;
+											SET rDiscounts.PosDiscountSerialNbr = '';
+											IF rLineItemsRetailPriceModifier.arts:Amount.(XMLNSC.Attribute)Action = 'Add' THEN
+												SET rDiscounts.DiscountAmount = COALESCE(rLineItemsRetailPriceModifier.arts:Amount,0);
+											ELSEIF rLineItemsRetailPriceModifier.arts:Amount.(XMLNSC.Attribute)Action = 'Subtract' THEN
+												SET rDiscounts.DiscountAmount = COALESCE(CAST(rLineItemsRetailPriceModifier.arts:Amount AS DECIMAL)*-1,0);
+											ELSE 
+												SET rDiscounts.DiscountAmount = 0;
+											END IF;
+											SET rDiscounts.DiscountAmountMultiplicationFactor = 1;
+											SET rDiscounts.Unused1 = 1;
+											SET rDiscounts.AppliedByLineId = rLineItemsRetailPriceModifier.arts:SequenceNumber;
+											SET rDiscounts.DiscountAmountDeduction = 0;			 
+								 		END IF;
+									END IF;
+									-- Creation of LineNote
+									IF FIELDVALUE(rLineItemsRetailPriceModifier.arts:Approval.arts:ApproverID) <> '' AND FIELDTYPE(rLineItemsRetailPriceModifier.arts:Approval.arts:ApproverID) IS NOT NULL THEN
+										CREATE LASTCHILD OF rXPOLLD AS rLineNote NAME 'LineNote';
+										SET rLineNote.RecordType = 'N';
+										SET rLineNote.LineId = rLineItemsRetailPriceModifier.arts:SequenceNumber;
+										SET rLineNote.LineNoteType = 18;
+										IF rLineNote.LineNoteType = 18 THEN
+											SET rLineNote.LineNote = rLineItemsRetailPriceModifier.arts:Approval.arts:ApproverID;
+										END IF;
+									END IF;
+									
+							MOVE rLineItemsRetailPriceModifier NEXTSIBLING REPEAT TYPE NAME;
+							END WHILE;
+						END IF;	
+						--Creation of Return record
+						IF FIELDNAME(rLineitems.arts:Return)='Return' THEN
+							CREATE LASTCHILD OF rXPOLLD AS rReturn NAME 'Return';
+							SET rReturn.RecordType = 'R';
+							SET rReturn.LineId = rLineitems.arts:SequenceNumber;
+							SET rReturn.ReturnReasonMessage = COALESCE(rLineitems.arts:Return.arts:Description,'');
+
+							-- code translation replacement for return reason codes
+							CALL CodeTranslationLookup(sbu,dsCode,'RETURN REASON CODES',rLineitems.arts:Return.arts:ReasonCode,'-99',rEnv) INTO rReturn.ReturnReasonCode; 
+							
+							SET rReturn.MerchandiseDispositionCode = 1;
+							SET rReturn.ViaWarehouseFlg = 0;
+							SET rReturn.ReturnFromStoreNbr = COALESCE(rLineitems.arts:Return.arts:TransactionLink.arts:BusinessUnit.arts:BusinessUnitNumber,'');
+							SET rReturn.ReturnFromRegisterNbr = COALESCE(rLineitems.arts:Return.arts:TransactionLink.arts:WorkstationID,'');
+							SET rReturn.ReturnFromDate = COALESCE(CAST(CAST(SUBSTRING(rLineitems.arts:Return.arts:TransactionLink.arts:BeginDateTime FROM 1 FOR 10) AS DATE FORMAT 'yyyy-MM-dd') AS CHARACTER FORMAT 'MM/dd/yyyy'),'');
+							SET rReturn.ReturnFromTransactionNbr = COALESCE(rLineitems.arts:Return.arts:TransactionLink.arts:SequenceNumber,'');
+							SET rReturn.OriginalSalesPerson[1] = COALESCE(rLineitems.arts:Return.arts:TransactionLink.arts:AssociateID,'');
+							SET rReturn.OriginalSalesPerson[2] = '';
+						END IF;
+												
+						-- Creation of LineNote
+						IF FIELDVALUE(rLineitems.arts:LineItemApproval.arts:ApproverID) <> '' AND FIELDTYPE(rLineitems.arts:LineItemApproval.arts:ApproverID) IS NOT NULL THEN				
+							CALL LineItemNoteType (rLineitems, rXPOLLD, rLineNote);
+						END IF;
+						
+						--Tax Excemptions Creation for Sale 'T' record
+						MOVE rLineItemsSaleTax TO rLineitems.arts:Sale.arts:Tax[1];
+							WHILE LASTMOVE(rLineItemsSaleTax) DO
+							IF FIELDVALUE(rLineItemsSaleTax.arts:TaxExemption.arts:ReasonCode) <> '' OR UCASE(FIELDVALUE(rLineItemsSaleTax.(XMLNSC.Attribute)SourceSystemTaxExemptionFlag))='TRUE' THEN
+								IF rLineItemsSaleTax.(XMLNSC.Attribute)TaxType <> TrxTaxType THEN
+									CREATE LASTCHILD OF rXPOLLD AS rTax NAME 'Tax';
+									SET rTax.RecordType = 'T';
+									SET rTax.LineId = COALESCE(rLineitems.arts:SequenceNumber,'');
+									SET rTax.ExceptionTaxJurisdiction = '';
+									IF FIELDVALUE(rLineItemsSaleTax.arts:TaxExemption.arts:ReasonCode) <> '' AND UCASE(FIELDVALUE(rLineItemsSaleTax.(XMLNSC.Attribute)SourceSystemTaxExemptionFlag))='FALSE'  THEN
+										SET rTax.TaxCategory = 	4;
+									ELSE
+										SET rTax.TaxCategory = 	3;
+									END IF;
+									SET rTax.Taxable = '';
+									IF rLineItemsSaleTax.arts:TaxExemption.arts:ReasonCode IN('IE06','IE07','IE08') THEN
+										SET rTax.TaxExemptNbr = rLineItemsSaleTax.arts:TaxExemption.arts:CustomerExemptionID;
+									ELSEIF ItemTaxExSaleFlag = 'TRUE' THEN
+										SET rTax.TaxExemptNbr = ItemTaxExSaleNbr;
+									ELSEIF TaxExFlag = 'TRUE' THEN
+										SET rTax.TaxExemptNbr = TaxExNbr;
+									ELSE
+	 	                    			SET rTax.TaxExemptNbr = '';
+									END IF;
+									IF rLineItemsSaleTax.(XMLNSC.Attribute)TaxType IN('BCPST','BCHSTP','MBPST','NSHSTP','ONTPST','ONHSTP','PEIPST','PEHSTP','QST','QSTP','SKPST') THEN
+										SET rTax.TaxLevel =	1;
+									ELSEIF rLineItemsSaleTax.(XMLNSC.Attribute)TaxType IN('BCHSTF','GST','NSHSTF','ONHSTF','PEHSTF') THEN
+										SET rTax.TaxLevel =	2;
+									ELSEIF rLineItemsSaleTax.(XMLNSC.Attribute)TaxType IN('NBHST','NFHST','NSHST') THEN	
+										SET rTax.TaxLevel =	3;
+									ELSE
+										SET rTax.TaxLevel = '';	
+									END IF;
+								END IF;		
+							END IF;
+						MOVE rLineItemsSaleTax NEXTSIBLING REPEAT TYPE NAME;
+						END WHILE;
+						
+						--Tax Excemptions Creation for Return 'T' record
+						MOVE rLineItemsReturnTax TO rLineitems.arts:Return.arts:Tax[1];
+							WHILE LASTMOVE(rLineItemsReturnTax) DO
+							IF FIELDVALUE(rLineItemsReturnTax.arts:TaxExemption.arts:ReasonCode) <> '' OR UCASE(FIELDVALUE(rLineItemsReturnTax.(XMLNSC.Attribute)SourceSystemTaxExemptionFlag))='TRUE' THEN
+								--IF rLineItemsReturnTax.(XMLNSC.Attribute)TaxType <> TrxTaxType THEN
+									CREATE LASTCHILD OF rXPOLLD AS rTax NAME 'Tax';
+									SET rTax.RecordType = 'T';
+									SET rTax.LineId = COALESCE(rLineitems.arts:SequenceNumber,'');
+									SET rTax.ExceptionTaxJurisdiction = '';
+									IF FIELDVALUE(rLineItemsReturnTax.arts:TaxExemption.arts:ReasonCode) <> '' AND UCASE(FIELDVALUE(rLineItemsReturnTax.(XMLNSC.Attribute)SourceSystemTaxExemptionFlag))='FALSE' THEN
+										SET rTax.TaxCategory = 	4;
+									ELSE
+										SET rTax.TaxCategory = 	3;
+									END IF;
+									SET rTax.Taxable = '';
+																										
+									IF rLineItemsReturnTax.arts:TaxExemption.arts:ReasonCode IN('IE06','IE07','IE08','TE07','TE08','TE09','TE10','TE11') THEN
+										SET rTax.TaxExemptNbr = rLineItemsReturnTax.arts:TaxExemption.arts:CustomerExemptionID;
+									ELSEIF rLineItemsReturnTax.arts:TaxExemption.arts:ReasonCode IN ('TE00','TE02','TE03','TE04','TE06') THEN
+										SET rTax.TaxExemptNbr = rLineItemsReturnTax.arts:TaxExemption.arts:CertificateNumber;
+									ELSEIF rLineItemsReturnTax.arts:TaxExemption.arts:ReasonCode IN ('TE05') THEN
+										SET rTax.TaxExemptNbr = rLineItemsReturnTax.arts:TaxExemption.arts:NativeBandNumber; 	  
+									ELSEIF rLineItemsReturnTax.arts:TaxExemption.arts:ReasonCode IN ('TE01') THEN	
+										SET rTax.TaxExemptNbr = rLineItemsReturnTax.arts:TaxExemption.arts:GovernmentRegistrationNumber;
+									ELSE	
+										SET rTax.TaxExemptNbr = '';
+									END IF;
+									
+									IF rLineItemsReturnTax.(XMLNSC.Attribute)TaxType IN('BCPST','BCHSTP','MBPST','NSHSTP','ONTPST','ONHSTP','PEIPST','PEHSTP','QST','QSTP','SKPST') THEN
+										SET rTax.TaxLevel =	1;
+									ELSEIF rLineItemsReturnTax.(XMLNSC.Attribute)TaxType IN('BCHSTF','GST','NSHSTF','ONHSTF','PEHSTF') THEN
+										SET rTax.TaxLevel =	2;
+									ELSEIF rLineItemsReturnTax.(XMLNSC.Attribute)TaxType IN('NBHST','NFHST','NSHST') THEN	
+										SET rTax.TaxLevel =	3;
+									ELSE
+										SET rTax.TaxLevel = '';	
+									END IF;
+							--	END IF;
+							END IF;
+						MOVE rLineItemsReturnTax NEXTSIBLING REPEAT TYPE NAME;
+						END WHILE;	
+						
+						--Tax Excemptions Creation for LineItem\Tax\TaxExemption 'T' record
+						MOVE rLineitems3 TO rInRtlTrn.arts:LineItem[1];
+						WHILE LASTMOVE(rLineitems3) DO
+						IF FIELDVALUE(rLineitems3.arts:Tax.arts:TaxExemption.arts:ReasonCode) <> '' AND FIELDNAME(rLineitems.arts:Sale)='Sale' THEN
+								CREATE LASTCHILD OF rXPOLLD AS rTax NAME 'Tax';
+								SET rTax.RecordType = 'T';
+								SET rTax.LineId = COALESCE(rLineitems.arts:SequenceNumber,'');
+								SET rTax.ExceptionTaxJurisdiction = '';
+								SET rTax.TaxCategory = 	4;
+								SET rTax.Taxable = '';
+								IF rLineitems3.arts:Tax.arts:TaxExemption.arts:ReasonCode IN('TE07','TE08','TE09','TE10','TE11') THEN
+									SET rTax.TaxExemptNbr = rLineitems3.arts:Tax.arts:TaxExemption.arts:CustomerExemptionID;
+								ELSEIF rLineitems3.arts:Tax.arts:TaxExemption.arts:ReasonCode IN('TE00','TE02','TE03','TE04','TE06') THEN
+									SET rTax.TaxExemptNbr = rLineitems3.arts:Tax.arts:TaxExemption.arts:CertificateNumber;
+								ELSEIF rLineitems3.arts:Tax.arts:TaxExemption.arts:ReasonCode = 'TE05' THEN
+									SET rTax.TaxExemptNbr = rLineitems3.arts:Tax.arts:TaxExemption.arts:NativeBandNumber;
+								ELSEIF rLineitems3.arts:Tax.arts:TaxExemption.arts:ReasonCode = 'TE01' THEN
+									SET rTax.TaxExemptNbr = rLineitems3.arts:Tax.arts:TaxExemption.arts:GovernmentRegistrationNumber;
+								ELSEIF TaxExFlag = 'TRUE' THEN
+									SET rTax.TaxExemptNbr = TaxExNbr;
+								ELSE
+									SET rTax.TaxExemptNbr = '';
+								END IF;
+								IF rLineitems3.arts:Tax.(XMLNSC.Attribute)TaxType IN('BCPST','BCHSTP','MBPST','NSHSTP','ONTPST','ONHSTP','PEIPST','PEHSTP','QST','QSTP','SKPST') THEN
+									SET rTax.TaxLevel =	1;
+								ELSEIF rLineitems3.arts:Tax.(XMLNSC.Attribute)TaxType IN('BCHSTF','GST','NSHSTF','ONHSTF','PEHSTF') THEN
+									SET rTax.TaxLevel =	2;
+								ELSEIF rLineitems3.arts:Tax.(XMLNSC.Attribute)TaxType IN('NBHST','NFHST','NSHST') THEN	
+									SET rTax.TaxLevel =	3;
+								ELSE
+									SET rTax.TaxLevel = '';	
+								END IF;
+						END IF;
+						MOVE rLineitems3 NEXTSIBLING REPEAT TYPE NAME;
+						END WHILE;	
+				-- SaleOfGiftCard Check
+				ELSEIF FIELDNAME(rLineitems.arts:SaleOfGiftCard)='SaleOfGiftCard' THEN
+					-- SaleOFGiftCard Line Creation
+					IF FIELDVALUE(rLineitems.arts:SaleOfGiftCard.arts:CardNumber) <> '' AND FIELDTYPE(rLineitems.arts:SaleOfGiftCard.arts:CardNumber) IS NOT NULL THEN 
+							SET rLine.LineObject = 621;
+					END IF;	
+					SET rLine.LineAction = 1;	
+					SET rLine.ReferenceNbr 	= COALESCE(rLineitems.arts:SaleOfGiftCard.arts:CardNumber,'');
+					SET rLine.LineAmount	= COALESCE(rLineitems.arts:SaleOfGiftCard.arts:InitialBalance,0);
+					SET rLine.Unused1 = 0;
+					SET rLine.LineAmountDivider = 1;
+					SET rLine.Unused2 = 0;
+					SET rLine.VoidingReversalFlg = 1;
+					SET rLine.LineAmountDeduction = 0;
+					SET rLine.LineAmountMultiplicationFactor = 1;
+					-- VoidFlag Check
+					IF UCASE(rLineitems.(XMLNSC.Attribute)VoidFlag) = 'TRUE' THEN
+							SET rLine.LineVoidFlg = 1;
+					ELSEIF UCASE(rLineitems.(XMLNSC.Attribute)VoidFlag) = 'FALSE' THEN
+							SET rLine.LineVoidFlg = 0;	
+					ELSE 
+							SET rLine.LineVoidFlg = 0;		
+					END IF;	
+					SET rLine.AttachmentQty = 0;
+					SET rLine.LineObjectAdjustment = 0;
+					SET rLine.LkpPosCode = '';
+					-- Authorization Line creation 
+					IF EXISTS(rLineitems.arts:SaleOfGiftCard.arts:Authorization[]) THEN
+						CREATE LASTCHILD OF rXPOLLD AS rGCSaleAuth NAME 'Authorization';
+						SET rGCSaleAuth.RecordType = 'A';
+						SET rGCSaleAuth.LineId = rLineitems.arts:SequenceNumber;
+						SET rGCSaleAuth.AuthorizationNbr = COALESCE(rLineitems.arts:SaleOfGiftCard.arts:Authorization.arts:AuthorizationCode,'');
+						SET rGCSaleAuth.ExpiryDateFromPos = 0;
+						SET rGCSaleAuth.SwipeIndicator = COALESCE(rLineitems.arts:SaleOfGiftCard.arts:Authorization.arts:SwipeIndicator,'');
+						SET rGCSaleAuth.ApprovalMessage = '';
+						SET rGCSaleAuth.LicenseNbr ='';
+						SET rGCSaleAuth.OtherIdType = 0;
+						SET rGCSaleAuth.OtherId = '';
+						SET rGCSaleAuth.CustomerSignatureObtained = 1;
+						SET rGCSaleAuth.CardType = SPACE(1);
+						SET rGCSaleAuth.DeferredBillingDate = '';
+						SET rGCSaleAuth.DeferredBillingPlan	= 0;
+						SET rGCSaleAuth.PosStateCode	= '';
+					END IF;
+					
+					-- Creation of LineNote
+							IF FIELDVALUE(rLineitems.arts:LineItemApproval.arts:ApproverID) <> '' AND FIELDTYPE(rLineitems.arts:LineItemApproval.arts:ApproverID) IS NOT NULL THEN
+								CALL LineItemNoteType (rLineitems, rXPOLLD, rLineNote);							
+							END IF;
+				--Creation of Line based on lineitem discount exist
+				ELSEIF FIELDNAME(rLineitems.arts:Discount)='Discount' THEN
+						-- Sale RetailPriceModifier Discount Check 			
+						MOVE rLineitems1 TO rInRtlTrn.arts:LineItem[1];
+						-- Loop Through LineItems 
+						WHILE LASTMOVE(rLineitems1) DO
+						MOVE rRetailPriceModifierDetails TO rLineitems1.arts:Sale.arts:RetailPriceModifier[1];
+						WHILE LASTMOVE(rRetailPriceModifierDetails) DO
+						IF FIELDTYPE(rRetailPriceModifierDetails.arts:ReasonCode) IS NOT NULL THEN	
+							IF rRetailPriceModifierDetails.arts:SequenceNumber = DiscountSeq.row[k] THEN
+								-- code translation replacement for Discount
+								IF FIELDTYPE(rLineitems.arts:Discount.arts:ReasonCode) IS NULL THEN
+									SET rLine.LineObject = 470;
+								-- explicitly check for any of the PRICE OVERRIDE CODE types
+								ELSEIF rLineitems.arts:Discount.arts:ReasonCode IN ('PRICE MATCHING OVER','TEAM PRICE OVERRIDE','INCORRECT TICKET PRICE OVER','MANAGER PRICE OVERRIDE','AD PRICE NOT IN SYSTEM PRICE OVERRIDE','JUNIOR TRADE IN PRICE OVERRIDE','PRICE ADJUSTMENT PRICE OVERRIDE','DM APPROVED PRICE OVERRIDE') THEN
+									CALL CodeTranslationLookup(sbu,dsCode,'PRICE OVERRIDE CODE',rLineitems.arts:Discount.arts:ReasonCode,'',rEnv) INTO rLine.LineObject;
+								ELSE	
+									CALL CodeTranslationLookup(sbu,dsCode,'SALES MARKDOWN REASON CODES',rLineitems.arts:Discount.arts:ReasonCode,'',rEnv) INTO rLine.LineObject; 
+								END IF;
+								
+								IF rRetailPriceModifierDetails.arts:Amount.(XMLNSC.Attribute)Action = 'Add' THEN
+									SET rLine.LineAction = 21;
+								ELSEIF rRetailPriceModifierDetails.arts:Amount.(XMLNSC.Attribute)Action = 'Subtract' THEN
+									SET rLine.LineAction = 20;	
+								END IF;
+								SET rLine.ReferenceNbr 	= COALESCE(rLineitems.arts:Discount.arts:CouponNumber,'');
+								IF rRetailPriceModifierDetails.arts:ReasonCode IN ('COUPON SUBTOTAL DISCOUNT','PRICE MATCHING SUBTOTAL DISCOUNT','TEAM SUBTOTAL DISCOUNT','GST EVENT SUBTOTAL DISCOUNT','MANAGER OVERRIDE SUBTOTAL DISCOUNT') THEN
+									SET rLine.LineAmount	= COALESCE(ABS(CAST(rLineitems.arts:Discount.arts:Amount AS DECIMAL)),0);
+								ELSE
+									SET rLine.LineAmount	= COALESCE(ABS(CAST(rRetailPriceModifierDetails.arts:Amount AS DECIMAL)),0);
+								END IF;
+								SET rLine.Unused1 = 0;
+								SET rLine.LineAmountDivider = 1;
+								SET rLine.Unused2 = 0;
+								SET rLine.VoidingReversalFlg = 1;
+								SET rLine.LineAmountDeduction = 0;
+								SET rLine.LineAmountMultiplicationFactor = 1;
+								-- VoidFlag Check
+								IF UCASE(rLineitems.(XMLNSC.Attribute)VoidFlag) = 'TRUE' THEN
+										SET rLine.LineVoidFlg = 1;
+								ELSEIF UCASE(rLineitems.(XMLNSC.Attribute)VoidFlag) = 'FALSE' THEN
+										SET rLine.LineVoidFlg = 0;
+								ELSE 
+										SET rLine.LineVoidFlg = 0;		
+								END IF;	
+								SET rLine.AttachmentQty = 0;
+								SET rLine.LineObjectAdjustment = 0;
+								SET rLine.LkpPosCode = '';
+								
+								CREATE LASTCHILD OF rXPOLLD AS rDiscounts NAME 'Discount';
+								SET rDiscounts.RecordType = 'D';
+								SET rDiscounts.LineId = rLineitems1.arts:SequenceNumber;
+								SET rDiscounts.LineIdAdjustment = 0;
+								SET rDiscounts.Unused[1] = 1;
+								SET rDiscounts.Unused[2] = 9999;
+								SET rDiscounts.PosDiscountSerialNbr = '';
+								IF rRetailPriceModifierDetails.arts:Amount.(XMLNSC.Attribute)Action = 'Add' THEN
+									SET rDiscounts.DiscountAmount = COALESCE(rRetailPriceModifierDetails.arts:Amount,0);
+								ELSEIF rRetailPriceModifierDetails.arts:Amount.(XMLNSC.Attribute)Action = 'Subtract' THEN
+									SET rDiscounts.DiscountAmount = COALESCE(CAST(rRetailPriceModifierDetails.arts:Amount AS DECIMAL)*-1,0);
+								ELSE 
+									SET rDiscounts.DiscountAmount = 0;	
+								END IF;
+								SET rDiscounts.DiscountAmountMultiplicationFactor = 1;
+								SET rDiscounts.Unused1 = 1;
+								SET rDiscounts.AppliedByLineId = rRetailPriceModifierDetails.arts:SequenceNumber;
+								SET rDiscounts.DiscountAmountDeduction = 0;
+							END IF;	
+						END IF;
+						MOVE rRetailPriceModifierDetails NEXTSIBLING REPEAT TYPE NAME;	
+						END WHILE;
+					MOVE rLineitems1 NEXTSIBLING REPEAT TYPE NAME;
+					END WHILE;
+					SET k=k+1;
+							-- Creation of LineNote
+							IF FIELDVALUE(rLineitems.arts:LineItemApproval.arts:ApproverID) <> '' AND FIELDTYPE(rLineitems.arts:LineItemApproval.arts:ApproverID) IS NOT NULL THEN
+								CALL LineItemNoteType (rLineitems, rXPOLLD, rLineNote);
+							END IF;
+							
+							-- Creation of LineNote[FPOE-12249 Defect Fix]
+						IF FIELDVALUE(rLineitems.arts:Discount.arts:CompetitorName) <> '' AND FIELDTYPE(rLineitems.arts:Discount.arts:CompetitorName) IS NOT NULL THEN
+							CREATE LASTCHILD OF rXPOLLD AS rLineNote NAME 'LineNote';
+							SET rLineNote.RecordType = 'N';
+							SET rLineNote.LineId = rLineitems.arts:SequenceNumber;
+							SET rLineNote.LineNoteType = 16;
+							IF rLineNote.LineNoteType = 16 THEN
+								SET rLineNote.LineNote = rLineitems.arts:Discount.arts:CompetitorName;
+							END IF;
+						END IF; 
+														
+					-- Tax Check
+					ELSEIF FIELDNAME( rLineitems.arts:Tax)= 'Tax' THEN
+						-- code translation for tax - TAX TYPE DETAIL CODE is the type, '' is the default
+						CALL CodeTranslationLookup(sbu,dsCode,'TAX TYPE DETAIL CODE',rLineitems.arts:Tax.(XMLNSC.Attribute)TaxType,'',rEnv) INTO rLine.LineObject; 
+						
+						-- Sale/Return Check	
+						IF  rLineitems.arts:Tax.(XMLNSC.Attribute)TypeCode = 'Sale' THEN
+							SET rLine.LineAction = 11;
+						ELSEIF rLineitems.arts:Tax.(XMLNSC.Attribute)TypeCode = 'Refund' THEN
+							SET rLine.LineAction = 12;
+						END IF;
+						SET rLine.ReferenceNbr = '';
+						SET rLine.LineAmount = COALESCE(rLineitems.arts:Tax.arts:Amount,0);
+						SET rLine.Unused1 = 0;
+						SET rLine.LineAmountDivider = 1;
+						SET rLine.Unused2 = 0;
+						SET rLine.VoidingReversalFlg = 1;
+						SET rLine.LineAmountDeduction = 0;
+						SET rLine.LineAmountMultiplicationFactor = 1;
+						-- VoidFlag Check
+						IF FIELDNAME(rLineitems.(XMLNSC.Attribute)VoidFlag) = '' AND FIELDNAME(rLineitems.(XMLNSC.Attribute)VoidFlag) IS NOT NULL THEN
+							SET rLine.LineVoidFlg = 1;
+						ELSE
+							SET rLine.LineVoidFlg = 0;	
+						END IF;	
+						SET rLine.AttachmentQty = 0;
+						SET rLine.LineObjectAdjustment = 0; 
+						SET rLine.LkpPosCode = '';
+						
+						-- Creation of LineNote
+							IF FIELDVALUE(rLineitems.arts:LineItemApproval.arts:ApproverID) <> '' AND FIELDTYPE(rLineitems.arts:LineItemApproval.arts:ApproverID) IS NOT NULL THEN
+								CALL LineItemNoteType (rLineitems, rXPOLLD, rLineNote);
+							END IF;
+						
+				-- Tender LineObject Check 		
+				ELSEIF FIELDNAME(rLineitems.arts:Tender)='Tender' THEN
+					DECLARE codeTranslationInput CHARACTER;
+					-- CreditDebit, Cash and GiftCard use a combination of attributes to map to a CT input value (defined in the tables)
+					IF rLineitems.arts:Tender.(XMLNSC.Attribute)TenderType = 'CreditDebit' AND NOT EXISTS(rLineitems.arts:Tender.(XMLNSC.Attribute)SubTenderType[]) THEN
+						CALL CodeTranslationLookup(sbu,dsCode,'SALES TRANSACTION TENDERS','DEBIT','',rEnv) INTO rLine.LineObject;
+					ELSEIF rLineitems.arts:Tender.(XMLNSC.Attribute)TenderType = 'CreditDebit' AND rLineitems.arts:Tender.(XMLNSC.Attribute)SubTenderType = 'Visa' THEN		
+						CALL CodeTranslationLookup(sbu,dsCode,'SALES TRANSACTION TENDERS','VISA','',rEnv) INTO rLine.LineObject;
+					ELSEIF rLineitems.arts:Tender.(XMLNSC.Attribute)TenderType = 'CreditDebit' AND rLineitems.arts:Tender.(XMLNSC.Attribute)SubTenderType = 'MasterCard' THEN		
+						CALL CodeTranslationLookup(sbu,dsCode,'SALES TRANSACTION TENDERS','MASTERCARD','',rEnv) INTO rLine.LineObject;
+					ELSEIF rLineitems.arts:Tender.(XMLNSC.Attribute)TenderType = 'CreditDebit' AND rLineitems.arts:Tender.(XMLNSC.Attribute)SubTenderType = 'Amex' THEN		
+						CALL CodeTranslationLookup(sbu,dsCode,'SALES TRANSACTION TENDERS','AMERICAN EXPRESS','',rEnv) INTO rLine.LineObject;
+					ELSEIF rLineitems.arts:Tender.(XMLNSC.Attribute)TenderType = 'Cash' AND rLineitems.arts:Tender.(XMLNSC.Attribute)SubTenderType = 'CAD' THEN		
+						CALL CodeTranslationLookup(sbu,dsCode,'SALES TRANSACTION TENDERS','CASH CURRENCY CAD','',rEnv) INTO rLine.LineObject;
+					ELSEIF rLineitems.arts:Tender.(XMLNSC.Attribute)TenderType = 'Cash' AND rLineitems.arts:Tender.(XMLNSC.Attribute)SubTenderType = 'USD' THEN		
+						CALL CodeTranslationLookup(sbu,dsCode,'SALES TRANSACTION TENDERS','CASH CURRENCY USD','',rEnv) INTO rLine.LineObject;
+					ELSEIF rLineitems.arts:Tender.(XMLNSC.Attribute)TenderType = 'Cash' AND rLineitems.arts:Tender.(XMLNSC.Attribute)SubTenderType = 'EXCHANGE' THEN		
+						CALL CodeTranslationLookup(sbu,dsCode,'SALES TRANSACTION TENDERS','FOREIGN EXCHANGE','',rEnv) INTO rLine.LineObject;
+					ELSEIF rLineitems.arts:Tender.(XMLNSC.Attribute)TenderType = 'ChargeTender' THEN		
+						CALL CodeTranslationLookup(sbu,dsCode,'SALES TRANSACTION TENDERS','CHARGE TENDER','',rEnv) INTO rLine.LineObject;
+					ELSEIF rLineitems.arts:Tender.(XMLNSC.Attribute)TenderType = 'GiftCard' AND rLineitems.arts:Tender.(XMLNSC.Attribute)TypeCode = 'Refund' AND rInPOSLog.arts:Transaction.(XMLNSC.Attribute)TypeCode = 'TenderExchangeTransaction' THEN		
+						CALL CodeTranslationLookup(sbu,dsCode,'SALES TRANSACTION TENDERS','GIFT CARD','',rEnv) INTO rLine.LineObject;
+					ELSEIF rLineitems.arts:Tender.(XMLNSC.Attribute)TenderType = 'GiftCard' AND rLineitems.arts:Tender.(XMLNSC.Attribute)TypeCode = 'Sale' AND rInPOSLog.arts:Transaction.(XMLNSC.Attribute)TypeCode = 'TenderExchangeTransaction' THEN		
+						SET rLine.LineObject=621;
+					ELSEIF rLineitems.arts:Tender.(XMLNSC.Attribute)TenderType = 'GiftCard' AND rLineitems.arts:Tender.(XMLNSC.Attribute)SubTenderType = 'SPORTMARTGIFTCARD' THEN		
+						CALL CodeTranslationLookup(sbu,dsCode,'SALES TRANSACTION TENDERS','SPORTMART GIFT CARD','',rEnv) INTO rLine.LineObject;
+					ELSEIF rLineitems.arts:Tender.(XMLNSC.Attribute)TenderType = 'GiftCard' AND rLineitems.arts:Tender.(XMLNSC.Attribute)SubTenderType = 'ATHLETESWORLDGIFTCARD' THEN		
+						CALL CodeTranslationLookup(sbu,dsCode,'SALES TRANSACTION TENDERS','ATHLETES WORLD GIFT CARD','',rEnv) INTO rLine.LineObject;	
+					ELSEIF rLineitems.arts:Tender.(XMLNSC.Attribute)TenderType = 'GiftCard' AND FIELDTYPE(rLineitems.arts:Tender.(XMLNSC.Attribute)SubTenderType) IS NULL THEN		
+						CALL CodeTranslationLookup(sbu,dsCode,'SALES TRANSACTION TENDERS','GIFT CARD','',rEnv) INTO rLine.LineObject;
+					ELSEIF rLineitems.arts:Tender.(XMLNSC.Attribute)TenderType = 'GiftCertificate' THEN		
+						CALL CodeTranslationLookup(sbu,dsCode,'SALES TRANSACTION TENDERS','GIFT CERTIFICATE','',rEnv) INTO rLine.LineObject;
+					ELSEIF rLineitems.arts:Tender.(XMLNSC.Attribute)TenderType = 'Cheque' THEN		
+						CALL CodeTranslationLookup(sbu,dsCode,'SALES TRANSACTION TENDERS','NON PERSONAL CHEQUE','',rEnv) INTO rLine.LineObject;			
+					ELSEIF rLineitems.arts:Tender.(XMLNSC.Attribute)TenderType = 'StorePromo' THEN		
+						CALL CodeTranslationLookup(sbu,dsCode,'SALES TRANSACTION TENDERS','STORE PROMO','',rEnv) INTO rLine.LineObject;
+					ELSEIF rLineitems.arts:Tender.(XMLNSC.Attribute)TenderType = 'MallGiftCertificate' THEN		
+						CALL CodeTranslationLookup(sbu,dsCode,'SALES TRANSACTION TENDERS','MALL GIFT CERTIFICATE','',rEnv) INTO rLine.LineObject;
+					ELSEIF rLineitems.arts:Tender.(XMLNSC.Attribute)TenderType = 'Coupon' THEN		
+						CALL CodeTranslationLookup(sbu,dsCode,'SALES TRANSACTION TENDERS','COUPON','',rEnv) INTO rLine.LineObject;
+					--ELSEIF rLineitems.arts:Tender.(XMLNSC.Attribute)TenderType = 'LoyaltyRedemption' THEN		
+						--CALL CodeTranslationLookup(sbu,dsCode,'SALES TRANSACTION TENDERS','LOYALTY REDEMPTION','',rEnv) INTO rLine.LineObject;
+					--Tender Line-EL-167
+					ELSEIF rLineitems.arts:Tender.(XMLNSC.Attribute)TenderType = 'LoyaltyRedemption' THEN					
+						IF rLineitems.arts:Tender.arts:LoyaltyRedemption.arts:LoyaltyCurrencies.arts:LoyaltyCurrency.arts:LoyaltyCurrencyTypeCode = 'SCENE' THEN 
+							CALL CodeTranslationLookup(sbu,dsCode,'SALES TRANSACTION TENDERS','SCENE','',rEnv) INTO rLine.LineObject;							
+						ELSEIF rLineitems.arts:Tender.arts:LoyaltyRedemption.arts:LoyaltyCurrencies.arts:LoyaltyCurrency.arts:LoyaltyCurrencyTypeCode = 'CTMONEY' THEN 
+							CALL CodeTranslationLookup(sbu,dsCode,'SALES TRANSACTION TENDERS','CTMONEY','',rEnv) INTO rLine.LineObject;							
+						END IF;
+						
+					ELSEIF rLineitems.arts:Tender.(XMLNSC.Attribute)TenderType = 'PennyRounding' THEN		
+						CALL CodeTranslationLookup(sbu,dsCode,'SALES TRANSACTION TENDERS','PENNY ROUNDING','',rEnv) INTO rLine.LineObject;
+					ELSE 
+						SET codeTranslationInput = '';
+					END IF; 
+					 
+					 -- LineAction Check
+					 IF rLineitems.arts:Tender.(XMLNSC.Attribute)TenderType = 'Cash' AND rLineitems.arts:Tender.(XMLNSC.Attribute)SubTenderType = 'CAD' AND rInPOSLog.arts:Transaction.(XMLNSC.Attribute)TypeCode = 'TenderExchangeTransaction' THEN
+							SET rLine.LineAction = 18;
+						ELSEIF rLineitems.arts:Tender.(XMLNSC.Attribute)TenderType = 'Cash' AND rLineitems.arts:Tender.(XMLNSC.Attribute)SubTenderType = 'CAD' AND rLineitems.arts:Tender.(XMLNSC.Attribute)TypeCode = 'Sale' THEN
+							SET rLine.LineAction = 28;
+						ELSEIF rLineitems.arts:Tender.(XMLNSC.Attribute)TenderType = 'Cash' AND rLineitems.arts:Tender.(XMLNSC.Attribute)SubTenderType = 'CAD' AND rLineitems.arts:Tender.(XMLNSC.Attribute)TypeCode = 'Refund' AND rInPOSLog.arts:Transaction.(XMLNSC.Attribute)TypeCode = 'ReturnTransaction' THEN
+							SET rLine.LineAction = 12;
+						ELSEIF rLineitems.arts:Tender.(XMLNSC.Attribute)TenderType = 'Cash' AND rLineitems.arts:Tender.(XMLNSC.Attribute)SubTenderType = 'CAD' AND rLineitems.arts:Tender.(XMLNSC.Attribute)TypeCode = 'Refund' AND rInPOSLog.arts:Transaction.(XMLNSC.Attribute)TypeCode = 'SaleTransaction' THEN
+							SET rLine.LineAction = 18;
+						ELSEIF rLineitems.arts:Tender.(XMLNSC.Attribute)TenderType = 'CreditDebit' AND rLineitems.arts:Tender.(XMLNSC.Attribute)TypeCode = 'Sale' THEN
+							SET rLine.LineAction = 11;
+						ELSEIF rLineitems.arts:Tender.(XMLNSC.Attribute)TenderType = 'CreditDebit' AND rLineitems.arts:Tender.(XMLNSC.Attribute)TypeCode = 'Refund' THEN
+							SET rLine.LineAction = 27;
+						ELSEIF rLineitems.arts:Tender.(XMLNSC.Attribute)TenderType = 'Cash' AND rLineitems.arts:Tender.(XMLNSC.Attribute)SubTenderType = 'USD' AND rLineitems.arts:Tender.(XMLNSC.Attribute)TypeCode = 'Sale' THEN
+							SET rLine.LineAction = 28;	
+						ELSEIF rLineitems.arts:Tender.(XMLNSC.Attribute)TenderType = 'Cash' AND rLineitems.arts:Tender.(XMLNSC.Attribute)SubTenderType = 'EXCHANGE' THEN
+							SET rLine.LineAction = 245;
+					 	ELSEIF rLineitems.arts:Tender.(XMLNSC.Attribute)TenderType = 'GiftCard' AND rLineitems.arts:Tender.(XMLNSC.Attribute)TypeCode = 'Refund' AND rInPOSLog.arts:Transaction.(XMLNSC.Attribute)TypeCode = 'TenderExchangeTransaction' THEN
+							SET rLine.LineAction = 27;
+					 	ELSEIF rLineitems.arts:Tender.(XMLNSC.Attribute)TenderType = 'GiftCard' AND rLineitems.arts:Tender.(XMLNSC.Attribute)TypeCode = 'Sale' AND rInPOSLog.arts:Transaction.(XMLNSC.Attribute)TypeCode = 'TenderExchangeTransaction' THEN
+							SET rLine.LineAction = 2;
+						ELSEIF rLineitems.arts:Tender.(XMLNSC.Attribute)TenderType = 'GiftCard' AND rLineitems.arts:Tender.(XMLNSC.Attribute)TypeCode = 'Sale' THEN
+							SET rLine.LineAction = 25;
+						ELSEIF rLineitems.arts:Tender.(XMLNSC.Attribute)TenderType = 'GiftCard' AND rLineitems.arts:Tender.(XMLNSC.Attribute)TypeCode = 'Refund' THEN
+							SET rLine.LineAction = 27;	
+					 	ELSEIF rLineitems.arts:Tender.(XMLNSC.Attribute)TenderType = 'GiftCard' AND rLineitems.arts:Tender.(XMLNSC.Attribute)SubTenderType = 'ATHLETESWORLDGIFTCARD' AND rLineitems.arts:Tender.(XMLNSC.Attribute)TypeCode = 'Sale' THEN
+							SET rLine.LineAction = 25;
+					 	ELSEIF rLineitems.arts:Tender.(XMLNSC.Attribute)TenderType = 'GiftCard' AND rLineitems.arts:Tender.(XMLNSC.Attribute)SubTenderType = 'SPORTMARTGIFTCARD' AND rLineitems.arts:Tender.(XMLNSC.Attribute)TypeCode = 'Sale' THEN
+							SET rLine.LineAction = 25;
+						ELSEIF rLineitems.arts:Tender.(XMLNSC.Attribute)TenderType = 'GiftCertificate' AND rLineitems.arts:Tender.(XMLNSC.Attribute)TypeCode = 'Sale' THEN
+							SET rLine.LineAction = 25;	
+						ELSEIF rLineitems.arts:Tender.(XMLNSC.Attribute)TenderType = 'Cheque' AND rLineitems.arts:Tender.(XMLNSC.Attribute)TypeCode = 'Sale' THEN
+							SET rLine.LineAction = 28;	
+						ELSEIF rLineitems.arts:Tender.(XMLNSC.Attribute)TenderType = 'MallGiftCertificate' AND rLineitems.arts:Tender.(XMLNSC.Attribute)TypeCode = 'Sale' THEN
+							SET rLine.LineAction = 28;
+						ELSEIF rLineitems.arts:Tender.(XMLNSC.Attribute)TenderType = 'ChargeTender' AND rLineitems.arts:Tender.(XMLNSC.Attribute)TypeCode = 'Sale' THEN
+							SET rLine.LineAction = 11;
+						ELSEIF rLineitems.arts:Tender.(XMLNSC.Attribute)TenderType = 'ChargeTender' AND rLineitems.arts:Tender.(XMLNSC.Attribute)TypeCode = 'Refund' THEN
+							SET rLine.LineAction = 27;						
+						ELSEIF rLineitems.arts:Tender.(XMLNSC.Attribute)TenderType = 'StorePromo' AND rLineitems.arts:Tender.(XMLNSC.Attribute)TypeCode = 'Sale' THEN
+							SET rLine.LineAction = 28;
+						ELSEIF rLineitems.arts:Tender.(XMLNSC.Attribute)TenderType = 'StorePromo' AND rLineitems.arts:Tender.(XMLNSC.Attribute)TypeCode = 'Refund' THEN
+							SET rLine.LineAction = 12;
+						ELSEIF rLineitems.arts:Tender.(XMLNSC.Attribute)TenderType = 'LoyaltyRedemption' AND rLineitems.arts:Tender.(XMLNSC.Attribute)TypeCode = 'Sale' THEN
+							SET rLine.LineAction = 25;
+						ELSEIF rLineitems.arts:Tender.(XMLNSC.Attribute)TenderType = 'LoyaltyRedemption' AND rLineitems.arts:Tender.(XMLNSC.Attribute)TypeCode = 'Refund' THEN
+							SET rLine.LineAction = 27;	
+					 	ELSEIF rLineitems.arts:Tender.(XMLNSC.Attribute)TenderType = 'Coupon' AND rLineitems.arts:Tender.(XMLNSC.Attribute)TypeCode = 'Sale' THEN
+							SET rLine.LineAction = 28;
+						ELSEIF rLineitems.arts:Tender.(XMLNSC.Attribute)TenderType = 'Coupon' AND rLineitems.arts:Tender.(XMLNSC.Attribute)TypeCode = 'Refund' THEN
+							SET rLine.LineAction = 12;	
+						ELSEIF rLineitems.arts:Tender.(XMLNSC.Attribute)TenderType = 'PennyRounding' AND rLineitems.arts:Tender.(XMLNSC.Attribute)TypeCode = 'Sale' THEN
+							SET rLine.LineAction = 18;
+						ELSEIF rLineitems.arts:Tender.(XMLNSC.Attribute)TenderType = 'PennyRounding' AND rLineitems.arts:Tender.(XMLNSC.Attribute)TypeCode = 'Refund' THEN
+							SET rLine.LineAction = 28;
+					 	ELSE 
+					 		SET rLine.LineAction = '';			
+						END IF;	
+						-- Reference Number Check
+						IF rLineitems.arts:Tender.(XMLNSC.Attribute)TenderType = 'CreditDebit' AND FIELDTYPE(rLineitems.arts:Tender.arts:CreditDebit.arts:PrimaryAccountNumber) IS NOT NULL THEN
+							CALL returnPrimaryAccNo(rLineitems.arts:Tender.arts:CreditDebit.arts:PrimaryAccountNumber) INTO rLine.ReferenceNbr; 
+						ELSEIF rLineitems.arts:Tender.(XMLNSC.Attribute)TenderType = 'GiftCard' THEN
+								SET rLine.ReferenceNbr = COALESCE(rLineitems.arts:Tender.arts:GiftCard.arts:CardNumber,''); 	
+						--ELSEIF rLineitems.arts:Tender.(XMLNSC.Attribute)TenderType = 'LoyaltyRedemption' THEN
+							--SET rLine.ReferenceNbr = COALESCE(rLineitems.arts:Tender.arts:LoyaltyRedemption.arts:LoyaltyProgram.arts:LoyaltyAccountID,''); 
+						--EL-167
+						ELSEIF rLineitems.arts:Tender.(XMLNSC.Attribute)TenderType = 'LoyaltyRedemption' THEN
+							IF rLineitems.arts:Tender.arts:LoyaltyRedemption.arts:LoyaltyCurrencies.arts:LoyaltyCurrency.arts:LoyaltyCurrencyTypeCode = 'SCENE' OR 
+								rLineitems.arts:Tender.arts:LoyaltyRedemption.arts:LoyaltyCurrencies.arts:LoyaltyCurrency.arts:LoyaltyCurrencyTypeCode = 'CTMONEY' THEN
+								SET rLine.ReferenceNbr = COALESCE(rLineitems.arts:Tender.arts:LoyaltyRedemption.arts:LoyaltyCardNumber,''); 	
+							END IF;
+								
+						ELSEIF rLineitems.arts:Tender.(XMLNSC.Attribute)TenderType = 'ChargeTender' THEN
+							SET rLine.ReferenceNbr = COALESCE(rLineitems.arts:Tender.arts:ChargeTender.arts:PurchaseOrderNumber,'');
+						ELSEIF rLineitems.arts:Tender.(XMLNSC.Attribute)TenderType = 'GiftCertificate' THEN
+							SET rLine.ReferenceNbr = COALESCE(rLineitems.arts:Tender.arts:GiftCertificate.arts:SerialNumber,''); 
+						ELSEIF rLineitems.arts:Tender.(XMLNSC.Attribute)TenderType = 'Coupon' THEN
+							SET rLine.ReferenceNbr = COALESCE(rLineitems.arts:Tender.arts:Coupon.arts:SerialNumber,''); 
+						ELSEIF rLineitems.arts:Tender.(XMLNSC.Attribute)TenderType = 'Cheque' THEN
+							SET rLine.ReferenceNbr = COALESCE(rLineitems.arts:Tender.arts:Cheque.arts:ChequeNumber,''); 
+						ELSE
+							SET rLine.ReferenceNbr = '';			 		
+						END IF;	
+						-- FPOE-20143					
+						IF EXISTS(rLineitems.arts:Tender.arts:LoyaltyRedemption[]) THEN 
+							--SET rLine.LineAmount = COALESCE(rLineitems.arts:Tender.arts:LoyaltyRedemption.arts:LoyaltyProgram.arts:Amount,0);
+							--EL-167
+							SET rLine.LineAmount = COALESCE(rLineitems.arts:Tender.arts:LoyaltyRedemption.arts:LoyaltyCurrencies.arts:LoyaltyCurrency.arts:MonetaryValueAmount.arts:Amount,0);						
+						ELSEIF 	EXISTS(rLineitems.arts:Tender.arts:GiftCertificate[]) THEN				
+							SET rLine.LineAmount = COALESCE(rLineitems.arts:Tender.arts:GiftCertificate.arts:FaceValue,0);
+						ELSEIF FIELDVALUE(rLineitems.arts:Tender.arts:Amount) <> '' AND FIELDTYPE(rLineitems.arts:Tender.arts:Amount) IS NOT NULL THEN 
+							SET rLine.LineAmount = COALESCE(rLineitems.arts:Tender.arts:Amount,0);
+						ELSE 
+							SET rLine.LineAmount = 0;	
+						END IF;
+								
+						SET rLine.Unused1 = 0;
+						SET rLine.LineAmountDivider = 1;
+						SET rLine.Unused2 = 0;
+						SET rLine.VoidingReversalFlg = 1;
+						SET rLine.LineAmountDeduction = 0;
+						SET rLine.LineAmountMultiplicationFactor = 1;
+						-- VoidFlag Check
+						IF UCASE(rLineitems.(XMLNSC.Attribute)VoidFlag) = 'TRUE' THEN
+							SET rLine.LineVoidFlg = 1;
+						ELSEIF UCASE(rLineitems.(XMLNSC.Attribute)VoidFlag) = 'FALSE' OR NOT EXISTS(rLineitems.(XMLNSC.Attribute)VoidFlag[]) THEN
+							SET rLine.LineVoidFlg = 0;	
+						ELSE
+							SET rLine.LineVoidFlg = 0;	
+						END IF;
+						SET rLine.AttachmentQty = 0;
+						SET rLine.LineObjectAdjustment = 0;
+						SET rLine.LkpPosCode = '';
+						IF rLineitems.arts:Tender.(XMLNSC.Attribute)TenderType = 'CreditDebit' OR rLineitems.arts:Tender.(XMLNSC.Attribute)TenderType = 'GiftCard' THEN
+							-- FPOE-14460 Code Fix
+							IF  FIELDTYPE(rLineitems.arts:Tender.arts:Authorization) IS NOT NULL OR FIELDTYPE(rLineitems.arts:Tender.arts:GiftCard.arts:Authorization) IS NOT NULL THEN
+								CREATE LASTCHILD OF rXPOLLD AS rTenderAuth NAME 'Authorization';
+									SET rTenderAuth.RecordType = 'A';
+									SET rTenderAuth.LineId = rLineitems.arts:SequenceNumber;
+									SET rTenderAuth.AuthorizationNbr = COALESCE(rLineitems.arts:Tender.arts:Authorization.arts:AuthorizationCode, rLineitems.arts:Tender.arts:GiftCard.arts:Authorization.arts:AuthorizationCode, '');
+									-- FPOE-10127 Fix to update 0 default Value.
+									IF FIELDTYPE(rLineitems.arts:Tender.arts:CreditDebit.arts:ExpirationDate) IS NOT NULL AND FIELDVALUE(rLineitems.arts:Tender.arts:CreditDebit.arts:ExpirationDate) <> '' THEN
+										SET rTenderAuth.ExpiryDateFromPos = SUBSTRING(rLineitems.arts:Tender.arts:CreditDebit.arts:ExpirationDate FROM 6 FOR 2) || SUBSTRING(rLineitems.arts:Tender.arts:CreditDebit.arts:ExpirationDate FROM 3 FOR 2);
+									ELSE
+										SET rTenderAuth.ExpiryDateFromPos = 0;
+									END IF;
+									IF FIELDTYPE(rLineitems.arts:Tender.arts:Authorization.arts:SwipeIndicator) IS NOT NULL AND FIELDVALUE(rLineitems.arts:Tender.arts:Authorization.arts:SwipeIndicator) <> '' THEN
+										SET rTenderAuth.SwipeIndicator = rLineitems.arts:Tender.arts:Authorization.arts:SwipeIndicator;
+									ELSEIF FIELDTYPE(rLineitems.arts:Tender.arts:GiftCard.arts:Authorization.arts:SwipeIndicator) IS NOT NULL AND FIELDVALUE(rLineitems.arts:Tender.arts:GiftCard.arts:Authorization.arts:SwipeIndicator) <> '' THEN
+										SET rTenderAuth.SwipeIndicator = rLineitems.arts:Tender.arts:GiftCard.arts:Authorization.arts:SwipeIndicator;
+									ELSE
+										SET rTenderAuth.SwipeIndicator = 1;
+									END IF;
+									SET rTenderAuth.ApprovalMessage = '';
+									SET rTenderAuth.LicenseNbr = '';
+									SET rTenderAuth.OtherIdType = 0;
+									SET rTenderAuth.OtherId = '';
+									SET rTenderAuth.CustomerSignatureObtained = 1;
+									SET rTenderAuth.CardType = SPACE(1);
+									SET rTenderAuth.DeferredBillingDate = '';
+									SET rTenderAuth.DeferredBillingPlan = 0;
+									SET rTenderAuth.PosStateCode = '';
+							END IF;
+						END IF;
+						-- Creation of LineNote
+						IF FIELDVALUE(rLineitems.arts:LineItemApproval.arts:ApproverID) <> '' AND FIELDTYPE(rLineitems.arts:LineItemApproval.arts:ApproverID) IS NOT NULL THEN
+							CALL LineItemNoteType (rLineitems, rXPOLLD, rLineNote);
+						END IF;
+
+						-- Creation of LineNote[FPOE-20316 Added Line note for TOKEN]
+						IF FIELDVALUE(rLineitems.arts:Tender.arts:CreditDebit.arts:CreditDebitCardTokenText) <> '' AND FIELDTYPE(rLineitems.arts:Tender.arts:CreditDebit.arts:CreditDebitCardTokenText) IS NOT NULL THEN
+							CREATE LASTCHILD OF rXPOLLD AS rLineNote NAME 'LineNote';
+							SET rLineNote.RecordType = 'N';
+							SET rLineNote.LineId = rLineitems.arts:SequenceNumber;
+							SET rLineNote.LineNoteType = 19;
+							IF rLineNote.LineNoteType = 19 THEN
+								SET rLineNote.LineNote = rLineitems.arts:Tender.arts:CreditDebit.arts:CreditDebitCardTokenText;
+							END IF;
+						END IF; 
+										
+				END IF;			
+				MOVE rLineitems NEXTSIBLING REPEAT TYPE NAME;
+			END WHILE;
+	
+	ELSEIF rInTransaction.arts:TransactionSubtypeCode = 'ControlTransaction' THEN
+		-- Control Transaction Input Reference Variable Declaration 				
+		DECLARE rInCtrlTrxn 	REFERENCE TO rInTransaction.arts:ControlTransaction;
+		DECLARE rInNoSale		REFERENCE TO rInCtrlTrxn.arts:NoSale;
+		DECLARE rInTrxVoid		REFERENCE TO rInCtrlTrxn.arts:TransactionVoid;
+		DECLARE rInPayCollected REFERENCE TO rInCtrlTrxn.arts:POSEOD.arts:SessionSettle.arts:PaymentsCollected;
+		DECLARE rInTender 		REFERENCE TO rInPayCollected.arts:Tender;
+		DECLARE rOut,rXPOLLD,rHeader,rLine,rLineNote	REFERENCE TO OutputRoot;
+		DECLARE rInTenderTotals,rInExpTenderTotals REFERENCE TO rInPayCollected;
+		DECLARE TenderFlag CHARACTER;
+		-- XPOLLD XML creation
+		CREATE LASTCHILD OF OutputRoot AS rOut DOMAIN 'XMLNSC';
+		CREATE FIRSTCHILD OF rOut TYPE XMLNSC.XmlDeclaration NAME 'XmlDeclaration';
+		SET rOut.(XMLNSC.XmlDeclaration)*.(XMLNSC.Attribute)Version = '1.0'; 
+		SET rOut.(XMLNSC.XmlDeclaration)*.(XMLNSC.Attribute)Encoding = 'UTF-8'; 
+		CREATE LASTCHILD OF rOut 	AS rXPOLLD NAME 'XPOLLD';
+		-- Checking Condition for POSEOD transaction TypeCode
+		IF rInTransaction.(XMLNSC.Attribute)TypeCode = 'POSEOD' THEN	
+			IF FIELDNAME(rInPayCollected.arts:Tender[1].arts:TenderTotal)= 'TenderTotal' THEN
+				SET TenderFlag = 'TenderTotal' ;
+				CALL Header(rInTransaction,rXPOLLD,rHeader,TenderFlag);
+				
+				-- Creation of LineNote
+				IF FIELDVALUE(rInTransaction.arts:TransactionApproval.arts:ApproverID) <> '' AND FIELDTYPE(rInTransaction.arts:TransactionApproval.arts:ApproverID) IS NOT NULL THEN
+					CALL TransactionNoteType(rInTransaction,rXPOLLD,rLineNote);
+				END IF;
+			
+				MOVE rInTenderTotals TO rInPayCollected.arts:Tender[1];
+				DECLARE LineTenderSeq INTEGER 1; 
+				WHILE LASTMOVE(rInTenderTotals) DO
+					CREATE LASTCHILD OF rXPOLLD AS rLine NAME 'Line';
+					SET rLine.RecordType = 'L';
+					SET rLine.LineId = LineTenderSeq;				
+
+					IF rInTenderTotals.arts:TenderTotal.(XMLNSC.Attribute)TenderType = 'Cash' AND rInTenderTotals.arts:TenderTotal.(XMLNSC.Attribute)SubTenderType = 'CAD' THEN
+						CALL CodeTranslationLookup(sbu,dsCode,'SALES TRANSACTION TENDERS','CASH CURRENCY CAD','',rEnv) INTO rLine.LineObject;
+					--	SET rLine.LineObject = 600;
+					ELSEIF rInTenderTotals.arts:TenderTotal.(XMLNSC.Attribute)TenderType = 'Cash' AND rInTenderTotals.arts:TenderTotal.(XMLNSC.Attribute)SubTenderType = 'USD' THEN
+						CALL CodeTranslationLookup(sbu,dsCode,'SALES TRANSACTION TENDERS','CASH CURRENCY USD','',rEnv) INTO rLine.LineObject;
+					--	SET rLine.LineObject = 613;
+					ELSEIF rInTenderTotals.arts:TenderTotal.(XMLNSC.Attribute)TenderType = 'CreditDebit' AND rInTenderTotals.arts:TenderTotal.(XMLNSC.Attribute)SubTenderType = 'Visa' THEN
+						CALL CodeTranslationLookup(sbu,dsCode,'SALES TRANSACTION TENDERS','VISA','',rEnv) INTO rLine.LineObject;
+					--	SET rLine.LineObject = 604;
+					ELSEIF rInTenderTotals.arts:TenderTotal.(XMLNSC.Attribute)TenderType = 'CreditDebit' AND rInTenderTotals.arts:TenderTotal.(XMLNSC.Attribute)SubTenderType = 'MasterCard' THEN
+						CALL CodeTranslationLookup(sbu,dsCode,'SALES TRANSACTION TENDERS','MASTERCARD','',rEnv) INTO rLine.LineObject;
+					--	SET rLine.LineObject = 605;		
+					ELSEIF rInTenderTotals.arts:TenderTotal.(XMLNSC.Attribute)TenderType = 'CreditDebit' AND rInTenderTotals.arts:TenderTotal.(XMLNSC.Attribute)SubTenderType = 'Amex' THEN
+						CALL CodeTranslationLookup(sbu,dsCode,'SALES TRANSACTION TENDERS','AMERICAN EXPRESS','',rEnv) INTO rLine.LineObject;
+					--	SET rLine.LineObject = 606;
+					ELSEIF rInTenderTotals.arts:TenderTotal.(XMLNSC.Attribute)TenderType = 'CreditDebit' THEN
+						CALL CodeTranslationLookup(sbu,dsCode,'SALES TRANSACTION TENDERS','DEBIT','',rEnv) INTO rLine.LineObject;
+					--	SET rLine.LineObject = 603;
+					ELSEIF rInTenderTotals.arts:TenderTotal.(XMLNSC.Attribute)TenderType = 'ChargeTender' THEN
+						CALL CodeTranslationLookup(sbu,dsCode,'SALES TRANSACTION TENDERS','CHARGE TENDER','',rEnv) INTO rLine.LineObject;	
+					--	SET rLine.LineObject = 616;	
+					ELSEIF rInTenderTotals.arts:TenderTotal.(XMLNSC.Attribute)TenderType = 'GiftCertificate' THEN
+						CALL CodeTranslationLookup(sbu,dsCode,'SALES TRANSACTION TENDERS','GIFT CERTIFICATE','',rEnv) INTO rLine.LineObject;	
+					--	SET rLine.LineObject = 615;
+					ELSEIF rInTenderTotals.arts:TenderTotal.(XMLNSC.Attribute)TenderType = 'StorePromo' THEN
+						CALL CodeTranslationLookup(sbu,dsCode,'SALES TRANSACTION TENDERS','STORE PROMO','',rEnv) INTO rLine.LineObject;
+					--	SET rLine.LineObject = 629;				
+					ELSEIF rInTenderTotals.arts:TenderTotal.(XMLNSC.Attribute)TenderType = 'SportMartGiftCard' THEN
+						CALL CodeTranslationLookup(sbu,dsCode,'SALES TRANSACTION TENDERS','SPORTMART GIFT CARD','',rEnv) INTO rLine.LineObject;
+					--	SET rLine.LineObject = 626;
+					ELSEIF rInTenderTotals.arts:TenderTotal.(XMLNSC.Attribute)TenderType = 'AthletesWorldGiftCard' THEN
+						CALL CodeTranslationLookup(sbu,dsCode,'SALES TRANSACTION TENDERS','ATHLETES WORLD GIFT CARD','',rEnv) INTO rLine.LineObject;
+					--	SET rLine.LineObject = 6030;
+					ELSEIF rInTenderTotals.arts:TenderTotal.(XMLNSC.Attribute)TenderType = 'GiftCard' THEN
+						CALL CodeTranslationLookup(sbu,dsCode,'SALES TRANSACTION TENDERS','GIFT CARD','',rEnv) INTO rLine.LineObject;
+					--	SET rLine.LineObject = 625;
+					ELSEIF rInTenderTotals.arts:TenderTotal.(XMLNSC.Attribute)TenderType = 'Cheque' THEN
+						CALL CodeTranslationLookup(sbu,dsCode,'SALES TRANSACTION TENDERS','NON PERSONAL CHEQUE','',rEnv) INTO rLine.LineObject;
+					--	SET rLine.LineObject = 601;
+					ELSEIF rInTenderTotals.arts:TenderTotal.(XMLNSC.Attribute)TenderType = 'MallGiftCertificate' THEN
+						CALL CodeTranslationLookup(sbu,dsCode,'SALES TRANSACTION TENDERS','MALL GIFT CERTIFICATE','',rEnv) INTO rLine.LineObject;
+					--	SET rLine.LineObject = 602;
+					ELSEIF rInTenderTotals.arts:TenderTotal.(XMLNSC.Attribute)TenderType = 'Coupon' THEN
+						CALL CodeTranslationLookup(sbu,dsCode,'SALES TRANSACTION TENDERS','COUPON','',rEnv) INTO rLine.LineObject;
+					--	SET rLine.LineObject = 4102;
+					ELSEIF rInTenderTotals.arts:TenderTotal.(XMLNSC.Attribute)TenderType = 'LoyaltyRedemption' THEN
+						--CALL CodeTranslationLookup(sbu,dsCode,'SALES TRANSACTION TENDERS','LOYALTY REDEMPTION','',rEnv) INTO rLine.LineObject;
+					--	SET rLine.LineObject = 6032;
+					--actual tendertotal change EL-167
+						IF  rInTenderTotals.arts:TenderTotal.(XMLNSC.Attribute)LoyaltyCurrencyTypeCode='SCENE' THEN							
+							CALL CodeTranslationLookup(sbu,dsCode,'SALES TRANSACTION TENDERS','SCENE','',rEnv) INTO rLine.LineObject;
+						ELSEIF rInTenderTotals.arts:TenderTotal.(XMLNSC.Attribute)LoyaltyCurrencyTypeCode='CTMONEY' THEN 
+							CALL CodeTranslationLookup(sbu,dsCode,'SALES TRANSACTION TENDERS','CTMONEY','',rEnv) INTO rLine.LineObject;					
+						END IF;
+					ELSEIF rInTenderTotals.arts:TenderTotal.(XMLNSC.Attribute)TenderType = 'PennyRounding' THEN
+						CALL CodeTranslationLookup(sbu,dsCode,'SALES TRANSACTION TENDERS','PENNY ROUNDING','',rEnv) INTO rLine.LineObject;
+					--	SET rLine.LineObject = 6029;
+					ELSE
+						SET rLine.LineObject = '';		
+					END IF;
+					--hotfix/FPOE-15656
+					IF FIELDVALUE(rInTenderTotals.arts:TenderTotal) <> '' AND FIELDTYPE(rInTenderTotals.arts:TenderTotal) IS NOT NULL THEN
+						SET rLine.LineAction = 246;
+					ELSE
+						SET rLine.LineAction = '';	
+					END IF;
+					SET rLine.ReferenceNbr = '';
+					SET rLine.LineAmount = COALESCE(FIELDVALUE(rInTenderTotals.arts:TenderTotal),0);
+					SET rLine.Unused1 = 0;
+					SET rLine.LineAmountDivider = 1;
+					SET rLine.Unused2 = 0;
+					SET rLine.VoidingReversalFlg = 1;
+					SET rLine.LineAmountDeduction = 0;
+					SET rLine.LineAmountMultiplicationFactor = 1;
+					-- VoidFlag Check
+					SET rLine.LineVoidFlg = 0;	
+					SET rLine.AttachmentQty = 0;
+					SET rLine.LineObjectAdjustment = 0; 
+					SET rLine.LkpPosCode = '';
+				MOVE rInTenderTotals NEXTSIBLING REPEAT TYPE NAME;
+				SET LineTenderSeq = LineTenderSeq +1;
+				END WHILE;
+				PROPAGATE TO TERMINAL 'out';
+				SET OutputRoot.Properties = InputRoot.Properties;
+			END IF;
+			-- ExpectedTenderTotal
+			IF FIELDNAME(rInPayCollected.arts:Tender[1].arts:ExpectedTenderTotal)= 'ExpectedTenderTotal' THEN
+				SET TenderFlag = 'ExpectedTenderTotal' ;
+				-- XPOLLD XML creation
+				CREATE LASTCHILD OF OutputRoot AS rOut DOMAIN 'XMLNSC';
+				CREATE FIRSTCHILD OF rOut TYPE XMLNSC.XmlDeclaration NAME 'XmlDeclaration';
+				SET rOut.(XMLNSC.XmlDeclaration)*.(XMLNSC.Attribute)Version = '1.0'; 
+				SET rOut.(XMLNSC.XmlDeclaration)*.(XMLNSC.Attribute)Encoding = 'UTF-8'; 
+				CREATE LASTCHILD OF rOut 	AS rXPOLLD NAME 'XPOLLD';
+				-- Calling Header Procedure
+				CALL Header(rInTransaction,rXPOLLD,rHeader,TenderFlag);
+				-- Creation of LineNote
+				IF FIELDVALUE(rInTransaction.arts:TransactionApproval.arts:ApproverID) <> '' AND FIELDTYPE(rInTransaction.arts:TransactionApproval.arts:ApproverID) IS NOT NULL THEN
+					CALL TransactionNoteType(rInTransaction,rXPOLLD,rLineNote);
+				END IF;				
+				MOVE rInExpTenderTotals TO rInPayCollected.arts:Tender[1];
+				DECLARE LineExTenderSeq INTEGER 1; 
+				WHILE LASTMOVE(rInExpTenderTotals) DO
+					CREATE LASTCHILD OF rXPOLLD AS rLine NAME 'Line';
+					SET rLine.RecordType = 'L';
+					SET rLine.LineId = LineExTenderSeq;
+					-- TODO Code Lookup
+					IF rInExpTenderTotals.arts:ExpectedTenderTotal.(XMLNSC.Attribute)TenderType = 'Cash' AND rInExpTenderTotals.arts:ExpectedTenderTotal.(XMLNSC.Attribute)SubTenderType = 'CAD' THEN
+						CALL CodeTranslationLookup(sbu,dsCode,'SALES TRANSACTION TENDERS','CASH CURRENCY CAD','',rEnv) INTO rLine.LineObject;
+					--	SET rLine.LineObject = 600;
+					ELSEIF rInExpTenderTotals.arts:ExpectedTenderTotal.(XMLNSC.Attribute)TenderType = 'Cash' AND rInExpTenderTotals.arts:ExpectedTenderTotal.(XMLNSC.Attribute)SubTenderType = 'USD' THEN
+						CALL CodeTranslationLookup(sbu,dsCode,'SALES TRANSACTION TENDERS','CASH CURRENCY USD','',rEnv) INTO rLine.LineObject;
+					--	SET rLine.LineObject = 613;
+					ELSEIF rInExpTenderTotals.arts:ExpectedTenderTotal.(XMLNSC.Attribute)TenderType = 'CreditDebit' AND rInExpTenderTotals.arts:ExpectedTenderTotal.(XMLNSC.Attribute)SubTenderType = 'Visa' THEN
+						CALL CodeTranslationLookup(sbu,dsCode,'SALES TRANSACTION TENDERS','VISA','',rEnv) INTO rLine.LineObject;
+					--	SET rLine.LineObject = 604;
+					ELSEIF rInExpTenderTotals.arts:ExpectedTenderTotal.(XMLNSC.Attribute)TenderType = 'CreditDebit' AND rInExpTenderTotals.arts:ExpectedTenderTotal.(XMLNSC.Attribute)SubTenderType = 'MasterCard' THEN
+						CALL CodeTranslationLookup(sbu,dsCode,'SALES TRANSACTION TENDERS','MASTERCARD','',rEnv) INTO rLine.LineObject;
+					--	SET rLine.LineObject = 605;		
+					ELSEIF rInExpTenderTotals.arts:ExpectedTenderTotal.(XMLNSC.Attribute)TenderType = 'CreditDebit' AND rInExpTenderTotals.arts:ExpectedTenderTotal.(XMLNSC.Attribute)SubTenderType = 'Amex' THEN
+						CALL CodeTranslationLookup(sbu,dsCode,'SALES TRANSACTION TENDERS','AMERICAN EXPRESS','',rEnv) INTO rLine.LineObject;
+					--	SET rLine.LineObject = 606;
+					ELSEIF rInExpTenderTotals.arts:ExpectedTenderTotal.(XMLNSC.Attribute)TenderType = 'CreditDebit' THEN
+						CALL CodeTranslationLookup(sbu,dsCode,'SALES TRANSACTION TENDERS','DEBIT','',rEnv) INTO rLine.LineObject;
+					--	SET rLine.LineObject = 603;
+					ELSEIF rInExpTenderTotals.arts:ExpectedTenderTotal.(XMLNSC.Attribute)TenderType = 'ChargeTender' THEN
+						CALL CodeTranslationLookup(sbu,dsCode,'SALES TRANSACTION TENDERS','CHARGE TENDER','',rEnv) INTO rLine.LineObject;
+					--	SET rLine.LineObject = 616;	
+					ELSEIF rInExpTenderTotals.arts:ExpectedTenderTotal.(XMLNSC.Attribute)TenderType = 'GiftCertificate' THEN
+						CALL CodeTranslationLookup(sbu,dsCode,'SALES TRANSACTION TENDERS','GIFT CERTIFICATE','',rEnv) INTO rLine.LineObject;
+					--	SET rLine.LineObject = 615;
+					ELSEIF rInExpTenderTotals.arts:ExpectedTenderTotal.(XMLNSC.Attribute)TenderType = 'StorePromo' THEN
+						CALL CodeTranslationLookup(sbu,dsCode,'SALES TRANSACTION TENDERS','STORE PROMO','',rEnv) INTO rLine.LineObject;
+					--	SET rLine.LineObject = 629;				
+					ELSEIF rInExpTenderTotals.arts:ExpectedTenderTotal.(XMLNSC.Attribute)TenderType = 'SportMartGiftCard' THEN
+						CALL CodeTranslationLookup(sbu,dsCode,'SALES TRANSACTION TENDERS','SPORTMART GIFT CARD','',rEnv) INTO rLine.LineObject;
+					--	SET rLine.LineObject = 626;
+					ELSEIF rInExpTenderTotals.arts:ExpectedTenderTotal.(XMLNSC.Attribute)TenderType = 'AthletesWorldGiftCard' THEN
+						CALL CodeTranslationLookup(sbu,dsCode,'SALES TRANSACTION TENDERS','ATHLETES WORLD GIFT CARD','',rEnv) INTO rLine.LineObject;
+					--	SET rLine.LineObject = 6030;
+					ELSEIF rInExpTenderTotals.arts:ExpectedTenderTotal.(XMLNSC.Attribute)TenderType = 'GiftCard' THEN
+						CALL CodeTranslationLookup(sbu,dsCode,'SALES TRANSACTION TENDERS','GIFT CARD','',rEnv) INTO rLine.LineObject;
+					--	SET rLine.LineObject = 625;
+					ELSEIF rInExpTenderTotals.arts:ExpectedTenderTotal.(XMLNSC.Attribute)TenderType = 'Cheque' THEN
+						CALL CodeTranslationLookup(sbu,dsCode,'SALES TRANSACTION TENDERS','NON PERSONAL CHEQUE','',rEnv) INTO rLine.LineObject;
+					--	SET rLine.LineObject = 601;
+					ELSEIF rInExpTenderTotals.arts:ExpectedTenderTotal.(XMLNSC.Attribute)TenderType = 'MallGiftCertificate' THEN
+						CALL CodeTranslationLookup(sbu,dsCode,'SALES TRANSACTION TENDERS','MALL GIFT CERTIFICATE','',rEnv) INTO rLine.LineObject;
+					--	SET rLine.LineObject = 602;
+					ELSEIF rInExpTenderTotals.arts:ExpectedTenderTotal.(XMLNSC.Attribute)TenderType = 'Coupon' THEN
+						CALL CodeTranslationLookup(sbu,dsCode,'SALES TRANSACTION TENDERS','COUPON','',rEnv) INTO rLine.LineObject;
+					--	SET rLine.LineObject = 4102;
+					ELSEIF rInExpTenderTotals.arts:ExpectedTenderTotal.(XMLNSC.Attribute)TenderType = 'LoyaltyRedemption' THEN
+						--CALL CodeTranslationLookup(sbu,dsCode,'SALES TRANSACTION TENDERS','LOYALTY REDEMPTION','',rEnv) INTO rLine.LineObject;
+						--SET rLine.LineObject = 6032;
+					--expected tender totals change EL-167					
+						IF rInExpTenderTotals.arts:ExpectedTenderTotal.(XMLNSC.Attribute)LoyaltyCurrencyTypeCode ='SCENE' THEN
+							--SET rLine.LineObject = 6032;
+							CALL CodeTranslationLookup(sbu,dsCode,'SALES TRANSACTION TENDERS','SCENE','',rEnv) INTO rLine.LineObject;
+						ELSEIF 	rInExpTenderTotals.arts:ExpectedTenderTotal.(XMLNSC.Attribute)LoyaltyCurrencyTypeCode ='CTMONEY' THEN
+							--SET rLine.LineObject = 6056;
+							CALL CodeTranslationLookup(sbu,dsCode,'SALES TRANSACTION TENDERS','CTMONEY','',rEnv) INTO rLine.LineObject;					
+						END IF;
+					ELSEIF rInExpTenderTotals.arts:ExpectedTenderTotal.(XMLNSC.Attribute)TenderType = 'PennyRounding' THEN
+						CALL CodeTranslationLookup(sbu,dsCode,'SALES TRANSACTION TENDERS','PENNY ROUNDING','',rEnv) INTO rLine.LineObject;
+					--	SET rLine.LineObject = 6029;
+					ELSE
+						SET rLine.LineObject = '';		
+					END IF;
+					--hotfix/FPOE-15656
+					IF FIELDVALUE(rInExpTenderTotals.arts:ExpectedTenderTotal) <> '' AND FIELDTYPE(rInExpTenderTotals.arts:ExpectedTenderTotal) IS NOT NULL THEN
+						SET rLine.LineAction = 32;
+					ELSE
+						SET rLine.LineAction = '';	
+					END IF;
+					SET rLine.ReferenceNbr = '';
+					SET rLine.LineAmount = COALESCE(FIELDVALUE(rInExpTenderTotals.arts:ExpectedTenderTotal),0);
+					SET rLine.Unused1 = 0;
+					SET rLine.LineAmountDivider = 1;
+					SET rLine.Unused2 = 0;
+					SET rLine.VoidingReversalFlg = 1;
+					SET rLine.LineAmountDeduction = 0;
+					SET rLine.LineAmountMultiplicationFactor = 1;
+					-- VoidFlag Check
+					SET rLine.LineVoidFlg = 0;	
+					SET rLine.AttachmentQty = 0;
+					SET rLine.LineObjectAdjustment = 0; 
+					SET rLine.LkpPosCode = '';
+				MOVE rInExpTenderTotals NEXTSIBLING REPEAT TYPE NAME;
+				SET LineExTenderSeq = LineExTenderSeq +1;
+				END WHILE;
+			END IF;
+		 ELSE
+			-- Header and Line for OperatorSignOn/OperatorSignOff/NoSaleTransaction/TransactionVoid/XRead/ZRead/Unsettled
+			SET TenderFlag = 'False';
+			CALL Header(rInTransaction,rXPOLLD,rHeader,TenderFlag);
+			-- Creation of LineNote
+			IF FIELDVALUE(rInTransaction.arts:TransactionApproval.arts:ApproverID) <> '' AND FIELDTYPE(rInTransaction.arts:TransactionApproval.arts:ApproverID) IS NOT NULL THEN
+				CALL TransactionNoteType(rInTransaction,rXPOLLD,rLineNote);
+			END IF;
+			
+			CREATE LASTCHILD OF rXPOLLD AS rLine NAME 'Line';
+			SET rLine.RecordType = 'L';
+			SET rLine.LineId = 1;
+			-- TODO CODE LOOKUP
+			IF rInTransaction.(XMLNSC.Attribute)TypeCode = 'OperatorSignOn' THEN
+				SET rLine.LineObject = 1116;
+			ELSEIF rInTransaction.(XMLNSC.Attribute)TypeCode = 'OperatorSignOff' THEN
+				SET rLine.LineObject = 1117;
+			--HotFix FPOE-15063
+			ELSEIF rInTransaction.(XMLNSC.Attribute)TypeCode = 'TransactionVoid' AND rInTrxVoid.arts:Reason = 'CHANGED MIND' THEN
+				SET rLine.LineObject = 1121;
+			ELSEIF rInTransaction.(XMLNSC.Attribute)TypeCode = 'TransactionVoid' AND rInTrxVoid.arts:Reason = 'EMPLOYEE ERROR' THEN
+				SET rLine.LineObject = 1121;
+			ELSEIF rInTransaction.(XMLNSC.Attribute)TypeCode = 'TransactionVoid' AND rInTrxVoid.arts:Reason = 'CANCELLED BY SYSTEM' THEN
+				SET rLine.LineObject = 4106;
+			ELSEIF rInTransaction.(XMLNSC.Attribute)TypeCode = 'TransactionVoid' AND rInTrxVoid.arts:Reason = 'VOIDED BY SYSTEM' THEN
+				SET rLine.LineObject = 4106;		
+			ELSEIF rInTransaction.(XMLNSC.Attribute)TypeCode = 'XRead' THEN
+				SET rLine.LineObject = 1534;
+			ELSEIF rInTransaction.(XMLNSC.Attribute)TypeCode = 'ZRead' THEN
+				SET rLine.LineObject = 1535;
+			ELSEIF rInTransaction.(XMLNSC.Attribute)TypeCode = 'Unsettled' THEN
+				SET rLine.LineObject = 1536;				
+			-- code translation for no sale transactions which is a 1->1 mapping 			
+			ELSEIF rInTransaction.(XMLNSC.Attribute)TypeCode = 'NoSaleTransaction' THEN		
+				CALL CodeTranslationLookup(sbu,dsCode,'NO SALE REASON CODE',rInNoSale.arts:NoSaleReasonCode,'',rEnv) INTO rLine.LineObject;
+			ELSE
+				SET rLine.LineObject = '';		
+			END IF;			
+			-- TODO CODE LOOKUP
+			IF rInTransaction.(XMLNSC.Attribute)TypeCode IN ('OperatorSignOn','OperatorSignOff', 'NoSaleTransaction', 'TransactionVoid') THEN
+				SET rLine.LineAction = 38;
+			ELSEIF rInTransaction.(XMLNSC.Attribute)TypeCode IN ('XRead','ZRead', 'Unsettled') THEN
+				SET rLine.LineAction = 30;
+			ELSE
+				SET rLine.LineAction = '';	
+			END IF;	
+			SET rLine.ReferenceNbr = '';
+			SET rLine.LineAmount = 0;
+			SET rLine.Unused1 = 0;
+			SET rLine.LineAmountDivider = 1;
+			SET rLine.Unused2 = 0;
+			SET rLine.VoidingReversalFlg = 1;
+			SET rLine.LineAmountDeduction = 0;
+			SET rLine.LineAmountMultiplicationFactor = 1;
+			SET rLine.LineVoidFlg = 0;	
+			SET rLine.AttachmentQty = 0;
+			SET rLine.LineObjectAdjustment = 0; 
+			SET rLine.LkpPosCode = '';		
+		END IF;
+	ELSEIF rInTransaction.arts:TransactionSubtypeCode = 'TenderControlTransaction' THEN
+	 	-- Tender Control Transaction Input Reference Variable Declaration 				
+		DECLARE rInTenderCtrlTrxn 	REFERENCE TO rInTransaction.arts:TenderControlTransaction;
+		DECLARE rInPayIn			REFERENCE TO rInTenderCtrlTrxn.arts:PayIn;
+		DECLARE rInPayOut			REFERENCE TO rInTenderCtrlTrxn.arts:PayOut;
+		DECLARE rOut,rXPOLLD,rHeader,rLine,rLineNote	REFERENCE TO OutputRoot;
+		-- XPOLLD XML creation
+		CREATE LASTCHILD OF OutputRoot AS rOut DOMAIN 'XMLNSC';
+		CREATE FIRSTCHILD OF rOut TYPE XMLNSC.XmlDeclaration NAME 'XmlDeclaration';
+		SET rOut.(XMLNSC.XmlDeclaration)*.(XMLNSC.Attribute)Version = '1.0'; 
+		SET rOut.(XMLNSC.XmlDeclaration)*.(XMLNSC.Attribute)Encoding = 'UTF-8'; 
+		CREATE LASTCHILD OF rOut 	AS rXPOLLD NAME 'XPOLLD';
+	 	--Header Creation
+	 	CALL Header(rInTransaction,rXPOLLD,rHeader,TenderFlag);
+	 	--Line Creation for Object 700
+	 	CREATE LASTCHILD OF rXPOLLD AS rLine NAME 'Line';
+		SET rLine.RecordType = 'L';
+		SET rLine.LineId = 1;
+
+		IF FIELDNAME(rInPayIn) = 'PayIn' THEN
+			CALL CodeTranslationLookup(sbu,dsCode,'PAYIN PAYOUT REASON CODE',rInPayIn.arts:ReasonCode,'',rEnv) INTO rLine.LineObject;
+			SET rLine.LineAction = 16;
+		ELSEIF FIELDNAME(rInPayOut) = 'PayOut' THEN
+			CALL CodeTranslationLookup(sbu,dsCode,'PAYIN PAYOUT REASON CODE',rInPayOut.arts:ReasonCode,'',rEnv) INTO rLine.LineObject;
+			SET rLine.LineAction = 15;
+		END IF;
+		SET rLine.ReferenceNbr = '';
+		IF FIELDNAME(rInPayIn) = 'PayIn' THEN
+			SET rLine.LineAmount = COALESCE(rInPayIn.arts:TenderAmount,0);
+		ELSEIF FIELDNAME(rInPayOut) = 'PayOut' THEN	
+			SET rLine.LineAmount = COALESCE(rInPayOut.arts:TenderAmount,0);
+		END IF;
+		SET rLine.Unused1 = 0;
+		SET rLine.LineAmountDivider = 1;
+		SET rLine.Unused2 = 0;
+		SET rLine.VoidingReversalFlg = 1;
+		SET rLine.LineAmountDeduction = 0;
+		SET rLine.LineAmountMultiplicationFactor = 1;
+		SET rLine.LineVoidFlg = 0;	
+		SET rLine.AttachmentQty = 0;
+		SET rLine.LineObjectAdjustment = 0; 
+		SET rLine.LkpPosCode = '';	
+		--Line Creation for Object 600
+	 	CREATE LASTCHILD OF rXPOLLD AS rLine NAME 'Line';
+		SET rLine.RecordType = 'L';
+		SET rLine.LineId = 2;
+		SET rLine.LineObject = 600;
+		IF FIELDNAME(rInPayIn) = 'PayIn' THEN
+			SET rLine.LineAction = 28;
+		ELSEIF FIELDNAME(rInPayOut) = 'PayOut' THEN
+			SET rLine.LineAction = 18;
+		END IF;
+		SET rLine.ReferenceNbr = '';
+		IF FIELDNAME(rInPayIn) = 'PayIn' THEN
+			SET rLine.LineAmount = COALESCE(rInPayIn.arts:TenderAmount,0);
+		ELSEIF FIELDNAME(rInPayOut) = 'PayOut' THEN	
+			SET rLine.LineAmount = COALESCE(rInPayOut.arts:TenderAmount,0);
+		END IF;
+		SET rLine.Unused1 = 0;
+		SET rLine.LineAmountDivider = 1;
+		SET rLine.Unused2 = 0;
+		SET rLine.VoidingReversalFlg = 1;
+		SET rLine.LineAmountDeduction = 0;
+		SET rLine.LineAmountMultiplicationFactor = 1;
+		SET rLine.LineVoidFlg = 0;	
+		SET rLine.AttachmentQty = 0;
+		SET rLine.LineObjectAdjustment = 0; 
+		SET rLine.LkpPosCode = '';	
+		
+		-- Creation of LineNote
+			IF FIELDVALUE(rInTransaction.arts:TransactionApproval.arts:ApproverID) <> '' AND FIELDTYPE(rInTransaction.arts:TransactionApproval.arts:ApproverID) IS NOT NULL THEN
+				CALL TransactionNoteType(rInTransaction,rXPOLLD,rLineNote);
+			END IF;
+		
+	ELSE
+		THROW USER EXCEPTION CATALOG 'MyCatalog' MESSAGE 1235 VALUES ('Invalid TransactionSubtypeCode only Valid RetailTransaction/ControlTransaction for Phase-1',rInTransaction.arts:TransactionSubtypeCode);
+	END IF;	 
+		-- Looging Output XPOLLD XML Message
+		SET Environment.Variables.Message.XPOLLDMessage = CAST(ASBITSTREAM(OutputRoot.XMLNSC OPTIONS FolderBitStream) AS CHAR CCSID CAST(InputRoot.MQMD.CodedCharSetId AS INT) ENCODING CAST(InputRoot.MQMD.Encoding AS INT));
+		CALL core.log.DebugMessage(rEnv, schemaName || '.' || moduleName, Environment.Variables.Message.XPOLLDMessage);
+	--	CALL core.log.InfoMessage(rEnv, schemaName || '.' || moduleName, Environment.Variables.Message.XPOLLDMessage);
+	 	CALL core.log.InfoMessage(rEnv, schemaName ||'.' || moduleName, 'AW Subscriber processed Transaction successfully  - Sequence Number:'||TransactionNumber||' - Business Unit Number:'||StoreNumber||' - Workstation ID:'||WorkstationID||' - Begin Date Time:'|| BeginDateTime||' - End Date Time:'|| EndDateTime||' - Operator ID:'|| OperatorID);
+	 	--CALL core.log.InfoMessage(rEnv, schemaName || '.' || moduleName, 'AW Subscriber processed Transaction successfully');		
+		RETURN TRUE;
+	END;
+END MODULE;

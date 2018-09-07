@@ -1,0 +1,14 @@
+BROKER SCHEMA trx.sales.etps
+
+CREATE FILTER MODULE IonsBAPaymentsWSCallFilter_Filter
+	CREATE FUNCTION Main() RETURNS BOOLEAN
+	BEGIN
+		DECLARE rInsubmitTxnReq REFERENCE TO Environment.XMLNSC.submitTxnRequest;
+		IF EXISTS(rInsubmitTxnReq.bapayments[]) THEN
+			RETURN TRUE;
+		ELSE 
+			RETURN FALSE;
+		END IF;
+	END;
+
+END MODULE;

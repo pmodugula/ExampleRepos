@@ -1,0 +1,83 @@
+BROKER SCHEMA com.marks.hyb.fastfind
+
+DECLARE ns5 NAMESPACE 'http://www.marks.com/2014/01/schemas/ARTS';
+DECLARE ns NAMESPACE 'http://www.marks.com/2014/01/services/FF/';
+
+
+
+CREATE COMPUTE MODULE virtual_giftcard_creation_Req
+	CREATE FUNCTION Main() RETURNS BOOLEAN
+	BEGIN
+		-- Added as part of EAI-4320_1
+		CALL core.log.Info(MessageFlowLabel||'Module name: virtual_giftcard_creation_Req - Create GC message begins for -'||'EXTERNAL_ORDER:' ||CAST(Environment.XMLNSC.nsOrder:Exchange.nsOrder:Messages.nsOrder:ArtsCustomerOrders.nsOrder1:CustomerOrderNumber AS CHARACTER));
+		
+		DECLARE EnvRef REFERENCE TO Environment.Variables;
+		SET Environment.Variables.ns:createOrderResponse = InputRoot.SOAP.Body.ns:createOrderResponse;
+		SET OutputRoot.Properties = InputRoot.Properties;
+		SET OutputRoot.Properties.MessageType = '{}:Input_904';
+		
+		DECLARE eai NAMESPACE 'http://www.fgl.com/exchange/';
+		DECLARE arts NAMESPACE 'http://www.fgl.com/ARTS';
+		DECLARE refOut,refOutBody REFERENCE TO OutputRoot;
+		DECLARE refInpCustOrd REFERENCE TO Environment.XMLNSC.eai:Exchange.eai:Messages.eai:ArtsCustomerOrders;
+		DECLARE refEnvShp REFERENCE TO EnvRef.SHIPPING_DETAILS.SHIPPING_CHARGES;
+		DECLARE intVal INTEGER;
+		DECLARE aftrPadVal CHARACTER;
+		-- Create Dataconect message to send the Activated Gift Card details
+		-------------
+		-- Start
+		-------------
+		SET Environment.Timeout = 6600;
+		CREATE LASTCHILD OF OutputRoot AS refOut DOMAIN 'DFDL';
+		CREATE LASTCHILD OF refOut.Input904 AS refOutBody NAME 'body';
+		SET refOutBody.TransCode = SUBSTRING(FIELDVALUE(Environment.XMLNSC.eai:Exchange.nsOrder:Messages.nsOrder:Transaction.nsOrder1:Transaction.nsOrder1:TransactionID)FROM 1 FOR 5)||SUBSTRING(FIELDVALUE(Environment.XMLNSC.eai:Exchange.nsOrder:Messages.nsOrder:Transaction.nsOrder1:Transaction.nsOrder1:TransactionID)FROM 14);
+		SET refOutBody.UserId = '15041';
+		SET refOutBody.Passwrd = '0415';
+		IF LASTMOVE(refEnvShp) THEN
+			--SET refOutBody.GiftCardValue = CAST(FIELDVALUE(refInpCustOrd.arts:VirtualTenderSubtotalAmount) AS DECIMAL) - CAST( EnvRef.SHIPPING_DETAILS.SHIPPING_CHARGES.SHIPPING_AMOUNT AS DECIMAL) - CAST(EnvRef.SHIPPING_DETAILS.SHIPPING_CHARGES.SHIPPING_FEDERAL_TAX AS DECIMAL)- CAST(EnvRef.SHIPPING_DETAILS.SHIPPING_CHARGES.SHIPPING_PROVINCIAL_TAX AS DECIMAL);
+			SET refOutBody.GiftCardValue = CAST(EnvRef.VirtualTenderSubtotalAmount AS DECIMAL) - CAST( EnvRef.SHIPPING_DETAILS.SHIPPING_CHARGES.SHIPPING_AMOUNT AS DECIMAL) - CAST(EnvRef.SHIPPING_DETAILS.SHIPPING_CHARGES.SHIPPING_FEDERAL_TAX AS DECIMAL)- CAST(EnvRef.SHIPPING_DETAILS.SHIPPING_CHARGES.SHIPPING_PROVINCIAL_TAX AS DECIMAL);
+		ELSE
+			--SET refOutBody.GiftCardValue = CAST(FIELDVALUE(refInpCustOrd.arts:VirtualTenderSubtotalAmount) AS DECIMAL);
+			SET refOutBody.GiftCardValue = CAST(EnvRef.VirtualTenderSubtotalAmount AS DECIMAL);
+		END IF;
+		SET refOutBody.GivexNumber = '90'||refInpCustOrd.arts:SourceOrderKey;
+		SET OutputLocalEnvironment.Variables.VritualGC.Message = CAST(ASBITSTREAM( OutputRoot OPTIONS FolderBitStream) AS CHAR CCSID CAST(Environment.MQMD.CodedCharSetId AS INT) ENCODING CAST(Environment.MQMD.Encoding AS INT));
+		--Commented as part of EAI-4320_1
+		--CALL core.log.info(MessageFlowLabel||'Module name: virtual_giftcard_creation_Req - Create GC message created : '|| OutputLocalEnvironment.Variables.VritualGC.Message);
+		
+		CALL core.log.Info(MessageFlowLabel||'Module name: virtual_giftcard_creation_Req - GC message created and calling GC service for - '||'EXTERNAL_ORDER:' ||CAST(Environment.XMLNSC.nsOrder:Exchange.nsOrder:Messages.nsOrder:ArtsCustomerOrders.nsOrder1:CustomerOrderNumber AS CHARACTER));
+		-------------
+		-- End
+		-------------
+		RETURN TRUE;
+	END;
+END MODULE;
+
+CREATE FILTER MODULE virtual_giftcard_creation_GiftCardCreationSuccess_
+	CREATE FUNCTION Main() RETURNS BOOLEAN
+	BEGIN
+		DECLARE refGiftCrdCrt REFERENCE TO Body.Output904.body;
+		----------------------------Changes for LOgging----------------------
+		--Commented as part of EAI-4320_1
+		--CALL core.log.Debug(MessageFlowLabel||'Module name: virtual_giftcard_creation_GiftCardCreationSuccess_:'||CAST ((refGiftCrdCrt.Result) AS CHARACTER));
+              DECLARE GftCardRelt BOOLEAN FALSE;
+              DECLARE GftCardRelt_CHECK INTEGER CAST ((refGiftCrdCrt.Result) AS INTEGER);
+              IF GftCardRelt_CHECK = 0  THEN
+                     SET GftCardRelt = TRUE;
+              CALL core.log.Info(MessageFlowLabel||'Module name:virtual_giftcard_creation_GiftCardCreationSuccess_'||' - GivexMsgIdFormat :'||CAST(refGiftCrdCrt.GivexMsgIdFormat AS CHARACTER)||' - TransactionCode :'||CAST(refGiftCrdCrt.TransactionCode AS CHARACTER)||' - GivxTransRef :'||CAST(refGiftCrdCrt.GivxTransRef AS CHARACTER)||' - GivxNumb :'||CAST(refGiftCrdCrt.GivxNumb AS CHARACTER )||' - CertBal :'||CAST(refGiftCrdCrt.CertBal AS CHARACTER)||'- EXTERNAL_ORDER:' ||CAST(Environment.XMLNSC.nsOrder:Exchange.nsOrder:Messages.nsOrder:ArtsCustomerOrders.nsOrder1:CustomerOrderNumber AS CHARACTER));
+              ELSEIF GftCardRelt_CHECK <> 0 THEN
+                     SET GftCardRelt = FALSE;
+               CALL core.log.Info(MessageFlowLabel||'Module name:virtual_giftcard_creation_GiftCardCreationSuccess_'||' Unable to Create Virtual Gift Card for -'||'EXTERNAL_ORDER:' ||CAST(Environment.XMLNSC.nsOrder:Exchange.nsOrder:Messages.nsOrder:ArtsCustomerOrders.nsOrder1:CustomerOrderNumber AS CHARACTER));
+              END IF;
+              --CALL core.log.Info(MessageFlowLabel||'Module name:virtual_giftcard_creation_GiftCardCreationSuccess_'||' - GivexMsgIdFormat :'||CAST(refGiftCrdCrt.GivexMsgIdFormat AS CHARACTER)||' - TransactionCode :'||CAST(refGiftCrdCrt.TransactionCode AS CHARACTER)||' - GivxTransRef :'||CAST(refGiftCrdCrt.GivxTransRef AS CHARACTER)||' - GivxNumb :'||CAST(refGiftCrdCrt.GivxNumb AS CHARACTER )||' - CertBal :'||CAST(refGiftCrdCrt.CertBal AS CHARACTER));
+              RETURN GftCardRelt;
+		----------------------------------------------
+--		IF (refGiftCrdCrt.Result <> 0) THEN
+--			CALL core.log.Debug(MessageFlowLabel||'Module name: GiftCardCreationSuccess - RETURN FALSE');
+--			RETURN FALSE;
+--		END IF;
+--		CALL core.log.Debug(MessageFlowLabel||'Module name: GiftCardCreationSuccess - RETURN TRUE');
+--		RETURN TRUE;
+	END;
+
+END MODULE;

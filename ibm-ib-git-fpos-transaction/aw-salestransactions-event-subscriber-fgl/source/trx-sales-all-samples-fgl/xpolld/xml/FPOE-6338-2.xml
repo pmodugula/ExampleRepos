@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<XPOLLD>
+ <Header>
+  <RecordType>H</RecordType>
+  <StoreNbr>309</StoreNbr>
+  <RegisterNbr>1</RegisterNbr>
+  <EntryDateTime>05/06/2016 15:26:56</EntryDateTime>
+  <TransactionSeries></TransactionSeries>
+  <TransactionNbr>2073</TransactionNbr>
+  <CashierNbr>1</CashierNbr>
+  <TransactionCategory>1</TransactionCategory>
+  <BankDepositDeclarationFlg>0</BankDepositDeclarationFlg>
+  <StoreNbrForTaxJurisdictionLkp></StoreNbrForTaxJurisdictionLkp>
+  <SendTaxExceptionForTaxJurisdiction> </SendTaxExceptionForTaxJurisdiction>
+  <TransactionVoidFlag>0</TransactionVoidFlag>
+  <Unused1>0</Unused1>
+  <Unused2>1</Unused2>
+  <PurchasingEmployeeNbr></PurchasingEmployeeNbr>
+  <CloseoutFlg>0</CloseoutFlg>
+  <TransactionRemark></TransactionRemark>
+  <TaxOverrideFlg>0</TaxOverrideFlg>
+ </Header>
+ <Line>
+  <RecordType>L</RecordType>
+  <LineId>1</LineId>
+  <LineObject>700</LineObject>
+  <LineAction>15</LineAction>
+  <ReferenceNbr></ReferenceNbr>
+  <LineAmount>1</LineAmount>
+  <Unused1>0</Unused1>
+  <LineAmountDivider>1</LineAmountDivider>
+  <Unused2>0</Unused2>
+  <VoidingReversalFlg>1</VoidingReversalFlg>
+  <LineAmountDeduction>0</LineAmountDeduction>
+  <LineAmountMultiplicationFactor>1</LineAmountMultiplicationFactor>
+  <LineVoidFlg>0</LineVoidFlg>
+  <AttachmentQty>0</AttachmentQty>
+  <LineObjectAdjustment>0</LineObjectAdjustment>
+  <LkpPosCode></LkpPosCode>
+ </Line>
+ <Line>
+  <RecordType>L</RecordType>
+  <LineId>2</LineId>
+  <LineObject>600</LineObject>
+  <LineAction>18</LineAction>
+  <ReferenceNbr></ReferenceNbr>
+  <LineAmount>1</LineAmount>
+  <Unused1>0</Unused1>
+  <LineAmountDivider>1</LineAmountDivider>
+  <Unused2>0</Unused2>
+  <VoidingReversalFlg>1</VoidingReversalFlg>
+  <LineAmountDeduction>0</LineAmountDeduction>
+  <LineAmountMultiplicationFactor>1</LineAmountMultiplicationFactor>
+  <LineVoidFlg>0</LineVoidFlg>
+  <AttachmentQty>0</AttachmentQty>
+  <LineObjectAdjustment>0</LineObjectAdjustment>
+  <LkpPosCode></LkpPosCode>
+ </Line>
+ <LineNote>
+  <RecordType>N</RecordType>
+  <LineId>0</LineId>
+  <LineNoteType>18</LineNoteType>
+  <LineNote>35824</LineNote>
+ </LineNote>
+</XPOLLD>

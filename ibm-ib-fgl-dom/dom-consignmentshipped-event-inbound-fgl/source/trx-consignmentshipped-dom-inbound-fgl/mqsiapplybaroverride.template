@@ -1,0 +1,6 @@
+trx.consignmentshipped.dom.TrxConsgShipped#IIBInBoundQueue=RECV.${CONSIGN_IN}
+trx.consignmentshipped.dom.TrxConsgShipped#WMSOutBoundQueue=SEND.${CONSIGN_OUT}
+trx.consignmentshipped.dom.TrxConsgShipped#CoreAuditDataSource=AUD${ENVN}${INST}
+trx.consignmentshipped.dom.TrxConsgShipped#CoreAuditEnabled=FALSE
+trx.consignmentshipped.dom.TrxConsgShipped#additionalInstances=${EXTRATHREADS}
+trx.consignmentshipped.dom.TrxConsgShipped#WMOutboundBackupQueue=${CONSIGN_IN_BACKUP}

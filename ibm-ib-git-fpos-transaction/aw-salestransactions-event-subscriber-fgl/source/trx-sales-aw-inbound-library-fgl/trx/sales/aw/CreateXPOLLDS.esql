@@ -1,0 +1,25 @@
+BROKER SCHEMA trx.sales.aw
+
+
+CREATE COMPUTE MODULE CreateXPOLLDS
+      CREATE FUNCTION Main() RETURNS BOOLEAN
+      BEGIN
+      	/*
+			Changes made by Venkatasatish Sajja
+			Modified Date: 04-April-2017 
+			Create the out path for mapping node.
+		*/
+        DECLARE refInMsgIn REFERENCE TO InputRoot.Collection.In[1]; 
+        DECLARE i INTEGER 1;
+		DECLARE RefEnv REFERENCE TO Environment;
+		DECLARE schemaName CHARACTER 'trx.sales.aw';
+		DECLARE moduleName CHARACTER 'CreateXPOLLDS';
+
+        WHILE LASTMOVE(refInMsgIn) DO	
+        SET OutputRoot.XMLNSC.XPOLLDS.XPOLLD[i] = refInMsgIn.XMLNSC.XPOLLD;    
+        SET i = i+1;
+        MOVE refInMsgIn NEXTSIBLING REPEAT NAME;
+        END WHILE;
+        RETURN TRUE;
+        END;            
+END MODULE;

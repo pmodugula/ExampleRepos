@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ecore:EPackage xmi:version="2.0"
+    xmlns:xmi="http://www.omg.org/XMI" xmlns:ComIbmDatabase.msgnode="ComIbmDatabase.msgnode" xmlns:ecore="http://www.eclipse.org/emf/2002/Ecore" xmlns:eflow="http://www.ibm.com/wbi/2005/eflow" xmlns:utility="http://www.ibm.com/wbi/2005/eflow_utility" nsURI="trx/pickticket/wms/GetMisDcControlSequence.subflow"
+    nsPrefix="trx_pickticket_wms_GetMisDcControlSequence.subflow">
+  <eClassifiers xmi:type="eflow:FCMComposite" name="FCMComposite_1" useDefaults="true" udpSupport="true">
+    <eSuperTypes href="http://www.ibm.com/wbi/2005/eflow#//FCMBlock"/>
+    <eStructuralFeatures xmi:type="ecore:EAttribute" xmi:id="Property.IIBDataSource" name="IIBDataSource">
+      <eType xmi:type="ecore:EDataType" href="http://www.eclipse.org/emf/2002/Ecore#//EString"/>
+    </eStructuralFeatures>
+    <translation xmi:type="utility:TranslatableString" key="GetMisDcControlSequence" bundleName="trx/pickticket/wms/GetMisDcControlSequence" pluginId="trx-pickticket-wms-library"/>
+    <colorGraphic16 xmi:type="utility:GIFFileGraphic" resourceName="platform:/plugin/trx-pickticket-wms-library/icons/full/obj16/GetMisDcControlSequence.gif"/>
+    <colorGraphic32 xmi:type="utility:GIFFileGraphic" resourceName="platform:/plugin/trx-pickticket-wms-library/icons/full/obj30/GetMisDcControlSequence.gif"/>
+    <composition>
+      <nodes xmi:type="eflow:FCMSource" xmi:id="InTerminal.Input" location="10,20">
+        <translation xmi:type="utility:TranslatableString" key="InTerminal.Input" bundleName="trx/pickticket/wms/GetMisDcControlSequence" pluginId="trx-pickticket-wms-library"/>
+      </nodes>
+      <nodes xmi:type="eflow:FCMSink" xmi:id="OutTerminal.Output" location="273,20">
+        <translation xmi:type="utility:TranslatableString" key="OutTerminal.Output" bundleName="trx/pickticket/wms/GetMisDcControlSequence" pluginId="trx-pickticket-wms-library"/>
+      </nodes>
+      <nodes xmi:type="ComIbmDatabase.msgnode:FCMComposite_1" xmi:id="FCMComposite_1_1" location="93,20" statement="esql://routine/trx.pickticket.wms#GetControlSequence.Main">
+        <translation xmi:type="utility:ConstantString" string="GeControlSequence"/>
+      </nodes>
+      <connections xmi:type="eflow:FCMConnection" xmi:id="FCMConnection_1" targetNode="FCMComposite_1_1" sourceNode="InTerminal.Input" sourceTerminalName="OutTerminal.out" targetTerminalName="InTerminal.in"/>
+      <connections xmi:type="eflow:FCMConnection" xmi:id="FCMConnection_2" targetNode="OutTerminal.Output" sourceNode="FCMComposite_1_1" sourceTerminalName="OutTerminal.out" targetTerminalName="InTerminal.in"/>
+    </composition>
+    <propertyOrganizer>
+      <propertyDescriptor groupName="Group.Basic" configurable="true" describedAttribute="Property.IIBDataSource">
+        <propertyName xmi:type="utility:TranslatableString" key="Property.IIBDataSource" bundleName="trx/pickticket/wms/GetMisDcControlSequence" pluginId="trx-pickticket-wms-library"/>
+      </propertyDescriptor>
+    </propertyOrganizer>
+    <attributeLinks promotedAttribute="Property.IIBDataSource" overriddenNodes="FCMComposite_1_1">
+      <overriddenAttribute href="ComIbmDatabase.msgnode#Property.dataSource"/>
+    </attributeLinks>
+    <stickyBoard/>
+  </eClassifiers>
+</ecore:EPackage>

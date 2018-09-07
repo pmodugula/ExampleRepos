@@ -1,0 +1,46 @@
+BROKER SCHEMA trx.sales.aw
+
+
+	CREATE COMPUTE MODULE FailureLog_and_SplitCollection
+      CREATE FUNCTION Main() RETURNS BOOLEAN
+      BEGIN
+      	
+      	/*
+			Changes made by Venkatasatish Sajja
+			Modified Date: 04-April-2017 
+			Logging the exception and spliting the messages.
+		*/
+      	
+      	DECLARE refIn REFERENCE TO InputRoot.Collection.In[1];
+        DECLARE refOut REFERENCE TO OutputRoot;
+        DECLARE rOutput1 REFERENCE TO OutputRoot; 
+        
+      	CREATE LASTCHILD OF OutputRoot  DOMAIN('XML') NAME 'XML';
+			declare ptrException reference to InputExceptionList;
+			WHILE lastmove(ptrException) DO
+			SET OutputRoot.XML.ExcpetionList = InputExceptionList.*[1];
+  			-- now move to the last child which should be the next exceptionlist
+			move ptrException lastchild;
+			END WHILE; 
+			
+			DECLARE schemaName CHARACTER 'trx.sales.aw';
+            DECLARE moduleName CHARACTER 'FailureLog_and_SplitCollection';
+            DECLARE OutputErrorMessage CHARACTER CAST(ASBITSTREAM( OutputRoot.XML.ExcpetionList  OPTIONS FolderBitStream) AS CHAR CCSID 1208 ENCODING 512);
+            CALL core.log.ERROR(schemaName || '.' || moduleName || OutputErrorMessage); 
+		    DELETE FIELD OutputRoot.XML;
+        
+        WHILE LASTMOVE(refIn) DO
+			  --CALL common.headers_BuildMQMD(refIn,rOutput1);
+			  SET OutputRoot.MQMD = refIn.MQMD;	
+			  SET OutputRoot.MQRFH2 = refIn.MQRFH2;
+              CREATE LASTCHILD OF OutputRoot AS refOut DOMAIN 'XMLNSC';
+              SET refOut = refIn.XMLNSC;
+         
+		DECLARE rHeader REFERENCE TO refIn.XMLNSC.XPOLLD.Header;
+		CALL core.log.ERROR('FailureLog_and_SplitCollection'||' - Store Number:'||CAST(rHeader.StoreNbr AS CHARACTER)||' - Register Number:'||CAST(rHeader.RegisterNbr AS CHARACTER)||' - Transaction Number:'||CAST(rHeader.TransactionNbr AS CHARACTER)||' - Cashier Number:'||CAST(rHeader.CashierNbr AS CHARACTER)||' - Entry Date Time:'||CAST(rHeader.EntryDateTime AS CHARACTER) ||' - Transaction Series:'||CAST(rHeader.TransactionSeries AS CHARACTER));   
+              PROPAGATE TO TERMINAL 'out';
+              MOVE refIn NEXTSIBLING REPEAT NAME;
+        END WHILE;                
+        RETURN FALSE;
+		END;        
+END MODULE;

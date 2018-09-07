@@ -1,0 +1,51 @@
+{
+	"msgType": "transaction",
+	"transactionId": "2310320170711320838",
+	"transactionTypeCode": "SaleTransaction",
+	"majorVersion": 4,
+	"retailStoreId": "231",
+	"workstationId": "03",
+	"sequenceNumber": "320838",
+	"beginDateTime": "2017-07-11T20:48:19-07:00",
+	"endDateTime": "2017-07-11T20:49:00-07:00",
+	"operatorId": "63668",
+	"sourceSystem": "FF",
+	"retailTransaction": {
+		"loyaltyCardRecord": [{
+			"loyaltyTransactionId": "MKS43000012017063000271000"
+		}],
+		"productLineItems": [{
+			"itemNumber": "400008725941",
+			"cardNumber": "9032644784",
+			"initialBalance": 167.99
+		}],
+		"tenders": [{
+			"amount": 117.99,
+			"subTenderType": "Visa",
+			"successfulPedTransactionUuid": "12345",
+			"tenderType": "CreditDebit"
+		},
+		{
+			"amount": "50.00",
+			"loyaltyCardNumber": "6046460454437820",
+			"subTenderType": "CTMONEY",
+			"tenderType": "LoyaltyRedemption"
+		}],
+		"allPedTransactions": [{
+			"accountNumber": "450553******8443",
+			"amount": 117.99,
+			"approvalNumber": "056946",
+			"cardName": "VISA",
+			"cashBackAmount": 0,
+			"creditDebitCardType": "Visa",
+			"expiryDate": "0402",
+			"pedTransactionUid": "0010010011",
+			"storeCode": "231",
+			"pedNumber": "66235307",
+			"uuid": "12345",
+			"pedTransactionStatus": "APPROVED"
+		}],
+		"transactionGrossAmount": 167.99,
+		"transactionSubtotal": 167.99
+	}
+}

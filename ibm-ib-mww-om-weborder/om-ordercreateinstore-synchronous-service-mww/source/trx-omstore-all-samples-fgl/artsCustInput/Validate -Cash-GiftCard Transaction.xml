@@ -1,0 +1,566 @@
+<ns3:Exchange FixVersion="0" MajorVersion="1" MinorVersion="0" xmlns:ns2="http://www.fgl.com/ARTS" xmlns:ns3="http://www.fgl.com/exchange/" xmlns:SOAP-ENV="http://schemas.xmlsoap.org/soap/envelope/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.fgl.com/exchange/ ../../../../eai/ibm-ib-git/message-schemas/xsd/arts/ARTSCustomerOrderMessageV1_07_00.xsd">
+       <ns3:MessageRouting>
+              <ns3:Guid>1</ns3:Guid>
+              <ns3:MessageType>PointToPoint</ns3:MessageType>
+              <ns3:SubjectArea>CustomerOrderStatus</ns3:SubjectArea>
+              <ns3:SbuNumber>2</ns3:SbuNumber>
+              <ns3:SbuCode>MWW</ns3:SbuCode>
+              <ns3:SbuName>Marks Ltd.</ns3:SbuName>
+              <ns3:DataSourceCode>FF</ns3:DataSourceCode>
+              <ns3:DataSourceCodeName>FastFind</ns3:DataSourceCodeName>
+       </ns3:MessageRouting>
+       <ns3:Messages>
+              <ns3:Count>1</ns3:Count>
+              <ns3:SourceSystems>
+                     <ns3:Count>1</ns3:Count>
+                     <ns3:SourceSystem>
+                           <ns3:Index>1</ns3:Index>
+                           <ns3:SbuNumber>2</ns3:SbuNumber>
+                           <ns3:SbuCode>MWW</ns3:SbuCode>
+                           <ns3:SbuName>Marks Ltd.</ns3:SbuName>
+                           <ns3:MessageSourceCode>FF</ns3:MessageSourceCode>
+                           <ns3:MessageSourceCodeName>FastFind</ns3:MessageSourceCodeName>
+                     </ns3:SourceSystem>
+              </ns3:SourceSystems>
+              <ns3:ArtsCustomerOrders>
+                     <ns2:Index xsi:type="xs:long" xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">1</ns2:Index>
+                     <ns2:DataSource>
+                           <ns2:SbuNumber>2</ns2:SbuNumber>
+                           <ns2:SbuCode>MWW</ns2:SbuCode>
+                           <ns2:SbuName>Marks Ltd.</ns2:SbuName>
+                           <ns2:DataSourceCode>FF</ns2:DataSourceCode>
+                           <ns2:DataSourceName>FastFind</ns2:DataSourceName>
+                     </ns2:DataSource>
+                     <ns2:SourceOrderKey>34556678</ns2:SourceOrderKey>
+                     <ns2:CustomerOrderNumber>134556678</ns2:CustomerOrderNumber>
+                     <ns2:CustomerOrderType>ORDER FOR PICKUP</ns2:CustomerOrderType>
+                     <ns2:InternationalOrderFlag>No</ns2:InternationalOrderFlag>
+                     <ns2:CustomerOrderCreateDate>2017-07-17T06:00:00Z</ns2:CustomerOrderCreateDate>
+                     <ns2:CustomerOrderExpiryDate>2017-07-19T14:13:13.000Z</ns2:CustomerOrderExpiryDate>
+                     <ns2:OrderCommentsText/>
+                     <ns2:VirtualTenderSubtotalAmount>199.49</ns2:VirtualTenderSubtotalAmount>
+                     <ns2:OrderSubtotalAmount>190.00</ns2:OrderSubtotalAmount>
+                     <ns2:OrderTotalAmount>199.50</ns2:OrderTotalAmount>
+                     <ns2:OrderTotalItemQuantity>1</ns2:OrderTotalItemQuantity>
+                     <ns2:CustomerOrderAssociates>
+                           <ns2:Count>0</ns2:Count>
+                     </ns2:CustomerOrderAssociates>
+                     <ns2:CustomerOrderLineItems>
+                           <ns2:Count>6</ns2:Count>
+                           <ns2:CustomerOrderLineItem>
+                                  <ns2:Index>1</ns2:Index>
+                                  <ns2:CustomerOrderSequenceNumber>0</ns2:CustomerOrderSequenceNumber>
+                                  <ns2:RetailTransactionId/>
+                                  <ns2:LineItemNumber>1</ns2:LineItemNumber>
+                                  <ns2:CustomerOrderLineItemTypeCode>Tender</ns2:CustomerOrderLineItemTypeCode>
+                                  <ns2:CustomerOrderPaymentLineItem>
+                                         <ns2:TenderType>
+                                                <ns2:Index xsi:type="xs:short" xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">1</ns2:Index>
+                                                <ns2:TenderTypeCode>GIFTCARD</ns2:TenderTypeCode>
+                                                <ns2:TenderTypeDescriptionText>GIFTCARD</ns2:TenderTypeDescriptionText>
+                                                <ns2:CurrencyCode>CAD</ns2:CurrencyCode>
+                                                <ns2:FastFindExtensions>
+                                                       <ns2:RequestedAmount>25.00</ns2:RequestedAmount>
+                                                       <ns2:AccountNumber/>
+                                                       <ns2:AdjudicationCode/>
+                                                       <ns2:CardIssueSequenceNumber>1152374961</ns2:CardIssueSequenceNumber>
+                                                       <ns2:TenderAuthorizationTerminalId/>
+                                                       <ns2:CardExpirationDate/>
+                                                       <ns2:HostText/>
+                                                </ns2:FastFindExtensions>
+                                         </ns2:TenderType>
+                                  </ns2:CustomerOrderPaymentLineItem>
+                           </ns2:CustomerOrderLineItem>
+                           <ns2:CustomerOrderLineItem>
+                                  <ns2:Index>2</ns2:Index>
+                                   <ns2:CustomerOrderSequenceNumber>0</ns2:CustomerOrderSequenceNumber>
+                                  <ns2:RetailTransactionId/>
+                                  <ns2:LineItemNumber>2</ns2:LineItemNumber>
+                                  <ns2:CustomerOrderLineItemTypeCode>Tender</ns2:CustomerOrderLineItemTypeCode>
+                                  <ns2:CustomerOrderPaymentLineItem>
+                                         <ns2:TenderType>
+                                                <ns2:Index xsi:type="xs:short" xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">2</ns2:Index>
+                                                <ns2:TenderTypeCode>GIFTCARD</ns2:TenderTypeCode>
+                                                <ns2:TenderTypeDescriptionText>GIFTCARD</ns2:TenderTypeDescriptionText>
+                                                <ns2:CurrencyCode>CAD</ns2:CurrencyCode>
+                                                <ns2:FastFindExtensions>
+                                                       <ns2:RequestedAmount>40.00</ns2:RequestedAmount>
+                                                       <ns2:AccountNumber/>
+                                                       <ns2:AdjudicationCode/>
+                                                       <ns2:CardIssueSequenceNumber>1152374623</ns2:CardIssueSequenceNumber>
+                                                       <ns2:TenderAuthorizationTerminalId/>
+                                                       <ns2:CardExpirationDate/>
+                                                       <ns2:HostText/>
+                                                </ns2:FastFindExtensions>
+                                         </ns2:TenderType>
+                                  </ns2:CustomerOrderPaymentLineItem>
+                           </ns2:CustomerOrderLineItem>
+                           <ns2:CustomerOrderLineItem>
+                                  <ns2:Index>3</ns2:Index>
+                                  <ns2:CustomerOrderSequenceNumber>0</ns2:CustomerOrderSequenceNumber>
+                                  <ns2:RetailTransactionId/>
+                                  <ns2:LineItemNumber>3</ns2:LineItemNumber>
+                                  <ns2:CustomerOrderLineItemTypeCode>Tender</ns2:CustomerOrderLineItemTypeCode>
+                                  <ns2:CustomerOrderPaymentLineItem>
+                                         <ns2:TenderType>
+                                                <ns2:Index xsi:type="xs:short" xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">3</ns2:Index>
+                                                <ns2:TenderTypeCode>CASH</ns2:TenderTypeCode>
+                                                <ns2:TenderTypeDescriptionText>CASH</ns2:TenderTypeDescriptionText>
+                                                <ns2:CurrencyCode>CAD</ns2:CurrencyCode>
+                                                <ns2:FastFindExtensions>
+                                                       <ns2:RequestedAmount>200.00</ns2:RequestedAmount>
+                                                       <ns2:AccountNumber/>
+                                                       <ns2:AdjudicationCode/>
+                                                       <ns2:CardIssueSequenceNumber/>
+                                                       <ns2:TenderAuthorizationTerminalId/>
+                                                       <ns2:CardExpirationDate/>
+                                                       <ns2:HostText/>
+                                                </ns2:FastFindExtensions>
+                                                <ns2:CashbackAmount>65.50</ns2:CashbackAmount>
+                                         </ns2:TenderType>
+                                  </ns2:CustomerOrderPaymentLineItem>
+                           </ns2:CustomerOrderLineItem>
+                           <ns2:CustomerOrderLineItem>
+                                  <ns2:Index>4</ns2:Index>
+                                  <ns2:CustomerOrderSequenceNumber>0</ns2:CustomerOrderSequenceNumber>
+                                  <ns2:RetailTransactionId/>
+                                  <ns2:LineItemNumber>4</ns2:LineItemNumber>
+                                  <ns2:CustomerOrderLineItemTypeCode>Rounding</ns2:CustomerOrderLineItemTypeCode>
+                                  <ns2:CustomerOrderRoundingLineItem>
+                                         <ns2:ItemIndex>1</ns2:ItemIndex>
+                                         <ns2:RoundingAmount>0.01</ns2:RoundingAmount>
+                                         <ns2:RoundUpFlag>Y</ns2:RoundUpFlag>
+                                  </ns2:CustomerOrderRoundingLineItem>
+                           </ns2:CustomerOrderLineItem>
+                           <ns2:CustomerOrderLineItem>
+                                  <ns2:Index>5</ns2:Index>
+                                  <ns2:CustomerOrderSequenceNumber>0</ns2:CustomerOrderSequenceNumber>
+                                  <ns2:RetailTransactionId/>
+                                  <ns2:LineItemNumber>5</ns2:LineItemNumber>
+                                  <ns2:CustomerOrderLineItemTypeCode>Shipping Charges</ns2:CustomerOrderLineItemTypeCode>
+                                  <ns2:CustomerOrderChargeLineItem>
+                                         <ns2:ItemIndex>0</ns2:ItemIndex>
+                                         <ns2:ChargeTypeCode/>
+                                         <ns2:MiscellaneousFeeReasonText/>
+                                         <ns2:MiscellaneousFeeAmount>0.00</ns2:MiscellaneousFeeAmount>
+                                         <ns2:CustomerOrderChargeTaxLineItems>
+                                                <ns2:Count>0</ns2:Count>
+                                         </ns2:CustomerOrderChargeTaxLineItems>
+                                  </ns2:CustomerOrderChargeLineItem>
+                           </ns2:CustomerOrderLineItem>
+                           <ns2:CustomerOrderLineItem>
+                                  <ns2:Index>6</ns2:Index>
+                                  <ns2:CustomerOrderSequenceNumber>10713684</ns2:CustomerOrderSequenceNumber>
+                                  <ns2:RetailTransactionId/>
+                                  <ns2:LineItemNumber>6</ns2:LineItemNumber>
+                                  <ns2:CustomerOrderLineItemTypeCode>Stock Item</ns2:CustomerOrderLineItemTypeCode>
+                                  <ns2:CustomerOrderProductLineItem>
+                                         <ns2:ItemIndex>1</ns2:ItemIndex>
+                                         <ns2:Description/>
+                                         <ns2:OrderedItemQuantity>1</ns2:OrderedItemQuantity>
+                                         <ns2:FulfilledItemQuantity>0</ns2:FulfilledItemQuantity>
+                                         <ns2:SaleUnitRetailPriceAmount>189.99</ns2:SaleUnitRetailPriceAmount>
+                                         <ns2:TotalRetailDiscountAmount>0.00</ns2:TotalRetailDiscountAmount>
+                                         <ns2:TotalRetailPriceAmount>189.99</ns2:TotalRetailPriceAmount>
+                                         <ns2:EstimatedAvailabilityDate>2017-07-17Z</ns2:EstimatedAvailabilityDate>
+                                         <ns2:ActualAvailabilityDate>2017-07-17Z</ns2:ActualAvailabilityDate>
+                                         <ns2:CurrencyCode>CAD</ns2:CurrencyCode>
+                                         <ns2:SpecialInstructions>
+                                                <ns2:Count>0</ns2:Count>
+                                         </ns2:SpecialInstructions>
+                                         <ns2:CustomerOrderProductTaxLineItems>
+                                                <ns2:Count xsi:type="xs:long" xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">1</ns2:Count>
+                                                <ns2:CustomerOrderProductTaxLineItem>
+                                                <ns2:Index xsi:type="xs:int" xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">1</ns2:Index>
+                                                       <ns2:TaxType>
+                                                              <ns2:Index xsi:type="xs:int" xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">1</ns2:Index>
+                                                              <ns2:TaxTypeCode>GST</ns2:TaxTypeCode>
+                                                              <ns2:TaxTypeName>GST</ns2:TaxTypeName>
+                                                       </ns2:TaxType>
+                                                       <ns2:TaxAmount>9.50</ns2:TaxAmount>
+                                                       <ns2:TaxGroupRuleCode/>
+                                                       <ns2:TaxExemptionFlag>false</ns2:TaxExemptionFlag>
+                                                </ns2:CustomerOrderProductTaxLineItem>
+                                         </ns2:CustomerOrderProductTaxLineItems>
+                                         <ns2:CustomerOrderProductAssignments>
+                                                <ns2:Count>0</ns2:Count>
+                                         </ns2:CustomerOrderProductAssignments>
+                                  </ns2:CustomerOrderProductLineItem>
+                           </ns2:CustomerOrderLineItem>
+                     </ns2:CustomerOrderLineItems>
+                     <ns2:Items>
+                           <ns2:Count>6</ns2:Count>
+                           <ns2:ItemOrStockItem>
+                                  <ns2:ItemOrStockItemFlag>Item</ns2:ItemOrStockItemFlag>
+                                  <ns2:Item>
+                                         <ns2:Index>1</ns2:Index>
+                                         <ns2:DataSource>
+                                                <ns2:SbuNumber/>
+                                                <ns2:SbuCode/>
+                                                <ns2:SbuName/>
+                                                <ns2:DataSourceCode/>
+                                                <ns2:DataSourceName/>
+                                         </ns2:DataSource>
+                                         <ns2:ItemNumber/>
+                                         <ns2:ItemName>Tender information</ns2:ItemName>
+                                  </ns2:Item>
+                           </ns2:ItemOrStockItem>
+                           <ns2:ItemOrStockItem>
+                                  <ns2:ItemOrStockItemFlag>Item</ns2:ItemOrStockItemFlag>
+                                  <ns2:Item>
+                                         <ns2:Index>2</ns2:Index>
+                                         <ns2:DataSource>
+                                                <ns2:SbuNumber/>
+                                                <ns2:SbuCode/>
+                                                <ns2:SbuName/>
+                                                <ns2:DataSourceCode/>
+                                                <ns2:DataSourceName/>
+                                         </ns2:DataSource>
+                                         <ns2:ItemNumber/>
+                                         <ns2:ItemName>Tender information</ns2:ItemName>
+                                  </ns2:Item>
+                           </ns2:ItemOrStockItem>
+                           <ns2:ItemOrStockItem>
+                                  <ns2:ItemOrStockItemFlag>Item</ns2:ItemOrStockItemFlag>
+                                  <ns2:Item>
+                                         <ns2:Index>3</ns2:Index>
+                                         <ns2:DataSource>
+                                                <ns2:SbuNumber/>
+                                                <ns2:SbuCode/>
+                                                <ns2:SbuName/>
+                                                <ns2:DataSourceCode/>
+                                                <ns2:DataSourceName/>
+                                         </ns2:DataSource>
+                                         <ns2:ItemNumber/>
+                                         <ns2:ItemName>Tender information</ns2:ItemName>
+                                  </ns2:Item>
+                           </ns2:ItemOrStockItem>
+                           <ns2:ItemOrStockItem>
+                                  <ns2:ItemOrStockItemFlag>Item</ns2:ItemOrStockItemFlag>
+                                  <ns2:Item>
+                                         <ns2:Index>4</ns2:Index>
+                                         <ns2:DataSource>
+                                                <ns2:SbuNumber/>
+                                                <ns2:SbuCode/>
+                                                <ns2:SbuName/>
+                                                <ns2:DataSourceCode/>
+                                                <ns2:DataSourceName/>
+                                         </ns2:DataSource>
+                                         <ns2:ItemNumber/>
+                                         <ns2:ItemName>Rounding</ns2:ItemName>
+                                  </ns2:Item>
+                           </ns2:ItemOrStockItem>
+                           <ns2:ItemOrStockItem>
+                                  <ns2:ItemOrStockItemFlag>Item</ns2:ItemOrStockItemFlag>
+                                  <ns2:Item>
+                                         <ns2:Index>5</ns2:Index>
+                                         <ns2:DataSource>
+                                                <ns2:SbuNumber/>
+                                                <ns2:SbuCode/>
+                                                <ns2:SbuName/>
+                                                <ns2:DataSourceCode/>
+                                                <ns2:DataSourceName/>
+                                         </ns2:DataSource>
+                                         <ns2:ItemNumber/>
+                                         <ns2:ItemName>Shipping charges</ns2:ItemName>
+                                  </ns2:Item>
+                           </ns2:ItemOrStockItem>
+                           <ns2:ItemOrStockItem>
+                                  <ns2:ItemOrStockItemFlag>StockItem</ns2:ItemOrStockItemFlag>
+                                  <ns2:StockItem>
+                                         <ns2:Index>6</ns2:Index>
+                                         <ns2:DataSource>
+                                                <ns2:SbuNumber>2</ns2:SbuNumber>
+                                                <ns2:SbuCode>MWW</ns2:SbuCode>
+                                                <ns2:SbuName>Marks Ltd.</ns2:SbuName>
+                                                <ns2:DataSourceCode>FF</ns2:DataSourceCode>
+                                                <ns2:DataSourceName>FastFind</ns2:DataSourceName>
+                                         </ns2:DataSource>
+                                         <ns2:ItemNumber>410012954473</ns2:ItemNumber>
+                                         <ns2:ItemName>MENS DAKOTA 537 8 INCH ATCP W DRKBRN 8 1/2 WID</ns2:ItemName>
+                                         <ns2:DimensionCode/>
+                                         <ns2:DimensionCodeName/>
+                                         <ns2:ColourCode>DRKBRN</ns2:ColourCode>
+                                         <ns2:ColourName>Dark Brown</ns2:ColourName>
+                                         <ns2:AliasColourCode/>
+                                         <ns2:AliasColourName/>
+                                         <ns2:SourcePrdLvlChild/>
+                                         <ns2:StyleNumber>5ANADK5-8537</ns2:StyleNumber>
+                                         <ns2:HierarchyLevelInformation>5A-NA-011300</ns2:HierarchyLevelInformation>
+                                          <ns2:SizeFamily>
+                                                <ns2:Index>1</ns2:Index>
+                                                <ns2:SbuNumber>2</ns2:SbuNumber>
+                                                <ns2:SbuCode>MWW</ns2:SbuCode>
+                                                <ns2:SbuName>Marks Ltd.</ns2:SbuName>
+                                                <ns2:DataSourceCode>FF</ns2:DataSourceCode>
+                                                <ns2:DataSourceName>FastFind</ns2:DataSourceName>
+                                                <ns2:SourceSizeFamilyNumber/>
+                                                <ns2:SizeFamilyName>1st - Footwear Numbered Size</ns2:SizeFamilyName>
+                                                <ns2:FrenchSizeFamilyName>2nd - Footwear Text Width</ns2:FrenchSizeFamilyName>
+                                                <ns2:Sizes>
+                                                       <ns2:Count>2</ns2:Count>
+                                                       <ns2:Size>
+                                                              <ns2:Index>1</ns2:Index>
+                                                              <ns2:SequenceNumber>1</ns2:SequenceNumber>
+                                                              <ns2:SourceSizeNumber/>
+                                                              <ns2:SizeCode>8 1/2</ns2:SizeCode>
+                                                              <ns2:SizeName>8 1/2</ns2:SizeName>
+                                                             <ns2:FrenchSizeName>8 1/2</ns2:FrenchSizeName>
+                                                       </ns2:Size>
+                                                       <ns2:Size>
+                                                              <ns2:Index>2</ns2:Index>
+                                                              <ns2:SequenceNumber>2</ns2:SequenceNumber>
+                                                              <ns2:SourceSizeNumber/>
+                                                              <ns2:SizeCode>WID</ns2:SizeCode>
+                                                             <ns2:SizeName>Wide</ns2:SizeName>
+                                                              <ns2:FrenchSizeName xsi:nil="true" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"/>
+                                                       </ns2:Size>
+                                                </ns2:Sizes>
+                                         </ns2:SizeFamily>
+                                  </ns2:StockItem>
+                           </ns2:ItemOrStockItem>
+                     </ns2:Items>
+                     <ns2:CustomerOrderProductGroups>
+                           <ns2:Count>1</ns2:Count>
+                           <ns2:CustomerOrderProductGroup>
+                                  <ns2:Index>1</ns2:Index>
+                                  <ns2:CustomerOrderProductGroupTypeCode>ShipToStore</ns2:CustomerOrderProductGroupTypeCode>
+                                  <ns2:CustomerOrderProductGroupTypeName>ShipToStore</ns2:CustomerOrderProductGroupTypeName>
+                                  <ns2:CustomerShippingInstructionText/>
+                                  <ns2:BusinessUnit>
+                                         <ns2:Index>1</ns2:Index>
+                                         <ns2:BusinessUnitId>105</ns2:BusinessUnitId>
+                                         <ns2:SbuNumber/>
+                                         <ns2:SbuCode/>
+                                         <ns2:SbuName/>
+                                         <ns2:DataSourceCode/>
+                                         <ns2:DataSourceName/>
+                                         <ns2:BusinessUnitNumber>193</ns2:BusinessUnitNumber>
+                                         <ns2:BusinessUnitTypeCode/>
+                                         <ns2:BusinessUnitActiveFlag/>
+                                         <ns2:BusinessUnitCode/>
+                                         <ns2:BusinessUnitShortName/>
+                                         <ns2:BusinessUnitName/>
+                                         <ns2:FrenchBusinessUnitName/>
+                                  </ns2:BusinessUnit>
+                                  <ns2:ShippingAddress>
+                                         <ns2:Index>1</ns2:Index>
+                                         <ns2:SbuNumber/>
+                                         <ns2:SbuCode/>
+                                         <ns2:SbuName/>
+                                         <ns2:DataSourceCode/>
+                                         <ns2:DataSourceCodeName/>
+                                         <ns2:AddressLine1Text>2 Chilkoot Way</ns2:AddressLine1Text>
+                                         <ns2:AddressLine2Text/>
+                                         <ns2:AddressLine3Text/>
+                                         <ns2:AddressLine4Text/>
+                                         <ns2:CityName>WHITEHORSE</ns2:CityName>
+                                         <ns2:DistrictName/>
+                                         <ns2:SecondDistrictName/>
+                                         <ns2:ProvinceStateCode>10</ns2:ProvinceStateCode>
+                                         <ns2:ProvinceStateName>YT</ns2:ProvinceStateName>
+                                         <ns2:PostalCode>Y1A 6T5</ns2:PostalCode>
+                                         <ns2:PostalExtensionCode/>
+                                         <ns2:CountryCode/>
+                                         <ns2:CountryName/>
+                                         <ns2:CompleteAddressText/>
+                                         <ns2:GPSLatitudeNumber>0</ns2:GPSLatitudeNumber>
+                                         <ns2:GPSLongitudeNumber>0</ns2:GPSLongitudeNumber>
+                                  </ns2:ShippingAddress>
+                                  <ns2:ContactMethods>
+                                         <ns2:Count>1</ns2:Count>
+                                         <ns2:ContactMethod>
+                                                <ns2:Index>1</ns2:Index>
+                                                <ns2:SbuNumber/>
+                                                <ns2:SbuCode/>
+                                                <ns2:SbuName/>
+                                                <ns2:DataSourceCode/>
+                                                <ns2:DataSourceCodeName/>
+                                                <ns2:EffectiveDateTime>2017-07-17T06:00:00Z</ns2:EffectiveDateTime>
+                                                <ns2:ExpirationDateTime>2017-07-17T06:00:00Z</ns2:ExpirationDateTime>
+                                                <ns2:PrimaryContactFlag/>
+                                                <ns2:ContactMethodTypeCode>HomePhone</ns2:ContactMethodTypeCode>
+                                                <ns2:ContactPurposeTypeCode>Shipping</ns2:ContactPurposeTypeCode>
+                                                <ns2:Telephone>
+                                                       <ns2:Index>1</ns2:Index>
+                                                       <ns2:SbuNumber/>
+                                                       <ns2:SbuCode/>
+                                                       <ns2:SbuName/>
+                                                       <ns2:DataSourceCode/>
+                                                       <ns2:DataSourceCodeName/>
+                                                       <ns2:PhoneNumberType/>
+                                                       <ns2:ITUCountryCode/>
+                                                       <ns2:AreaCode/>
+                                                       <ns2:TelephoneNumberText/>
+                                                       <ns2:CompleteTelephoneNumberText>867-633-8457</ns2:CompleteTelephoneNumberText>
+                                                       <ns2:ExtensionText/>
+                                                </ns2:Telephone>
+                                         </ns2:ContactMethod>
+                                  </ns2:ContactMethods>
+                           </ns2:CustomerOrderProductGroup>
+                     </ns2:CustomerOrderProductGroups>
+                     <ns2:Customer>
+                           <ns2:Index>1</ns2:Index>
+                           <ns2:DataSource>
+                                  <ns2:SbuNumber>2</ns2:SbuNumber>
+                                  <ns2:SbuCode>MWW</ns2:SbuCode>
+                                  <ns2:SbuName>Marks Ltd.</ns2:SbuName>
+                                  <ns2:DataSourceCode>FF</ns2:DataSourceCode>
+                                  <ns2:DataSourceName>FastFind</ns2:DataSourceName>
+                           </ns2:DataSource>
+                           <ns2:CustomerNumber/>
+                           <ns2:PersonOrOrganizationFlag>Person</ns2:PersonOrOrganizationFlag>
+                           <ns2:Person>
+                                  <ns2:Index>1</ns2:Index>
+                                  <ns2:SbuNumber/>
+                                  <ns2:SbuCode/>
+                                  <ns2:SbuName/>
+                                  <ns2:DataSourceCode/>
+                                  <ns2:DataSourceCodeName/>
+                                  <ns2:LanguageCode>EN</ns2:LanguageCode>
+                                   <ns2:LanguageName>English</ns2:LanguageName>
+                                  <ns2:LastName>dupont</ns2:LastName>
+                                  <ns2:FirstName>wayne</ns2:FirstName>
+                                  <ns2:GenderTypeCode/>
+                           </ns2:Person>
+                           <ns2:KeyCustomers>
+                                  <ns2:Count>0</ns2:Count>
+                           </ns2:KeyCustomers>
+                           <ns2:ContactMethods>
+                                  <ns2:Count>3</ns2:Count>
+                                  <ns2:ContactMethod>
+                                         <ns2:Index>1</ns2:Index>
+                                         <ns2:SbuNumber/>
+                                         <ns2:SbuCode/>
+                                         <ns2:SbuName/>
+                                         <ns2:DataSourceCode/>
+                                         <ns2:DataSourceCodeName/>
+                                         <ns2:EffectiveDateTime xsi:nil="true" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"/>
+                                         <ns2:ExpirationDateTime xsi:nil="true" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"/>
+                                         <ns2:PrimaryContactFlag/>
+                                         <ns2:ContactMethodTypeCode>Email</ns2:ContactMethodTypeCode>
+                                         <ns2:ContactPurposeTypeCode>Shipping</ns2:ContactPurposeTypeCode>
+                                         <ns2:EmailAddress>marks@marks.com</ns2:EmailAddress>
+                                  </ns2:ContactMethod>
+                                  <ns2:ContactMethod>
+                                         <ns2:Index>2</ns2:Index>
+                                         <ns2:SbuNumber/>
+                                         <ns2:SbuCode/>
+                                         <ns2:SbuName/>
+                                         <ns2:DataSourceCode/>
+                                         <ns2:DataSourceCodeName/>
+                                         <ns2:EffectiveDateTime xsi:nil="true" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"/>
+                                         <ns2:ExpirationDateTime xsi:nil="true" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"/>
+                                         <ns2:PrimaryContactFlag/>
+                                         <ns2:ContactMethodTypeCode>HomePhone</ns2:ContactMethodTypeCode>
+                                         <ns2:ContactPurposeTypeCode>Shipping</ns2:ContactPurposeTypeCode>
+                                         <ns2:Telephone>
+                                                <ns2:Index>1</ns2:Index>
+                                                <ns2:SbuNumber/>
+                                                <ns2:SbuCode/>
+                                                <ns2:SbuName/>
+                                                <ns2:DataSourceCode/>
+                                                <ns2:DataSourceCodeName/>
+                                                <ns2:PhoneNumberType/>
+                                                <ns2:ITUCountryCode xsi:nil="true" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"/>
+                                                <ns2:AreaCode xsi:nil="true" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"/>
+                                                <ns2:TelephoneNumberText xsi:nil="true" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"/>
+                                                <ns2:CompleteTelephoneNumberText>867-334-7679</ns2:CompleteTelephoneNumberText>
+                                                <ns2:ExtensionText xsi:nil="true" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"/>
+                                         </ns2:Telephone>
+                                  </ns2:ContactMethod>
+                                  <ns2:ContactMethod>
+                                         <ns2:Index>3</ns2:Index>
+                                         <ns2:SbuNumber/>
+                                         <ns2:SbuCode/>
+                                         <ns2:SbuName/>
+                                         <ns2:DataSourceCode/>
+                                         <ns2:DataSourceCodeName/>
+                                         <ns2:EffectiveDateTime xsi:nil="true" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"/>
+                                         <ns2:ExpirationDateTime xsi:nil="true" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"/>
+                                         <ns2:PrimaryContactFlag/>
+                                         <ns2:ContactMethodTypeCode>HomePhone</ns2:ContactMethodTypeCode>
+                                         <ns2:ContactPurposeTypeCode>Shipping</ns2:ContactPurposeTypeCode>
+                                         <ns2:RelatedParties>
+                                                <ns2:Count>1</ns2:Count>
+                                                <ns2:RelatedParty>
+                                                       <ns2:Index>1</ns2:Index>
+                                                       <ns2:SbuNumber/>
+                                                       <ns2:SbuCode/>
+                                                       <ns2:SbuName/>
+                                                       <ns2:DataSourceCode/>
+                                                       <ns2:DataSourceCodeName/>
+                                                       <ns2:LanguageCode/>
+                                                       <ns2:LanguageName/>
+                                                       <ns2:LastName>dupont</ns2:LastName>
+                                                       <ns2:FirstName>wayne</ns2:FirstName>
+                                                       <ns2:GenderTypeCode xsi:nil="true" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"/>
+                                                </ns2:RelatedParty>
+                                         </ns2:RelatedParties>
+                                         <ns2:Telephone>
+                                                <ns2:Index>1</ns2:Index>
+                                                <ns2:SbuNumber/>
+                                                <ns2:SbuCode/>
+                                                <ns2:SbuName/>
+                                                <ns2:DataSourceCode/>
+                                                <ns2:DataSourceCodeName/>
+                                                <ns2:PhoneNumberType/>
+                                                <ns2:ITUCountryCode xsi:nil="true" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"/>
+                                                <ns2:AreaCode xsi:nil="true" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"/>
+                                                <ns2:TelephoneNumberText xsi:nil="true" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"/>
+                                                <ns2:CompleteTelephoneNumberText>867-334-7679</ns2:CompleteTelephoneNumberText>
+                                                <ns2:ExtensionText xsi:nil="true" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"/>
+                                         </ns2:Telephone>
+                                  </ns2:ContactMethod>
+                           </ns2:ContactMethods>
+                     </ns2:Customer>
+                     <ns2:CustomerOrderStatus>
+                           <ns2:Index xsi:type="xs:long" xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">0</ns2:Index>
+                           <ns2:DataSource>
+                                  <ns2:SbuNumber>2</ns2:SbuNumber>
+                                  <ns2:SbuCode>MWW</ns2:SbuCode>
+                                  <ns2:SbuName>Marks Ltd.</ns2:SbuName>
+                                  <ns2:DataSourceCode>FF</ns2:DataSourceCode>
+                                  <ns2:DataSourceName>FastFind</ns2:DataSourceName>
+                           </ns2:DataSource>
+                           <ns2:CustomerOrderNumber>4444444</ns2:CustomerOrderNumber>
+                           <ns2:CustomerOrderType>
+                                  <ns2:CustomerOrderTypeCode>ORDER FOR PICKUP</ns2:CustomerOrderTypeCode>
+                                  <ns2:CustomerOrderTypeName>ORDER FOR PICKUP</ns2:CustomerOrderTypeName>
+                           </ns2:CustomerOrderType>
+                           <ns2:CustomerOrderCreateDate>2017-07-17T06:00:00Z</ns2:CustomerOrderCreateDate>
+                           <ns2:CustomerOrderState>
+                                  <ns2:CustomerOrderStateCode/>
+                                  <ns2:CustomerOrderStateName/>
+                                  <ns2:EffectiveDateTime>2017-07-17T06:00:00Z</ns2:EffectiveDateTime>
+                                  <ns2:ExpirationDateTime>2017-07-17T06:00:00Z</ns2:ExpirationDateTime>
+                           </ns2:CustomerOrderState>
+                           <ns2:EffectiveDateTime>2017-07-17T06:00:00Z</ns2:EffectiveDateTime>
+                           <ns2:ExpirationDateTime>2017-07-17T06:00:00Z</ns2:ExpirationDateTime>
+                           <ns2:CustomerOrderLineItemStates>
+                                  <ns2:Count xsi:type="xs:int" xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">0</ns2:Count>
+                           </ns2:CustomerOrderLineItemStates>
+                     </ns2:CustomerOrderStatus>
+              </ns3:ArtsCustomerOrders>
+              <ns3:Transaction>
+                     <ns2:Count>1</ns2:Count>
+                     <ns2:DataSource>
+                           <ns2:SbuNumber>2</ns2:SbuNumber>
+                           <ns2:SbuCode>MWW</ns2:SbuCode>
+                           <ns2:SbuName>Marks Ltd.</ns2:SbuName>
+                           <ns2:DataSourceCode>FF</ns2:DataSourceCode>
+                           <ns2:DataSourceName>FastFind</ns2:DataSourceName>
+                     </ns2:DataSource>
+                     <ns2:Transaction MajorVersion="4">
+                           <ns2:RetailStoreID>193</ns2:RetailStoreID>
+                           <ns2:TransactionID>1110220170717111111</ns2:TransactionID>
+                           <ns2:WorkstationID>02</ns2:WorkstationID>
+                           <ns2:SequenceNumber>111111</ns2:SequenceNumber>
+                           <ns2:BeginDateTime>2017-07-17T19:17:24-07:00</ns2:BeginDateTime>
+                           <ns2:EndDateTime>2017-07-17T19:18:38-07:00</ns2:EndDateTime>
+                           <ns2:OperatorID>70400</ns2:OperatorID>
+                     </ns2:Transaction>
+              </ns3:Transaction>
+       </ns3:Messages>
+</ns3:Exchange>
+

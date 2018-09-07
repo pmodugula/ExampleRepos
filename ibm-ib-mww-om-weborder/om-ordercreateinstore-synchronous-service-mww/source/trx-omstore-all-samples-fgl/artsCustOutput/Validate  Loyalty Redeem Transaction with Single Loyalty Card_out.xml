@@ -1,0 +1,467 @@
+<soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:eai="http://www.fgl.com/exchange/" xmlns:arts="http://www.fgl.com/ARTS">
+	<soapenv:Body>
+		<eai:Exchange>
+			<eai:MessageRouting>
+				<eai:Guid>1</eai:Guid>
+				<eai:MessageType>PointToPoint</eai:MessageType>
+				<eai:SubjectArea>CustomerOrderStatus</eai:SubjectArea>
+				<eai:SbuNumber>2</eai:SbuNumber>
+				<eai:SbuCode>MWW</eai:SbuCode>
+				<eai:SbuName>Marks Ltd.</eai:SbuName>
+				<eai:DataSourceCode>FF</eai:DataSourceCode>
+				<eai:DataSourceCodeName>FastFind</eai:DataSourceCodeName>
+			</eai:MessageRouting>
+			<eai:Messages>
+				<eai:Count>1</eai:Count>
+				<eai:SourceSystems>
+					<eai:Count>1</eai:Count>
+					<eai:SourceSystem>
+						<eai:Index>1</eai:Index>
+						<eai:SbuNumber>2</eai:SbuNumber>
+						<eai:SbuCode>MWW</eai:SbuCode>
+						<eai:SbuName>Marks Ltd.</eai:SbuName>
+						<eai:MessageSourceCode>FF</eai:MessageSourceCode>
+						<eai:MessageSourceCodeName>FastFind</eai:MessageSourceCodeName>
+					</eai:SourceSystem>
+				</eai:SourceSystems>
+				<eai:ArtsCustomerOrders>
+					<arts:Index xmlns:arts="http://www.fgl.com/ARTS">1</arts:Index>
+					<arts:DataSource xmlns:arts="http://www.fgl.com/ARTS">
+						<arts:SbuNumber>2</arts:SbuNumber>
+						<arts:SbuCode>MWW</arts:SbuCode>
+						<arts:SbuName>Marks Ltd.</arts:SbuName>
+						<arts:DataSourceCode>FF</arts:DataSourceCode>
+						<arts:DataSourceName>FastFind</arts:DataSourceName>
+					</arts:DataSource>
+					<arts:CustomerOrderNumber xmlns:arts="http://www.fgl.com/ARTS">5212781</arts:CustomerOrderNumber>
+					<arts:CustomerOrderType xmlns:arts="http://www.fgl.com/ARTS">ORDER FOR PICKUP</arts:CustomerOrderType>
+					<arts:InternationalOrderFlag xmlns:arts="http://www.fgl.com/ARTS">No</arts:InternationalOrderFlag>
+					<arts:CustomerOrderCreateDate xmlns:arts="http://www.fgl.com/ARTS">2017-06-16T06:00:00Z</arts:CustomerOrderCreateDate>
+					<arts:CustomerOrderExpiryDate xmlns:arts="http://www.fgl.com/ARTS">2017-06-16T10:13:40.000Z</arts:CustomerOrderExpiryDate>
+					<arts:OrderCommentsText xmlns:arts="http://www.fgl.com/ARTS"/>
+					<arts:VirtualTenderSubtotalAmount xmlns:arts="http://www.fgl.com/ARTS">28.24</arts:VirtualTenderSubtotalAmount>
+					<arts:OrderSubtotalAmount xmlns:arts="http://www.fgl.com/ARTS">24.99</arts:OrderSubtotalAmount>
+					<arts:OrderTotalAmount xmlns:arts="http://www.fgl.com/ARTS">28.24</arts:OrderTotalAmount>
+					<arts:OrderTotalItemQuantity xmlns:arts="http://www.fgl.com/ARTS">1</arts:OrderTotalItemQuantity>
+					<arts:CustomerOrderAssociates xmlns:arts="http://www.fgl.com/ARTS">
+						<arts:Count>0</arts:Count>
+					</arts:CustomerOrderAssociates>
+					<arts:CustomerOrderLineItems xmlns:arts="http://www.fgl.com/ARTS">
+						<arts:Count>3</arts:Count>
+						<arts:CustomerOrderLineItem>
+							<arts:Index>1</arts:Index>
+							<arts:CustomerOrderSequenceNumber>0</arts:CustomerOrderSequenceNumber>
+							<arts:RetailTransactionId/>
+							<arts:LineItemNumber>1</arts:LineItemNumber>
+							<arts:CustomerOrderLineItemTypeCode>Tender</arts:CustomerOrderLineItemTypeCode>
+							<arts:CustomerOrderPaymentLineItem>
+								<arts:TenderType>
+									<arts:Index xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="xs:short">1</arts:Index>
+									<arts:TenderTypeCode>CREDITDEBIT</arts:TenderTypeCode>
+									<arts:TenderTypeDescriptionText>OptionsMasterCard</arts:TenderTypeDescriptionText>
+									<arts:CurrencyCode>CAD</arts:CurrencyCode>
+									<arts:FastFindExtensions>
+										<arts:RequestedAmount>18.24</arts:RequestedAmount>
+										<arts:AccountNumber>0010010011</arts:AccountNumber>
+										<arts:AdjudicationCode>015732</arts:AdjudicationCode>
+										<arts:CardIssueSequenceNumber>544612******2850</arts:CardIssueSequenceNumber>
+										<arts:TenderAuthorizationTerminalId>66275917</arts:TenderAuthorizationTerminalId>
+										<arts:CardExpirationDate>1905-02</arts:CardExpirationDate>
+										<arts:HostText>COMPLETED</arts:HostText>
+										<arts:AuthorizationDatetime>2017-06-15T18:20:44-04:00</arts:AuthorizationDatetime>
+									</arts:FastFindExtensions>
+								</arts:TenderType>
+							</arts:CustomerOrderPaymentLineItem>
+						</arts:CustomerOrderLineItem>
+						<arts:CustomerOrderLineItem>
+							<arts:Index>2</arts:Index>
+							<arts:CustomerOrderSequenceNumber>0</arts:CustomerOrderSequenceNumber>
+							<arts:RetailTransactionId/>
+							<arts:LineItemNumber>1</arts:LineItemNumber>
+							<arts:CustomerOrderLineItemTypeCode>Tender</arts:CustomerOrderLineItemTypeCode>
+							<arts:CustomerOrderPaymentLineItem>
+								<arts:TenderType>
+									<arts:Index xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="xs:short">1</arts:Index>
+									<arts:TenderTypeCode>LoyaltyRedemption</arts:TenderTypeCode>
+									<arts:TenderTypeDescriptionText>Canadian Money</arts:TenderTypeDescriptionText>
+									<arts:CurrencyCode>CAD</arts:CurrencyCode>
+									<arts:LoyaltyRedemption>
+										<arts:LoyaltyProgramName>Enterprise Loyalty Program</arts:LoyaltyProgramName>
+										<arts:LoyaltyCardNumber>6046460454437820</arts:LoyaltyCardNumber>
+										<arts:LoyaltyCurrencies>
+											<arts:Count>1</arts:Count>
+											<arts:LoyaltyCurrency>
+												<arts:Index>1</arts:Index>
+												<arts:LoyaltyCurrencyTypeCode>CTMONEY</arts:LoyaltyCurrencyTypeCode>
+												<arts:LoyaltyCurrencyDescriptionText>Canadian Tire Money</arts:LoyaltyCurrencyDescriptionText>
+												<arts:LoyaltyCurrencyDetail>
+													<arts:UnitsRedeemedQuantity>10.00</arts:UnitsRedeemedQuantity>
+												</arts:LoyaltyCurrencyDetail>
+												<arts:MonetaryValueAmount>
+													<arts:Amount>10.00</arts:Amount>
+													<arts:CurrencyCode>CAD</arts:CurrencyCode>
+												</arts:MonetaryValueAmount>
+											</arts:LoyaltyCurrency>
+										</arts:LoyaltyCurrencies>
+									</arts:LoyaltyRedemption>
+								</arts:TenderType>
+							</arts:CustomerOrderPaymentLineItem>
+						</arts:CustomerOrderLineItem>
+						<arts:CustomerOrderLineItem>
+							<arts:Index>2</arts:Index>
+							<arts:CustomerOrderSequenceNumber>0</arts:CustomerOrderSequenceNumber>
+							<arts:RetailTransactionId/>
+							<arts:LineItemNumber>2</arts:LineItemNumber>
+							<arts:CustomerOrderLineItemTypeCode>Shipping Charges</arts:CustomerOrderLineItemTypeCode>
+							<arts:CustomerOrderChargeLineItem>
+								<arts:ItemIndex>0</arts:ItemIndex>
+								<arts:ChargeTypeCode/>
+								<arts:MiscellaneousFeeReasonText/>
+								<arts:MiscellaneousFeeAmount>0.00</arts:MiscellaneousFeeAmount>
+								<arts:CustomerOrderChargeTaxLineItems>
+									<arts:Count>0</arts:Count>
+								</arts:CustomerOrderChargeTaxLineItems>
+							</arts:CustomerOrderChargeLineItem>
+						</arts:CustomerOrderLineItem>
+						<arts:CustomerOrderLineItem>
+							<arts:Index>3</arts:Index>
+							<arts:CustomerOrderSequenceNumber>10517348</arts:CustomerOrderSequenceNumber>
+							<arts:RetailTransactionId/>
+							<arts:LineItemNumber>3</arts:LineItemNumber>
+							<arts:CustomerOrderLineItemTypeCode>Stock Item</arts:CustomerOrderLineItemTypeCode>
+							<arts:CustomerOrderProductLineItem>
+								<arts:ItemIndex>1</arts:ItemIndex>
+								<arts:Description/>
+								<arts:OrderedItemQuantity>1</arts:OrderedItemQuantity>
+								<arts:FulfilledItemQuantity>0</arts:FulfilledItemQuantity>
+								<arts:SaleUnitRetailPriceAmount>24.99</arts:SaleUnitRetailPriceAmount>
+								<arts:TotalRetailDiscountAmount>0.00</arts:TotalRetailDiscountAmount>
+								<arts:TotalRetailPriceAmount>24.99</arts:TotalRetailPriceAmount>
+								<arts:EstimatedAvailabilityDate>2017-06-15Z</arts:EstimatedAvailabilityDate>
+								<arts:ActualAvailabilityDate>2017-06-15Z</arts:ActualAvailabilityDate>
+								<arts:CurrencyCode>CAD</arts:CurrencyCode>
+								<arts:SpecialInstructions>
+									<arts:Count>0</arts:Count>
+								</arts:SpecialInstructions>
+								<arts:CustomerOrderProductTaxLineItems>
+									<arts:Count xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="xs:long">2</arts:Count>
+									<arts:CustomerOrderProductTaxLineItem>
+										<arts:Index>1</arts:Index>
+										<arts:TaxType>
+											<arts:Index xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="xs:int">1</arts:Index>
+											<arts:TaxTypeCode>HSTONF</arts:TaxTypeCode>
+											<arts:TaxTypeName>HSTONF</arts:TaxTypeName>
+										</arts:TaxType>
+										<arts:TaxAmount>1.25</arts:TaxAmount>
+										<arts:TaxGroupRuleCode/>
+										<arts:TaxExemptionFlag>false</arts:TaxExemptionFlag>
+									</arts:CustomerOrderProductTaxLineItem>
+									<arts:CustomerOrderProductTaxLineItem>
+										<arts:Index>2</arts:Index>
+										<arts:TaxType>
+											<arts:Index xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="xs:int">2</arts:Index>
+											<arts:TaxTypeCode>HSTONP</arts:TaxTypeCode>
+											<arts:TaxTypeName>HSTONP</arts:TaxTypeName>
+										</arts:TaxType>
+										<arts:TaxAmount>2.00</arts:TaxAmount>
+										<arts:TaxGroupRuleCode/>
+										<arts:TaxExemptionFlag>false</arts:TaxExemptionFlag>
+									</arts:CustomerOrderProductTaxLineItem>
+								</arts:CustomerOrderProductTaxLineItems>
+								<arts:CustomerOrderProductAssignments>
+									<arts:Count>0</arts:Count>
+								</arts:CustomerOrderProductAssignments>
+							</arts:CustomerOrderProductLineItem>
+						</arts:CustomerOrderLineItem>
+					</arts:CustomerOrderLineItems>
+					<arts:Items xmlns:arts="http://www.fgl.com/ARTS">
+						<arts:Count>3</arts:Count>
+						<arts:ItemOrStockItem>
+							<arts:ItemOrStockItemFlag>Item</arts:ItemOrStockItemFlag>
+							<arts:Item>
+								<arts:Index>1</arts:Index>
+								<arts:DataSource>
+									<arts:SbuNumber/>
+									<arts:SbuCode/>
+									<arts:SbuName/>
+									<arts:DataSourceCode/>
+									<arts:DataSourceName/>
+								</arts:DataSource>
+								<arts:ItemNumber/>
+								<arts:ItemName>Tender information</arts:ItemName>
+							</arts:Item>
+						</arts:ItemOrStockItem>
+						<arts:ItemOrStockItem>
+							<arts:ItemOrStockItemFlag>Item</arts:ItemOrStockItemFlag>
+							<arts:Item>
+								<arts:Index>1</arts:Index>
+								<arts:DataSource>
+									<arts:SbuNumber/>
+									<arts:SbuCode/>
+									<arts:SbuName/>
+									<arts:DataSourceCode/>
+									<arts:DataSourceName/>
+								</arts:DataSource>
+								<arts:ItemNumber/>
+								<arts:ItemName>Tender information</arts:ItemName>
+							</arts:Item>
+						</arts:ItemOrStockItem>
+						<arts:ItemOrStockItem>
+							<arts:ItemOrStockItemFlag>Item</arts:ItemOrStockItemFlag>
+							<arts:Item>
+								<arts:Index>2</arts:Index>
+								<arts:DataSource>
+									<arts:SbuNumber/>
+									<arts:SbuCode/>
+									<arts:SbuName/>
+									<arts:DataSourceCode/>
+									<arts:DataSourceName/>
+								</arts:DataSource>
+								<arts:ItemNumber/>
+								<arts:ItemName>Shipping charges</arts:ItemName>
+							</arts:Item>
+						</arts:ItemOrStockItem>
+						<arts:ItemOrStockItem>
+							<arts:ItemOrStockItemFlag>StockItem</arts:ItemOrStockItemFlag>
+							<arts:StockItem>
+								<arts:Index>3</arts:Index>
+								<arts:DataSource>
+									<arts:SbuNumber>2</arts:SbuNumber>
+									<arts:SbuCode>MWW</arts:SbuCode>
+									<arts:SbuName>Marks Ltd.</arts:SbuName>
+									<arts:DataSourceCode>FF</arts:DataSourceCode>
+									<arts:DataSourceName>FastFind</arts:DataSourceName>
+								</arts:DataSource>
+								<arts:ItemNumber>410014454971</arts:ItemNumber>
+								<arts:ItemName>MENS AGGRESSOR NST RUBBER BOO BLACK 8 REG</arts:ItemName>
+								<arts:DimensionCode/>
+								<arts:DimensionCodeName/>
+								<arts:ColourCode>BLACK</arts:ColourCode>
+								<arts:ColourName>Black</arts:ColourName>
+								<arts:AliasColourCode/>
+								<arts:AliasColourName/>
+								<arts:SourcePrdLvlChild/>
+								<arts:StyleNumber>5ANEAG7-7500</arts:StyleNumber>
+								<arts:HierarchyLevelInformation>5A-NE-011352</arts:HierarchyLevelInformation>
+								<arts:SizeFamily>
+									<arts:Index>1</arts:Index>
+									<arts:SbuNumber>2</arts:SbuNumber>
+									<arts:SbuCode>MWW</arts:SbuCode>
+									<arts:SbuName>Marks Ltd.</arts:SbuName>
+									<arts:DataSourceCode>FF</arts:DataSourceCode>
+									<arts:DataSourceName>FastFind</arts:DataSourceName>
+									<arts:SourceSizeFamilyNumber/>
+									<arts:SizeFamilyName>1st - Footwear Numbered Size</arts:SizeFamilyName>
+									<arts:FrenchSizeFamilyName>2nd - Footwear Text Width</arts:FrenchSizeFamilyName>
+									<arts:Sizes>
+										<arts:Count>2</arts:Count>
+										<arts:Size>
+											<arts:Index>1</arts:Index>
+											<arts:SequenceNumber>1</arts:SequenceNumber>
+											<arts:SourceSizeNumber/>
+											<arts:SizeCode>8</arts:SizeCode>
+											<arts:SizeName>8</arts:SizeName>
+											<arts:FrenchSizeName>8</arts:FrenchSizeName>
+										</arts:Size>
+										<arts:Size>
+											<arts:Index>2</arts:Index>
+											<arts:SequenceNumber>2</arts:SequenceNumber>
+											<arts:SourceSizeNumber/>
+											<arts:SizeCode>REG</arts:SizeCode>
+											<arts:SizeName>Regular</arts:SizeName>
+											<arts:FrenchSizeName xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:nil="true"/>
+										</arts:Size>
+									</arts:Sizes>
+								</arts:SizeFamily>
+							</arts:StockItem>
+						</arts:ItemOrStockItem>
+					</arts:Items>
+					<arts:CustomerOrderProductGroups xmlns:arts="http://www.fgl.com/ARTS">
+						<arts:Count>1</arts:Count>
+						<arts:CustomerOrderProductGroup>
+							<arts:Index>1</arts:Index>
+							<arts:CustomerOrderProductGroupTypeCode>ShipToStore</arts:CustomerOrderProductGroupTypeCode>
+							<arts:CustomerOrderProductGroupTypeName>ShipToStore</arts:CustomerOrderProductGroupTypeName>
+							<arts:CustomerShippingInstructionText/>
+							<arts:BusinessUnit>
+								<arts:Index>1</arts:Index>
+								<arts:BusinessUnitId>174</arts:BusinessUnitId>
+								<arts:SbuNumber/>
+								<arts:SbuCode/>
+								<arts:SbuName/>
+								<arts:DataSourceCode/>
+								<arts:DataSourceName/>
+								<arts:BusinessUnitNumber>078</arts:BusinessUnitNumber>
+								<arts:BusinessUnitTypeCode/>
+								<arts:BusinessUnitActiveFlag/>
+								<arts:BusinessUnitCode/>
+								<arts:BusinessUnitShortName/>
+								<arts:BusinessUnitName/>
+								<arts:FrenchBusinessUnitName/>
+							</arts:BusinessUnit>
+							<arts:ShippingAddress>
+								<arts:Index>1</arts:Index>
+								<arts:SbuNumber/>
+								<arts:SbuCode/>
+								<arts:SbuName/>
+								<arts:DataSourceCode/>
+								<arts:DataSourceCodeName/>
+								<arts:AddressLine1Text>Fairview Mall</arts:AddressLine1Text>
+								<arts:AddressLine2Text>285 Geneva St</arts:AddressLine2Text>
+								<arts:AddressLine3Text/>
+								<arts:AddressLine4Text/>
+								<arts:CityName>ST CATHARINES</arts:CityName>
+								<arts:DistrictName/>
+								<arts:SecondDistrictName/>
+								<arts:ProvinceStateCode>6</arts:ProvinceStateCode>
+								<arts:ProvinceStateName>ON</arts:ProvinceStateName>
+								<arts:PostalCode>L2N 2G1</arts:PostalCode>
+								<arts:PostalExtensionCode/>
+								<arts:CountryCode/>
+								<arts:CountryName/>
+								<arts:CompleteAddressText/>
+								<arts:GPSLatitudeNumber>0</arts:GPSLatitudeNumber>
+								<arts:GPSLongitudeNumber>0</arts:GPSLongitudeNumber>
+							</arts:ShippingAddress>
+							<arts:ContactMethods>
+								<arts:Count>1</arts:Count>
+								<arts:ContactMethod>
+									<arts:Index>1</arts:Index>
+									<arts:SbuNumber/>
+									<arts:SbuCode/>
+									<arts:SbuName/>
+									<arts:DataSourceCode/>
+									<arts:DataSourceCodeName/>
+									<arts:EffectiveDateTime>2017-06-15T06:00:00Z</arts:EffectiveDateTime>
+									<arts:ExpirationDateTime>2017-06-15T06:00:00Z</arts:ExpirationDateTime>
+									<arts:PrimaryContactFlag/>
+									<arts:ContactMethodTypeCode>HomePhone</arts:ContactMethodTypeCode>
+									<arts:ContactPurposeTypeCode>Shipping</arts:ContactPurposeTypeCode>
+									<arts:Telephone>
+										<arts:Index>1</arts:Index>
+										<arts:SbuNumber/>
+										<arts:SbuCode/>
+										<arts:SbuName/>
+										<arts:DataSourceCode/>
+										<arts:DataSourceCodeName/>
+										<arts:PhoneNumberType/>
+										<arts:ITUCountryCode/>
+										<arts:AreaCode/>
+										<arts:TelephoneNumberText/>
+										<arts:CompleteTelephoneNumberText>905-934-6464</arts:CompleteTelephoneNumberText>
+										<arts:ExtensionText/>
+									</arts:Telephone>
+								</arts:ContactMethod>
+							</arts:ContactMethods>
+						</arts:CustomerOrderProductGroup>
+					</arts:CustomerOrderProductGroups>
+					<arts:Customer xmlns:arts="http://www.fgl.com/ARTS">
+						<arts:Index>1</arts:Index>
+						<arts:DataSource>
+							<arts:SbuNumber>2</arts:SbuNumber>
+							<arts:SbuCode>MWW</arts:SbuCode>
+							<arts:SbuName>Marks Ltd.</arts:SbuName>
+							<arts:DataSourceCode>FF</arts:DataSourceCode>
+							<arts:DataSourceName>FastFind</arts:DataSourceName>
+						</arts:DataSource>
+						<arts:CustomerNumber/>
+						<arts:PersonOrOrganizationFlag>Person</arts:PersonOrOrganizationFlag>
+						<arts:Person>
+							<arts:Index>1</arts:Index>
+							<arts:SbuNumber/>
+							<arts:SbuCode/>
+							<arts:SbuName/>
+							<arts:DataSourceCode/>
+							<arts:DataSourceCodeName/>
+							<arts:LanguageCode>EN</arts:LanguageCode>
+							<arts:LanguageName>English</arts:LanguageName>
+							<arts:LastName>mansfield</arts:LastName>
+							<arts:FirstName>jane</arts:FirstName>
+							<arts:GenderTypeCode/>
+						</arts:Person>
+						<arts:KeyCustomers>
+							<arts:Count>0</arts:Count>
+						</arts:KeyCustomers>
+						<arts:ContactMethods>
+							<arts:Count>1</arts:Count>
+							<arts:ContactMethod>
+								<arts:Index>1</arts:Index>
+								<arts:SbuNumber/>
+								<arts:SbuCode/>
+								<arts:SbuName/>
+								<arts:DataSourceCode/>
+								<arts:DataSourceCodeName/>
+								<arts:EffectiveDateTime xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:nil="true"/>
+								<arts:ExpirationDateTime xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:nil="true"/>
+								<arts:PrimaryContactFlag/>
+								<arts:ContactMethodTypeCode>HomePhone</arts:ContactMethodTypeCode>
+								<arts:ContactPurposeTypeCode>Shipping</arts:ContactPurposeTypeCode>
+								<arts:Telephone>
+									<arts:Index>1</arts:Index>
+									<arts:SbuNumber/>
+									<arts:SbuCode/>
+									<arts:SbuName/>
+									<arts:DataSourceCode/>
+									<arts:DataSourceCodeName/>
+									<arts:PhoneNumberType/>
+									<arts:ITUCountryCode xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:nil="true"/>
+									<arts:AreaCode xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:nil="true"/>
+									<arts:TelephoneNumberText xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:nil="true"/>
+									<arts:CompleteTelephoneNumberText>905-325-9017</arts:CompleteTelephoneNumberText>
+									<arts:ExtensionText xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:nil="true"/>
+								</arts:Telephone>
+							</arts:ContactMethod>
+						</arts:ContactMethods>
+					</arts:Customer>
+					<arts:CustomerOrderStatus xmlns:arts="http://www.fgl.com/ARTS">
+						<arts:Index>0</arts:Index>
+						<arts:DataSource>
+							<arts:SbuNumber>2</arts:SbuNumber>
+							<arts:SbuCode>MWW</arts:SbuCode>
+							<arts:SbuName>Marks Ltd.</arts:SbuName>
+							<arts:DataSourceCode>FF</arts:DataSourceCode>
+							<arts:DataSourceName>FastFind</arts:DataSourceName>
+						</arts:DataSource>
+						<arts:CustomerOrderNumber>3675073</arts:CustomerOrderNumber>
+						<arts:CustomerOrderType>
+							<arts:CustomerOrderTypeCode>ORDER FOR PICKUP</arts:CustomerOrderTypeCode>
+							<arts:CustomerOrderTypeName>ORDER FOR PICKUP</arts:CustomerOrderTypeName>
+						</arts:CustomerOrderType>
+						<arts:CustomerOrderCreateDate>2017-06-15T06:00:00Z</arts:CustomerOrderCreateDate>
+						<arts:CustomerOrderState>
+							<arts:CustomerOrderStateCode>PEN</arts:CustomerOrderStateCode>
+							<arts:CustomerOrderStateName>PENDING</arts:CustomerOrderStateName>
+							<arts:EffectiveDateTime>2017-06-15T06:00:00Z</arts:EffectiveDateTime>
+							<arts:ExpirationDateTime>2017-06-15T06:00:00Z</arts:ExpirationDateTime>
+						</arts:CustomerOrderState>
+						<arts:EffectiveDateTime>2017-06-15T06:00:00Z</arts:EffectiveDateTime>
+						<arts:ExpirationDateTime>2017-06-15T06:00:00Z</arts:ExpirationDateTime>
+						<arts:CustomerOrderLineItemStates>
+							<arts:Count xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="xs:int">0</arts:Count>
+						</arts:CustomerOrderLineItemStates>
+					</arts:CustomerOrderStatus>
+					<arts:LoyaltyTransactionID xmlns:arts="http://www.fgl.com/ARTS">MKS43001232017053000001234</arts:LoyaltyTransactionID>
+				</eai:ArtsCustomerOrders>
+				<eai:Transaction>
+					<arts:Count xmlns:arts="http://www.fgl.com/ARTS">1</arts:Count>
+					<arts:DataSource xmlns:arts="http://www.fgl.com/ARTS">
+						<arts:SbuNumber>2</arts:SbuNumber>
+						<arts:SbuCode>MWW</arts:SbuCode>
+						<arts:SbuName>Marks Ltd.</arts:SbuName>
+						<arts:DataSourceCode>FF</arts:DataSourceCode>
+						<arts:DataSourceName>FastFind</arts:DataSourceName>
+					</arts:DataSource>
+					<arts:Transaction xmlns:arts="http://www.fgl.com/ARTS" MajorVersion="4">
+						<arts:RetailStoreID>78</arts:RetailStoreID>
+						<arts:TransactionID>0780320170615326534</arts:TransactionID>
+						<arts:WorkstationID>03</arts:WorkstationID>
+						<arts:SequenceNumber>326534</arts:SequenceNumber>
+						<arts:BeginDateTime>2017-06-15T18:20:35-04:00</arts:BeginDateTime>
+						<arts:EndDateTime>2017-06-15T18:20:56-04:00</arts:EndDateTime>
+						<arts:OperatorID>59172</arts:OperatorID>
+					</arts:Transaction>
+				</eai:Transaction>
+			</eai:Messages>
+		</eai:Exchange>
+	</soapenv:Body>
+</soapenv:Envelope>

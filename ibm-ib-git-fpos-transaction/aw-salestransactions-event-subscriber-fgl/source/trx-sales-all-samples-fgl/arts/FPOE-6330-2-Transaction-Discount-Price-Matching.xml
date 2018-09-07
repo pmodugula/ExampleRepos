@@ -1,0 +1,153 @@
+<eai:Exchange MinorVersion="4" MajorVersion="1" FixVersion="1" xmlns:eai="http://www.fgl.com/exchange/" xmlns:arts="http://www.fgl.com/ARTS">
+   <eai:MessageRouting>
+      <eai:Guid>bbedcaff-3be3-424f-91cf-7f86ea9065a1</eai:Guid>
+      <eai:MessageId>String</eai:MessageId>
+      <eai:MessageType>PubSub</eai:MessageType>
+      <eai:SubjectArea>Normal Retail Sales Transactions</eai:SubjectArea>
+      <eai:SbuNumber>3</eai:SbuNumber>
+      <eai:SbuCode>FGL</eai:SbuCode>
+      <eai:SbuName>FGL Sports Ltd.</eai:SbuName>
+      <eai:DataSourceCode>POE</eai:DataSourceCode>
+      <eai:DataSourceCodeName>POE POS FGL</eai:DataSourceCodeName>
+      <eai:MessageIndex>1</eai:MessageIndex>
+      <eai:MessageCount>1</eai:MessageCount>
+      <eai:SubjectAreaRunName>salestransactions-280-20160926-140100</eai:SubjectAreaRunName>
+   </eai:MessageRouting>
+   <eai:Messages>
+      <eai:Count>1</eai:Count>
+      <eai:SourceSystems>
+         <eai:Count>1</eai:Count>
+         <eai:SourceSystem>
+            <eai:Index>1</eai:Index>
+            <eai:SbuNumber>3</eai:SbuNumber>
+            <eai:SbuCode>FGL</eai:SbuCode>
+            <eai:SbuName>FGL Sports Ltd.</eai:SbuName>
+            <eai:MessageSourceCode>CSS</eai:MessageSourceCode>
+            <eai:MessageSourceCodeName>Central Sales Server</eai:MessageSourceCodeName>
+         </eai:SourceSystem>
+      </eai:SourceSystems>
+      <eai:POSLog>
+         <arts:Count>1</arts:Count>
+         <arts:Transaction TypeCode="SaleTransaction">
+            <arts:BusinessUnit>
+               <arts:Index>1</arts:Index>
+               <arts:BusinessUnitNumber>280</arts:BusinessUnitNumber>
+               <arts:BusinessUnitTypeCode>RT</arts:BusinessUnitTypeCode>
+               <arts:BusinessUnitShortName>SC FORT MCMURRAY</arts:BusinessUnitShortName>
+               <arts:BusinessUnitName>SC280</arts:BusinessUnitName>
+            </arts:BusinessUnit>
+            <arts:WorkstationID>3</arts:WorkstationID>
+            <arts:SequenceNumber>000020</arts:SequenceNumber>
+            <arts:BeginDateTime>2016-09-26T13:57:58-06:00</arts:BeginDateTime>
+            <arts:EndDateTime>2016-09-26T14:00:14-06:00</arts:EndDateTime>
+            <arts:OperatorID OperatorName="ishvets Cashier" LastName="Cashier" FirstName="ishvets">000002016</arts:OperatorID>
+            <arts:RetailTransaction>
+               <arts:CustomerCount>0</arts:CustomerCount>
+               <arts:AssociateCount>0</arts:AssociateCount>
+               <arts:LineItemCount>5</arts:LineItemCount>
+               <arts:LineItem VoidFlag="false">
+                  <arts:Index>1</arts:Index>
+                  <arts:SequenceNumber>1</arts:SequenceNumber>
+                  <arts:Sale TaxableFlag="true" SourceSystemTaxExemptionFlag="false" ItemType="Stock">
+                     <arts:TaxCount>1</arts:TaxCount>
+                     <arts:RetailPriceModifierCount>1</arts:RetailPriceModifierCount>
+                     <arts:Item>
+                        <arts:ItemNumber>330600394</arts:ItemNumber>
+                        <arts:ItemName>DEMO RESCUE 09</arts:ItemName>
+                        <arts:UPCNumber>440004348744</arts:UPCNumber>
+                     </arts:Item>
+                     <arts:MerchandiseHierarchy Level="4" ID="9232"/>
+                     <arts:RegularSalesUnitPrice>89.00</arts:RegularSalesUnitPrice>
+                     <arts:ActualSalesUnitPrice>39.56</arts:ActualSalesUnitPrice>
+                     <arts:DiscountAmount>49.44</arts:DiscountAmount>
+                     <arts:Quantity>1</arts:Quantity>
+                     <arts:Associate>
+                        <arts:Index>1</arts:Index>
+                        <arts:AssociateID OperatorName="ishvets Cashier" LastName="Cashier" FirstName="ishvets">000002016</arts:AssociateID>
+                     </arts:Associate>
+                     <arts:RetailPriceModifier>
+                        <arts:Index>1</arts:Index>
+                        <arts:SequenceNumber>5</arts:SequenceNumber>
+                        <arts:Amount Action="Subtract">49.44</arts:Amount>
+                        <arts:ReasonCode>PRICE MATCHING SUBTOTAL DISCOUNT</arts:ReasonCode>
+                        <arts:Approval>
+                           <arts:ApproverID>000002013</arts:ApproverID>
+                        </arts:Approval>
+                     </arts:RetailPriceModifier>
+                     <arts:Tax TypeCode="Sale" TaxType="GST">
+                        <arts:Index>1</arts:Index>
+                        <arts:Amount>1.98</arts:Amount>
+                        <arts:Percent>5.00</arts:Percent>
+                     </arts:Tax>
+                     <arts:SerialNumber/>
+                  </arts:Sale>
+               </arts:LineItem>
+               <arts:LineItem VoidFlag="false">
+                  <arts:Index>2</arts:Index>
+                  <arts:SequenceNumber>2</arts:SequenceNumber>
+                  <arts:Sale TaxableFlag="true" SourceSystemTaxExemptionFlag="false" ItemType="Stock">
+                     <arts:TaxCount>1</arts:TaxCount>
+                     <arts:RetailPriceModifierCount>1</arts:RetailPriceModifierCount>
+                     <arts:Item>
+                        <arts:ItemNumber>95070559990000</arts:ItemNumber>
+                        <arts:ItemName>STYLE WATCH BAND/ASST/N/S</arts:ItemName>
+                        <arts:UPCNumber>409500014478</arts:UPCNumber>
+                     </arts:Item>
+                     <arts:MerchandiseHierarchy Level="4" ID="9810"/>
+                     <arts:RegularSalesUnitPrice>1.00</arts:RegularSalesUnitPrice>
+                     <arts:ActualSalesUnitPrice>0.44</arts:ActualSalesUnitPrice>
+                     <arts:DiscountAmount>0.56</arts:DiscountAmount>
+                     <arts:Quantity>1</arts:Quantity>
+                     <arts:Associate>
+                        <arts:Index>1</arts:Index>
+                        <arts:AssociateID OperatorName="ishvets Cashier" LastName="Cashier" FirstName="ishvets">000002016</arts:AssociateID>
+                     </arts:Associate>
+                     <arts:RetailPriceModifier>
+                        <arts:Index>1</arts:Index>
+                        <arts:SequenceNumber>5</arts:SequenceNumber>
+                        <arts:Amount Action="Subtract">0.56</arts:Amount>
+                        <arts:ReasonCode>PRICE MATCHING SUBTOTAL DISCOUNT</arts:ReasonCode>
+                        <arts:Approval>
+                           <arts:ApproverID>000002013</arts:ApproverID>
+                        </arts:Approval>
+                     </arts:RetailPriceModifier>
+                     <arts:Tax TypeCode="Sale" TaxType="GST">
+                        <arts:Index>1</arts:Index>
+                        <arts:Amount>0.02</arts:Amount>
+                        <arts:Percent>5.00</arts:Percent>
+                     </arts:Tax>
+                     <arts:SerialNumber/>
+                  </arts:Sale>
+               </arts:LineItem>
+               <arts:LineItem>
+                  <arts:Index>3</arts:Index>
+                  <arts:SequenceNumber>3</arts:SequenceNumber>
+                  <arts:Tax TypeCode="Sale" TaxType="GST">
+                     <arts:Index>1</arts:Index>
+                     <arts:Amount>2.00</arts:Amount>
+                     <arts:Percent>5.00</arts:Percent>
+                  </arts:Tax>
+               </arts:LineItem>
+               <arts:LineItem>
+                  <arts:Index>4</arts:Index>
+                  <arts:SequenceNumber>4</arts:SequenceNumber>
+                  <arts:Tender TypeCode="Sale" TenderType="Cash" SubTenderType="CAD">
+                     <arts:Amount>42.00</arts:Amount>
+                  </arts:Tender>
+               </arts:LineItem>
+               <arts:LineItem>
+                  <arts:Index>5</arts:Index>
+                  <arts:SequenceNumber>5</arts:SequenceNumber>
+                  <arts:Discount>
+                     <arts:Amount>50.00</arts:Amount>
+                     <arts:ReasonCode>PRICE MATCHING SUBTOTAL DISCOUNT</arts:ReasonCode>
+                  </arts:Discount>
+               </arts:LineItem>
+               <arts:Total TotalType="TransactionGrossAmount">42.00</arts:Total>
+               <arts:Total TotalType="TransactionSubtotal">40.00</arts:Total>
+            </arts:RetailTransaction>
+            <arts:TransactionSubtypeCode>RetailTransaction</arts:TransactionSubtypeCode>
+         </arts:Transaction>
+      </eai:POSLog>
+   </eai:Messages>
+</eai:Exchange>

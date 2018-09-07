@@ -1,0 +1,138 @@
+<eai:Exchange 
+MinorVersion="0" MajorVersion="2" FixVersion="0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:eai="http://www.fgl.com/exchange/" xmlns:arts="http://www.fgl.com/ARTS">
+   <eai:MessageRouting>
+      <eai:Guid>132D1CB3DAE24C94981B00337A4D5313</eai:Guid>
+      <eai:MessageId/>
+      <eai:MessageType>PointToPoint</eai:MessageType>
+      <eai:SubjectArea>Normal Retail Sales Transactions</eai:SubjectArea>
+      <eai:SbuNumber>3</eai:SbuNumber>
+      <eai:SbuCode>FGL</eai:SbuCode>
+      <eai:SbuName>FGL Sports Ltd.</eai:SbuName>
+      <eai:DataSourceCode>POE</eai:DataSourceCode>
+      <eai:DataSourceCodeName>POE POS FGL</eai:DataSourceCodeName>
+      <eai:MessageIndex>1</eai:MessageIndex>
+      <eai:MessageCount>1</eai:MessageCount>
+      <eai:SubjectAreaRunName>salestransactions-371-20161101-095900</eai:SubjectAreaRunName>
+   </eai:MessageRouting>
+   <eai:Messages>
+      <eai:Count>1</eai:Count>
+      <eai:SourceSystems>
+         <eai:Count>1</eai:Count>
+         <eai:SourceSystem>
+            <eai:Index>1</eai:Index>
+            <eai:SbuNumber>3</eai:SbuNumber>
+            <eai:SbuCode>FGL</eai:SbuCode>
+            <eai:SbuName>FGL Sports Ltd.</eai:SbuName>
+            <eai:MessageSourceCode>CSS</eai:MessageSourceCode>
+            <eai:MessageSourceCodeName>Central Sales Server</eai:MessageSourceCodeName>
+         </eai:SourceSystem>
+      </eai:SourceSystems>
+      <eai:POSLog>
+         <arts:Count>1</arts:Count>
+         <arts:Transaction TypeCode="SaleTransaction">
+            <arts:BusinessUnit>
+               <arts:Index>1</arts:Index>
+               <arts:BusinessUnitNumber>371</arts:BusinessUnitNumber>
+               <arts:BusinessUnitTypeCode>RT</arts:BusinessUnitTypeCode>
+               <arts:BusinessUnitShortName>SC371</arts:BusinessUnitShortName>
+               <arts:BusinessUnitName>SC VILLAGE SHOPPING CENTRE</arts:BusinessUnitName>
+            </arts:BusinessUnit>
+            <arts:WorkstationID>103</arts:WorkstationID>
+            <arts:SequenceNumber>000025</arts:SequenceNumber>
+            <arts:BeginDateTime>2016-11-01T13:26:24</arts:BeginDateTime>
+            <arts:EndDateTime>2016-11-01T13:28:02</arts:EndDateTime>
+            <arts:OperatorID OperatorName="ikurganova Cashier" LastName="Cashier" FirstName="ikurganova">000002446</arts:OperatorID>
+            <arts:RetailTransaction>
+               <arts:LineItemCount>3</arts:LineItemCount>
+               <arts:CustomerCount>1</arts:CustomerCount>
+               <arts:AssociateCount>0</arts:AssociateCount>
+               <arts:LineItem VoidFlag="false">
+                  <arts:Index>1</arts:Index>
+                  <arts:SequenceNumber>2</arts:SequenceNumber>
+                  <arts:Sale TaxableFlag="true" ItemType="Stock">
+                     <arts:TaxCount>1</arts:TaxCount>
+                     <arts:RetailPriceModifierCount>0</arts:RetailPriceModifierCount>
+                     <arts:Item>
+                        <arts:ItemNumber>319192005990000</arts:ItemNumber>
+                        <arts:ItemName>MISC/NO COLOR/N/S</arts:ItemName>
+                        <arts:UPCNumber>431900001352</arts:UPCNumber>
+                     </arts:Item>
+                     <arts:MerchandiseHierarchy Level="4" ID="9810"/>
+                     <arts:RegularSalesUnitPrice>10.00</arts:RegularSalesUnitPrice>
+                     <arts:ActualSalesUnitPrice>10.00</arts:ActualSalesUnitPrice>
+                     <arts:DiscountAmount>0.00</arts:DiscountAmount>
+                     <arts:Quantity>1</arts:Quantity>
+                     <arts:Tax TypeCode="Sale" TaxType="NFHST" SourceSystemTaxExemptionFlag="false">
+                        <arts:Index>1</arts:Index>
+                        <arts:Amount>0.00</arts:Amount>
+                        <arts:Percent>15</arts:Percent>
+                        <arts:TaxExemption>
+                           <arts:ExemptTaxableAmount>10.00</arts:ExemptTaxableAmount>
+                           <arts:ExemptTaxAmount>1.50</arts:ExemptTaxAmount>
+                           <arts:ReasonCode>IE02</arts:ReasonCode>
+                           <arts:ReasonDescriptionText>Donations</arts:ReasonDescriptionText>
+                        </arts:TaxExemption>
+                     </arts:Tax>
+                  </arts:Sale>
+                  <arts:LineItemSubtypeCode>Sale</arts:LineItemSubtypeCode>
+               </arts:LineItem>
+               <arts:LineItem>
+                  <arts:Index>2</arts:Index>
+                  <arts:SequenceNumber>3</arts:SequenceNumber>
+                  <arts:Tax TypeCode="Sale" TaxType="NFHST">
+                     <arts:Index>1</arts:Index>
+                     <arts:Amount>0.00</arts:Amount>
+                     <arts:Percent>15</arts:Percent>
+                  </arts:Tax>
+                  <arts:LineItemSubtypeCode>Tax</arts:LineItemSubtypeCode>
+               </arts:LineItem>
+			   <arts:LineItem>
+						<arts:Index>3</arts:Index>
+						<arts:SequenceNumber>4</arts:SequenceNumber>
+						<arts:Tender TenderType="LoyaltyRedemption" TypeCode="Sale">
+							<arts:Amount>10.00</arts:Amount>
+							<arts:LoyaltyRedemption>
+								<arts:LoyaltyProgramName>Scene Points</arts:LoyaltyProgramName>
+								<arts:LoyaltyCardNumber>6046465457954244</arts:LoyaltyCardNumber>
+								<arts:LoyaltyCurrencies>
+									<arts:Count>1</arts:Count>
+									<arts:LoyaltyCurrency>
+										<arts:Index>1</arts:Index>
+										<arts:LoyaltyCurrencyTypeCode>SCENE</arts:LoyaltyCurrencyTypeCode>
+										<arts:LoyaltyCurrencyDescriptionText>Scene Points</arts:LoyaltyCurrencyDescriptionText>
+										<arts:MonetaryValueAmount>
+											<arts:Amount>10.00</arts:Amount>
+											<arts:CurrencyCode>CAD</arts:CurrencyCode>
+										</arts:MonetaryValueAmount>
+									</arts:LoyaltyCurrency>
+								</arts:LoyaltyCurrencies>
+							</arts:LoyaltyRedemption>
+						</arts:Tender>               
+                  <arts:LineItemSubtypeCode>Tender</arts:LineItemSubtypeCode>
+               </arts:LineItem>
+               <arts:Total TotalType="TransactionGrossAmount">10.00</arts:Total>
+               <arts:Total TotalType="TransactionSubtotal">10.00</arts:Total>
+               <arts:Customer>
+                  <arts:Index>1</arts:Index>
+                  <arts:AddressCount>1</arts:AddressCount>
+                  <arts:TelephoneCount>0</arts:TelephoneCount>
+                  <arts:Address>
+                     <arts:Index>1</arts:Index>
+                     <arts:PostalCode>G4K 6T4</arts:PostalCode>
+                  </arts:Address>
+               </arts:Customer>
+               <arts:LoyaltyAccount>
+                  <arts:LineItemSequenceNumber>1</arts:LineItemSequenceNumber>
+                  <arts:LoyaltyProgram>
+                     <arts:LoyaltyAccountID>6046465457954244</arts:LoyaltyAccountID>
+                     <arts:LoyaltyPointsDetail>
+                        <arts:PointsEarned>0</arts:PointsEarned>
+                     </arts:LoyaltyPointsDetail>
+                  </arts:LoyaltyProgram>
+               </arts:LoyaltyAccount>
+            </arts:RetailTransaction>
+            <arts:TransactionSubtypeCode>RetailTransaction</arts:TransactionSubtypeCode>
+         </arts:Transaction>
+      </eai:POSLog>
+   </eai:Messages>
+</eai:Exchange>

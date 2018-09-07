@@ -1,0 +1,32 @@
+
+
+Importing file: D:\POS-Upgrade-Project\XSD\ARTS-XSD\ARTS-0.2-XSD\FFSOAP.wsdl
+
+Copying source WSDL FFSOAP.wsdl to FFSOAP.wsdl.
+The WSDL import will proceed with bindings FFSOAPSOAP.
+Creating wsdl schema document for file:///D:/POS-Upgrade-Project/XSD/ARTS-XSD/ARTS-0.2-XSD/FFSOAP.wsdl.
+Parsing wsdl binding {http://www.marks.com/2014/01/services/FF/}FFSOAPSOAP.
+Parsing wsdl binding input getOrdersDetailList.
+Parsing wsdl binding output getOrdersDetailList.
+Parsing wsdl binding input updateOrderStatus.
+Parsing wsdl binding output updateOrderStatus.
+Parsing wsdl binding input processOrder.
+Parsing wsdl binding output processOrder.
+Parsing wsdl binding input createOrder.
+Parsing wsdl binding output createOrder.
+Processing doc style for operation getOrdersDetailList.
+Processing doc style for operation updateOrderStatus.
+Processing doc style for operation processOrder.
+Processing doc style for operation createOrder.
+Populating WSDL schema FFSOAP.xsd.
+Creating file FFSOAP.xsd in the workspace.
+Creating file FFSOAP_InlineSchema1.xsd in the workspace.
+Creating file /doc-order-creation-fastfind-arts-0.2-library/arts-0.2.xsd in the workspace.
+
+Elapsed time processing this message definition file: 2.908 seconds
+Number of warnings for this message definition file: 0
+
+
+Number of files processed: 1
+
+

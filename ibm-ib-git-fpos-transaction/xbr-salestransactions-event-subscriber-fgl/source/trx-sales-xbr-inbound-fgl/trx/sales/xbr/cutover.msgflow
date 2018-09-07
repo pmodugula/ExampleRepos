@@ -1,0 +1,124 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ecore:EPackage xmi:version="2.0"
+    xmlns:xmi="http://www.omg.org/XMI" xmlns:ComIbmMQInput.msgnode="ComIbmMQInput.msgnode" xmlns:ComIbmTimeoutControl.msgnode="ComIbmTimeoutControl.msgnode" xmlns:ComIbmTimeoutNotification.msgnode="ComIbmTimeoutNotification.msgnode" xmlns:core_message__postprocessor.subflow="core/message/_postprocessor.subflow" xmlns:core_message__preprocessor.subflow="core/message/_preprocessor.subflow" xmlns:ecore="http://www.eclipse.org/emf/2002/Ecore" xmlns:eflow="http://www.ibm.com/wbi/2005/eflow" xmlns:trx_sales_xbr_file_move.subflow="trx/sales/xbr/file_move.subflow"
+    xmlns:utility="http://www.ibm.com/wbi/2005/eflow_utility" nsURI="trx/sales/xbr/cutover.msgflow"
+    nsPrefix="trx_sales_xbr_cutover.msgflow">
+  <eClassifiers xmi:type="eflow:FCMComposite" name="FCMComposite_1">
+    <eSuperTypes href="http://www.ibm.com/wbi/2005/eflow#//FCMBlock"/>
+    <eStructuralFeatures xmi:type="ecore:EAttribute" xmi:id="Property.IIBTimeoutControlQueueName" name="IIBTimeoutControlQueueName" lowerBound="1" defaultValueLiteral="RECV.FGL.XBR.FPOS.TIMEOUT_CTRL_IN.IIB.DV">
+      <eType xmi:type="ecore:EDataType" href="http://www.eclipse.org/emf/2002/Ecore#//EString"/>
+    </eStructuralFeatures>
+    <eStructuralFeatures xmi:type="ecore:EAttribute" xmi:id="Property.CoreAuditDataSource" name="CoreAuditDataSource" defaultValueLiteral="AUDDEV">
+      <eType xmi:type="ecore:EDataType" href="http://www.eclipse.org/emf/2002/Ecore#//EString"/>
+    </eStructuralFeatures>
+    <eStructuralFeatures xmi:type="ecore:EAttribute" xmi:id="Property.CoreAuditEnabled" name="CoreAuditEnabled" lowerBound="1" defaultValueLiteral="false">
+      <eType xmi:type="ecore:EDataType" href="http://www.eclipse.org/emf/2002/Ecore#//EBoolean"/>
+    </eStructuralFeatures>
+    <eStructuralFeatures xmi:type="ecore:EAttribute" xmi:id="Property.FileName" name="FileName" lowerBound="1" defaultValueLiteral="tlogjda">
+      <eType xmi:type="ecore:EDataType" href="http://www.eclipse.org/emf/2002/Ecore#//EString"/>
+    </eStructuralFeatures>
+    <eStructuralFeatures xmi:type="ecore:EAttribute" xmi:id="Property.FileExtension" name="FileExtension" lowerBound="1" defaultValueLiteral="trg">
+      <eType xmi:type="ecore:EDataType" href="http://www.eclipse.org/emf/2002/Ecore#//EString"/>
+    </eStructuralFeatures>
+    <eStructuralFeatures xmi:type="ecore:EAttribute" xmi:id="Property.FileInputDirectory" name="FileInputDirectory" lowerBound="1" defaultValueLiteral="/var/mqsi/staging/transactions/fgl/xbr">
+      <eType xmi:type="ecore:EDataType" href="http://www.eclipse.org/emf/2002/Ecore#//EString"/>
+    </eStructuralFeatures>
+    <eStructuralFeatures xmi:type="ecore:EAttribute" xmi:id="Property.FileReadyDirectory" name="FileReadyDirectory" lowerBound="1" defaultValueLiteral="/var/mqsi/staging/transactions/fgl/xbr/ready">
+      <eType xmi:type="ecore:EDataType" href="http://www.eclipse.org/emf/2002/Ecore#//EString"/>
+    </eStructuralFeatures>
+    <translation xmi:type="utility:TranslatableString" key="cutover" bundleName="trx/sales/xbr/cutover" pluginId="trx-sales-xbr-inbound-fgl"/>
+    <colorGraphic16 xmi:type="utility:GIFFileGraphic" resourceName="platform:/plugin/trx-sales-xbr-inbound-fgl/icons/full/obj16/cutover.gif"/>
+    <colorGraphic32 xmi:type="utility:GIFFileGraphic" resourceName="platform:/plugin/trx-sales-xbr-inbound-fgl/icons/full/obj30/cutover.gif"/>
+    <composition>
+      <nodes xmi:type="ComIbmMQInput.msgnode:FCMComposite_1" xmi:id="FCMComposite_1_3" location="10,20" queueName="SEND.MWW.PMM.ASPECT_TIMOUT_CTRL.IBM_IB.DV" messageDomainProperty="BLOB">
+        <translation xmi:type="utility:ConstantString" string="RECV.FGL.XBR.FPOS.TIMOUT_CTRL_IN.IIB"/>
+      </nodes>
+      <nodes xmi:type="ComIbmTimeoutControl.msgnode:FCMComposite_1" xmi:id="FCMComposite_1_1" location="430,110" uniqueIdentifier="xbr_cutover" requestLocation="InputRoot.XMLNSC.TimeoutRequest" requestPersistence="yes">
+        <translation xmi:type="utility:ConstantString" string="Timeout Control"/>
+      </nodes>
+      <nodes xmi:type="ComIbmTimeoutNotification.msgnode:FCMComposite_1" xmi:id="FCMComposite_1_2" location="10,170" uniqueIdentifier="xbr_cutover" operationMode="controlled" timeoutInterval="60">
+        <translation xmi:type="utility:ConstantString" string="Timeout Notification"/>
+      </nodes>
+      <nodes xmi:type="core_message__preprocessor.subflow:FCMComposite_1" xmi:id="FCMComposite_1_5" location="270,30">
+        <translation xmi:type="utility:ConstantString" string="TriggerMsgPreProcessor"/>
+      </nodes>
+      <nodes xmi:type="core_message__postprocessor.subflow:FCMComposite_1" xmi:id="FCMComposite_1_6" location="570,30">
+        <translation xmi:type="utility:ConstantString" string="TriggerMsgPostProcessor"/>
+      </nodes>
+      <nodes xmi:type="core_message__preprocessor.subflow:FCMComposite_1" xmi:id="FCMComposite_1_7" location="170,170">
+        <translation xmi:type="utility:ConstantString" string="TimeoutMsgPreProcessor"/>
+      </nodes>
+      <nodes xmi:type="core_message__postprocessor.subflow:FCMComposite_1" xmi:id="FCMComposite_1_8" location="430,170">
+        <translation xmi:type="utility:ConstantString" string="TimeMsgPostProcessor"/>
+      </nodes>
+      <nodes xmi:type="trx_sales_xbr_file_move.subflow:FCMComposite_1" xmi:id="FCMComposite_1_11" location="338,238">
+        <translation xmi:type="utility:ConstantString" string="MoveFile"/>
+      </nodes>
+      <connections xmi:type="eflow:FCMConnection" xmi:id="FCMConnection_6" targetNode="FCMComposite_1_6" sourceNode="FCMComposite_1_1" sourceTerminalName="OutTerminal.out" targetTerminalName="InTerminal.Input1"/>
+      <connections xmi:type="eflow:FCMConnection" xmi:id="FCMConnection_8" targetNode="FCMComposite_1_1" sourceNode="FCMComposite_1_5" sourceTerminalName="OutTerminal.CatchOutput" targetTerminalName="InTerminal.in"/>
+      <connections xmi:type="eflow:FCMConnection" xmi:id="FCMConnection_9" targetNode="FCMComposite_1_6" sourceNode="FCMComposite_1_5" sourceTerminalName="OutTerminal.Output" targetTerminalName="InTerminal.Input"/>
+      <connections xmi:type="eflow:FCMConnection" xmi:id="FCMConnection_10" targetNode="FCMComposite_1_6" sourceNode="FCMComposite_1_5" sourceTerminalName="OutTerminal.FailureOutput" targetTerminalName="InTerminal.Input2"/>
+      <connections xmi:type="eflow:FCMConnection" xmi:id="FCMConnection_14" targetNode="FCMComposite_1_8" sourceNode="FCMComposite_1_7" sourceTerminalName="OutTerminal.Output" targetTerminalName="InTerminal.Input"/>
+      <connections xmi:type="eflow:FCMConnection" xmi:id="FCMConnection_15" targetNode="FCMComposite_1_8" sourceNode="FCMComposite_1_7" sourceTerminalName="OutTerminal.FailureOutput" targetTerminalName="InTerminal.Input2"/>
+      <connections xmi:type="eflow:FCMConnection" xmi:id="FCMConnection_16" targetNode="FCMComposite_1_5" sourceNode="FCMComposite_1_3" sourceTerminalName="OutTerminal.out" targetTerminalName="InTerminal.CatchInput"/>
+      <connections xmi:type="eflow:FCMConnection" xmi:id="FCMConnection_17" targetNode="FCMComposite_1_5" sourceNode="FCMComposite_1_3" sourceTerminalName="OutTerminal.failure" targetTerminalName="InTerminal.FailureInput"/>
+      <connections xmi:type="eflow:FCMConnection" xmi:id="FCMConnection_18" targetNode="FCMComposite_1_5" sourceNode="FCMComposite_1_3" sourceTerminalName="OutTerminal.catch" targetTerminalName="InTerminal.Input"/>
+      <connections xmi:type="eflow:FCMConnection" xmi:id="FCMConnection_19" targetNode="FCMComposite_1_7" sourceNode="FCMComposite_1_2" sourceTerminalName="OutTerminal.out" targetTerminalName="InTerminal.CatchInput"/>
+      <connections xmi:type="eflow:FCMConnection" xmi:id="FCMConnection_20" targetNode="FCMComposite_1_7" sourceNode="FCMComposite_1_2" sourceTerminalName="OutTerminal.failure" targetTerminalName="InTerminal.FailureInput"/>
+      <connections xmi:type="eflow:FCMConnection" xmi:id="FCMConnection_21" targetNode="FCMComposite_1_7" sourceNode="FCMComposite_1_2" sourceTerminalName="OutTerminal.catch" targetTerminalName="InTerminal.Input"/>
+      <connections xmi:type="eflow:FCMConnection" xmi:id="FCMConnection_5" targetNode="FCMComposite_1_11" sourceNode="FCMComposite_1_7" sourceTerminalName="OutTerminal.CatchOutput" targetTerminalName="InTerminal.Input"/>
+      <connections xmi:type="eflow:FCMConnection" xmi:id="FCMConnection_7" targetNode="FCMComposite_1_8" sourceNode="FCMComposite_1_11" sourceTerminalName="OutTerminal.Output" targetTerminalName="InTerminal.Input1"/>
+    </composition>
+    <propertyOrganizer>
+      <propertyDescriptor groupName="Group.Basic" propertyEditor="com.ibm.etools.mft.ibmnodes.editors.mq.MQQueueNameEditor" configurable="true" describedAttribute="Property.IIBTimeoutControlQueueName">
+        <propertyName xmi:type="utility:TranslatableString" key="Property.IIBTimeoutControlQueueName" bundleName="trx/sales/xbr/cutover" pluginId="trx-sales-xbr-inbound-fgl"/>
+        <propertyDescriptor groupName="Group.Basic" configurable="true" describedAttribute="Property.CoreAuditDataSource">
+          <propertyName xmi:type="utility:TranslatableString" key="Property.CoreAuditDataSource" bundleName="core/audit/_audit" pluginId="core-audit-handler-library"/>
+          <propertyDescriptor groupName="Group.Basic" configurable="true" userDefined="true" describedAttribute="Property.CoreAuditEnabled">
+            <propertyName xmi:type="utility:TranslatableString" key="Property.CoreAuditEnabled" bundleName="core/audit/_audit" pluginId="core-audit-handler-library"/>
+            <propertyDescriptor groupName="Group.Basic" configurable="true" userDefined="true" describedAttribute="Property.FileName">
+              <propertyName xmi:type="utility:TranslatableString" key="Property.FileName" bundleName="trx/sales/xbr/file_move" pluginId="trx-sales-xbr-inbound-library-fgl"/>
+              <propertyDescriptor groupName="Group.Basic" configurable="true" userDefined="true" describedAttribute="Property.FileExtension">
+                <propertyName xmi:type="utility:TranslatableString" key="Property.FileExtension" bundleName="trx/sales/xbr/file_move" pluginId="trx-sales-xbr-inbound-library-fgl"/>
+                <propertyDescriptor groupName="Group.Basic" configurable="true" userDefined="true" describedAttribute="Property.FileInputDirectory">
+                  <propertyName xmi:type="utility:TranslatableString" key="Property.FileInputDirectory" bundleName="trx/sales/xbr/file_move" pluginId="trx-sales-xbr-inbound-library-fgl"/>
+                  <propertyDescriptor groupName="Group.Basic" configurable="true" userDefined="true" describedAttribute="Property.FileReadyDirectory">
+                    <propertyName xmi:type="utility:TranslatableString" key="Property.FileReadyDirectory" bundleName="trx/sales/xbr/file_move" pluginId="trx-sales-xbr-inbound-library-fgl"/>
+                  </propertyDescriptor>
+                </propertyDescriptor>
+              </propertyDescriptor>
+            </propertyDescriptor>
+          </propertyDescriptor>
+        </propertyDescriptor>
+      </propertyDescriptor>
+    </propertyOrganizer>
+    <attributeLinks promotedAttribute="Property.IIBTimeoutControlQueueName" overriddenNodes="FCMComposite_1_3">
+      <overriddenAttribute href="ComIbmMQInput.msgnode#Property.queueName"/>
+    </attributeLinks>
+    <attributeLinks promotedAttribute="Property.CoreAuditDataSource" overriddenNodes="FCMComposite_1_5 FCMComposite_1_7">
+      <overriddenAttribute href="core/message/_preprocessor.subflow#Property.CoreAuditDataSource"/>
+    </attributeLinks>
+    <attributeLinks promotedAttribute="Property.CoreAuditDataSource" overriddenNodes="FCMComposite_1_6 FCMComposite_1_8">
+      <overriddenAttribute href="core/message/_postprocessor.subflow#Property.CoreAuditDataSource"/>
+    </attributeLinks>
+    <attributeLinks promotedAttribute="Property.CoreAuditEnabled" overriddenNodes="FCMComposite_1_7 FCMComposite_1_5">
+      <overriddenAttribute href="core/message/_preprocessor.subflow#Property.CoreAuditEnabled"/>
+    </attributeLinks>
+    <attributeLinks promotedAttribute="Property.CoreAuditEnabled" overriddenNodes="FCMComposite_1_8 FCMComposite_1_6">
+      <overriddenAttribute href="core/message/_postprocessor.subflow#Property.CoreAuditEnabled"/>
+    </attributeLinks>
+    <attributeLinks promotedAttribute="Property.FileName" overriddenNodes="FCMComposite_1_11">
+      <overriddenAttribute href="trx/sales/xbr/file_move.subflow#Property.FileName"/>
+    </attributeLinks>
+    <attributeLinks promotedAttribute="Property.FileExtension" overriddenNodes="FCMComposite_1_11">
+      <overriddenAttribute href="trx/sales/xbr/file_move.subflow#Property.FileExtension"/>
+    </attributeLinks>
+    <attributeLinks promotedAttribute="Property.FileInputDirectory" overriddenNodes="FCMComposite_1_11">
+      <overriddenAttribute href="trx/sales/xbr/file_move.subflow#Property.FileInputDirectory"/>
+    </attributeLinks>
+    <attributeLinks promotedAttribute="Property.FileReadyDirectory" overriddenNodes="FCMComposite_1_11">
+      <overriddenAttribute href="trx/sales/xbr/file_move.subflow#Property.FileReadyDirectory"/>
+    </attributeLinks>
+    <stickyBoard/>
+  </eClassifiers>
+</ecore:EPackage>

@@ -1,0 +1,121 @@
+--* File name : TrxConsgPacked.esql
+--* Purpose : To implement trx-consignmentpacked-dom flow.
+--* Authors : Rohit Sharma
+--* Create Date : 16th Aug 2016
+--* Version : 1.0
+--* Revision Date:
+--* @copyright MWW-FGLSPORTS 2015. All Rights Reserved.
+BROKER SCHEMA trx.consignmentpacked.dom
+--Decalre Constants-----
+DECLARE theSchema CONSTANT CHARACTER 'trx.consignmentpacked.dom';
+DECLARE BLANK CONSTANT CHARACTER '';
+DECLARE nsFgl CHARACTER NULL;
+DECLARE nsYfc CHARACTER NULL;
+DECLARE E CONSTANT CHARACTER 'E';
+DECLARE O CONSTANT CHARACTER 'O';
+DECLARE SC_E_COMM CONSTANT CHARACTER 'SC E-COMM';
+DECLARE ATM_E_COMM CONSTANT CHARACTER 'ATM E-COMM';
+DECLARE FOUR_NINE_FOUR CONSTANT CHARACTER '494';
+DECLARE FOUR_EIGHT_FOUR CONSTANT CHARACTER '484';
+DECLARE fgl NAMESPACE 'http://www.fglsports.com/schema/hybris/order/v2';
+DECLARE xsi NAMESPACE 'http://www.w3.org/2001/XMLSchema-instance';
+
+CREATE FILTER MODULE hyb_Filter
+	DECLARE theModule CONSTANT CHARACTER theSchema||'.'||'hyb_Filter';
+	CREATE FUNCTION Main() RETURNS BOOLEAN
+	BEGIN
+		DECLARE rEnv REFERENCE TO Environment;
+		DECLARE MSG_ID CHARACTER rEnv.__MsgIdForLog4J__;
+		CALL core.log.Debug(theModule||' - ID# : '||MSG_ID||' >> BEGIN');
+		DECLARE returnValue BOOLEAN TRUE;
+		CALL core.log.Debug(theModule||' - RETURN '||CAST(returnValue AS CHARACTER));
+		CALL core.log.Debug(theModule||' - ID# : '||MSG_ID||' << END');
+		RETURN returnValue;
+	END;
+END MODULE;
+
+
+
+CREATE COMPUTE MODULE hyb_BuildOutputMessage
+	DECLARE theModule CONSTANT CHARACTER theSchema||'.'||'hyb_BuildOutputMessage';
+	CREATE FUNCTION Main() RETURNS BOOLEAN
+	BEGIN
+		DECLARE rEnv REFERENCE TO Environment;
+		DECLARE ATMOSPHERE CONSTANT CHARACTER 'ATMOSPHERE';
+		DECLARE rInput REFERENCE TO InputRoot;
+		DECLARE rOutput REFERENCE TO OutputRoot;
+		DECLARE MSG_ID CHARACTER rEnv.__MsgIdForLog4J__;
+		CALL core.log.Info(theModule||' - ID# : '||MSG_ID||' >> BEGIN');
+		DECLARE refToInShipment REFERENCE To InputRoot.XMLNSC.Shipment;
+
+		DECLARE refToInShipLine REFERENCE TO refToInShipment.ShipmentLines.ShipmentLine[1];
+		CALL core.log.Info(theModule||' - ID# : '||MSG_ID||' - Code :'||'fgl:OrderConsignmentPacked/fgl:Code -'|| refToInShipLine.Order.(XMLNSC.Attribute)OrderNo);
+		CALL core.log.Info(theModule||' - ID# : '||MSG_ID||' - ShipmentKey :'||'fgl:OrderConsignmentPacked/fgl:OrderShipment/fgl:ShipmentKey -'|| refToInShipment.(XMLNSC.Attribute)ShipmentKey);
+		CALL core.log.Info(theModule||' - ID# : '||MSG_ID||' - StoreId:'||'fgl:OrderConsignmentPacked/fgl:Consignment.fgl:Store.fgl:StoreId -'|| refToInShipment.(XMLNSC.Attribute)FGLNodeID);
+
+		CALL common.common_CopyMessageHeaders(rInput, rOutput); ---Copy Message Headers
+		CALL common.common_CreateLastChildOfOutputRootDomainXmlnsc(rOutput); --- XMLNSC domain Creation for XML message
+		CREATE FIELD rOutput.XMLNSC.fgl:OrderConsignmentPacked;
+		DECLARE rConsgPacked REFERENCE TO rOutput.XMLNSC.fgl:OrderConsignmentPacked;
+		SET rConsgPacked.(XMLNSC.Attribute)xsi:schemaLocation='http://www.fglsports.com/schema/hybris/order/v2';
+		--Mapping Begins--
+		SET rConsgPacked.(XMLNSC.Attribute)bannerName = refToInShipment.SellerOrganizationCode;
+
+
+		SET rConsgPacked.fgl:Code = COALESCE(FIELDVALUE(refToInShipLine.Order.(XMLNSC.Attribute)OrderNo), BLANK);
+
+		DECLARE shipmntKeyChar CHAR '';
+		SET shipmntKeyChar=SUBSTRING(refToInShipment.(XMLNSC.Attribute)ShipmentKey FROM 1 FOR 1);
+		CREATE FIELD rConsgPacked.fgl:Store ;
+		DECLARE refStore REFERENCE TO rConsgPacked.fgl:Store ;
+
+		IF(shipmntKeyChar = E) THEN
+		SET refStore.fgl:StoreId = FOUR_NINE_FOUR;
+		SET refStore.fgl:Name = SC_E_COMM;
+
+		ELSEIF(shipmntKeyChar = O) THEN
+		SET refStore.fgl:StoreId = FOUR_EIGHT_FOUR;
+		SET refStore.fgl:Name = ATM_E_COMM;
+
+	END IF;
+	SET rConsgPacked.fgl:OrderShipment.fgl:ShipmentKey = COALESCE(SUBSTRING(refToInShipment.(XMLNSC.Attribute)ShipmentKey FROM 1 FOR 10), BLANK);
+	SET rConsgPacked.fgl:OrderShipment.fgl:ShipmentStatus.fgl:Code = 'PACKED';
+	SET rConsgPacked.fgl:OrderShipment.fgl:ShipmentStatus.fgl:CodeLowerCase = 'packed';
+
+	--SET rConsgPacked.fgl:OrderShipment.fgl:ShipmentStatusDateTime = COALESCE(refToInShipment.(XMLNSC.Attribute)StatusDate, BLANK);
+	SET rConsgPacked.fgl:OrderShipment.fgl:ShipmentStatusDateTime = COALESCE(refToInShipment.(XMLNSC.Attribute)StatusDate, BLANK)||'T00:00:00-05:00';
+	SET rConsgPacked.fgl:OrderShipment.fgl:FulfilmentBusinessUnitNumber = COALESCE(refToInShipment.(XMLNSC.Attribute)FGLNodeID, BLANK);
+	CREATE FIELD rConsgPacked.fgl:OrderShipment.fgl:ShipmentLines; ---Field Created for Shipment Line
+	DECLARE rShipmentLine REFERENCE TO rConsgPacked.fgl:OrderShipment.fgl:ShipmentLines;
+	CALL shipmentLineMapping(refToInShipment.ShipmentLines,rShipmentLine); ---Call Function for Shipment Line Mapping
+	--END Mapping--
+
+END;
+END MODULE;
+-- *********************************************************************************************************
+-- used to prepare Shipment line into Hybris XML
+-- Parameters:refToInShipLine,rShipmentLine
+-- INPUT Reference: refToInShipLine
+-- OUTPUT Reference: rShipmentLine
+-- ***********************************************************************************************************
+
+CREATE PROCEDURE shipmentLineMapping(IN refToInShipLine REFERENCE,IN rShipmentLine REFERENCE)
+BEGIN
+	DECLARE count INTEGER;
+	DECLARE I INTEGER 1;
+	SET count = CARDINALITY(refToInShipLine.ShipmentLine[]);
+	DECLARE J INTEGER 1;
+	WHILE I<=count DO
+		IF refToInShipLine.ShipmentLine[I].(XMLNSC.Attribute)Quantity <> 0 AND refToInShipLine.ShipmentLine[I].(XMLNSC.Attribute)Quantity IS NOT NULL THEN
+		CREATE FIELD rShipmentLine.fgl:ShipmentLine[J];
+		DECLARE rLine REFERENCE TO rShipmentLine.fgl:ShipmentLine[J];
+		SET rLine.fgl:ShipmentLineNumber = COALESCE(refToInShipLine.ShipmentLine[I].(XMLNSC.Attribute)ShipmentLineNo, BLANK);
+		SET rLine.fgl:CustomerOrderSequenceNumber = COALESCE(refToInShipLine.ShipmentLine[I].(XMLNSC.Attribute)PrimeLineNo, BLANK);
+		SET rLine.fgl:PackedQuantity = COALESCE(refToInShipLine.ShipmentLine[I].(XMLNSC.Attribute)Quantity, BLANK);
+		SET rLine.fgl:ItemNumber = COALESCE(refToInShipLine.ShipmentLine[I].(XMLNSC.Attribute)ItemID, BLANK);
+		SET J = J + 1;
+		END IF;
+		SET I = I + 1;
+
+	END WHILE;
+END;

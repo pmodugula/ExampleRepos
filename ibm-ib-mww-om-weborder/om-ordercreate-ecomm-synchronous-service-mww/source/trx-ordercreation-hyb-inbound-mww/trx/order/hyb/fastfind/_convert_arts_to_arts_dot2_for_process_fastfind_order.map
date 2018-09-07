@@ -1,0 +1,172 @@
+<?xml version="1.0" encoding="UTF-8"?><mappingRoot domainID="com.ibm.msl.mapping.xml" domainIDExtension="mb" mainMap="true" targetNamespace="trx.order.hyb.fastfind" version="8.0.4.0" xmlns="http://www.ibm.com/2008/ccl/Mapping" xmlns:map="trx.order.hyb.fastfind">
+    <input path="/TrxnPstSvcProcess_QUniform_SubmitSaleTxnInfExport_InlineSchema1.xsd" var="var"/>
+    <input path="/OrderSharedContainer.xsd" var="var2"/>
+    <input path="/OrderSharedContainer.xsd" var="var3"/>
+    <output path="/FFSOAP_InlineSchema1.xsd"/>
+    <generation engine="xquery"/>
+    <mappingDeclaration name="_convert_arts_to_arts_dot2_for_process_fastfind_order">
+        <input namespace="http://com/marks/TxnPost/inf" path="$var/mb:msg(submitTxnResponse,assembly,XMLNSC,LocalEnvironment,Properties)">
+            <cast path="LocalEnvironment/Variables/any" qualifier="{http://www.marks.com/2014/01/services/FF/}createOrderResponse" ref="var4"/>
+            <cast path="LocalEnvironment/Variables/any" qualifier="{http://www.marks.com/OrderSharedContainer}OrderSharedContainer" ref="var2"/>
+        </input>
+        <output namespace="http://www.marks.com/2014/01/services/FF/" path="mb:msg(processOrderRequest,assembly,XMLNSC,Properties)"/>
+        <move>
+            <input path="Properties"/>
+            <output path="Properties"/>
+        </move>
+        <join>
+            <input path="LocalEnvironment/Variables/createOrderResponse[1]/CustomerOrder" var="CustomerOrder1"/>
+            <input path="LocalEnvironment/Variables/OrderSharedContainer[1]" var="OrderSharedContainer"/>
+            <output path="processOrderRequest/CustomerOrder"/>
+            <move>
+                <input path="$CustomerOrder1/CustomerPurchaseOrderNumber"/>
+                <output path="CustomerPurchaseOrderNumber"/>
+            </move>
+            <move>
+                <input path="$CustomerOrder1/FFVersionID"/>
+                <output path="FFVersionID"/>
+            </move>
+            <move>
+                <input path="$CustomerOrder1/CustomerID"/>
+                <output path="CustomerID"/>
+            </move>
+            <move>
+                <input path="$CustomerOrder1/CustomerOrderCreateDate"/>
+                <output path="CustomerOrderCreateDate"/>
+            </move>
+            <move>
+                <input path="$CustomerOrder1/CustomerOrderExpirationDate"/>
+                <output path="CustomerOrderExpirationDate"/>
+            </move>
+            <move>
+                <input path="$CustomerOrder1/POSOrderReference"/>
+                <output path="POSOrderReference"/>
+            </move>
+            <move>
+                <input path="$CustomerOrder1/SourceOrderReference"/>
+                <output path="SourceOrderReference"/>
+            </move>
+            <move>
+                <input path="$CustomerOrder1/CustomerOrderStatusCode"/>
+                <output path="CustomerOrderStatusCode"/>
+            </move>
+            <move>
+                <input path="$CustomerOrder1/CustomerEmployeeID"/>
+                <output path="CustomerEmployeeID"/>
+            </move>
+            <move>
+                <input path="$CustomerOrder1/CustomerEmployeeFirstName"/>
+                <output path="CustomerEmployeeFirstName"/>
+            </move>
+            <move>
+                <input path="$CustomerOrder1/CustomerEmployeeLastName"/>
+                <output path="CustomerEmployeeLastName"/>
+            </move>
+            <move>
+                <input path="$CustomerOrder1/ContactAreaCode"/>
+                <output path="ContactAreaCode"/>
+            </move>
+            <move>
+                <input path="$CustomerOrder1/ContactNumber"/>
+                <output path="ContactNumber"/>
+            </move>
+            <move>
+                <input path="$CustomerOrder1/SpecialInstructions"/>
+                <output path="SpecialInstructions"/>
+            </move>
+            <move>
+                <input path="$CustomerOrder1/InternalOrderComments"/>
+                <output path="InternalOrderComments"/>
+            </move>
+            <move>
+                <input path="$CustomerOrder1/OrderSubTotal"/>
+                <output path="OrderSubTotal"/>
+            </move>
+            <move>
+                <input path="$CustomerOrder1/OrderTotal"/>
+                <output path="OrderTotal"/>
+            </move>
+            <move>
+                <input path="$CustomerOrder1/SourceCorrelationID"/>
+                <output path="SourceCorrelationID"/>
+            </move>
+            <move>
+                <input path="$CustomerOrder1/SourceCorrelationKeyFieldsDescription"/>
+                <output path="SourceCorrelationKeyFieldsDescription"/>
+            </move>
+            <move>
+                <input path="$CustomerOrder1/SourceCreateTimestamp"/>
+                <output path="SourceCreateTimestamp"/>
+            </move>
+            <move>
+                <input path="$CustomerOrder1/SourceCreateUserID"/>
+                <output path="SourceCreateUserID"/>
+            </move>
+            <move>
+                <input path="$CustomerOrder1/SourceUpdateTimestamp"/>
+                <output path="SourceUpdateTimestamp"/>
+            </move>
+            <move>
+                <input path="$CustomerOrder1/SourceUpdateUserID"/>
+                <output path="SourceUpdateUserID"/>
+            </move>
+            <move>
+                <input path="$CustomerOrder1/CustomerOrderLineItems"/>
+                <output path="CustomerOrderLineItems"/>
+            </move>
+            <move>
+                <input path="$CustomerOrder1/Customer"/>
+                <output path="Customer"/>
+            </move>
+            <move>
+                <input path="$CustomerOrder1/Recipient"/>
+                <output path="Recipient"/>
+            </move>
+            <move>
+                <input path="$CustomerOrder1/OrderFacilities"/>
+                <output path="OrderFacilities"/>
+            </move>
+            <assign value="ISS">
+                <output path="StoreTransaction/TransactionType"/>
+            </assign>
+            <move>
+                <input path="$CustomerOrder1/OrderTotal"/>
+                <output path="StoreTransaction/LiabilityAmount"/>
+            </move>
+            <assign value="MGC">
+                <output path="StoreTransaction/LiabilityType"/>
+            </assign>
+            <move>
+                <input path="$OrderSharedContainer/POS_TRANSACTION_ID" var="POS_TRANSACTION_ID"/>
+                <output path="StoreTransaction/TransactionID"/>
+            </move>
+            <assign value="SALE">
+                <output path="StoreTransaction/StoreTransactionType"/>
+            </assign>
+            <move>
+                <input path="$OrderSharedContainer/VIRTUAL_GIFT_CARD_NUMBER"/>
+                <output path="StoreTransaction/LiabilityID"/>
+            </move>
+            <local>
+                <input path="$CustomerOrder1/OrderTaxes"/>
+                <output path="OrderTaxes"/>
+                <foreach>
+                    <input path="OrderTaxAmount"/>
+                    <output path="OrderTaxAmount"/>
+                    <move>
+                        <input path="TaxCode"/>
+                        <output path="TaxCode"/>
+                    </move>
+                    <move>
+                        <input path="TaxTotalAmount"/>
+                        <output path="TaxTotalAmount"/>
+                    </move>
+                    <move>
+                        <input path="TaxExemptionCode"/>
+                        <output path="TaxExemptionCode"/>
+                    </move>
+                </foreach>
+            </local>
+        </join>
+    </mappingDeclaration>
+</mappingRoot>

@@ -1,0 +1,34 @@
+/*
+ * File name: common.esql
+ *
+ * Purpose:   ESQL file for common modules used across dat-taxexemptions-pmm-publisher-fgl application.
+ *
+ * Version:   Initial Version
+ *
+ * Authors:   Prasantha Modugula
+ *                 
+ * Create Date:  22 July 2016
+ * 
+ * @copyright FGL 2016.  All rights reserved.
+ */
+ 
+BROKER SCHEMA dat.tax.pmm
+
+CREATE COMPUTE MODULE SetLogParams
+	CREATE FUNCTION Main() RETURNS BOOLEAN
+	BEGIN
+		SET OutputRoot = InputRoot;
+		
+		DECLARE ds NAMESPACE 'http://www.fgl.com/SourceStagingTaxationRulesPmmFgl';
+		DECLARE rInExch REFERENCE TO InputRoot.XMLNSC.ds:Exchange;
+		DECLARE rInMsg REFERENCE TO InputRoot.XMLNSC.ds:Exchange.ds:Message;
+		DECLARE guid CHARACTER rInExch.ds:MessageRouting.ds:Guid;
+		DECLARE taxCode CHARACTER COALESCE(rInMsg.ds:Taxes.ds:TaxCode.ds:TXS_CODE, 'nill');
+		DECLARE prodLvlNbr CHARACTER COALESCE(rInMsg.ds:Taxes.ds:ProductDetails.ds:Row[1].ds:PRD_LVL_NUMBER, 'nill');
+		DECLARE prodLvlId CHARACTER COALESCE(rInMsg.ds:Taxes.ds:ProductDetails.ds:Row[1].ds:PRD_LVL_ID, 'nill');
+		DECLARE businessKey CHARACTER taxCode || '__' || prodLvlNbr || '__' || prodLvlId ;
+		DECLARE subjectAreaRunName CHARACTER COALESCE(rInExch.ds:MessageRouting.ds:SubjectAreaRunName, 'nill');
+		SET Environment.__MsgIdForLog4J__ = Environment.__MsgIdForLog4J__ || ' GUID: ' || guid || ', Business Key: ' || businessKey  || ', Message Key: ' ||  businessKey || ', Run Name: ' || subjectAreaRunName;
+		RETURN TRUE;
+	END;
+END MODULE;

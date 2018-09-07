@@ -1,0 +1,167 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ecore:EPackage xmi:version="2.0"
+    xmlns:xmi="http://www.omg.org/XMI" xmlns:ComIbmRoute.msgnode="ComIbmRoute.msgnode" xmlns:ComIbmThrow.msgnode="ComIbmThrow.msgnode" xmlns:ecore="http://www.eclipse.org/emf/2002/Ecore" xmlns:eflow="http://www.ibm.com/wbi/2005/eflow" xmlns:etc_giftcard_retek__activate.subflow="etc/giftcard/retek/_activate.subflow" xmlns:etc_giftcard_retek__balance.subflow="etc/giftcard/retek/_balance.subflow" xmlns:etc_giftcard_retek__create.subflow="etc/giftcard/retek/_create.subflow" xmlns:etc_giftcard_retek__forced_redemption.subflow="etc/giftcard/retek/_forced_redemption.subflow"
+    xmlns:etc_giftcard_retek__merchandise_credit.subflow="etc/giftcard/retek/_merchandise_credit.subflow" xmlns:etc_giftcard_retek__reversal.subflow="etc/giftcard/retek/_reversal.subflow" xmlns:utility="http://www.ibm.com/wbi/2005/eflow_utility" nsURI="etc/giftcard/retek/_service.subflow"
+    nsPrefix="etc_giftcard_retek__service.subflow">
+  <eClassifiers xmi:type="eflow:FCMComposite" name="FCMComposite_1" useDefaults="true" udpSupport="true">
+    <eSuperTypes href="http://www.ibm.com/wbi/2005/eflow#//FCMBlock"/>
+    <eStructuralFeatures xmi:type="ecore:EAttribute" xmi:id="Property.dataSource" name="dataSource" defaultValueLiteral="POSDEV">
+      <eType xmi:type="ecore:EDataType" href="http://www.eclipse.org/emf/2002/Ecore#//EString"/>
+    </eStructuralFeatures>
+    <eStructuralFeatures xmi:type="ecore:EAttribute" xmi:id="Property.Name" name="Name">
+      <eType xmi:type="ecore:EDataType" href="http://www.eclipse.org/emf/2002/Ecore#//EString"/>
+    </eStructuralFeatures>
+    <eStructuralFeatures xmi:type="ecore:EAttribute" xmi:id="Property.UserName" name="UserName">
+      <eType xmi:type="ecore:EDataType" href="http://www.eclipse.org/emf/2002/Ecore#//EString"/>
+    </eStructuralFeatures>
+    <eStructuralFeatures xmi:type="ecore:EAttribute" xmi:id="Property.Password" name="Password">
+      <eType xmi:type="ecore:EDataType" href="http://www.eclipse.org/emf/2002/Ecore#//EString"/>
+    </eStructuralFeatures>
+    <translation xmi:type="utility:TranslatableString" key="_service" bundleName="etc/giftcard/retek/_service" pluginId="etc-giftcard-retek-service"/>
+    <colorGraphic16 xmi:type="utility:GIFFileGraphic" resourceName="platform:/plugin/etc-giftcard-retek-service/icons/full/obj16/_service.gif"/>
+    <colorGraphic32 xmi:type="utility:GIFFileGraphic" resourceName="platform:/plugin/etc-giftcard-retek-service/icons/full/obj30/_service.gif"/>
+    <composition>
+      <nodes xmi:type="eflow:FCMSource" xmi:id="InTerminal.Input" location="10,20">
+        <translation xmi:type="utility:TranslatableString" key="InTerminal.Input" bundleName="etc/giftcard/retek/_service" pluginId="etc-giftcard-retek-service"/>
+      </nodes>
+      <nodes xmi:type="eflow:FCMSink" xmi:id="OutTerminal.Output" location="423,99">
+        <translation xmi:type="utility:TranslatableString" key="OutTerminal.Output" bundleName="etc/giftcard/retek/_service" pluginId="etc-giftcard-retek-service"/>
+      </nodes>
+      <nodes xmi:type="ComIbmRoute.msgnode:FCMComposite_1" xmi:id="FCMComposite_1_4" location="93,20">
+        <outTerminals terminalNodeID="Match" dynamic="true" label="Match"/>
+        <outTerminals terminalNodeID="902" dynamic="true" label="902"/>
+        <outTerminals terminalNodeID="909" dynamic="true" label="909"/>
+        <outTerminals terminalNodeID="906" dynamic="true" label="906"/>
+        <outTerminals terminalNodeID="918" dynamic="true" label="918"/>
+        <outTerminals terminalNodeID="927" dynamic="true" label="927"/>
+        <outTerminals terminalNodeID="904" dynamic="true" label="904"/>
+        <translation xmi:type="utility:ConstantString" string="Route"/>
+        <filterTable filterPattern="/InputMsg/body/GivexMsdIdFrmt='902'" routingOutputTerminal="902"/>
+        <filterTable filterPattern="/InputMsg/body/GivexMsdIdFrmt=909" routingOutputTerminal="909"/>
+        <filterTable filterPattern="/InputMsg/body/GivexMsdIdFrmt='906'" routingOutputTerminal="906"/>
+        <filterTable filterPattern="/InputMsg/body/GivexMsdIdFrmt='918'" routingOutputTerminal="918"/>
+        <filterTable filterPattern="/InputMsg/body/GivexMsdIdFrmt='927'" routingOutputTerminal="927"/>
+        <filterTable filterPattern="/InputMsg/body/GivexMsdIdFrmt='904'" routingOutputTerminal="904"/>
+      </nodes>
+      <nodes xmi:type="etc_giftcard_retek__balance.subflow:FCMComposite_1" xmi:id="FCMComposite_1_5" location="213,178">
+        <translation xmi:type="utility:ConstantString" string="EtcGiftcardRetekBalance(909)"/>
+      </nodes>
+      <nodes xmi:type="etc_giftcard_retek__activate.subflow:FCMComposite_1" xmi:id="FCMComposite_1_1" location="212,257">
+        <translation xmi:type="utility:ConstantString" string="EtcGiftcardRetekactivate(906)"/>
+      </nodes>
+      <nodes xmi:type="ComIbmThrow.msgnode:FCMComposite_1" xmi:id="FCMComposite_1_3" location="249,20" messageText="Invalid Operation">
+        <translation xmi:type="utility:ConstantString" string="NoRouteThrow"/>
+      </nodes>
+      <nodes xmi:type="etc_giftcard_retek__reversal.subflow:FCMComposite_1" xmi:id="FCMComposite_1_6" location="210,336">
+        <translation xmi:type="utility:ConstantString" string="EtcGiftcardRetekReversal(918)"/>
+      </nodes>
+      <nodes xmi:type="etc_giftcard_retek__forced_redemption.subflow:FCMComposite_1" xmi:id="FCMComposite_1_2" location="187,99">
+        <translation xmi:type="utility:ConstantString" string="EtcGiftcardRetekForcesRedemption(902)"/>
+      </nodes>
+      <nodes xmi:type="etc_giftcard_retek__merchandise_credit.subflow:FCMComposite_1" xmi:id="FCMComposite_1_7" location="186,412">
+        <translation xmi:type="utility:ConstantString" string="EtcGiftcardRetekMerchandiseCredit(927)"/>
+      </nodes>
+      <nodes xmi:type="etc_giftcard_retek__create.subflow:FCMComposite_1" xmi:id="FCMComposite_1_8" location="215,473">
+        <translation xmi:type="utility:ConstantString" string="EtcGiftcardRetekCreate(904)"/>
+      </nodes>
+      <connections xmi:type="eflow:FCMConnection" xmi:id="FCMConnection_1" targetNode="FCMComposite_1_4" sourceNode="InTerminal.Input" sourceTerminalName="OutTerminal.out" targetTerminalName="InTerminal.in"/>
+      <connections xmi:type="eflow:FCMConnection" xmi:id="FCMConnection_4" targetNode="FCMComposite_1_5" sourceNode="FCMComposite_1_4" sourceTerminalName="909" targetTerminalName="InTerminal.Input"/>
+      <connections xmi:type="eflow:FCMConnection" xmi:id="FCMConnection_9" targetNode="OutTerminal.Output" sourceNode="FCMComposite_1_5" sourceTerminalName="OutTerminal.Output" targetTerminalName="InTerminal.in"/>
+      <connections xmi:type="eflow:FCMConnection" xmi:id="FCMConnection_2" targetNode="FCMComposite_1_1" sourceNode="FCMComposite_1_4" sourceTerminalName="906" targetTerminalName="InTerminal.Input"/>
+      <connections xmi:type="eflow:FCMConnection" xmi:id="FCMConnection_5" targetNode="OutTerminal.Output" sourceNode="FCMComposite_1_1" sourceTerminalName="OutTerminal.Output" targetTerminalName="InTerminal.in"/>
+      <connections xmi:type="eflow:FCMConnection" xmi:id="FCMConnection_7" targetNode="FCMComposite_1_3" sourceNode="FCMComposite_1_4" sourceTerminalName="OutTerminal.default" targetTerminalName="InTerminal.in"/>
+      <connections xmi:type="eflow:FCMConnection" xmi:id="FCMConnection_6" targetNode="FCMComposite_1_6" sourceNode="FCMComposite_1_4" sourceTerminalName="918" targetTerminalName="InTerminal.Input"/>
+      <connections xmi:type="eflow:FCMConnection" xmi:id="FCMConnection_10" targetNode="OutTerminal.Output" sourceNode="FCMComposite_1_6" sourceTerminalName="OutTerminal.Output" targetTerminalName="InTerminal.in"/>
+      <connections xmi:type="eflow:FCMConnection" xmi:id="FCMConnection_3" targetNode="FCMComposite_1_2" sourceNode="FCMComposite_1_4" sourceTerminalName="902" targetTerminalName="InTerminal.Input"/>
+      <connections xmi:type="eflow:FCMConnection" xmi:id="FCMConnection_8" targetNode="OutTerminal.Output" sourceNode="FCMComposite_1_2" sourceTerminalName="OutTerminal.Output" targetTerminalName="InTerminal.in"/>
+      <connections xmi:type="eflow:FCMConnection" xmi:id="FCMConnection_11" targetNode="FCMComposite_1_7" sourceNode="FCMComposite_1_4" sourceTerminalName="927" targetTerminalName="InTerminal.Input"/>
+      <connections xmi:type="eflow:FCMConnection" xmi:id="FCMConnection_12" targetNode="OutTerminal.Output" sourceNode="FCMComposite_1_7" sourceTerminalName="OutTerminal.Output" targetTerminalName="InTerminal.in"/>
+      <connections xmi:type="eflow:FCMConnection" xmi:id="FCMConnection_13" targetNode="FCMComposite_1_8" sourceNode="FCMComposite_1_4" sourceTerminalName="904" targetTerminalName="InTerminal.Input"/>
+      <connections xmi:type="eflow:FCMConnection" xmi:id="FCMConnection_14" targetNode="OutTerminal.Output" sourceNode="FCMComposite_1_8" sourceTerminalName="OutTerminal.Output" targetTerminalName="InTerminal.in"/>
+    </composition>
+    <propertyOrganizer>
+      <propertyDescriptor groupName="Group.RetekDataSource" configurable="true" describedAttribute="Property.dataSource">
+        <propertyName xmi:type="utility:TranslatableString" key="Property.dataSource" bundleName="ComIbmCompute" pluginId="com.ibm.etools.mft.ibmnodes"/>
+        <propertyDescriptor groupName="Group.RetekSchema" configurable="true" userDefined="true" describedAttribute="Property.Name">
+          <propertyName xmi:type="utility:TranslatableString" key="Property.Name" bundleName="etc/giftcard/retek/_service" pluginId="etc-giftcard-retek-service"/>
+          <propertyDescriptor groupName="Group.UserDtls" configurable="true" userDefined="true" describedAttribute="Property.UserName">
+            <propertyName xmi:type="utility:TranslatableString" key="Property.UserName" bundleName="etc/giftcard/retek/_activate" pluginId="etc-giftcard-retek-service"/>
+            <propertyDescriptor groupName="Group.UserDtls" configurable="true" userDefined="true" describedAttribute="Property.Password">
+              <propertyName xmi:type="utility:TranslatableString" key="Property.Password" bundleName="etc/giftcard/retek/_activate" pluginId="etc-giftcard-retek-service"/>
+            </propertyDescriptor>
+          </propertyDescriptor>
+        </propertyDescriptor>
+      </propertyDescriptor>
+    </propertyOrganizer>
+    <attributeLinks promotedAttribute="Property.dataSource" overriddenNodes="FCMComposite_1_1">
+      <overriddenAttribute href="etc/giftcard/retek/_activate.subflow#Property.dataSource"/>
+    </attributeLinks>
+    <attributeLinks promotedAttribute="Property.dataSource" overriddenNodes="FCMComposite_1_5">
+      <overriddenAttribute href="etc/giftcard/retek/_balance.subflow#Property.dataSource"/>
+    </attributeLinks>
+    <attributeLinks promotedAttribute="Property.dataSource" overriddenNodes="FCMComposite_1_6">
+      <overriddenAttribute href="etc/giftcard/retek/_reversal.subflow#Property.DataSource"/>
+    </attributeLinks>
+    <attributeLinks promotedAttribute="Property.dataSource" overriddenNodes="FCMComposite_1_2">
+      <overriddenAttribute href="etc/giftcard/retek/_forced_redemption.subflow#Property.dataSource"/>
+    </attributeLinks>
+    <attributeLinks promotedAttribute="Property.dataSource" overriddenNodes="FCMComposite_1_7">
+      <overriddenAttribute href="etc/giftcard/retek/_merchandise_credit.subflow#Property.dataSource"/>
+    </attributeLinks>
+    <attributeLinks promotedAttribute="Property.dataSource" overriddenNodes="FCMComposite_1_8">
+      <overriddenAttribute href="etc/giftcard/retek/_create.subflow#Property.DataSource"/>
+    </attributeLinks>
+    <attributeLinks promotedAttribute="Property.Name" overriddenNodes="FCMComposite_1_1">
+      <overriddenAttribute href="etc/giftcard/retek/_activate.subflow#Property.RetekSchema"/>
+    </attributeLinks>
+    <attributeLinks promotedAttribute="Property.Name" overriddenNodes="FCMComposite_1_5">
+      <overriddenAttribute href="etc/giftcard/retek/_balance.subflow#Property.RetekSchema"/>
+    </attributeLinks>
+    <attributeLinks promotedAttribute="Property.Name" overriddenNodes="FCMComposite_1_6">
+      <overriddenAttribute href="etc/giftcard/retek/_reversal.subflow#Property.RetekSchema"/>
+    </attributeLinks>
+    <attributeLinks promotedAttribute="Property.Name" overriddenNodes="FCMComposite_1_2">
+      <overriddenAttribute href="etc/giftcard/retek/_forced_redemption.subflow#Property.RetekSchema"/>
+    </attributeLinks>
+    <attributeLinks promotedAttribute="Property.Name" overriddenNodes="FCMComposite_1_7">
+      <overriddenAttribute href="etc/giftcard/retek/_merchandise_credit.subflow#Property.RetekSchema"/>
+    </attributeLinks>
+    <attributeLinks promotedAttribute="Property.Name" overriddenNodes="FCMComposite_1_8">
+      <overriddenAttribute href="etc/giftcard/retek/_create.subflow#Property.RetekSchema"/>
+    </attributeLinks>
+    <attributeLinks promotedAttribute="Property.UserName" overriddenNodes="FCMComposite_1_1">
+      <overriddenAttribute href="etc/giftcard/retek/_activate.subflow#Property.UserName"/>
+    </attributeLinks>
+    <attributeLinks promotedAttribute="Property.UserName" overriddenNodes="FCMComposite_1_5">
+      <overriddenAttribute href="etc/giftcard/retek/_balance.subflow#Property.UserName"/>
+    </attributeLinks>
+    <attributeLinks promotedAttribute="Property.UserName" overriddenNodes="FCMComposite_1_6">
+      <overriddenAttribute href="etc/giftcard/retek/_reversal.subflow#Property.UserName"/>
+    </attributeLinks>
+    <attributeLinks promotedAttribute="Property.UserName" overriddenNodes="FCMComposite_1_2">
+      <overriddenAttribute href="etc/giftcard/retek/_forced_redemption.subflow#Property.UserName"/>
+    </attributeLinks>
+    <attributeLinks promotedAttribute="Property.UserName" overriddenNodes="FCMComposite_1_7">
+      <overriddenAttribute href="etc/giftcard/retek/_merchandise_credit.subflow#Property.UserName"/>
+    </attributeLinks>
+    <attributeLinks promotedAttribute="Property.UserName" overriddenNodes="FCMComposite_1_8">
+      <overriddenAttribute href="etc/giftcard/retek/_create.subflow#Property.UserName"/>
+    </attributeLinks>
+    <attributeLinks promotedAttribute="Property.Password" overriddenNodes="FCMComposite_1_1">
+      <overriddenAttribute href="etc/giftcard/retek/_activate.subflow#Property.Password"/>
+    </attributeLinks>
+    <attributeLinks promotedAttribute="Property.Password" overriddenNodes="FCMComposite_1_6">
+      <overriddenAttribute href="etc/giftcard/retek/_reversal.subflow#Property.Password"/>
+    </attributeLinks>
+    <attributeLinks promotedAttribute="Property.Password" overriddenNodes="FCMComposite_1_2">
+      <overriddenAttribute href="etc/giftcard/retek/_forced_redemption.subflow#Property.Password"/>
+    </attributeLinks>
+    <attributeLinks promotedAttribute="Property.Password" overriddenNodes="FCMComposite_1_7">
+      <overriddenAttribute href="etc/giftcard/retek/_merchandise_credit.subflow#Property.Password"/>
+    </attributeLinks>
+    <attributeLinks promotedAttribute="Property.Password" overriddenNodes="FCMComposite_1_8">
+      <overriddenAttribute href="etc/giftcard/retek/_create.subflow#Property.Password"/>
+    </attributeLinks>
+    <stickyBoard/>
+  </eClassifiers>
+</ecore:EPackage>

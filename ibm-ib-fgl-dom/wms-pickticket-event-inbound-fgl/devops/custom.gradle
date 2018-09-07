@@ -1,0 +1,4 @@
+ext{
+   buildAll=true
+   repoName='wms-pickticket-event-inbound-fgl'
+}

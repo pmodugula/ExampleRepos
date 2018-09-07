@@ -1,0 +1,144 @@
+
+
+BROKER SCHEMA trx.order.hyb.fastfind
+
+DECLARE nsFFCreateOrder NAMESPACE 'http://www.marks.com/2014/01/services/FF/';
+DECLARE nsFFCreateOrder1 NAMESPACE 'http://www.marks.com/2014/01/schemas/ARTS';
+DECLARE nsOrder NAMESPACE 'http://www.fgl.com/exchange/';
+DECLARE nsOrder1 NAMESPACE 'http://www.fgl.com/ARTS';
+DECLARE eai NAMESPACE 'http://www.fgl.com/exchange/';
+DECLARE arts NAMESPACE 'http://www.fgl.com/ARTS';
+DECLARE nsOrderSharedContainer NAMESPACE 'http://www.marks.com/OrderSharedContainer';
+DECLARE soapenv NAMESPACE 'http://schemas.xmlsoap.org/soap/envelope/';
+DECLARE schemaName CHARACTER 'trx.order.hyb.fastfind';
+
+CREATE COMPUTE MODULE mod_hyb_order_creation_Store_ArtsMsg
+	CREATE FUNCTION Main() RETURNS BOOLEAN
+	BEGIN
+		SET OutputRoot = InputRoot;
+
+		DECLARE refEnv REFERENCE TO OutputRoot;
+		DECLARE eai NAMESPACE 'http://www.fgl.com/exchange/';
+		-- store message headers
+		SET Environment.Properties = InputRoot.Properties;
+		--for SPOCK
+		SET Environment.MQRFH2 = InputRoot.MQRFH2;
+		SET Environment.MQMD = InputRoot.MQMD;
+--		SET Environment.MQMD.Encoding = InputRoot.MQMD.Encoding; 
+--		SET Environment.MQMD.CodedCharSetId = InputRoot.MQMD.CodedCharSetId;
+		
+		CREATE LASTCHILD OF Environment AS refEnv DOMAIN 'XMLNSC';
+		CALL core.log.Debug(MessageFlowLabel||'Module name: mod_hyb_order_creation_Store_ArtsMsg - stored the XMLNSC folder in Envrionment');
+		SET refEnv = InputRoot.XMLNSC;
+	END;
+END MODULE;
+
+
+CREATE COMPUTE MODULE mod_finalHybris_response
+	CREATE FUNCTION Main() RETURNS BOOLEAN
+	BEGIN
+
+		DECLARE eai NAMESPACE 'http://www.fgl.com/exchange/';
+		DECLARE arts NAMESPACE 'http://www.fgl.com/ARTS';
+		DECLARE soapenv NAMESPACE 'http://schemas.xmlsoap.org/soap/envelope/';
+		
+		DECLARE refXMLNSC REFERENCE TO OutputRoot;
+		SET OutputRoot.Properties = Environment.Properties;
+		SET OutputRoot.MQMD = Environment.MQMD;
+		--for SPOCK
+		Set OutputRoot.MQRFH2 = Environment.MQRFH2;	
+		
+		SET OutputRoot.Properties.ReplyIdentifier = Environment.MQMD.MsgId;
+		DECLARE moduleName CHARACTER 'mod_finalHybris_response'; 
+		DECLARE rEnv REFERENCE TO Environment;
+		CREATE LASTCHILD OF OutputRoot AS refXMLNSC DOMAIN 'XMLNSC';
+		
+		SET refXMLNSC.soapenv:Envelope.(XMLNSC.NamespaceDecl)xmlns:soapenv = soapenv;
+		SET refXMLNSC.soapenv:Envelope.(XMLNSC.NamespaceDecl)xmlns:eai = eai;
+		SET refXMLNSC.soapenv:Envelope.(XMLNSC.NamespaceDecl)xmlns:arts = arts;
+		SET refXMLNSC.soapenv:Envelope.soapenv:Body.eai:Exchange.eai:MessageRouting= Environment.XMLNSC.eai:Exchange.eai:MessageRouting;
+		SET refXMLNSC.soapenv:Envelope.soapenv:Body.eai:Exchange.eai:Messages= Environment.XMLNSC.eai:Exchange.eai:Messages;
+		SET refXMLNSC.soapenv:Envelope.soapenv:Body.eai:Exchange.DqResults= Environment.XMLNSC.eai:Exchange.DqResults;
+		
+		SET OutputRoot.MQMD.Format = MQFMT_STRING;
+
+		DECLARE refCustOrdrState REFERENCE TO refXMLNSC.soapenv:Envelope.soapenv:Body.eai:Exchange.eai:Messages.eai:ArtsCustomerOrders.arts:CustomerOrderStatus;
+		
+		CALL core.log.info(MessageFlowLabel||'Module name: mod_finalHybris_response - CustomerOrderStateCode: PEN and CustomerOrderStateName: PENDING for -'||'EXTERNAL_ORDER :'||CAST(Environment.XMLNSC.nsOrder:Exchange.nsOrder:Messages.nsOrder:ArtsCustomerOrders.nsOrder1:CustomerOrderNumber AS CHARACTER));
+		SET refCustOrdrState.arts:CustomerOrderState.arts:CustomerOrderStateCode = 'PEN';
+		SET refCustOrdrState.arts:CustomerOrderState.arts:CustomerOrderStateName = 'PENDING';
+		
+		DECLARE refCustOrder REFERENCE TO refXMLNSC.soapenv:Envelope.soapenv:Body.eai:Exchange.eai:Messages.eai:ArtsCustomerOrders;
+		
+		SET refXMLNSC.soapenv:Envelope.soapenv:Body.eai:Exchange.eai:Messages.eai:ArtsCustomerOrders.arts:SourceOrderKey = Environment.Variables.nsFFCreateOrder:createOrderResponse.CustomerOrder.nsFFCreateOrder1:CustomerPurchaseOrderNumber;
+		
+		--SET Environment.Variables.Message = CAST(ASBITSTREAM(refXMLNSC.soapenv:Envelope OPTIONS FolderBitStream) AS CHAR CCSID CAST(Environment.MQMD.CodedCharSetId AS INT) ENCODING CAST(Environment.MQMD.Encoding AS INT));
+		--CALL core.log.InfoMessage(rEnv,schemaName || '.' || moduleName, Environment.Variables.Message);
+			
+		--DELETE FIELD OutputRoot.XMLNSC.XmlDeclaration;		
+				
+	RETURN TRUE;
+	END;
+END MODULE;
+
+CREATE COMPUTE MODULE mod_PosFailedHybrisMsg
+	CREATE FUNCTION Main() RETURNS BOOLEAN
+	BEGIN
+		SET OutputRoot.Properties = InputRoot.Properties;
+		SET OutputRoot.MQMD = InputRoot.MQMD;
+		SET OutputRoot.MQMD.CorrelId = InputRoot.MQMD.MsgId;
+		SET OutputRoot.MQMD.Format = MQFMT_STRING;
+
+		DECLARE eai NAMESPACE 'http://www.fgl.com/exchange/';
+		DECLARE eaiChld NAMESPACE 'http://www.fgl.com/ARTS';
+		DECLARE refXMLNSC REFERENCE To OutputRoot;
+		DECLARE refExcpType REFERENCE TO InputExceptionList.*[1];
+		DECLARE excptFlag,covnExcptFlag,crtFlg BOOLEAN FALSE;
+		DECLARE refExcpCode CHARACTER;
+		DECLARE moduleName CHARACTER 'mod_PosFailedHybrisMsg';
+		DECLARE rEnv REFERENCE TO Environment; 		
+
+		WHILE LASTMOVE(refExcpType) DO
+			IF (FIELDNAME(refExcpType) = 'UserException' ) THEN
+				SET excptFlag = TRUE;
+			END IF;
+			IF refExcpType.Number IS NOT NULL THEN
+				SET refExcpCode = refExcpType.Number;
+			END IF;
+			MOVE refExcpType LASTCHILD;
+		END WHILE;
+		CREATE LASTCHILD OF OutputRoot AS refXMLNSC DOMAIN 'XMLNSC';
+		
+		SET refXMLNSC.soapenv:Envelope.(XMLNSC.NamespaceDecl)xmlns:soapenv = soapenv;
+		SET refXMLNSC.soapenv:Envelope.(XMLNSC.NamespaceDecl)xmlns:eai = eai;
+		SET refXMLNSC.soapenv:Envelope.(XMLNSC.NamespaceDecl)xmlns:arts = arts;
+		SET refXMLNSC.soapenv:Envelope.soapenv:Body.eai:Exchange.eai:MessageRouting= Environment.XMLNSC.eai:Exchange.eai:MessageRouting;
+		SET refXMLNSC.soapenv:Envelope.soapenv:Body.eai:Exchange.eai:Messages= Environment.XMLNSC.eai:Exchange.eai:Messages;
+		SET refXMLNSC.soapenv:Envelope.soapenv:Body.eai:Exchange.DqResults= Environment.XMLNSC.eai:Exchange.DqResults;
+		DECLARE refCustOrdrState REFERENCE TO OutputRoot.XMLNSC.soapenv:Envelope.soapenv:Body.eai:Exchange.eai:Messages.eai:ArtsCustomerOrders.arts:CustomerOrderStatus;
+		
+		IF (excptFlag) THEN
+			SET refCustOrdrState.eaiChld:CustomerOrderState.eaiChld:CustomerOrderStateCode = 'F'||refExcpCode;
+			SET refCustOrdrState.eaiChld:CustomerOrderState.eaiChld:CustomerOrderStateName = refExcpType;
+			CALL core.log.info(MessageFlowLabel||'Module name: mod_PosFailedHybrisMsg - CustomerOrderStateCode: '||refCustOrdrState.eaiChld:CustomerOrderState.eaiChld:CustomerOrderStateCode||' AND CustomerOrderStateName: '||refExcpType);
+			--SET Environment.Variables.Message = CAST(ASBITSTREAM(refXMLNSC.soapenv:Envelope OPTIONS FolderBitStream) AS CHAR CCSID CAST(Environment.MQMD.CodedCharSetId AS INT) ENCODING CAST(Environment.MQMD.Encoding AS INT));
+			--CALL core.log.InfoMessage(rEnv, schemaName || '.' || moduleName, Environment.Variables.Message);			
+		ELSE
+			SET refCustOrdrState.eaiChld:CustomerOrderState.eaiChld:CustomerOrderStateCode = 'F1001';
+			SET refCustOrdrState.eaiChld:CustomerOrderState.eaiChld:CustomerOrderStateName = 'UNEXPECTED_ERROR';
+			CALL core.log.info(MessageFlowLabel||'Module name: mod_PosFailedHybrisMsg - CustomerOrderStateCode: F1001 AND CustomerOrderStateName: UNEXPECTED_ERROR');
+			--SET Environment.Variables.Message = CAST(ASBITSTREAM(refXMLNSC.soapenv:Envelope OPTIONS FolderBitStream) AS CHAR CCSID CAST(Environment.MQMD.CodedCharSetId AS INT) ENCODING CAST(Environment.MQMD.Encoding AS INT));
+			--CALL core.log.InfoMessage(rEnv, schemaName || '.' || moduleName, Environment.Variables.Message);
+		END IF;
+	END;
+END MODULE;
+
+
+CREATE COMPUTE MODULE mod_save_TransactionId_Giftcard_number
+	CREATE FUNCTION Main() RETURNS BOOLEAN
+	BEGIN
+		SET OutputRoot = InputRoot;
+		SET Environment.Variables.nsOrderSharedContainer:OrderSharedContainer.POS_TRANSACTION_ID = Environment.XMLNSC.eai:Exchange.eai:Messages.eai:Transaction.arts:Transaction.arts:TransactionID;
+		SET Environment.Variables.nsOrderSharedContainer:OrderSharedContainer.VIRTUAL_GIFT_CARD_NUMBER = Environment.Variables.GiftCardNumbFull;
+	END;
+END MODULE;

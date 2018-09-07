@@ -1,0 +1,136 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ecore:EPackage xmi:version="2.0"
+    xmlns:xmi="http://www.omg.org/XMI" xmlns:ComIbmFlowOrder.msgnode="ComIbmFlowOrder.msgnode" xmlns:ComIbmMQHeader.msgnode="ComIbmMQHeader.msgnode" xmlns:ComIbmMQInput.msgnode="ComIbmMQInput.msgnode" xmlns:ComIbmMQOutput.msgnode="ComIbmMQOutput.msgnode" xmlns:core_message__postprocessor.subflow="core/message/_postprocessor.subflow" xmlns:core_message__preprocessor.subflow="core/message/_preprocessor.subflow" xmlns:ecore="http://www.eclipse.org/emf/2002/Ecore" xmlns:eflow="http://www.ibm.com/wbi/2005/eflow"
+    xmlns:trx_ordershortage_dom_TrxOrderShortage.subflow="trx/ordershortage/dom/TrxOrderShortage.subflow" xmlns:utility="http://www.ibm.com/wbi/2005/eflow_utility" nsURI="trx/ordershortage/dom/TrxOrderShortage.msgflow"
+    nsPrefix="trx_ordershortage_dom_TrxOrderShortage.msgflow">
+  <eClassifiers xmi:type="eflow:FCMComposite" name="FCMComposite_1">
+    <eSuperTypes href="http://www.ibm.com/wbi/2005/eflow#//FCMBlock"/>
+    <eStructuralFeatures xmi:type="ecore:EAttribute" xmi:id="Property.IIBInBoundQueue" name="IIBInBoundQueue" lowerBound="1" defaultValueLiteral="RECV.FGL.OMS.DOM.SHORTAGE_OUT.IIB.DV">
+      <eType xmi:type="ecore:EDataType" href="http://www.eclipse.org/emf/2002/Ecore#//EString"/>
+    </eStructuralFeatures>
+    <eStructuralFeatures xmi:type="ecore:EAttribute" xmi:id="Property.CoreAuditDataSource" name="CoreAuditDataSource" defaultValueLiteral="AUDDEV">
+      <eType xmi:type="ecore:EDataType" href="http://www.eclipse.org/emf/2002/Ecore#//EString"/>
+    </eStructuralFeatures>
+    <eStructuralFeatures xmi:type="ecore:EAttribute" xmi:id="Property.WMSOutBoundQueue" name="WMSOutBoundQueue" defaultValueLiteral="SEND.FGL.OMS.DOM.SHORTAGE_OUT.AMB.DV">
+      <eType xmi:type="ecore:EDataType" href="http://www.eclipse.org/emf/2002/Ecore#//EString"/>
+    </eStructuralFeatures>
+    <eStructuralFeatures xmi:type="ecore:EAttribute" xmi:id="Property.CoreAuditEnabled" name="CoreAuditEnabled" lowerBound="1" defaultValueLiteral="false">
+      <eType xmi:type="ecore:EDataType" href="http://www.eclipse.org/emf/2002/Ecore#//EBoolean"/>
+    </eStructuralFeatures>
+    <eStructuralFeatures xmi:type="ecore:EAttribute" xmi:id="Property.CoreAuditDetailEnabled" name="CoreAuditDetailEnabled" lowerBound="1" defaultValueLiteral="false">
+      <eType xmi:type="ecore:EDataType" href="http://www.eclipse.org/emf/2002/Ecore#//EBoolean"/>
+    </eStructuralFeatures>
+    <eStructuralFeatures xmi:type="ecore:EAttribute" xmi:id="Property.CoreMessageValidation1" name="CoreMessageValidation1" lowerBound="1" defaultValueLiteral="false">
+      <eType xmi:type="ecore:EDataType" href="http://www.eclipse.org/emf/2002/Ecore#//EBoolean"/>
+    </eStructuralFeatures>
+    <eStructuralFeatures xmi:type="ecore:EAttribute" xmi:id="Property.CoreMessageValidation2" name="CoreMessageValidation2" lowerBound="1" defaultValueLiteral="false">
+      <eType xmi:type="ecore:EDataType" href="http://www.eclipse.org/emf/2002/Ecore#//EBoolean"/>
+    </eStructuralFeatures>
+    <eStructuralFeatures xmi:type="ecore:EAttribute" xmi:id="Property.DOMOutboundBackupQueue" name="DOMOutboundBackupQueue" defaultValueLiteral="FGL.OMS.DOM.SHORTAGE_OUT.IIB.2">
+      <eType xmi:type="ecore:EDataType" href="http://www.eclipse.org/emf/2002/Ecore#//EString"/>
+    </eStructuralFeatures>
+    <translation xmi:type="utility:TranslatableString" key="TrxOrderShortage" bundleName="trx/ordershortage/dom/TrxOrderShortage" pluginId="trx-ordershortage-dom-inbound-fgl"/>
+    <colorGraphic16 xmi:type="utility:GIFFileGraphic" resourceName="platform:/plugin/trx-ordershortage-dom-inbound-fgl/icons/full/obj16/TrxOrderShortage.gif"/>
+    <colorGraphic32 xmi:type="utility:GIFFileGraphic" resourceName="platform:/plugin/trx-ordershortage-dom-inbound-fgl/icons/full/obj30/TrxOrderShortage.gif"/>
+    <shortDescription xmi:type="utility:ConstantString" string="WM to DOM order shortage flow involving WM to OMS transformation."/>
+    <longDescription xmi:type="utility:ConstantString" string="WM to DOM order shortage flow involving WM to OMS transformation"/>
+    <composition>
+      <nodes xmi:type="ComIbmMQInput.msgnode:FCMComposite_1" xmi:id="FCMComposite_1_1" location="-26,24">
+        <translation xmi:type="utility:ConstantString" string="RECV.FGL.OMS.DOM.SHORTAGE_OUT.IIB.DV"/>
+      </nodes>
+      <nodes xmi:type="ComIbmMQOutput.msgnode:FCMComposite_1" xmi:id="FCMComposite_1_2" location="700,114">
+        <translation xmi:type="utility:ConstantString" string="SEND.FGL.OMS.DOM.SHORTAGE_OUT.AMB.DV"/>
+      </nodes>
+      <nodes xmi:type="core_message__preprocessor.subflow:FCMComposite_1" xmi:id="FCMComposite_1_3" location="277,20">
+        <translation xmi:type="utility:ConstantString" string="CoreMessagePreProcessor"/>
+      </nodes>
+      <nodes xmi:type="core_message__postprocessor.subflow:FCMComposite_1" xmi:id="FCMComposite_1_4" location="895,20">
+        <translation xmi:type="utility:ConstantString" string="CoreMessagePostProcessor"/>
+      </nodes>
+      <nodes xmi:type="trx_ordershortage_dom_TrxOrderShortage.subflow:FCMComposite_1" xmi:id="FCMComposite_1_5" location="531,111">
+        <translation xmi:type="utility:ConstantString" string="trxOrderShortage"/>
+      </nodes>
+      <nodes xmi:type="ComIbmFlowOrder.msgnode:FCMComposite_1" xmi:id="FCMComposite_1_6" location="160,134">
+        <translation xmi:type="utility:ConstantString" string="Flow Order"/>
+      </nodes>
+      <nodes xmi:type="ComIbmMQHeader.msgnode:FCMComposite_1" xmi:id="FCMComposite_1_7" location="295,198" mqmdAAAOptions="Modify header" mqmdCodedCharSetId="Inherit" mqmdFormat="Inherit" mqmdMsgType="Inherit" mqmdExpiry="6048000" mqmdFeedback="Inherit" mqmdPersistence="MQPER_PERSISTENT" mqmdMsgId="Inherit" mqmdCorrelId="Inherit" mqmdReplyToQ="Inherit" mqmdReplyToQMgr="Inherit">
+        <translation xmi:type="utility:ConstantString" string="MQ Header"/>
+      </nodes>
+      <nodes xmi:type="ComIbmMQOutput.msgnode:FCMComposite_1" xmi:id="FCMComposite_1_8" location="518,202" queueName="SEND.FGL.OMS.DOM.SHORTAGE_OUT.IIB.DV.2">
+        <translation xmi:type="utility:ConstantString" string="FGL.OMS.DOM.SHORTAGE_OUT.IIB.2"/>
+      </nodes>
+      <connections xmi:type="eflow:FCMConnection" xmi:id="FCMConnection_1" targetNode="FCMComposite_1_3" sourceNode="FCMComposite_1_1" sourceTerminalName="OutTerminal.failure" targetTerminalName="InTerminal.FailureInput"/>
+      <connections xmi:type="eflow:FCMConnection" xmi:id="FCMConnection_3" targetNode="FCMComposite_1_3" sourceNode="FCMComposite_1_1" sourceTerminalName="OutTerminal.catch" targetTerminalName="InTerminal.Input"/>
+      <connections xmi:type="eflow:FCMConnection" xmi:id="FCMConnection_4" targetNode="FCMComposite_1_4" sourceNode="FCMComposite_1_3" sourceTerminalName="OutTerminal.Output" targetTerminalName="InTerminal.Input"/>
+      <connections xmi:type="eflow:FCMConnection" xmi:id="FCMConnection_5" targetNode="FCMComposite_1_4" sourceNode="FCMComposite_1_3" sourceTerminalName="OutTerminal.FailureOutput" targetTerminalName="InTerminal.Input2"/>
+      <connections xmi:type="eflow:FCMConnection" xmi:id="FCMConnection_6" targetNode="FCMComposite_1_4" sourceNode="FCMComposite_1_2" sourceTerminalName="OutTerminal.out" targetTerminalName="InTerminal.Input1"/>
+      <connections xmi:type="eflow:FCMConnection" xmi:id="FCMConnection_7" targetNode="FCMComposite_1_5" sourceNode="FCMComposite_1_3" sourceTerminalName="OutTerminal.CatchOutput" targetTerminalName="InTerminal.Input"/>
+      <connections xmi:type="eflow:FCMConnection" xmi:id="FCMConnection_8" targetNode="FCMComposite_1_2" sourceNode="FCMComposite_1_5" sourceTerminalName="OutTerminal.Output1" targetTerminalName="InTerminal.in"/>
+      <connections xmi:type="eflow:FCMConnection" xmi:id="FCMConnection_9" targetNode="FCMComposite_1_4" sourceNode="FCMComposite_1_5" sourceTerminalName="OutTerminal.Output" targetTerminalName="InTerminal.Input1"/>
+      <connections xmi:type="eflow:FCMConnection" xmi:id="FCMConnection_2" targetNode="FCMComposite_1_6" sourceNode="FCMComposite_1_1" sourceTerminalName="OutTerminal.out" targetTerminalName="InTerminal.in"/>
+      <connections xmi:type="eflow:FCMConnection" xmi:id="FCMConnection_10" targetNode="FCMComposite_1_3" sourceNode="FCMComposite_1_6" sourceTerminalName="OutTerminal.first" targetTerminalName="InTerminal.CatchInput"/>
+      <connections xmi:type="eflow:FCMConnection" xmi:id="FCMConnection_11" targetNode="FCMComposite_1_7" sourceNode="FCMComposite_1_6" sourceTerminalName="OutTerminal.second" targetTerminalName="InTerminal.in"/>
+      <connections xmi:type="eflow:FCMConnection" xmi:id="FCMConnection_12" targetNode="FCMComposite_1_8" sourceNode="FCMComposite_1_7" sourceTerminalName="OutTerminal.out" targetTerminalName="InTerminal.in"/>
+    </composition>
+    <propertyOrganizer>
+      <propertyDescriptor groupName="Group.Basic" propertyEditor="com.ibm.etools.mft.ibmnodes.editors.mq.MQQueueNameEditor" configurable="true" describedAttribute="Property.IIBInBoundQueue">
+        <propertyName xmi:type="utility:TranslatableString" key="Property.IIBInBoundQueue" bundleName="trx/ordershortage/dom/TrxOrderShortage" pluginId="trx-ordershortage-dom-inbound-fgl"/>
+        <propertyDescriptor groupName="Group.Basic" configurable="true" describedAttribute="Property.CoreAuditDataSource">
+          <propertyName xmi:type="utility:TranslatableString" key="Property.CoreAuditDataSource" bundleName="core/audit/_audit" pluginId="core-audit-handler-library"/>
+          <propertyDescriptor groupName="Group.Basic" propertyEditor="com.ibm.etools.mft.ibmnodes.editors.mq.MQQueueNameEditor" configurable="true" describedAttribute="Property.WMSOutBoundQueue">
+            <propertyName xmi:type="utility:TranslatableString" key="Property.WMSOutBoundQueue" bundleName="trx/ordershortage/dom/TrxOrderShortage" pluginId="trx-ordershortage-dom-inbound-fgl"/>
+            <propertyDescriptor groupName="Group.Basic" configurable="true" userDefined="true" describedAttribute="Property.CoreAuditEnabled">
+              <propertyName xmi:type="utility:TranslatableString" key="Property.CoreAuditEnabled" bundleName="core/audit/_audit" pluginId="core-audit-handler-library"/>
+              <propertyDescriptor groupName="Group.Basic" configurable="true" userDefined="true" describedAttribute="Property.CoreAuditDetailEnabled">
+                <propertyName xmi:type="utility:TranslatableString" key="Property.CoreAuditDetailEnabled" bundleName="core/audit/_audit_detail" pluginId="core-audit-handler-library"/>
+                <propertyDescriptor groupName="Group.Basic" configurable="true" userDefined="true" describedAttribute="Property.CoreMessageValidation1">
+                  <propertyName xmi:type="utility:TranslatableString" key="Property.CoreMessageValidation1" bundleName="dat/location/dom/_subscriber" pluginId="dat-location-dom-library"/>
+                  <propertyDescriptor groupName="Group.Basic" configurable="true" userDefined="true" describedAttribute="Property.CoreMessageValidation2">
+                    <propertyName xmi:type="utility:TranslatableString" key="Property.CoreMessageValidation2" bundleName="dat/location/dom/_subscriber" pluginId="dat-location-dom-library"/>
+                    <propertyDescriptor groupName="Group.Basic" propertyEditor="com.ibm.etools.mft.ibmnodes.editors.mq.MQQueueNameEditor" configurable="true" describedAttribute="Property.DOMOutboundBackupQueue">
+                      <propertyName xmi:type="utility:TranslatableString" key="Property.DOMOutboundBackupQueue" bundleName="trx/ordershortage/dom/TrxOrderShortage" pluginId="trx-ordershortage-dom-inbound-fgl"/>
+                    </propertyDescriptor>
+                  </propertyDescriptor>
+                </propertyDescriptor>
+              </propertyDescriptor>
+            </propertyDescriptor>
+          </propertyDescriptor>
+        </propertyDescriptor>
+      </propertyDescriptor>
+    </propertyOrganizer>
+    <attributeLinks promotedAttribute="Property.IIBInBoundQueue" overriddenNodes="FCMComposite_1_1">
+      <overriddenAttribute href="ComIbmMQInput.msgnode#Property.queueName"/>
+    </attributeLinks>
+    <attributeLinks promotedAttribute="Property.CoreAuditDataSource" overriddenNodes="FCMComposite_1_3">
+      <overriddenAttribute href="core/message/_preprocessor.subflow#Property.CoreAuditDataSource"/>
+    </attributeLinks>
+    <attributeLinks promotedAttribute="Property.CoreAuditDataSource" overriddenNodes="FCMComposite_1_4">
+      <overriddenAttribute href="core/message/_postprocessor.subflow#Property.CoreAuditDataSource"/>
+    </attributeLinks>
+    <attributeLinks promotedAttribute="Property.CoreAuditDataSource" overriddenNodes="FCMComposite_1_5">
+      <overriddenAttribute href="trx/ordershortage/dom/TrxOrderShortage.subflow#Property.CoreAuditDataSource"/>
+    </attributeLinks>
+    <attributeLinks promotedAttribute="Property.WMSOutBoundQueue" overriddenNodes="FCMComposite_1_2">
+      <overriddenAttribute href="ComIbmMQOutput.msgnode#Property.queueName"/>
+    </attributeLinks>
+    <attributeLinks promotedAttribute="Property.CoreAuditEnabled" overriddenNodes="FCMComposite_1_4">
+      <overriddenAttribute href="core/message/_postprocessor.subflow#Property.CoreAuditEnabled"/>
+    </attributeLinks>
+    <attributeLinks promotedAttribute="Property.CoreAuditEnabled" overriddenNodes="FCMComposite_1_3">
+      <overriddenAttribute href="core/message/_preprocessor.subflow#Property.CoreAuditEnabled"/>
+    </attributeLinks>
+    <attributeLinks promotedAttribute="Property.CoreAuditDetailEnabled" overriddenNodes="FCMComposite_1_5">
+      <overriddenAttribute href="trx/ordershortage/dom/TrxOrderShortage.subflow#Property.CoreAuditDetailEnabled"/>
+    </attributeLinks>
+    <attributeLinks promotedAttribute="Property.CoreMessageValidation1" overriddenNodes="FCMComposite_1_5">
+      <overriddenAttribute href="trx/ordershortage/dom/TrxOrderShortage.subflow#Property.CoreMessageValidation1"/>
+    </attributeLinks>
+    <attributeLinks promotedAttribute="Property.CoreMessageValidation2" overriddenNodes="FCMComposite_1_5">
+      <overriddenAttribute href="trx/ordershortage/dom/TrxOrderShortage.subflow#Property.CoreMessageValidation2"/>
+    </attributeLinks>
+    <attributeLinks promotedAttribute="Property.DOMOutboundBackupQueue" overriddenNodes="FCMComposite_1_8">
+      <overriddenAttribute href="ComIbmMQOutput.msgnode#Property.queueName"/>
+    </attributeLinks>
+    <stickyBoard/>
+  </eClassifiers>
+</ecore:EPackage>

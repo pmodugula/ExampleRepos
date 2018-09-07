@@ -1,0 +1,227 @@
+
+
+
+
+
+
+BROKER SCHEMA com.marks.hyb.fastfind
+
+/*
+* File name : submit_pos_transaction.esql
+* Purpose : To implement submit_pos_transaction Flow .
+* Authors : V V Surendra Madduri
+* Create Date : 15th Aug 2015
+*
+* Version History
+* Version Module Name Revision Date Revision Details
+* ============= =========== ============= ==================================================================================
+* 1.0 submit_pos_transaction 15th Aug 2015 Inital Version
+*
+* @copyright MWW-FGLSPORTS 2015. All rights reserved.
+*/
+
+DECLARE nsTPS NAMESPACE 'http://com/marks/TxnPost/inf';
+DECLARE RetekSchema EXTERNAL CHARACTER '';
+
+CREATE COMPUTE MODULE submit_pos_transaction_Req
+	CREATE FUNCTION Main() RETURNS BOOLEAN
+	BEGIN
+		CALL core.log.Info(MessageFlowLabel||'Module name: submit_pos_transaction_Req - Transaction posting message creation for-'||'EXTERNAL_ORDER :'||CAST(Environment.XMLNSC.nsOrder:Exchange.nsOrder:Messages.nsOrder:ArtsCustomerOrders.nsOrder1:CustomerOrderNumber AS CHARACTER));
+		DECLARE EnvRef REFERENCE TO Environment.Variables;
+		SET EnvRef.VirtualGiftCard = InputRoot.DFDL.Output904;
+		SET EnvRef.nsTPS:submitTxn.submitTxnRequest.store = EnvRef.nsFFCreateOrder:createOrderResponse.CustomerOrder.nsFFCreateOrder1:OrderFacilities.nsFFCreateOrder1:OrderFacility.nsFFCreateOrder1:FacilityRetailStore.nsFFCreateOrder1:BusinessUnitNumber;
+
+		--POE-21258		
+		IF (EnvRef.nsOrder:Exchange.nsOrder:Messages.nsOrder:SourceSystems.nsOrder:SourceSystem.nsOrder:MessageSourceCode = 'FF') THEN
+			SET EnvRef.nsTPS:submitTxn.submitTxnRequest."consumer-id" = 'LEQUIPEUR';
+		ELSE
+			SET EnvRef.nsTPS:submitTxn.submitTxnRequest."consumer-id" = EnvRef.nsOrder:Exchange.nsOrder:Messages.nsOrder:SourceSystems.nsOrder:SourceSystem.nsOrder:MessageSourceCode;
+		END IF;
+		
+		SET EnvRef.nsTPS:submitTxn.submitTxnRequest."created-date" = CURRENT_TIMESTAMP;
+		SET EnvRef.nsTPS:submitTxn.submitTxnRequest."submitted-date" = CURRENT_TIMESTAMP;
+		--ADD VIRTUAL GIFT CARD SKU ITEM # 400008725941
+		CALL fetchVirtualGiftcardSKU(EnvRef);
+		SET EnvRef.nsTPS:submitTxn.submitTxnRequest."purchased-items"[1].sku = EnvRef.VirtualGiftcardSKU.SKU;
+		--CAST( RefToOrderLineTax.nsOrder1:TaxAmount AS DECIMAL)
+		DECLARE TOTAL_SHIPPING_AMOUNT DECIMAL CAST(EnvRef.SHIPPING_DETAILS.SHIPPING_CHARGES.SHIPPING_AMOUNT AS DECIMAL) + CAST(COALESCE(EnvRef.SHIPPING_DETAILS.SHIPPING_CHARGES.SHIPPING_FEDERAL_TAX,0) AS DECIMAL) + CAST(COALESCE(EnvRef.SHIPPING_DETAILS.SHIPPING_CHARGES.SHIPPING_PROVINCIAL_TAX,0) AS DECIMAL);
+		DECLARE TOTAL_ITEMS_PRICE DECIMAL CAST(FIELDVALUE(EnvRef.nsOrder:Exchange.nsOrder:Messages.nsOrder:ArtsCustomerOrders.nsOrder1:OrderTotalAmount) AS DECIMAL) - TOTAL_SHIPPING_AMOUNT;
+		SET EnvRef.nsTPS:submitTxn.submitTxnRequest."purchased-items"[1]."original-price" = TOTAL_ITEMS_PRICE;
+		SET EnvRef.nsTPS:submitTxn.submitTxnRequest."purchased-items"[1]."selling-price" = TOTAL_ITEMS_PRICE;
+		SET EnvRef.nsTPS:submitTxn.submitTxnRequest."purchased-items"[1]."line-item-detail"."sold-price" = TOTAL_ITEMS_PRICE;
+		SET EnvRef.nsTPS:submitTxn.submitTxnRequest."purchased-items"[1]."line-item-detail"."federal-tax-amount" = 0.00;
+		SET EnvRef.nsTPS:submitTxn.submitTxnRequest."purchased-items"[1]."line-item-detail"."provincial-tax-amount" = 0.00;
+
+		SET EnvRef.nsTPS:submitTxn.submitTxnRequest."purchased-items"[1]."line-item-detail".FastFindVirtuaGiftCard.giftcardnumber = SUBSTRING(FIELDVALUE(EnvRef.VirtualGiftCard.body.GivxNumb) FROM 1 FOR 9);
+		SET EnvRef.nsTPS:submitTxn.submitTxnRequest."purchased-items"[1]."line-item-detail".FastFindVirtuaGiftCard.giftcardvalue = InputRoot.DFDL.Output904.body.CertBal;
+		--ADD SHIPPPING LINE ITEM
+		--DECLARE PURCHASED_ITEM_COUNT INTEGER CARDINALITY(EnvRef.nsTPS:submitTxn.submitTxnRequest."purchased-items"[]);
+		SET EnvRef.nsTPS:submitTxn.submitTxnRequest."purchased-items"[2].sku = '400002688136';
+		SET EnvRef.nsTPS:submitTxn.submitTxnRequest."purchased-items"[2]."original-price" = EnvRef.SHIPPING_DETAILS.SHIPPING_CHARGES.SHIPPING_AMOUNT;
+		SET EnvRef.nsTPS:submitTxn.submitTxnRequest."purchased-items"[2]."selling-price" = EnvRef.SHIPPING_DETAILS.SHIPPING_CHARGES.SHIPPING_AMOUNT;
+		SET EnvRef.nsTPS:submitTxn.submitTxnRequest."purchased-items"[2]."line-item-detail"."sold-price" = EnvRef.SHIPPING_DETAILS.SHIPPING_CHARGES.SHIPPING_AMOUNT;
+		SET EnvRef.nsTPS:submitTxn.submitTxnRequest."purchased-items"[2]."line-item-detail"."federal-tax-amount" = COALESCE(EnvRef.SHIPPING_DETAILS.SHIPPING_CHARGES.SHIPPING_FEDERAL_TAX,0);
+		SET EnvRef.nsTPS:submitTxn.submitTxnRequest."purchased-items"[2]."line-item-detail"."provincial-tax-amount" = COALESCE(EnvRef.SHIPPING_DETAILS.SHIPPING_CHARGES.SHIPPING_PROVINCIAL_TAX,0);
+
+
+		SET EnvRef.nsTPS:submitTxn.submitTxnRequest."net-amount" = FIELDVALUE(EnvRef.nsOrder:Exchange.nsOrder:Messages.nsOrder:ArtsCustomerOrders.nsOrder1:OrderSubtotalAmount);
+		SET EnvRef.nsTPS:submitTxn.submitTxnRequest."total-amount" = FIELDVALUE(EnvRef.nsOrder:Exchange.nsOrder:Messages.nsOrder:ArtsCustomerOrders.nsOrder1:OrderTotalAmount);
+
+		DECLARE RefToCardDetails REFERENCE TO EnvRef.nsOrder:Exchange.nsOrder:Messages.nsOrder:ArtsCustomerOrders.nsOrder1:CustomerOrderLineItems.nsOrder1:CustomerOrderLineItem.nsOrder1:CustomerOrderPaymentLineItem[1];
+
+		DECLARE CARD_ITEM_COUNT INTEGER;
+		SET CARD_ITEM_COUNT = CARDINALITY(EnvRef.nsOrder:Exchange.nsOrder:Messages.nsOrder:ArtsCustomerOrders.nsOrder1:CustomerOrderLineItems.nsOrder1:CustomerOrderLineItem.nsOrder1:CustomerOrderPaymentLineItem[]);
+
+		DECLARE CARD_ITEM_INDEX INTEGER 1;
+		WHILE (CARD_ITEM_INDEX <= CARD_ITEM_COUNT) DO
+			IF EnvRef.nsOrder:Exchange.nsOrder:Messages.nsOrder:ArtsCustomerOrders.nsOrder1:CustomerOrderLineItems.nsOrder1:CustomerOrderLineItem.nsOrder1:CustomerOrderPaymentLineItem[CARD_ITEM_INDEX].nsOrder1:TenderType.nsOrder1:TenderTypeCode = 'PAYPAL' THEN
+				SET EnvRef.nsTPS:submitTxn.submitTxnRequest."dc-payments"[CARD_ITEM_INDEX]."card-type" = 'PAYPAL';
+			ELSE
+				SET EnvRef.nsTPS:submitTxn.submitTxnRequest."dc-payments"[CARD_ITEM_INDEX]."card-type" = 'CREDIT';
+			END IF;
+			SET EnvRef.nsTPS:submitTxn.submitTxnRequest."dc-payments"[CARD_ITEM_INDEX].amount = FIELDVALUE(RefToCardDetails.nsOrder1:TenderType.nsOrder1:FastFindExtensions.nsOrder1:RequestedAmount);
+			DECLARE CARD_ISSUE_SEQUENCE_NUMBER CHARACTER FIELDVALUE(RefToCardDetails.nsOrder1:TenderType.nsOrder1:FastFindExtensions.nsOrder1:CardIssueSequenceNumber);
+			CALL getCardDetails(SUBSTRING(CARD_ISSUE_SEQUENCE_NUMBER from 1 for 2), EnvRef);
+			SET EnvRef.nsTPS:submitTxn.submitTxnRequest."dc-payments"[CARD_ITEM_INDEX]."card-name" = EnvRef.CARD_DETAIL.CARD_NAME;
+			SET EnvRef.nsTPS:submitTxn.submitTxnRequest."dc-payments"[CARD_ITEM_INDEX]."card-number" = EnvRef.CARD_DETAIL.CARD_NUMBER;
+			SET EnvRef.nsTPS:submitTxn.submitTxnRequest."dc-payments"[CARD_ITEM_INDEX]."authorization-number" = FIELDVALUE(RefToCardDetails.nsOrder1:TenderType.nsOrder1:FastFindExtensions.nsOrder1:AdjudicationCode);
+			SET EnvRef.nsTPS:submitTxn.submitTxnRequest."dc-payments"[CARD_ITEM_INDEX]."bank-sequence" = FIELDVALUE(RefToCardDetails.nsOrder1:TenderType.nsOrder1:FastFindExtensions.nsOrder1:AccountNumber);
+			SET EnvRef.nsTPS:submitTxn.submitTxnRequest."dc-payments"[CARD_ITEM_INDEX]."terminal-id" = FIELDVALUE(RefToCardDetails.nsOrder1:TenderType.nsOrder1:FastFindExtensions.nsOrder1:TenderAuthorizationTerminalId);
+			SET EnvRef.nsTPS:submitTxn.submitTxnRequest."dc-payments"[CARD_ITEM_INDEX]."expiration-date" = FIELDVALUE(RefToCardDetails.nsOrder1:TenderType.nsOrder1:FastFindExtensions.nsOrder1:CardExpirationDate);
+			SET EnvRef.nsTPS:submitTxn.submitTxnRequest."dc-payments"[CARD_ITEM_INDEX]."authorization-message" = FIELDVALUE(RefToCardDetails.nsOrder1:TenderType.nsOrder1:FastFindExtensions.nsOrder1:HostText);
+			SET EnvRef.nsTPS:submitTxn.submitTxnRequest."dc-payments"[CARD_ITEM_INDEX]."authorization-date" = SUBSTRING(FIELDVALUE(RefToCardDetails.nsOrder1:TenderType.nsOrder1:FastFindExtensions.nsOrder1:AuthorizationDatetime) FROM 1 FOR 10);
+
+			SET CARD_ITEM_INDEX = CARD_ITEM_INDEX + 1;
+			MOVE RefToCardDetails NEXTSIBLING;
+		END WHILE;
+
+		SET OutputRoot.XMLNSC.nsTPS:submitTxn = EnvRef.nsTPS:submitTxn;
+
+		CALL core.log.Info(MessageFlowLabel||'Module name: submit_pos_transaction_Req - Trasnsaction posting message created and calling Transaction posting service for - '||'EXTERNAL_ORDER :'||CAST(Environment.XMLNSC.nsOrder:Exchange.nsOrder:Messages.nsOrder:ArtsCustomerOrders.nsOrder1:CustomerOrderNumber AS CHARACTER));
+
+		RETURN TRUE;
+	END;
+END MODULE;
+
+
+
+CREATE PROCEDURE getCardDetails(IN CARD_ISSUE_SEQUENCE_NUMBER CHARACTER, IN EnvRef REFERENCE)
+BEGIN
+
+	DECLARE CARD_NAME CHARACTER '';
+	DECLARE CARD_NUMBER CHARACTER '';
+	--AMEX
+	--prefixes 34, 37
+	-- 123456789012345 all AMEX cards are 16 chars
+	IF(CARD_ISSUE_SEQUENCE_NUMBER = '34') THEN
+	SET CARD_NAME = 'AMEX';
+	SET CARD_NUMBER = '340000000000009';
+END IF;
+
+IF(CARD_ISSUE_SEQUENCE_NUMBER = '37') THEN
+SET CARD_NAME = 'AMEX';
+SET CARD_NUMBER = '370000000000002';
+END IF;
+--Visa
+-- prefixes 40, 41, 42, 43, 44, 45, 46, 47, 48, 49
+-- 1234567890123456 Visa cards can be either 13 or 16 chars
+
+IF(CARD_ISSUE_SEQUENCE_NUMBER = '40') THEN
+SET CARD_NAME = 'VISA';
+SET CARD_NUMBER = '4000000000000002';
+END IF;
+
+IF(CARD_ISSUE_SEQUENCE_NUMBER = '41') THEN
+SET CARD_NAME = 'VISA';
+SET CARD_NUMBER = '4100000000000001';
+END IF;
+
+IF(CARD_ISSUE_SEQUENCE_NUMBER = '42') THEN
+SET CARD_NAME = 'VISA';
+SET CARD_NUMBER = '4200000000000000';
+END IF;
+
+IF(CARD_ISSUE_SEQUENCE_NUMBER = '43') THEN
+SET CARD_NAME = 'VISA';
+SET CARD_NUMBER = '4300000000000009';
+END IF;
+
+IF(CARD_ISSUE_SEQUENCE_NUMBER = '44') THEN
+SET CARD_NAME = 'VISA';
+SET CARD_NUMBER = '4400000000000008';
+END IF;
+
+IF(CARD_ISSUE_SEQUENCE_NUMBER = '45') THEN
+SET CARD_NAME = 'VISA';
+SET CARD_NUMBER = '4500000000000007';
+END IF;
+
+IF(CARD_ISSUE_SEQUENCE_NUMBER = '46') THEN
+SET CARD_NAME = 'VISA';
+SET CARD_NUMBER = '4600000000000006';
+END IF;
+
+IF(CARD_ISSUE_SEQUENCE_NUMBER = '47') THEN
+SET CARD_NAME = 'VISA';
+SET CARD_NUMBER = '4700000000000005';
+END IF;
+
+IF(CARD_ISSUE_SEQUENCE_NUMBER = '48') THEN
+SET CARD_NAME = 'VISA';
+SET CARD_NUMBER = '4800000000000004';
+END IF;
+
+IF(CARD_ISSUE_SEQUENCE_NUMBER = '49') THEN
+SET CARD_NAME = 'VISA';
+SET CARD_NUMBER = '4900000000000003';
+END IF;
+--MasterCard
+--prefixes 51, 52, 53, 54, 55
+--1234567890123456 all MasterCard cards are 16 chars
+
+IF(CARD_ISSUE_SEQUENCE_NUMBER = '51') THEN
+SET CARD_NAME = 'MasterCard';
+SET CARD_NUMBER = '5100000000000008';
+END IF;
+
+IF(CARD_ISSUE_SEQUENCE_NUMBER = '52') THEN
+SET CARD_NAME = 'MasterCard';
+SET CARD_NUMBER = '5200000000000007';
+END IF;
+
+IF(CARD_ISSUE_SEQUENCE_NUMBER = '53') THEN
+SET CARD_NAME = 'MasterCard';
+SET CARD_NUMBER = '5300000000000006';
+END IF;
+
+IF(CARD_ISSUE_SEQUENCE_NUMBER = '54') THEN
+SET CARD_NAME = 'MasterCard';
+SET CARD_NUMBER = '5400000000000005';
+END IF;
+
+IF(CARD_ISSUE_SEQUENCE_NUMBER = '55') THEN
+SET CARD_NAME = 'MasterCard';
+SET CARD_NUMBER = '5500000000000004';
+END IF;
+
+--PayPal
+--Prefixes 66
+--Assuming all PayPal cards are 16 chars
+
+IF(CARD_ISSUE_SEQUENCE_NUMBER = '66') THEN
+SET CARD_NAME = 'PayPal';
+SET CARD_NUMBER = '6600000000000001';
+END IF;
+
+SET EnvRef.CARD_DETAIL.CARD_NAME = CARD_NAME;
+SET EnvRef.CARD_DETAIL.CARD_NUMBER = CARD_NUMBER;
+
+END;
+
+
+CREATE PROCEDURE fetchVirtualGiftcardSKU(IN EnvRef REFERENCE)
+BEGIN
+	DECLARE selectQuery_Giftcard_SKU CHARACTER 'select item.sku from '||RetekSchema||'.item item , '||RetekSchema||'.UNIFIEDUPCXREF xref, '||RetekSchema||'.GIFTCARDTYPE gt where gt.sku=xref.upc and xref.item_id = item.id and gt.sku =990';
+	SET EnvRef.giftcard_SKU_ResultSet[] = PASSTHRU(selectQuery_Giftcard_SKU);
+	SET EnvRef.VirtualGiftcardSKU.SKU = EnvRef.giftcard_SKU_ResultSet[1].SKU;
+END;

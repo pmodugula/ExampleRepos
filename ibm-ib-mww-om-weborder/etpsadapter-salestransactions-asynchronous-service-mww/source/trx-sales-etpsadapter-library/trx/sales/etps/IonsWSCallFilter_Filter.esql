@@ -1,0 +1,28 @@
+BROKER SCHEMA trx.sales.etps
+/**************************************************************************************
+* Node Name:		GCRedemptionEnabled
+* Module Name:		RedeemGCFilter_Filter
+* Description:		Environment level restriction to call the GC serive.
+***************************************************************************************/
+
+DECLARE IonsWSCallServiceEnabled EXTERNAL BOOLEAN TRUE;
+CREATE FILTER MODULE IonsWSCallFilter_Filter
+	CREATE FUNCTION Main() RETURNS BOOLEAN
+	BEGIN
+		IF IonsWSCallServiceEnabled = TRUE THEN
+			RETURN TRUE;
+		ELSE 
+			RETURN FALSE;
+		END IF;
+	END;
+
+END MODULE;
+
+
+CREATE FILTER MODULE IonsWSCallFilter_Filter
+	CREATE FUNCTION Main() RETURNS BOOLEAN
+	BEGIN
+		RETURN TRUE;
+	END;
+
+END MODULE;

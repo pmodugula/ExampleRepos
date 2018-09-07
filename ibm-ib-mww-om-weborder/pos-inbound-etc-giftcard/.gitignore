@@ -1,0 +1,42 @@
+build/*
+configuration/*
+cygmin64/*
+deployment/*
+documentation/*
+installation/*
+resources/*
+**/gitstaging/**
+**/core-audit*/*
+**/core-cache*/*
+**/core-testing*/*
+**/core-log-handler*/*
+**/core-message-processor*/*
+**/common-library*/*
+**/common-wms*/*
+**/core-configuration*/*
+#**/any-object-*/*
+**/.metadata/
+**/runmqsc*.mqsc
+**/trx-*/trx-*.properties
+**/etc-pmm-inbound-*.properties
+**/*.b
+**/*.c
+**/*.d
+**/xsd/**
+
+## - InteliJ Files
+**/*.iml
+**/.idea/**
+
+## - Gradle Temp Files
+**/.gradle/**
+
+## - Deploy temp Folder
+devops/build/**
+target/**
+**/git_modified_files.txt
+
+## Have these two in here for now and speak with Derek Marley.. --Alex Russell
+caldc-build/*
+caldc-deployment/*
+**/any-object-*/*

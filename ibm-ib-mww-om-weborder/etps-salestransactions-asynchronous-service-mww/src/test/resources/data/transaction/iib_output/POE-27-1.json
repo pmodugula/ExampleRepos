@@ -1,0 +1,59 @@
+{
+  "msgType": "transaction",
+  "transactionTypeCode": "SaleTransaction",
+  "majorVersion": 4,
+  "retailStoreId": "300",
+  "workstationId": "1",
+  "sequenceNumber": "271000",
+  "beginDateTime": "2015-01-30T16:54:19-07:00",
+  "endDateTime": "2015-01-30T16:55:19-07:00",
+  "operatorId": "33655",
+  "sourceSystem": "POE",
+  "retailTransaction": {
+    "productLineItems": [
+      {
+        "lineItemSeqNumber": "1",
+        "itemNumber": "410011828553",
+        "merchandiseHierarchyLevel": "4",
+        "merchandiseHierarchyId": "7B",
+        "regularSalesUnitPrice": 20.00,
+        "actualSalesPrice": 20.00,
+        "basePrice": 20.00,
+        "discountAmount": 0.00,
+        "quantity": 1,
+        "taxes": [
+          {
+            "type": "GST",
+            "taxAmountPerItem": 1.00
+          },
+          {
+            "type": "PSTBC",
+            "taxAmountPerItem": 1.40
+          }
+        ]
+      }
+    ],
+    "tenders": [
+      {
+        "amount": 20.00,
+        "subTenderType": "CAD",
+        "tenderType": "Cash"
+      }
+    ],
+    "taxes": [
+      {
+        "type": "GST",
+        "typeCode": "Sale",
+        "amount": 1.00
+      },
+      {
+        "type": "PSTBC",
+        "typeCode": "Sale",
+        "amount": 1.40
+      }
+    ],
+    "transactionGrossAmount": 22.40,
+    "transactionSubtotal": 20.00,
+    "transactionDiscountTotal": 0.00
+  }
+}

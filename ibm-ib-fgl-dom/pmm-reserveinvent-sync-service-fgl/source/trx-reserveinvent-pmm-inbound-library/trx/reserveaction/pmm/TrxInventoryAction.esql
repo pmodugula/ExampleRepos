@@ -1,0 +1,230 @@
+--* File name : TrxInventoryAction.esql
+--* Purpose : To implement trx-inventoryaction-PMM flow.
+--* Authors : Rohit Sharma
+--* Create Date : 31th Aug 2016
+--* Version : 1.0
+--* Revision Date: 
+--* @copyright MWW-FGLSPORTS 2015. All Rights Reserved.
+BROKER SCHEMA trx.reserveaction.pmm
+
+--Decalre Constants-----
+DECLARE theSchema CONSTANT CHARACTER 'trx.reserveaction.pmm';
+
+CREATE FILTER MODULE dom_pmm_filter
+	DECLARE theModule CONSTANT CHARACTER theSchema||'.'||'hyb_Filter';
+	CREATE FUNCTION Main() RETURNS BOOLEAN
+	BEGIN
+		DECLARE rEnv REFERENCE TO Environment;
+		DECLARE MSG_ID CHARACTER rEnv.__MsgIdForLog4J__;
+		DECLARE rInput REFERENCE TO Root;
+--		DECLARE refToInInventory REFERENCE To Root.XMLNSC.PMMInventory;
+--		DECLARE action CHARACTER refToInInventory.(XMLNSC.Attribute)Action;
+--		SET rEnv.InventoryAction.action= action; -- Storing it in Environment to handling exceptions if any arise during processing
+		CALL core.log.Info(theModule||' - ID# : '||MSG_ID||' >> BEGIN');
+		DECLARE returnValue BOOLEAN TRUE;
+		--No-op implementation for wms_Filter - for future purposes as required by business/functional requirements
+		CALL core.log.Info(theModule||' - RETURN '||CAST(returnValue AS CHARACTER));
+		CALL core.log.Info(theModule||' - ID# : '||MSG_ID||' << END');
+		RETURN returnValue;
+	END;
+END MODULE;
+
+
+
+CREATE COMPUTE MODULE dom_pmm_BuildOutputMessage
+	DECLARE theModule CONSTANT CHARACTER theSchema||'.'||'dom_pmm_BuildOutputMessage';
+	CREATE FUNCTION Main() RETURNS BOOLEAN
+	BEGIN
+		DECLARE rEnv REFERENCE TO Environment;        
+		DECLARE rInput REFERENCE TO InputRoot;
+		DECLARE rOutput REFERENCE TO OutputRoot;
+		DECLARE SPORTCHEK CONSTANT CHARACTER 'SPORTCHEK';
+		DECLARE webSite CHARACTER;
+		DECLARE BLANK CONSTANT CHARACTER '';
+		DECLARE STATUS_FLAG CHARACTER;
+		DECLARE cntItem INTEGER;
+		DECLARE J INTEGER 1;
+		DECLARE actionFlag CHARACTER;
+		DECLARE padCount INTEGER;
+	    DECLARE MSG_ID CHARACTER rEnv.__MsgIdForLog4J__;
+	    CALL core.log.Info(theModule||' - ID# : '||MSG_ID||' >> BEGIN');
+		DECLARE refToInInventory REFERENCE To InputRoot.XMLNSC.PMMInventory;
+		DECLARE action CHARACTER refToInInventory.(XMLNSC.Attribute)Action;
+		DECLARE orderNumber CHARACTER refToInInventory.(XMLNSC.Attribute)OrderNumber;
+		DECLARE shipmentKey CHARACTER SUBSTRING(refToInInventory.(XMLNSC.Attribute)ShipmentKey FROM 1 FOR 10);
+		DECLARE shipOrgNo CHARACTER refToInInventory.(XMLNSC.Attribute)ExtnFGLNodeID;
+		DECLARE sellerOrganizationCode CHARACTER refToInInventory.(XMLNSC.Attribute)SellerOrganizationCode;
+		IF (sellerOrganizationCode = SPORTCHEK ) THEN
+			SET webSite = '494';  ---Sportcheck
+		ELSE
+			SET webSite = '484'; --- Atmosphere
+		END IF;	
+		DECLARE consignmentNumber CHARACTER COALESCE(refToInInventory.(XMLNSC.Attribute)ExtnConsignmentNumber, NULL);  --Mandatory for transfer
+		DECLARE status CHARACTER refToInInventory.(XMLNSC.Attribute)Status;   ---Not Mapped In PMM
+		DECLARE prdLvlNo CHARACTER;
+		DECLARE orderQty INTEGER;
+		DECLARE oms_Order CHARACTER 'T';
+		DECLARE orderSts CHARACTER;
+		
+	    IF (action = 'RESERVE') THEN
+	    	SET orderSts = NULL;
+	    	SET actionFlag = 'R';
+	    ELSEIF (action = 'CANCEL') THEN
+	    	SET orderSts =  'C';
+	    	SET actionFlag = 'C';
+	    ELSEIF (action ='TRANSFER') THEN
+	    	SET orderSts = 'S';
+	    	SET actionFlag = 'S';
+	    	ELSE
+	    	SET actionFlag = 'K';
+	    END IF;
+	    	
+		DECLARE count INTEGER;
+		DECLARE I INTEGER 1;
+		SET count = CARDINALITY(refToInInventory.Item[]);
+		WHILE I<=count DO
+			SET prdLvlNo = refToInInventory.Item[I].(XMLNSC.Attribute)ItemID;
+			IF LENGTH(prdLvlNo) < 15 THEN
+				SET padCount = 15 - LENGTH(prdLvlNo);
+			    SET prdLvlNo = prdLvlNo||SUBSTRING('               ' FROM 1 FOR padCount);  --- PAdding Spaces
+			END IF;
+			SET orderQty = CAST(CAST(refToInInventory.Item[I].(XMLNSC.Attribute)Quantity AS DECIMAL) AS INT);
+			DECLARE dbSchema CHARACTER 'FGLPRD';
+			
+			DECLARE dbTable CHARACTER 'FGL_ECMORDEE';
+			
+		   INSERT INTO Database.FGLPRD.FGL_ECMORDEE (ORDER_NUMBER,SHIPMENT_KEY,SHIP_ORG_NUMBER,WEB_SITE,CONSIGNMENT_NUMBER,PRD_LVL_NUMBER,ORDER_QTY,OMS_ORDER,ORDER_STS) 
+		   			   Values (orderNumber,shipmentKey,shipOrgNo,webSite,consignmentNumber,prdLvlNo,orderQty,oms_Order,orderSts);
+	
+		    SET I = I + 1;
+        
+		END WHILE;
+		CALL dbStoreProc(orderNumber);
+	    SET Environment.Variables.DBResult[] =(SELECT PMM.RECORD_SEQUENCE,PMM.ORDER_NUMBER,PMM.CONSIGNMENT_NUMBER,PMM.RESULT_QTY,PMM.ORDER_STS,
+				PMM.ERROR_CODE,PMM.DATE_PROCESSED_PMM,PMM.PRD_LVL_NUMBER,PMM.ORDER_QTY,PMM.SHIP_ORG_NUMBER,PMM.SHIPMENT_KEY FROM Database.FGLPRD.FGL_ECMORDEE AS PMM 
+			    WHERE PMM.ORDER_NUMBER = orderNumber AND PMM.SHIPMENT_KEY = shipmentKey AND PMM.ACTION = actionFlag ); -- R for Reserve, C for Cancel, S for Transfer, K for Return
+        									
+        CALL common.common_CopyMessageHeaders(rInput, rOutput);   ---Copy Message Headers
+		CALL common.common_CreateLastChildOfOutputRootDomainXmlnsc(rOutput);  --- XMLNSC domain Creation for XML message	
+		SET OutputRoot.MQMD.CorrelId = InputRoot.MQMD.MsgId;
+		DECLARE rEnvDb REFERENCE TO Environment.Variables;
+		SET cntItem = CARDINALITY(Environment.Variables.DBResult[]);
+		CREATE FIELD rOutput.XMLNSC.PMMInventory;
+		DECLARE rPMMInventory REFERENCE TO rOutput.XMLNSC.PMMInventory;
+		SET rPMMInventory.(XMLNSC.Attribute)Action = refToInInventory.(XMLNSC.Attribute)Action;
+		SET rPMMInventory.(XMLNSC.Attribute)OrderNumber = rEnvDb.DBResult.ORDER_NUMBER;
+		SET rPMMInventory.(XMLNSC.Attribute)ShipmentKey = rEnvDb.DBResult.SHIPMENT_KEY;
+		SET rPMMInventory.(XMLNSC.Attribute)ShipmentNo = NULL;
+		SET rPMMInventory.(XMLNSC.Attribute)ShipNode = NULL;
+		SET rPMMInventory.(XMLNSC.Attribute)ExtnFGLNodeID = rEnvDb.DBResult.SHIP_ORG_NUMBER ;
+		SET rPMMInventory.(XMLNSC.Attribute)SellerOrganizationCode = NULL;
+		SET rPMMInventory.(XMLNSC.Attribute)ExtnConsignmentNumber = COALESCE(rEnvDb.DBResult.CONSIGNMENT_NUMBER, NULL); ---mandatory for transfer
+		
+		WHILE J <= cntItem DO
+			IF action = 'TRANSFER' AND rEnvDb.DBResult[J].ORDER_STS ='T' THEN
+				SET STATUS_FLAG = 'SUCCESS';
+			ELSEIF action = 'RESERVE' AND rEnvDb.DBResult[J].ORDER_STS ='R' THEN
+				SET STATUS_FLAG = 'SUCCESS';
+			ELSEIF action = 'CANCEL' AND rEnvDb.DBResult[J].ORDER_STS ='Y' THEN
+      			SET STATUS_FLAG = 'SUCCESS';
+			ELSE
+		       SET STATUS_FLAG = 'FAIL';
+				SET J = cntItem;
+			END IF;		
+			SET J = J+1;
+		END WHILE;
+		SET rPMMInventory.(XMLNSC.Attribute)Status = STATUS_FLAG;
+		SET J = 1;
+		WHILE J <= cntItem DO
+		SET rPMMInventory.Item[J].(XMLNSC.Attribute)ItemID = TRIM(COALESCE(rEnvDb.DBResult[J].PRD_LVL_NUMBER,BLANK));  --- Mandatory for Reserve
+		SET rPMMInventory.Item[J].(XMLNSC.Attribute)OrderQuantity = COALESCE(rEnvDb.DBResult[J].ORDER_QTY, NULL);  --- Mandatory for Reserve
+		SET rPMMInventory.Item[J].(XMLNSC.Attribute)ResultQuantity = COALESCE(rEnvDb.DBResult[J].RESULT_QTY, NULL);  --- Mandatory for Reserve
+		SET rPMMInventory.Item[J].(XMLNSC.Attribute)LineStatus = COALESCE(rEnvDb.DBResult[J].ORDER_STS, NULL);    --- Mandatory for Reserve
+		SET rPMMInventory.Item[J].(XMLNSC.Attribute)FailureReasonCode = NULL;
+        SET J = J + 1;
+		END WHILE;
+		CALL core.log.Info(theModule||' - ID# : '||MSG_ID||' - Action :'||'rPMMInventory.(XMLNSC.Attribute)Action-'|| refToInInventory.(XMLNSC.Attribute)Action);
+		CALL core.log.Info(theModule||' - ID# : '||MSG_ID||' - ORDER Number :'||'rPMMInventory.(XMLNSC.Attribute)OrderNumber -'|| rEnvDb.DBResult.ORDER_NUMBER);
+		CALL core.log.Info(theModule||' - ID# : '||MSG_ID||' - ShipmentKey:'||'rPMMInventory.(XMLNSC.Attribute)ShipmentKey -'|| rEnvDb.DBResult.SHIPMENT_KEY);	
+	END;
+CREATE PROCEDURE dbStoreProc(IN orderNumber CHAR) LANGUAGE DATABASE EXTERNAL NAME "FGLPRD.FGL_ECMDOMBLD";
+END MODULE;	
+
+CREATE COMPUTE MODULE TrxInventoryAction_handleException
+	CREATE FUNCTION Main() RETURNS BOOLEAN
+	BEGIN
+		CALL CopyMessageHeaders();
+		DECLARE theModule CONSTANT CHARACTER theSchema||'.'||'TrxInventoryAction_handleException';
+		SET OutputRoot.MQMD.CorrelId = InputRoot.MQMD.MsgId;
+		DECLARE refToInInventory REFERENCE TO InputRoot.XMLNSC.PMMInventory;
+		DECLARE action CHARACTER refToInInventory.(XMLNSC.Attribute)Action;
+		--DECLARE orderNumber CHARACTER refToInInventory.(XMLNSC.Attribute)OrderNumber;
+		CREATE LASTCHILD OF OutputRoot DOMAIN('XMLNSC');
+		CREATE FIELD OutputRoot.XMLNSC.PMMInventory;
+		DECLARE rEnv REFERENCE TO Environment;
+		DECLARE rPMMInventory REFERENCE TO OutputRoot.XMLNSC.PMMInventory;
+		DECLARE MSG_ID CHARACTER Environment.__MsgIdForLog4J__;
+		
+		CALL core.log.Info(theModule||' - ID# : '||MSG_ID||' - Action :'||'rPMMInventory.(XMLNSC.Attribute)Action-'|| rEnv.InventoryAction.action);
+		CALL core.log.Info(theModule||' - ID# : '||MSG_ID||' Exception Handler :'||'Exception handling begin');
+		
+		DECLARE refToInInventoryItem REFERENCE TO refToInInventory.Item[1];
+		DECLARE I INTEGER 1;
+		
+		SET rPMMInventory.(XMLNSC.Attribute)Action VALUE = refToInInventory.(XMLNSC.Attribute)Action;
+		SET rPMMInventory.(XMLNSC.Attribute)Status = 'FAIL';
+		
+		WHILE LASTMOVE(refToInInventoryItem) DO
+			 
+			 CREATE FIELD rPMMInventory.Item[I];
+			 DECLARE rItem REFERENCE TO rPMMInventory.Item[I];
+			 SET rItem.(XMLNSC.Attribute)ItemID value = refToInInventoryItem.(XMLNSC.Attribute)ItemID;
+			 SET rItem.(XMLNSC.Attribute)OrderQuantity = CAST(CAST(refToInInventoryItem.(XMLNSC.Attribute)Quantity AS DECIMAL) AS INT);
+			 SET rItem.(XMLNSC.Attribute)FailureReasonCode = 'Failed to perform DB operations successfully';
+			 SET rItem.(XMLNSC.Attribute)LineStatus = 'X';
+			 SET I = I+1;
+			 MOVE refToInInventoryItem NEXTSIBLING REPEAT NAME;
+		END WHILE;	
+		
+		
+		
+		--SET rPMMInventory.(XMLNSC.Attribute)FailureReasonCode = 'Failed to perform DB operations successfully';
+
+		DECLARE ptrException reference to InputExceptionList.*[1];
+   	    -- keep looping while the moves to the child of exception list work 
+		WHILE lastmove(ptrException) DO
+			-- store the current values for the error number and text
+			IF ptrException.Number is not null THEN
+        		
+        		--SET rPMMInventory.(XMLNSC.Attribute)FailureReasonCode = ptrException.Text;
+        	CALL core.log.Info(theModule||' - ID# : '||MSG_ID||' Exception Handler :'||ptrException.Text);
+        	DECLARE insertRef REFERENCE TO ptrException.Insert;
+        	WHILE LASTMOVE(insertRef) DO
+        	
+        	  CALL core.log.Info(theModule||' - ID# : '||MSG_ID||' Exception Handler Insert:'||insertRef.Text);	
+        	  MOVE insertRef NEXTSIBLING REPEAT NAME;
+        	END WHILE;
+  			END IF;
+  			-- now move to the last child which should be the next exceptionlist
+			MOVE ptrException lastchild;
+		END WHILE;
+		   CALL core.log.Info(theModule||' - ID# : '||MSG_ID||' Exception Handler :Exception handling END');
+			
+		RETURN TRUE;
+	END;
+
+	CREATE PROCEDURE CopyMessageHeaders() BEGIN
+		DECLARE I INTEGER 1;
+		DECLARE J INTEGER;
+		SET J = CARDINALITY(InputRoot.*[]);
+		WHILE I < J DO
+			SET OutputRoot.*[I] = InputRoot.*[I];
+			SET I = I + 1;
+		END WHILE;
+	END;
+
+	CREATE PROCEDURE CopyEntireMessage() BEGIN
+		SET OutputRoot = InputRoot;
+	END;
+		
+END MODULE;

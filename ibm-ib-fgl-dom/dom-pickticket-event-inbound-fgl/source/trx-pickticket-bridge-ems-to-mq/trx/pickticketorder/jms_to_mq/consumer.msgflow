@@ -1,0 +1,109 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ecore:EPackage xmi:version="2.0"
+    xmlns:xmi="http://www.omg.org/XMI" xmlns:ComIbmFlowOrder.msgnode="ComIbmFlowOrder.msgnode" xmlns:ComIbmJMSClientInput.msgnode="ComIbmJMSClientInput.msgnode" xmlns:ComIbmJMSMQTransform.msgnode="ComIbmJMSMQTransform.msgnode" xmlns:ComIbmMQHeader.msgnode="ComIbmMQHeader.msgnode" xmlns:ComIbmMQOutput.msgnode="ComIbmMQOutput.msgnode" xmlns:ComIbmPassthru.msgnode="ComIbmPassthru.msgnode" xmlns:ecore="http://www.eclipse.org/emf/2002/Ecore" xmlns:eflow="http://www.ibm.com/wbi/2005/eflow" xmlns:mbmonitor="http://www.ibm.com/wbi/2008/eflow_mbmonitor"
+    xmlns:utility="http://www.ibm.com/wbi/2005/eflow_utility" nsURI="trx/pickticketorder/jms_to_mq/consumer.msgflow"
+    nsPrefix="trx_pickticketorder_jms_to_mq_consumer.msgflow">
+  <eClassifiers xmi:type="eflow:FCMComposite" name="FCMComposite_1">
+    <eSuperTypes href="http://www.ibm.com/wbi/2005/eflow#//FCMBlock"/>
+    <eStructuralFeatures xmi:type="ecore:EAttribute" xmi:id="Property.EMSATMOSourceQueue" name="EMSATMOSourceQueue" defaultValueLiteral="FGL.QA2.WM.BW.WMCOMMON.Q">
+      <eType xmi:type="ecore:EDataType" href="http://www.eclipse.org/emf/2002/Ecore#//EString"/>
+    </eStructuralFeatures>
+    <eStructuralFeatures xmi:type="ecore:EAttribute" xmi:id="Property.EMSSCSourceQueue" name="EMSSCSourceQueue" defaultValueLiteral="FGL.PRD.HYBRIS.SC.ORDER.PLACEMENT.Q">
+      <eType xmi:type="ecore:EDataType" href="http://www.eclipse.org/emf/2002/Ecore#//EString"/>
+    </eStructuralFeatures>
+    <eStructuralFeatures xmi:type="ecore:EAttribute" xmi:id="Property.IIBOutboundQueue" name="IIBOutboundQueue" defaultValueLiteral="SEND.FGL.CTC.DOM.ORDER_IN.IIB.DV&#xA;">
+      <eType xmi:type="ecore:EDataType" href="http://www.eclipse.org/emf/2002/Ecore#//EString"/>
+    </eStructuralFeatures>
+    <eStructuralFeatures xmi:type="ecore:EAttribute" xmi:id="Property.IIBOutboundBackupQueue" name="IIBOutboundBackupQueue" defaultValueLiteral="FGL.CTC.DOM.ORDER_IN.IIB.2">
+      <eType xmi:type="ecore:EDataType" href="http://www.eclipse.org/emf/2002/Ecore#//EString"/>
+    </eStructuralFeatures>
+    <translation xmi:type="utility:TranslatableString" key="consumer" bundleName="trx/pickticketorder/jms_to_mq/consumer" pluginId="trx-pickticket-bridge-ems-to-mq"/>
+    <colorGraphic16 xmi:type="utility:GIFFileGraphic" resourceName="platform:/plugin/trx-pickticket-bridge-ems-to-mq/icons/full/obj16/consumer.gif"/>
+    <colorGraphic32 xmi:type="utility:GIFFileGraphic" resourceName="platform:/plugin/trx-pickticket-bridge-ems-to-mq/icons/full/obj30/consumer.gif"/>
+    <shortDescription xmi:type="utility:ConstantString" string="Message flow to process pic ticket messages"/>
+    <composition>
+      <nodes xmi:type="ComIbmJMSClientInput.msgnode:FCMComposite_1" xmi:id="FCMComposite_1_1" location="6,28" sourceQueueName="FGL.QA2.WM.BW.WMCOMMON.Q" jmsProviderName="tibcoEMS" initialContextFactory="com.tibco.tibjms.naming.TibjmsInitialContextFactory" connectionFactoryName="XAQueueConnectionFactory" backoutThreshold="5" messageDomainProperty="BLOB" transactionMode="yes">
+        <translation xmi:type="utility:ConstantString" string="FGL.PRD.HYBRIS.ATMO.ORDER.PLACEMENT.Q"/>
+        <monitorEvents eventSourceDescription="Transaction start" eventSourceName="FGL.PRD.HYBRIS.ATMO.ORDER.PLACEMENT.Q.transaction.Start" eventIdentity="FGL.PRD.HYBRIS.ATMO.ORDER.PLACEMENT.Q.TransactionStart">
+          <eventXMLDoc xmi:type="mbmonitor:MonitorEvent" eventUOW="none">
+            <globalTransactionCorrelator/>
+            <parentTransactionCorrelator/>
+            <localTransactionCorrelator/>
+            <bitStreamData encoding="CDATA"/>
+            <eventName literal="FGL.PRD.HYBRIS.ATMO.ORDER.PLACEMENT.Q.TransactionStart"/>
+            <eventFilter dataLocation="true()" isXPath="true"/>
+          </eventXMLDoc>
+        </monitorEvents>
+      </nodes>
+      <nodes xmi:type="ComIbmMQOutput.msgnode:FCMComposite_1" xmi:id="FCMComposite_1_5" location="498,29" queueName="SEND.ALL.WM.CALDC_IN.IBM_IB.QA.2" newMsgId="true">
+        <translation xmi:type="utility:ConstantString" string="SEND.FGL.CTC.DOM.ORDER_IN.IIB.DV&#xA;"/>
+      </nodes>
+      <nodes xmi:type="ComIbmJMSMQTransform.msgnode:FCMComposite_1" xmi:id="FCMComposite_1_2" location="270,30">
+        <translation xmi:type="utility:ConstantString" string="JmsMqTransformAtmo"/>
+      </nodes>
+      <nodes xmi:type="ComIbmPassthru.msgnode:FCMComposite_1" xmi:id="FCMComposite_1_3" location="747,27">
+        <translation xmi:type="utility:ConstantString" string="PassThroughForDebug"/>
+      </nodes>
+      <nodes xmi:type="ComIbmJMSMQTransform.msgnode:FCMComposite_1" xmi:id="FCMComposite_1_4" location="274,184">
+        <translation xmi:type="utility:ConstantString" string="JmsMqTransformSc"/>
+      </nodes>
+      <nodes xmi:type="ComIbmJMSClientInput.msgnode:FCMComposite_1" xmi:id="FCMComposite_1_6" location="3,184" sourceQueueName="FGL.QA2.WM.BW.WMCOMMON.Q" jmsProviderName="tibcoEMS" initialContextFactory="com.tibco.tibjms.naming.TibjmsInitialContextFactory" connectionFactoryName="XAQueueConnectionFactory" backoutThreshold="5" messageDomainProperty="BLOB" transactionMode="yes">
+        <translation xmi:type="utility:ConstantString" string="FGL.PRD.HYBRIS.SC.ORDER.PLACEMENT.Q"/>
+        <monitorEvents eventSourceDescription="Transaction start" eventSourceName="FGL.PRD.HYBRIS.SC.ORDER.PLACEMENT.Q.transaction.Start" eventIdentity="FGL.PRD.HYBRIS.SC.ORDER.PLACEMENT.Q.TransactionStart">
+          <eventXMLDoc xmi:type="mbmonitor:MonitorEvent" eventUOW="none">
+            <globalTransactionCorrelator/>
+            <parentTransactionCorrelator/>
+            <localTransactionCorrelator/>
+            <bitStreamData encoding="CDATA"/>
+            <eventName literal="FGL.PRD.HYBRIS.SC.ORDER.PLACEMENT.Q.TransactionStart"/>
+            <eventFilter dataLocation="true()" isXPath="true"/>
+          </eventXMLDoc>
+        </monitorEvents>
+      </nodes>
+      <nodes xmi:type="ComIbmMQOutput.msgnode:FCMComposite_1" xmi:id="FCMComposite_1_7" location="725,185" queueName="SEND.FGL.CTC.DOM.CNSGNPAID_IN.BACKUP.IIB">
+        <translation xmi:type="utility:ConstantString" string="FGL.CTC.DOM.ORDER_IN.IIB.2"/>
+      </nodes>
+      <nodes xmi:type="ComIbmFlowOrder.msgnode:FCMComposite_1" xmi:id="FCMComposite_1_8" location="448,106">
+        <translation xmi:type="utility:ConstantString" string="Flow Order"/>
+      </nodes>
+      <nodes xmi:type="ComIbmMQHeader.msgnode:FCMComposite_1" xmi:id="FCMComposite_1_9" location="562,177" mqmdAAAOptions="Modify header" mqmdCodedCharSetId="Inherit" mqmdFormat="Inherit" mqmdMsgType="Inherit" mqmdExpiry="6048000" mqmdFeedback="Inherit" mqmdPersistence="MQPER_PERSISTENT" mqmdMsgId="Inherit" mqmdCorrelId="Inherit" mqmdReplyToQ="Inherit" mqmdReplyToQMgr="Inherit">
+        <translation xmi:type="utility:ConstantString" string="MQ Header Node"/>
+      </nodes>
+      <connections xmi:type="eflow:FCMConnection" xmi:id="FCMConnection_1" targetNode="FCMComposite_1_2" sourceNode="FCMComposite_1_1" sourceTerminalName="OutTerminal.out" targetTerminalName="InTerminal.in"/>
+      <connections xmi:type="eflow:FCMConnection" xmi:id="FCMConnection_9" targetNode="FCMComposite_1_3" sourceNode="FCMComposite_1_5" sourceTerminalName="OutTerminal.out" targetTerminalName="InTerminal.in"/>
+      <connections xmi:type="eflow:FCMConnection" xmi:id="FCMConnection_2" targetNode="FCMComposite_1_4" sourceNode="FCMComposite_1_6" sourceTerminalName="OutTerminal.out" targetTerminalName="InTerminal.in"/>
+      <connections xmi:type="eflow:FCMConnection" xmi:id="FCMConnection_3" targetNode="FCMComposite_1_8" sourceNode="FCMComposite_1_4" sourceTerminalName="OutTerminal.out" targetTerminalName="InTerminal.in"/>
+      <connections xmi:type="eflow:FCMConnection" xmi:id="FCMConnection_4" targetNode="FCMComposite_1_8" sourceNode="FCMComposite_1_2" sourceTerminalName="OutTerminal.out" targetTerminalName="InTerminal.in"/>
+      <connections xmi:type="eflow:FCMConnection" xmi:id="FCMConnection_5" targetNode="FCMComposite_1_5" sourceNode="FCMComposite_1_8" sourceTerminalName="OutTerminal.first" targetTerminalName="InTerminal.in"/>
+      <connections xmi:type="eflow:FCMConnection" xmi:id="FCMConnection_6" targetNode="FCMComposite_1_9" sourceNode="FCMComposite_1_8" sourceTerminalName="OutTerminal.second" targetTerminalName="InTerminal.in"/>
+      <connections xmi:type="eflow:FCMConnection" xmi:id="FCMConnection_7" targetNode="FCMComposite_1_7" sourceNode="FCMComposite_1_9" sourceTerminalName="OutTerminal.out" targetTerminalName="InTerminal.in"/>
+    </composition>
+    <propertyOrganizer>
+      <propertyDescriptor groupName="Group.CoreBridgeTibcoToMq" propertyEditor="com.ibm.etools.mft.ibmnodes.editors.jms.SourceQueuePropertyEditor" configurable="true" describedAttribute="Property.EMSATMOSourceQueue">
+        <propertyName xmi:type="utility:TranslatableString" key="Property.EMSATMOSourceQueue" bundleName="trx/pickticketorder/jms_to_mq/consumer" pluginId="trx-pickticket-bridge-ems-to-mq"/>
+        <propertyDescriptor groupName="Group.CoreBridgeTibcoToMq" propertyEditor="com.ibm.etools.mft.ibmnodes.editors.jms.SourceQueuePropertyEditor" configurable="true" describedAttribute="Property.EMSSCSourceQueue">
+          <propertyName xmi:type="utility:TranslatableString" key="Property.EMSSCSourceQueue" bundleName="trx/pickticketorder/jms_to_mq/consumer" pluginId="trx-pickticket-bridge-ems-to-mq"/>
+          <propertyDescriptor groupName="Group.CoreBridgeTibcoToMq" propertyEditor="com.ibm.etools.mft.ibmnodes.editors.mq.MQQueueNameEditor" configurable="true" describedAttribute="Property.IIBOutboundQueue">
+            <propertyName xmi:type="utility:TranslatableString" key="Property.IIBOutboundQueue" bundleName="trx/pickticketorder/jms_to_mq/consumer" pluginId="trx-pickticket-bridge-ems-to-mq"/>
+            <propertyDescriptor groupName="Group.CoreBridgeTibcoToMq" propertyEditor="com.ibm.etools.mft.ibmnodes.editors.mq.MQQueueNameEditor" configurable="true" describedAttribute="Property.IIBOutboundBackupQueue">
+              <propertyName xmi:type="utility:TranslatableString" key="Property.IIBOutboundBackupQueue" bundleName="trx/pickticketorder/jms_to_mq/consumer" pluginId="trx-pickticket-bridge-ems-to-mq"/>
+            </propertyDescriptor>
+          </propertyDescriptor>
+        </propertyDescriptor>
+      </propertyDescriptor>
+    </propertyOrganizer>
+    <attributeLinks promotedAttribute="Property.EMSATMOSourceQueue" overriddenNodes="FCMComposite_1_1">
+      <overriddenAttribute href="ComIbmJMSClientInput.msgnode#Property.sourceQueueName"/>
+    </attributeLinks>
+    <attributeLinks promotedAttribute="Property.EMSSCSourceQueue" overriddenNodes="FCMComposite_1_6">
+      <overriddenAttribute href="ComIbmJMSClientInput.msgnode#Property.sourceQueueName"/>
+    </attributeLinks>
+    <attributeLinks promotedAttribute="Property.IIBOutboundQueue" overriddenNodes="FCMComposite_1_5">
+      <overriddenAttribute href="ComIbmMQOutput.msgnode#Property.queueName"/>
+    </attributeLinks>
+    <attributeLinks promotedAttribute="Property.IIBOutboundBackupQueue" overriddenNodes="FCMComposite_1_7">
+      <overriddenAttribute href="ComIbmMQOutput.msgnode#Property.queueName"/>
+    </attributeLinks>
+    <stickyBoard/>
+  </eClassifiers>
+</ecore:EPackage>

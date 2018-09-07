@@ -1,0 +1,7 @@
+trx.consignmentpacked.dom.consignmentpacked#IIBInboundQueue=RECV.${ORDER_IN}
+trx.consignmentpacked.dom.consignmentpacked#IIBOutboundQueue=SEND.${ORDER_OUT}
+trx.consignmentpacked.dom.consignmentpacked#CoreAuditDataSource=AUD${ENVN}${INST}
+trx.consignmentpacked.dom.consignmentpacked#CoreMessageValidation1=FALSE
+trx.consignmentpacked.dom.consignmentpacked#CoreMessageValidation2=FALSE
+trx.consignmentpacked.dom.consignmentpacked#additionalInstances=${EXTRATHREADS}
+trx.consignmentpacked.dom.consignmentpacked#DOMOutboundBackupQueue=${ORDER_IN_BACKUP}

@@ -1,0 +1,72 @@
+<eai:Exchange xmlns:eai="http://www.fgl.com/exchange/" xmlns:arts="http://www.fgl.com/ARTS" MajorVersion="0" MinorVersion="0" FixVersion="0">
+	<eai:MessageRouting>
+		<eai:Guid>1</eai:Guid>
+		<eai:MessageType>PointToPoint</eai:MessageType>
+		<eai:SubjectArea>CustomerOrderStatus</eai:SubjectArea>
+		<eai:SbuNumber>2</eai:SbuNumber>
+		<eai:SbuCode>MWW</eai:SbuCode>
+		<eai:SbuName>Marks Ltd.</eai:SbuName>
+		<eai:DataSourceCode>FF</eai:DataSourceCode>
+		<eai:DataSourceCodeName>FastFind</eai:DataSourceCodeName>
+	</eai:MessageRouting>
+	<eai:Messages>
+		<eai:Count>1</eai:Count>
+		<eai:SourceSystems>
+			<eai:Count>1</eai:Count>
+			<eai:SourceSystem>
+				<eai:Index>1</eai:Index>
+				<eai:SbuNumber>2</eai:SbuNumber>
+				<eai:SbuCode>MWW</eai:SbuCode>
+				<eai:SbuName>Marks Ltd.</eai:SbuName>
+				<eai:MessageSourceCode>FF</eai:MessageSourceCode>
+				<eai:MessageSourceCodeName>FastFind</eai:MessageSourceCodeName>
+			</eai:SourceSystem>
+		</eai:SourceSystems>
+		<eai:POSLog>
+			<arts:Count>1</arts:Count>
+			<arts:DataSource>
+				<arts:SbuNumber DataClassification="Internal">2</arts:SbuNumber>
+				<arts:SbuCode DataClassification="Internal">MWW</arts:SbuCode>
+				<arts:SbuName DataClassification="Internal">Marks Ltd.</arts:SbuName>
+				<arts:DataSourceCode DataClassification="Internal">FF</arts:DataSourceCode>
+				<arts:DataSourceName DataClassification="Internal">FastFind</arts:DataSourceName>
+			</arts:DataSource>
+			<arts:Transaction MajorVersion="4" MinorVersion="0" FixVersion="0">
+				<arts:RetailStoreID>20</arts:RetailStoreID>
+				<arts:TransactionID>0200420160425100143</arts:TransactionID>
+				<arts:WorkstationID>04</arts:WorkstationID>
+				<arts:SequenceNumber>100143</arts:SequenceNumber>
+				<arts:BeginDateTime>2016-04-25T16:44:24-06:00</arts:BeginDateTime>
+				<arts:EndDateTime>2016-04-25T16:45:30-06:00</arts:EndDateTime>
+				<arts:OperatorID>64779</arts:OperatorID>
+				<arts:PinpadNumber>66235147</arts:PinpadNumber>
+				<arts:RetailTransaction>
+					<arts:LineItem>
+						<arts:SequenceNumber>0</arts:SequenceNumber>
+						<arts:Tender TenderType="CreditDebit" TypeCode="Sale" SubTenderType="Visa">
+							<arts:Amount>65.09</arts:Amount>
+							<arts:Authorization>
+								<arts:AuthorizationCode>079721</arts:AuthorizationCode>
+							</arts:Authorization>
+							<arts:CreditDebit>
+								<arts:PrimaryAccountNumber>NDUyMDg4KioqKioqOTg1Nw==</arts:PrimaryAccountNumber>
+								<arts:ExpirationDate>2016-09</arts:ExpirationDate>
+								<arts:BankResponseSequenceNumber>0010128350</arts:BankResponseSequenceNumber>
+							</arts:CreditDebit>
+						</arts:Tender>
+					</arts:LineItem>
+					<arts:LineItem>
+						<arts:SequenceNumber>1</arts:SequenceNumber>
+						<arts:SaleOfGiftCard>
+							<arts:CardNumber>9029886299</arts:CardNumber>
+							<arts:ItemID>400008725941</arts:ItemID>
+							<arts:InitialBalance>65.09</arts:InitialBalance>
+						</arts:SaleOfGiftCard>
+					</arts:LineItem>
+					<arts:Total TotalType="TransactionGrossAmount">65.09</arts:Total>
+					<arts:Total TotalType="TransactionSubtotal">65.09</arts:Total>
+				</arts:RetailTransaction>
+			</arts:Transaction>
+		</eai:POSLog>
+	</eai:Messages>
+</eai:Exchange>

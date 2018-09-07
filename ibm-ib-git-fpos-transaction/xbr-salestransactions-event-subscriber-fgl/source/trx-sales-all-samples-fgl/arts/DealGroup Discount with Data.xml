@@ -1,0 +1,231 @@
+<eai:Exchange xmlns:arts="http://www.fgl.com/ARTS" xmlns:eai="http://www.fgl.com/exchange/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" MajorVersion="2" MinorVersion="0" FixVersion="0" xsi:schemaLocation="http://www.fgl.com/exchange/ file:///C:/Users/plam/Documents/GIT-REPO/IIB/xsd/arts/ARTSTransactionMessageV2_00_00.xsd">
+	<eai:MessageRouting>
+		<eai:Guid>37984B5264DA008CE0530A6702465199</eai:Guid>
+		<eai:MessageId/>
+		<eai:MessageType>PubSub</eai:MessageType>
+		<eai:SubjectArea>Normal Retail Sales Transactions</eai:SubjectArea>
+		<eai:SbuNumber>3</eai:SbuNumber>
+		<eai:SbuCode>FGL</eai:SbuCode>
+		<eai:SbuName>FGL Sports Ltd.</eai:SbuName>
+		<eai:DataSourceCode>POE</eai:DataSourceCode>
+		<eai:DataSourceCodeName>POE POS FGL</eai:DataSourceCodeName>
+		<eai:MessageIndex>1</eai:MessageIndex>
+		<eai:MessageCount>1</eai:MessageCount>
+		<eai:SubjectAreaRunName>salestransactions-335-20160407-123347</eai:SubjectAreaRunName>
+	</eai:MessageRouting>
+	<eai:Messages>
+		<eai:Count>1</eai:Count>
+		<eai:SourceSystems>
+			<eai:Count>1</eai:Count>
+			<eai:SourceSystem>
+				<eai:Index>1</eai:Index>
+				<eai:SbuNumber>3</eai:SbuNumber>
+				<eai:SbuCode>FGL</eai:SbuCode>
+				<eai:SbuName>FGL Sports Ltd.</eai:SbuName>
+				<eai:MessageSourceCode>CSS</eai:MessageSourceCode>
+				<eai:MessageSourceCodeName>Central Sales Server</eai:MessageSourceCodeName>
+			</eai:SourceSystem>
+		</eai:SourceSystems>
+		<eai:POSLog>
+			<arts:Count>1</arts:Count>
+			<arts:Transaction TypeCode="SaleTransaction">
+				<arts:BusinessUnit>
+					<arts:BusinessUnitNumber>335</arts:BusinessUnitNumber>
+					<arts:BusinessUnitTypeCode>RS</arts:BusinessUnitTypeCode>
+					<arts:BusinessUnitShortName>SC335</arts:BusinessUnitShortName>
+					<arts:BusinessUnitName>SC KELOWNA </arts:BusinessUnitName>
+				</arts:BusinessUnit>
+				<arts:WorkstationID>4</arts:WorkstationID>
+				<arts:SequenceNumber>2677</arts:SequenceNumber>
+				<arts:BeginDateTime>2016-04-07T12:33:47Z</arts:BeginDateTime>
+				<arts:EndDateTime>2016-04-07T12:33:47Z</arts:EndDateTime>
+				<arts:OperatorID FirstName="Jane" MiddleName="" LastName="Doe" OperatorName="Jane Doe">5194</arts:OperatorID>
+				<arts:RetailTransaction>
+					<arts:LineItemCount>7</arts:LineItemCount>
+					<arts:CustomerCount>0</arts:CustomerCount>
+					<arts:AssociateCount>0</arts:AssociateCount>
+					<arts:LineItem VoidFlag="false">
+						<arts:Index>1</arts:Index>
+						<arts:SequenceNumber>1</arts:SequenceNumber>
+						<arts:Sale ItemType="Stock" TaxableFlag="true">
+							<arts:TaxCount>2</arts:TaxCount>
+							<arts:RetailPriceModifierCount>4</arts:RetailPriceModifierCount>
+							<arts:Item>
+								<arts:ItemNumber>331769548</arts:ItemNumber>
+								<arts:ItemName>CAL CXR CONTROL 3PC 12PK 99 00</arts:ItemName>
+								<arts:UPCNumber>884885745061</arts:UPCNumber>
+							</arts:Item>
+							<arts:MerchandiseHierarchy Level="4" ID="3222"/>
+							<arts:RegularSalesUnitPrice>29.99</arts:RegularSalesUnitPrice>
+							<arts:ActualSalesUnitPrice>14.84</arts:ActualSalesUnitPrice>
+							<arts:DiscountAmount>15.15</arts:DiscountAmount>
+							<arts:Quantity>1</arts:Quantity>
+							<arts:Associate>
+								<arts:AssociateID>6666</arts:AssociateID>
+							</arts:Associate>
+							<arts:RetailPriceModifier>
+								<arts:Index>1</arts:Index>
+								<arts:SequenceNumber>2</arts:SequenceNumber>
+								<arts:Amount Action="Subtract">13.50</arts:Amount>
+								<arts:PriceDerivationRuleNumber>332145937</arts:PriceDerivationRuleNumber>
+							</arts:RetailPriceModifier>
+							<arts:RetailPriceModifier>
+								<arts:Index>2</arts:Index>
+								<arts:SequenceNumber>9</arts:SequenceNumber>
+								<arts:Amount Action="Subtract">1.65</arts:Amount>
+								<arts:ReasonCode>COUPON SUBTOTAL DISCOUNT</arts:ReasonCode>
+							</arts:RetailPriceModifier>
+							<arts:Tax TaxType="GST" TypeCode="Sale" SourceSystemTaxExemptionFlag="false">
+								<arts:Index>1</arts:Index>
+								<arts:Amount>0.68</arts:Amount>
+								<arts:Percent>5</arts:Percent>
+							</arts:Tax>
+							<arts:Tax TaxType="BCPST" TypeCode="Sale" SourceSystemTaxExemptionFlag="false">
+								<arts:Index>2</arts:Index>
+								<arts:Amount>0.95</arts:Amount>
+								<arts:Percent>7</arts:Percent>
+							</arts:Tax>
+						</arts:Sale>
+						<arts:LineItemSubtypeCode>Sale</arts:LineItemSubtypeCode>
+					</arts:LineItem>
+					<arts:LineItem VoidFlag="false">
+						<arts:Index>2</arts:Index>
+						<arts:SequenceNumber>3</arts:SequenceNumber>
+						<arts:Sale ItemType="Stock" TaxableFlag="true">
+							<arts:TaxCount>2</arts:TaxCount>
+							<arts:RetailPriceModifierCount>2</arts:RetailPriceModifierCount>
+							<arts:Item>
+								<arts:ItemNumber>331769548</arts:ItemNumber>
+								<arts:ItemName>CAL CXR CONTROL 3PC 12PK 99 00</arts:ItemName>
+								<arts:UPCNumber>884885745061</arts:UPCNumber>
+							</arts:Item>
+							<arts:MerchandiseHierarchy Level="4" ID="3222"/>
+							<arts:RegularSalesUnitPrice>29.99</arts:RegularSalesUnitPrice>
+							<arts:ActualSalesUnitPrice>14.84</arts:ActualSalesUnitPrice>
+							<arts:DiscountAmount>15.15</arts:DiscountAmount>
+							<arts:Quantity>1</arts:Quantity>
+							<arts:Associate>
+								<arts:AssociateID>6666</arts:AssociateID>
+							</arts:Associate>
+							<arts:RetailPriceModifier>
+								<arts:Index>1</arts:Index>
+								<arts:SequenceNumber>4</arts:SequenceNumber>
+								<arts:Amount Action="Subtract">13.50</arts:Amount>
+								<arts:PriceDerivationRuleNumber>332145937</arts:PriceDerivationRuleNumber>
+							</arts:RetailPriceModifier>
+							<arts:RetailPriceModifier>
+								<arts:Index>2</arts:Index>
+								<arts:SequenceNumber>9</arts:SequenceNumber>
+								<arts:Amount Action="Subtract">1.65</arts:Amount>
+								<arts:ReasonCode>COUPON SUBTOTAL DISCOUNT</arts:ReasonCode>
+							</arts:RetailPriceModifier>
+							<arts:Tax TaxType="GST" TypeCode="Sale" SourceSystemTaxExemptionFlag="false">
+								<arts:Index>1</arts:Index>
+								<arts:Amount>0.68</arts:Amount>
+								<arts:Percent>5</arts:Percent>
+							</arts:Tax>
+							<arts:Tax TaxType="BCPST" TypeCode="Sale" SourceSystemTaxExemptionFlag="false">
+								<arts:Index>2</arts:Index>
+								<arts:Amount>0.95</arts:Amount>
+								<arts:Percent>7</arts:Percent>
+							</arts:Tax>
+						</arts:Sale>
+						<arts:LineItemSubtypeCode>Sale</arts:LineItemSubtypeCode>
+					</arts:LineItem>
+					<arts:LineItem VoidFlag="false">
+						<arts:Index>3</arts:Index>
+						<arts:SequenceNumber>5</arts:SequenceNumber>
+						<arts:Sale ItemType="Stock" TaxableFlag="true">
+							<arts:TaxCount>2</arts:TaxCount>
+							<arts:RetailPriceModifierCount>2</arts:RetailPriceModifierCount>
+							<arts:Item>
+								<arts:ItemNumber>331291864</arts:ItemNumber>
+								<arts:ItemName>POWERBILT TPS LCG MENS SET 92 00</arts:ItemName>
+								<arts:UPCNumber>883701555228</arts:UPCNumber>
+							</arts:Item>
+							<arts:MerchandiseHierarchy Level="4" ID="3210"/>
+							<arts:RegularSalesUnitPrice>249.99</arts:RegularSalesUnitPrice>
+							<arts:ActualSalesUnitPrice>161.99</arts:ActualSalesUnitPrice>
+							<arts:DiscountAmount>88.00</arts:DiscountAmount>
+							<arts:Quantity>1</arts:Quantity>
+							<arts:Associate>
+								<arts:AssociateID>6666</arts:AssociateID>
+							</arts:Associate>
+							<arts:RetailPriceModifier>
+								<arts:Index>1</arts:Index>
+								<arts:SequenceNumber>6</arts:SequenceNumber>
+								<arts:Amount Action="Subtract">70.00</arts:Amount>
+							</arts:RetailPriceModifier>
+							<arts:RetailPriceModifier>
+								<arts:Index>2</arts:Index>
+								<arts:SequenceNumber>9</arts:SequenceNumber>
+								<arts:Amount Action="Subtract">18.00</arts:Amount>
+								<arts:ReasonCode>COUPON SUBTOTAL DISCOUNT</arts:ReasonCode>
+							</arts:RetailPriceModifier>
+							<arts:Tax TaxType="GST" TypeCode="Sale" SourceSystemTaxExemptionFlag="false">
+								<arts:Index>1</arts:Index>
+								<arts:Amount>9.00</arts:Amount>
+								<arts:Percent>5</arts:Percent>
+							</arts:Tax>
+							<arts:Tax TaxType="BCPST" TypeCode="Sale" SourceSystemTaxExemptionFlag="false">
+								<arts:Index>2</arts:Index>
+								<arts:Amount>12.00</arts:Amount>
+								<arts:Percent>7</arts:Percent>
+							</arts:Tax>
+						</arts:Sale>
+						<arts:LineItemSubtypeCode>Sale</arts:LineItemSubtypeCode>
+					</arts:LineItem>
+					<arts:LineItem>
+						<arts:Index>4</arts:Index>
+						<arts:SequenceNumber>9</arts:SequenceNumber>
+						<arts:Discount>
+							<arts:Amount>21.30</arts:Amount>
+							<arts:CouponNumber>51203871</arts:CouponNumber>
+							<arts:ReasonCode>COUPON SUBTOTAL DISCOUNT</arts:ReasonCode>
+						</arts:Discount>
+						<arts:LineItemSubtypeCode>Discount</arts:LineItemSubtypeCode>
+					</arts:LineItem>
+					<arts:LineItem>
+						<arts:Index>5</arts:Index>
+						<arts:SequenceNumber>7</arts:SequenceNumber>
+						<arts:Tax TaxType="GST" TypeCode="Sale">
+							<arts:Index>1</arts:Index>
+							<arts:Amount>9.58</arts:Amount>
+							<arts:Percent>5</arts:Percent>
+						</arts:Tax>
+						<arts:LineItemSubtypeCode>Tax</arts:LineItemSubtypeCode>
+					</arts:LineItem>
+					<arts:LineItem>
+						<arts:Index>6</arts:Index>
+						<arts:SequenceNumber>8</arts:SequenceNumber>
+						<arts:Tax TaxType="BCPST" TypeCode="Sale">
+							<arts:Index>1</arts:Index>
+							<arts:Amount>13.42</arts:Amount>
+							<arts:Percent>7</arts:Percent>
+						</arts:Tax>
+						<arts:LineItemSubtypeCode>Tax</arts:LineItemSubtypeCode>
+					</arts:LineItem>
+					<arts:LineItem>
+						<arts:Index>7</arts:Index>
+						<arts:SequenceNumber>10</arts:SequenceNumber>
+						<arts:Tender TenderType="CreditDebit" SubTenderType="Visa" TypeCode="Sale">
+							<arts:Amount>214.67</arts:Amount>
+							<arts:Authorization>
+								<arts:AuthorizationCode>51798</arts:AuthorizationCode>
+								<arts:SwipeIndicator>2</arts:SwipeIndicator>
+							</arts:Authorization>
+							<arts:CreditDebit>
+								<arts:PrimaryAccountNumber>MTExMTExKioqKioqMjIyMg==</arts:PrimaryAccountNumber>
+								<arts:ExpirationDate>2018-05</arts:ExpirationDate>
+							</arts:CreditDebit>
+						</arts:Tender>
+						<arts:LineItemSubtypeCode>Tender</arts:LineItemSubtypeCode>
+					</arts:LineItem>
+					<arts:Total TotalType="TransactionGrossAmount">214.67</arts:Total>
+					<arts:Total TotalType="TransactionSubtotal">191.67</arts:Total>
+				</arts:RetailTransaction>
+				<arts:TransactionSubtypeCode>RetailTransaction</arts:TransactionSubtypeCode>
+			</arts:Transaction>
+		</eai:POSLog>
+	</eai:Messages>
+</eai:Exchange>

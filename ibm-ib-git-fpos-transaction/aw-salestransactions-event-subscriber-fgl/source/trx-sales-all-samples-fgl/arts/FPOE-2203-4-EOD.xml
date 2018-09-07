@@ -1,0 +1,93 @@
+<eai:Exchange 
+MinorVersion="0" MajorVersion="2" FixVersion="0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:eai="http://www.fgl.com/exchange/" xmlns:arts="http://www.fgl.com/ARTS">
+   <eai:MessageRouting>
+      <eai:Guid>3045254A26984D4EAA11A5CD9F76B5B7</eai:Guid>
+      <eai:MessageId/>
+      <eai:MessageType>PointToPoint</eai:MessageType>
+      <eai:SubjectArea>Normal Retail Sales Transactions</eai:SubjectArea>
+      <eai:SbuNumber>3</eai:SbuNumber>
+      <eai:SbuCode>FGL</eai:SbuCode>
+      <eai:SbuName>FGL Sports Ltd.</eai:SbuName>
+      <eai:DataSourceCode>POE</eai:DataSourceCode>
+      <eai:DataSourceCodeName>POE POS FGL</eai:DataSourceCodeName>
+      <eai:MessageIndex>1</eai:MessageIndex>
+      <eai:MessageCount>1</eai:MessageCount>
+      <eai:SubjectAreaRunName>salestransactions-230-20161031-060400</eai:SubjectAreaRunName>
+   </eai:MessageRouting>
+   <eai:Messages>
+      <eai:Count>1</eai:Count>
+      <eai:SourceSystems>
+         <eai:Count>1</eai:Count>
+         <eai:SourceSystem>
+            <eai:Index>1</eai:Index>
+            <eai:SbuNumber>3</eai:SbuNumber>
+            <eai:SbuCode>FGL</eai:SbuCode>
+            <eai:SbuName>FGL Sports Ltd.</eai:SbuName>
+            <eai:MessageSourceCode>CSS</eai:MessageSourceCode>
+            <eai:MessageSourceCodeName>Central Sales Server</eai:MessageSourceCodeName>
+         </eai:SourceSystem>
+      </eai:SourceSystems>
+      <eai:POSLog>
+         <arts:Count>1</arts:Count>
+         <arts:Transaction TypeCode="POSEOD">
+            <arts:BusinessUnit>
+               <arts:Index>1</arts:Index>
+               <arts:BusinessUnitNumber>230</arts:BusinessUnitNumber>
+               <arts:BusinessUnitTypeCode>RT</arts:BusinessUnitTypeCode>
+               <arts:BusinessUnitShortName>SC230</arts:BusinessUnitShortName>
+               <arts:BusinessUnitName>SC 8K ESTEVAN</arts:BusinessUnitName>
+            </arts:BusinessUnit>
+            <arts:WorkstationID>101</arts:WorkstationID>
+            <arts:SequenceNumber>1</arts:SequenceNumber>
+            <arts:BeginDateTime>2016-10-31T05:14:00</arts:BeginDateTime>
+            <arts:EndDateTime>2016-10-31T06:03:21</arts:EndDateTime>
+            <arts:OperatorID OperatorName="iromanov Manager" LastName="Manager" FirstName="iromanov">000002203</arts:OperatorID>
+            <arts:ControlTransaction>
+               <arts:POSEOD>
+                  <arts:SessionSettle>
+                     <arts:PaymentsCollected>
+                        <arts:Tender>
+                           <arts:TenderTotal TenderType="Cash" SubTenderType="CAD">156.45</arts:TenderTotal>
+                           <arts:Reason/>
+                           <arts:ExpectedTenderTotal TenderType="Cash" SubTenderType="CAD">156.45</arts:ExpectedTenderTotal>
+                        </arts:Tender>
+                        <arts:Tender>
+                           <arts:TenderTotal TenderType="Cash" SubTenderType="USD">1.41</arts:TenderTotal>
+                           <arts:Reason/>
+                           <arts:ExpectedTenderTotal TenderType="Cash" SubTenderType="USD">1.41</arts:ExpectedTenderTotal>
+                        </arts:Tender>
+                        <arts:Tender>
+                           <arts:TenderTotal TenderType="CreditDebit">7.35</arts:TenderTotal>
+                           <arts:Reason/>
+                           <arts:ExpectedTenderTotal TenderType="CreditDebit">7.35</arts:ExpectedTenderTotal>
+                        </arts:Tender>
+                        <arts:Tender>
+                           <arts:TenderTotal TenderType="CreditDebit" SubTenderType="Visa">123.00</arts:TenderTotal>
+                           <arts:Reason/>
+                           <arts:ExpectedTenderTotal TenderType="CreditDebit" SubTenderType="Visa">240.00</arts:ExpectedTenderTotal>
+                        </arts:Tender>
+                        <arts:Tender>
+                           <arts:TenderTotal TenderType="CreditDebit" SubTenderType="MasterCard">125.00</arts:TenderTotal>
+                           <arts:Reason/>
+                           <arts:ExpectedTenderTotal TenderType="CreditDebit" SubTenderType="MasterCard">240.00</arts:ExpectedTenderTotal>
+                        </arts:Tender>
+                        <arts:Tender>
+                           <arts:TenderTotal TenderType="CreditDebit" SubTenderType="Amex">125.00</arts:TenderTotal>
+                           <arts:Reason/>
+                           <arts:ExpectedTenderTotal TenderType="CreditDebit" SubTenderType="Amex">240.00</arts:ExpectedTenderTotal>
+                        </arts:Tender>
+                        <arts:Tender>
+                           <arts:TenderTotal TenderType="GiftCard">22.00</arts:TenderTotal>
+                           <arts:Reason/>
+                           <arts:ExpectedTenderTotal TenderType="GiftCard">22.00</arts:ExpectedTenderTotal>
+                        </arts:Tender>
+
+                     </arts:PaymentsCollected>
+                  </arts:SessionSettle>
+               </arts:POSEOD>
+            </arts:ControlTransaction>
+            <arts:TransactionSubtypeCode>ControlTransaction</arts:TransactionSubtypeCode>
+         </arts:Transaction>
+      </eai:POSLog>
+   </eai:Messages>
+</eai:Exchange>

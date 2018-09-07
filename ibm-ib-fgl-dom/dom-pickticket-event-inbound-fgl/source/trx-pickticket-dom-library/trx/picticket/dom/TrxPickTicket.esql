@@ -1,0 +1,369 @@
+--* File name : TrxPickTicket.esql
+--* Purpose : To implement trx-pickticket-dom flow.
+--* Authors : Rohit Sharma
+--* Create Date : 16th Aug 2016
+--* Version : 1.0
+--* Revision Date:
+--* @copyright MWW-FGLSPORTS 2015. All Rights Reserved.
+
+BROKER SCHEMA trx.picticket.dom
+--Decalre Constants-----
+DECLARE theSchema CONSTANT CHARACTER 'trx.picticket.dom';
+DECLARE DCSTORESHP CONSTANT CHARACTER 'DCSTORESHP';
+DECLARE BUNDLESHIP  CONSTANT CHARACTER 'BUNDLESHIP';
+DECLARE Y CONSTANT CHARACTER 'Y';
+DECLARE N CONSTANT CHARACTER 'N';
+DECLARE REG CONSTANT CHARACTER 'REG';
+DECLARE DISCOUNT CONSTANT CHARACTER 'DISCOUNT';
+DECLARE SHIPPING CONSTANT CHARACTER 'SHIPPING';
+DECLARE GIFT_WRAP CONSTANT CHARACTER 'GIFT WRAP';
+DECLARE DeliverTonight CONSTANT CHARACTER 'Delivered Tonight';
+DECLARE ExpressShipping CONSTANT CHARACTER 'Express Shipping';
+DECLARE RegularShipping CONSTANT CHARACTER 'Regular Shipping';
+DECLARE SHP CONSTANT CHARACTER 'SHP';
+DECLARE PICK CONSTANT CHARACTER 'PICK';
+DECLARE FGL CONSTANT CHARACTER 'FGL';
+DECLARE CAD CONSTANT CHARACTER 'CAD';
+DECLARE PROD CONSTANT CHARACTER 'PROD';
+DECLARE AA CONSTANT CHARACTER 'AA';
+DECLARE CPO CONSTANT CHARACTER 'CPO';
+DECLARE GOOD CONSTANT CHARACTER 'GOOD';
+DECLARE EACH CONSTANT CHARACTER 'EACH';
+DECLARE PICKUPADDRESS CONSTANT CHARACTER 'PICKUP_CUST_ADDR';
+DECLARE FGLDTN CONSTANT CHARACTER 'FGLDTN';
+DECLARE PV CONSTANT CHARACTER 'PV';
+DECLARE PRODUCT_TAXES CONSTANT CHARACTER 'PRODUCT TAX';
+DECLARE FGLREG CONSTANT CHARACTER 'FGLREG';
+DECLARE CANADA_POST CONSTANT CHARACTER 'CANADA_POST';
+DECLARE BLANK CONSTANT CHARACTER '';
+DECLARE nsFgl CHARACTER NULL;
+DECLARE nsYfc CHARACTER NULL;
+DECLARE fgl NAMESPACE 'http://www.fglsports.com/schema/hybris/order/v2';
+
+CREATE FILTER MODULE dom_Filter
+	DECLARE theModule CONSTANT CHARACTER theSchema||'.'||'dom_Filter';
+	CREATE FUNCTION Main() RETURNS BOOLEAN
+	BEGIN
+		DECLARE rEnv REFERENCE TO Environment;
+		DECLARE MSG_ID CHARACTER rEnv.__MsgIdForLog4J__;
+		CALL core.log.Info(theModule||' - ID# : '||MSG_ID||' >> BEGIN');
+		DECLARE returnValue BOOLEAN TRUE;
+		--No-op implementation for wms_Filter - for future purposes as required by business/functional requirements
+		CALL core.log.Info(theModule||' - RETURN '||CAST(returnValue AS CHARACTER));
+		CALL core.log.Info(theModule||' - ID# : '||MSG_ID||' << END');
+		RETURN returnValue;
+	END;
+END MODULE;
+
+CREATE COMPUTE MODULE dom_BuildOutputMessage
+	DECLARE theModule CONSTANT CHARACTER theSchema||'.'||'dom_BuildOutputMessage';
+	CREATE FUNCTION Main() RETURNS BOOLEAN
+	BEGIN
+		DECLARE rEnv REFERENCE TO Environment;
+		DECLARE rInput REFERENCE TO InputRoot;
+		DECLARE rOutput REFERENCE TO OutputRoot;
+		DECLARE MSG_ID CHARACTER rEnv.__MsgIdForLog4J__;
+		CALL core.log.Info(theModule||' - ID# : '||MSG_ID||' >> BEGIN');
+		DECLARE refToInOrder REFERENCE To InputRoot.XMLNSC.fgl:OrderPlacement;
+		DECLARE refToTenders REFERENCE To InputRoot.XMLNSC.fgl:OrderPlacement.fgl:Tenders;
+		DECLARE refToInConsignment REFERENCE To InputRoot.XMLNSC.fgl:OrderPlacement.fgl:Consignments.fgl:Consignment;
+		DECLARE refToInConsignmentEntry Reference To refToInConsignment.fgl:ConsignmentsEntries.fgl:ConsignmentEntry;
+		DECLARE refToInPersonalInfo REFERENCE To refToInConsignment.fgl:PickupInStore.fgl:CustomerPickupDelegate;
+
+		CALL core.log.Info(theModule||' - ID# : '||MSG_ID||' - EnterpriseCode :'||'Order/@EnterprisCode -'|| refToInOrder.(XMLNSC.Attribute)bannerName);
+		CALL core.log.Info(theModule||' - ID# : '||MSG_ID||' - SellerOrganisationCode :'||'Order/@SellerOrganisationCode -'|| refToInOrder.(XMLNSC.Attribute)bannerName);
+		CALL core.log.Info(theModule||' - ID# : '||MSG_ID||' - SCAC :'||'Order/@SCAC -'|| refToInConsignment.fgl:PlanShipVia);
+		CALL core.log.Info(theModule||' - ID# : '||MSG_ID||' - CarrierServiceCode :'||'Order/@CarrierServiceCode -'|| refToInConsignment.fgl:DeliveryMode.fgl:Code);
+		CALL core.log.Info(theModule||' - ID# : '||MSG_ID||' - OrderNo :'||'Order/@OrderNo -'|| refToInOrder.fgl:Code);
+
+		CALL common.common_CopyMessageHeaders(rInput, rOutput);
+		CALL common.common_CreateLastChildOfOutputRootDomainXmlnsc(rOutput);
+		CREATE FIELD rOutput.XMLNSC.Order;
+		DECLARE rOrder REFERENCE TO rOutput.XMLNSC.Order;
+		--Mapping Begins--
+		CALL orderMapping(refToInOrder,refToInConsignment,rOrder); --Function Called for Order Field mapping
+		---Function Called for OrderLine Field mapping
+		CALL orderLineMapping(refToInOrder,rOrder); ---Function Called for OrderLine Field mapping
+		---Begin Mapping of Order/Extn attributes---
+		SET rOrder.Extn.(XMLNSC.Attribute)ExtnExtraDeliveryOption = COALESCE(refToInConsignment.fgl:DeliveryExtraOptions.fgl:DeliveryExtraOption.fgl:Code,BLANK);
+		---End Mapping of Order/Extn attributes---
+        --CALL core.log.Info(theModule||' - ID# : '||MSG_ID||' - OrderNo :'||'Order/@OrderNo -'|| refToInOrder.fgl:Code);
+		DECLARE refInPaymentAddress Reference To refToInOrder.fgl:PaymentAddress; --Reference to Input Message for PaymentAddress Path
+		CALL paymentAddressMapping(refInPaymentAddress, rOrder); --Function called for PaymentAddressMapping in Output
+		
+		IF (UPPER(FIELDVALUE(refToInConsignment.fgl:DeliveryMode.fgl:Code))= 'PICKUP_IN_STORE')THEN
+		    CALL personalInfoMapping(refToInPersonalInfo, rOrder);
+		  ELSE
+		    CALL shippingAddressMapping(refToInConsignment, rOrder); ----Function called for ShippingAddressMapping in Output
+		END IF;
+		
+		
+		---Begin Mapping of Order/HeaderCharges
+		CREATE FIELD rOrder.HeaderCharges;
+		DECLARE rHeaderCharges Reference To rOrder.HeaderCharges;
+		SET rHeaderCharges.HeaderCharge[1].(XMLNSC.Attribute)ChargeAmount = COALESCE(refToInOrder.fgl:DeliveryCost.fgl:Value,BLANK); ----- Same field Mapping -- Ambiguity
+		SET rHeaderCharges.HeaderCharge[1].(XMLNSC.Attribute)ChargeCategory = SHIPPING;
+		SET rHeaderCharges.HeaderCharge[1].(XMLNSC.Attribute)ChargeName = SHIPPING;
+		SET rHeaderCharges.HeaderCharge[2].(XMLNSC.Attribute)ChargeAmount = COALESCE(refToInOrder.fgl:TotalGiftWrap.fgl:Value,BLANK); ----- Same field Mapping -- Ambiguity
+		SET rHeaderCharges.HeaderCharge[2].(XMLNSC.Attribute)ChargeCategory = GIFT_WRAP;
+		SET rHeaderCharges.HeaderCharge[2].(XMLNSC.Attribute)ChargeName = GIFT_WRAP;
+		SET rOrder.PriceInfo.(XMLNSC.Attribute)Currency = CAD;
+
+		DECLARE refToTender REFERENCE TO refToTenders.fgl:Tender[1];
+		DECLARE K INTEGER 1;
+		WHILE LASTMOVE(refToTender) DO
+			CREATE FIELD rOrder.PaymentMethods.PaymentMethod[K];
+			DECLARE rPaymentMethod REFERENCE TO rOrder.PaymentMethods.PaymentMethod[K];
+			SET rPaymentMethod.(XMLNSC.Attribute)PaymentType = refToTender.fgl:TenderType;
+
+			DECLARE creditCardType CHAR UPPER(refToTender.fgl:CreditCardDetails.fgl:CreditCardType);
+
+			IF creditCardType = 'MASTERCARD' THEN
+				SET creditCardType = 'MC';
+			ELSEIF creditCardType = 'AMEX' THEN
+				SET creditCardType = 'Amex';
+			ELSEIF creditCardType = 'VISA' THEN
+				SET creditCardType = 'Visa';
+			END IF;
+
+			SET rPaymentMethod.(XMLNSC.Attribute)CreditCardType = creditCardType;
+			SET rPaymentMethod.(XMLNSC.Attribute)CreditCardNo = RIGHT(refToTender.fgl:CreditCardDetails.fgl:AccountNumber,4);
+			SET rPaymentMethod.(XMLNSC.Attribute)SvcNo = RIGHT(refToTender.fgl:GiftCardDetails.fgl:AccountNumber,4);
+			--SET rPaymentMethod.(XMLNSC.Attribute)DisplayPaymentReference1= RIGHT(refToTender.fgl:PayPalDetails.fgl:PayPalTransactionId,4);
+			SET rPaymentMethod.(XMLNSC.Attribute)PaymentReference1= RIGHT(refToTender.fgl:PayPalDetails.fgl:PayPalTransactionId,4);
+			
+			MOVE refToTender NEXTSIBLING REPEAT TYPE NAME;
+
+			SET K = K+1;
+		END WHILE;
+	    DECLARE orderLineCount INTEGER;
+		SET orderLineCount = CARDINALITY(rOrder.OrderLines.OrderLine[]);
+		IF orderLineCount = 0 THEN
+		CALL core.log.Info(theModule||' - ID# : '||MSG_ID||' - OrderNo :'||'Order/@OrderNo -'|| refToInOrder.fgl:Code||'-Discarding Message, No Order Lines:Check for Gift Card ITEM');
+			RETURN FALSE;
+		END IF;
+
+	END ;
+END MODULE;
+-- ******************************************************************************************************* **
+-- used to prepare Order field into DOM XML
+-- Parameters:refToInOrder, refToInConsignment, rOrder
+-- INPUT Reference: refToInOrder, refToInConsignment
+-- OUTPUT Reference: rOrder
+-- ***********************************************************************************************************
+
+CREATE PROCEDURE orderMapping(IN refToInOrder REFERENCE,IN refToInConsignment REFERENCE, IN rOrder REFERENCE)
+BEGIN
+	--Begin Mapping attributes for Order field in output---
+	DECLARE DOC_TYPE CONSTANT CHARACTER '0001';
+	SET rOrder.(XMLNSC.Attribute)DocumentType = DOC_TYPE; --- Sales order Document
+	SET rOrder.(XMLNSC.Attribute)AllocationRuleID = DCSTORESHP; --- Release -2
+	
+	SET rOrder.(XMLNSC.Attribute)EnterpriseCode = COALESCE(refToInOrder.(XMLNSC.Attribute)bannerName,BLANK);
+	SET rOrder.(XMLNSC.Attribute)SellerOrganizationCode = COALESCE(refToInOrder.(XMLNSC.Attribute)bannerName,BLANK);
+	SET rOrder.(XMLNSC.Attribute)BypassPricing = Y;
+	SET rOrder.(XMLNSC.Attribute)CancelOrderOnBackorder = N;
+	SET rOrder.(XMLNSC.Attribute)DoNotConsolidate = N;
+	SET rOrder.(XMLNSC.Attribute)OrderDate = COALESCE(refToInOrder.fgl:Created,BLANK);
+	SET rOrder.(XMLNSC.Attribute)OrderType = REG;
+	SET rOrder.(XMLNSC.Attribute)EnteredBy = COALESCE(refToInOrder.fgl:BrowserIp,BLANK);
+	SET rOrder.(XMLNSC.Attribute)SCAC = COALESCE(refToInConsignment.fgl:PlanShipVia,BLANK);
+	--SET rOrder.(XMLNSC.Attribute)CarrierServiceCode = COALESCE(refToInConsignment.fgl:DeliveryMode.fgl:Code,BLANK);
+	SET rOrder.(XMLNSC.Attribute)OrderNo = COALESCE(refToInOrder.fgl:Code,BLANK);
+	-- *********************************************************************************************************
+	--Code fix due to delivery mode change in Hybris
+	
+	IF (FIELDVALUE(refToInConsignment.fgl:DeliveryMode.fgl:Code)= 'Regular_Shipping')THEN
+        SET rOrder.(XMLNSC.Attribute)CarrierServiceCode = RegularShipping;
+        ELSEIF (FIELDVALUE(refToInConsignment.fgl:DeliveryMode.fgl:Code)= 'Express_Shipping')THEN
+        SET rOrder.(XMLNSC.Attribute)CarrierServiceCode = ExpressShipping;
+        ELSEIF (FIELDVALUE(refToInConsignment.fgl:DeliveryMode.fgl:Code)= 'Delivery_Tonight')THEN
+        SET rOrder.(XMLNSC.Attribute)CarrierServiceCode = DeliverTonight;   
+    END IF;
+	
+-- *********************************************************************************************************		
+	
+	--Ends Mapping attributes for Order----
+END;
+-- *********************************************************************************************************
+-- used to prepare OrderLine field into DOM XML
+-- Parameters:refToInOrder, rOrder
+-- INPUT Reference: refToInOrder
+-- OUTPUT Reference: rOrder
+-- ***********************************************************************************************************
+CREATE PROCEDURE orderLineMapping(IN refToInOrder REFERENCE,IN rOrder REFERENCE)
+
+BEGIN
+	
+	DECLARE refToInConsignmentEntry REFERENCE TO refToInOrder.fgl:Consignments.fgl:Consignment.fgl:ConsignmentsEntries.fgl:ConsignmentEntry;
+	DECLARE refToInConsignment REFERENCE TO refToInOrder.fgl:Consignments.fgl:Consignment;
+	--DECLARE refToInConsignmentEntry REFERENCE TO refToInConsignment.fgl:ConsignmentsEntries.fgl:ConsignmentEntry;
+	DECLARE I INTEGER 1;
+	WHILE LASTMOVE(refToInConsignmentEntry) DO
+		CREATE FIELD rOrder.OrderLines.OrderLine[I]; --Field Created for OrderLine
+		DECLARE rOrderLine REFERENCE TO rOrder.OrderLines.OrderLine[I];
+		DECLARE refInEntry Reference To refToInOrder.fgl:Entries.fgl:Entry[1]; 
+		SEARCH:WHILE LASTMOVE(refInEntry) DO
+			IF refToInConsignmentEntry.fgl:VariantCode = refInEntry.fgl:Product.fgl:Code THEN
+			  	SET rOrderLine.(XMLNSC.Attribute)OrderedQty = COALESCE(refInEntry.fgl:OrderedItemQuantity,BLANK);
+			  	SET rOrderLine.Item.(XMLNSC.Attribute)ItemID = COALESCE(refInEntry.fgl:Product.fgl:Code,BLANK);
+			  	SET rOrderLine.Item.(XMLNSC.Attribute)AlternateItemID = COALESCE(refInEntry.fgl:Product.fgl:BaseProduct.fgl:Code,BLANK);
+				SET rOrderLine.LinePriceInfo.(XMLNSC.Attribute)UnitPrice = COALESCE(refInEntry.fgl:BasePrice.fgl:Value,BLANK);
+     			LEAVE SEARCH;
+			END IF;	
+		    MOVE refInEntry NEXTSIBLING REPEAT TYPE NAME;
+		END WHILE;
+		
+     IF (UPPER(FIELDVALUE(refToInConsignment.fgl:DeliveryMode.fgl:Code))= 'PICKUP_IN_STORE')THEN
+		SET rOrderLine.(XMLNSC.Attribute)DeliveryMethod = PICK;
+		DECLARE busUnitType,busUnit,storeId CHAR;
+		DECLARE banner CHAR '';
+		SET banner = COALESCE(refToInOrder.(XMLNSC.Attribute)bannerName,BLANK);
+					SET busUnitType = 'S';
+					SET busUnit = 'FGL';
+					SET storeId = refToInConsignment.fgl:PickupInStore.fgl:Store.fgl:StoreId;
+
+					IF banner = 'SPORTCHEK' THEN
+						SET banner = 'SCX';
+					ELSEIF banner = 'COAST MOUNTAIN SPORT' THEN
+						SET banner = 'ATM';
+					ELSE
+						SET banner = 'FGL';
+					END IF;
+
+					SET rOrderLine.(XMLNSC.Attribute)ShipNode = busUnitType||busUnit||banner||'X'||storeId;
+	  ELSE 
+	      SET rOrderLine.(XMLNSC.Attribute)DeliveryMethod = SHP;
+	      SET rOrderLine.(XMLNSC.Attribute)ShipNode = BLANK;
+	  END IF;
+	  
+	  IF (UPPER(FIELDVALUE(refToInConsignmentEntry.fgl:MandatoryBundle.fgl:Level)) = 'PRIMARY') OR (UPPER(FIELDVALUE(refToInConsignmentEntry.fgl:MandatoryBundle.fgl:Level)) = 'SECONDARY') THEN
+	  	SET rOrder.(XMLNSC.Attribute)AllocationRuleID = BUNDLESHIP;
+	  END IF;	    
+	   	
+		SET rOrderLine.(XMLNSC.Attribute)ItemGroupCode = PROD;
+		IF (refToInConsignment.fgl:PlanShipVia = CANADA_POST AND CONTAINS(refToInConsignment.fgl:DeliveryMode.fgl:Code,'Delivery_Tonight')) THEN
+			SET rOrderLine.(XMLNSC.Attribute)FulfillmentType = FGLDTN;
+		ELSE
+			SET rOrderLine.(XMLNSC.Attribute)FulfillmentType = FGLREG;
+		END IF;
+		SET rOrderLine.(XMLNSC.Attribute)LineType = REG;
+		SET rOrderLine.(XMLNSC.Attribute)PrimeLineNo = COALESCE(refToInConsignmentEntry.fgl:CustomerOrderSequenceNumber,BLANK);
+		IF (refToInConsignmentEntry.fgl:GiftWraps.fgl:GiftWrap.fgl:Type = PV) THEN
+			SET rOrderLine.(XMLNSC.Attribute)GiftFlag = Y;
+		Else
+			SET rOrderLine.(XMLNSC.Attribute)GiftFlag = N;
+		END IF;
+		IF (refToInConsignmentEntry.fgl:GiftWraps.fgl:GiftWrap.fgl:Type = AA) THEN
+			SET rOrderLine.(XMLNSC.Attribute)GiftWrap = Y;
+		Else
+			SET rOrderLine.(XMLNSC.Attribute)GiftWrap = N;
+		END IF;
+
+		SET rOrderLine.Item.(XMLNSC.Attribute)UnitOfMeasure = EACH;
+		SET rOrderLine.Item.(XMLNSC.Attribute)ProductClass = GOOD;
+
+
+		IF rOrderLine.(XMLNSC.Attribute)GiftFlag = Y THEN
+			SET rOrderLine.Instructions.Instruction.(XMLNSC.Attribute)InstructionText = COALESCE(refToInConsignmentEntry.fgl:GiftWraps.fgl:GiftWrap.fgl:Message,BLANK);
+			SET rOrderLine.Instructions.Instruction.(XMLNSC.Attribute)InstructionType = COALESCE(refToInConsignmentEntry.fgl:GiftWraps.fgl:GiftWrap.fgl:To,BLANK);
+		END IF;
+
+		SET rOrderLine.LinePriceInfo.(XMLNSC.Attribute)IsPriceLocked = Y;
+		SET rOrderLine.LineCharges.LineCharge.(XMLNSC.Attribute)ChargePerLine = COALESCE(refToInConsignmentEntry.fgl:TotalOrderDiscount,BLANK);
+		SET rOrderLine.LineCharges.LineCharge.(XMLNSC.Attribute)ChargeCategory = DISCOUNT;
+		SET rOrderLine.LineCharges.LineCharge.(XMLNSC.Attribute)ChargeName = DISCOUNT;
+
+
+		SET I = I+1;
+		MOVE refToInConsignmentEntry NEXTSIBLING REPEAT TYPE NAME;
+		MOVE refInEntry NEXTSIBLING REPEAT TYPE NAME;
+
+	END WHILE;
+	--Ending Mapping of Order/OrderLine----
+END;
+-- *********************************************************************************************************
+-- used to prepare PersonInfoBillTo field into DOM XML
+-- Parameters: refInPaymentAddress, rOrder
+-- INPUT Reference: refInPaymentAddress
+-- OUTPUT Reference: rOrder
+-- ***********************************************************************************************************
+CREATE PROCEDURE paymentAddressMapping(IN refInPaymentAddress REFERENCE, IN rOrder REFERENCE)
+BEGIN
+	--- Begin mapping of order/PersonInfoBillTo ---
+	SET rOrder.PersonInfoBillTo.(XMLNSC.Attribute)FirstName = COALESCE(refInPaymentAddress.fgl:FirstName,BLANK);
+	SET rOrder.PersonInfoBillTo.(XMLNSC.Attribute)LastName = COALESCE(refInPaymentAddress.fgl:LastName,BLANK);
+	SET rOrder.PersonInfoBillTo.(XMLNSC.Attribute)AddressLine1 = COALESCE(refInPaymentAddress.fgl:Line1,BLANK);
+	SET rOrder.PersonInfoBillTo.(XMLNSC.Attribute)AddressLine2 = COALESCE(refInPaymentAddress.fgl:Line2,BLANK);
+	SET rOrder.PersonInfoBillTo.(XMLNSC.Attribute)City = COALESCE(refInPaymentAddress.fgl:Town,BLANK);
+	SET rOrder.PersonInfoBillTo.(XMLNSC.Attribute)State = COALESCE(refInPaymentAddress.fgl:Province,BLANK);
+	SET rOrder.PersonInfoBillTo.(XMLNSC.Attribute)Country = COALESCE(refInPaymentAddress.fgl:Country.fgl:Isocode,BLANK);
+	SET rOrder.PersonInfoBillTo.(XMLNSC.Attribute)ZipCode = COALESCE(refInPaymentAddress.fgl:PostalCode,BLANK);
+	SET rOrder.PersonInfoBillTo.(XMLNSC.Attribute)DayPhone = COALESCE(refInPaymentAddress.fgl:Phone,BLANK);
+	SET rOrder.PersonInfoBillTo.(XMLNSC.Attribute)EMailID = COALESCE(refInPaymentAddress.fgl:Email,BLANK);
+	--- End Mapping of order/PersonInfoBillTo ----
+END;
+-- *********************************************************************************************************
+-- used to prepare PersonInfoshipTo field into DOM XML
+-- Parameters:refInShippingAddress, rOrderLine
+-- INPUT Reference: refInShippingAddress
+-- OUTPUT Reference: rOrderLine
+-- ***********************************************************************************************************
+CREATE PROCEDURE personalInfoMapping(IN refToInPersonalInfo REFERENCE, IN rOrder REFERENCE)
+  BEGIN	  
+	  
+	SET rOrder.PersonInfoShipTo.(XMLNSC.Attribute)FirstName = BLANK;
+	SET rOrder.PersonInfoShipTo.(XMLNSC.Attribute)LastName = BLANK;
+	SET rOrder.PersonInfoShipTo.(XMLNSC.Attribute)AddressLine1 = BLANK;
+	SET rOrder.PersonInfoShipTo.(XMLNSC.Attribute)AddressLine2 = BLANK;
+	SET rOrder.PersonInfoShipTo.(XMLNSC.Attribute)AddressLine5 = BLANK;
+	SET rOrder.PersonInfoShipTo.(XMLNSC.Attribute)AddressLine6 = BLANK;
+	SET rOrder.PersonInfoShipTo.(XMLNSC.Attribute)City = BLANK;
+	SET rOrder.PersonInfoShipTo.(XMLNSC.Attribute)State = BLANK;
+	SET rOrder.PersonInfoShipTo.(XMLNSC.Attribute)ZipCode = BLANK;
+	SET rOrder.PersonInfoShipTo.(XMLNSC.Attribute)Country = BLANK;
+	
+	---Additional Info
+	CREATE FIELD rOrder.AdditionalAddresses.AdditionalAddress;
+	DECLARE rAddress REFERENCE TO rOrder.AdditionalAddresses.AdditionalAddress;
+	SET rAddress.(XMLNSC.Attribute)AddressType = PICKUPADDRESS;
+	SET rAddress.PersonInfo.(XMLNSC.Attribute)FirstName = COALESCE(refToInPersonalInfo.fgl:FirstName,BLANK);
+	SET rAddress.PersonInfo.(XMLNSC.Attribute)LastName = COALESCE(refToInPersonalInfo.fgl:LastName,BLANK);
+	SET rAddress.PersonInfo.(XMLNSC.Attribute)AddressLine1 = COALESCE(refToInPersonalInfo.fgl:Line1,BLANK);
+	SET rAddress.PersonInfo.(XMLNSC.Attribute)AddressLine2 = COALESCE(refToInPersonalInfo.fgl:Line2,BLANK);
+	SET rAddress.PersonInfo.(XMLNSC.Attribute)City = COALESCE(refToInPersonalInfo.fgl:Town,BLANK);
+	SET rAddress.PersonInfo.(XMLNSC.Attribute)State = COALESCE(refToInPersonalInfo.fgl:Province,BLANK);
+	SET rAddress.PersonInfo.(XMLNSC.Attribute)Country = COALESCE(refToInPersonalInfo.fgl:Country.fgl:Isocode,BLANK);
+	SET rAddress.PersonInfo.(XMLNSC.Attribute)ZipCode = COALESCE(refToInPersonalInfo.fgl:PostalCode,BLANK);
+	SET rAddress.PersonInfo.(XMLNSC.Attribute)DayPhone = COALESCE(refToInPersonalInfo.fgl:Phone,BLANK);
+	SET rAddress.PersonInfo.(XMLNSC.Attribute)EMailID = COALESCE(refToInPersonalInfo.fgl:Email,BLANK);
+	
+END;
+
+CREATE PROCEDURE shippingAddressMapping(IN refToInConsignment REFERENCE, IN rOrder REFERENCE)
+BEGIN
+	DECLARE refInShippingAddress Reference To refToInConsignment.fgl:ShippingAddress;
+	IF CAST(refToInConsignment.fgl:ShipToOutlet AS BOOLEAN) THEN
+		MOVE refInShippingAddress To refToInConsignment.fgl:RecipientAddress;
+	END IF;
+	--DECLARE state CHARACTER NULL;
+	--- Begin Mapping of OrderLine/PersonInfoShipTo ---
+	SET rOrder.PersonInfoShipTo.(XMLNSC.Attribute)FirstName = COALESCE(refInShippingAddress.fgl:FirstName,BLANK);
+	SET rOrder.PersonInfoShipTo.(XMLNSC.Attribute)LastName = COALESCE(refInShippingAddress.fgl:LastName,BLANK);
+	SET rOrder.PersonInfoShipTo.(XMLNSC.Attribute)AddressLine1 = COALESCE(refInShippingAddress.fgl:Line1,BLANK);
+	SET rOrder.PersonInfoShipTo.(XMLNSC.Attribute)AddressLine2 = COALESCE(refInShippingAddress.fgl:Line2,BLANK);
+
+	SET rOrder.PersonInfoShipTo.(XMLNSC.Attribute)AddressLine5 VALUE = COALESCE(refToInConsignment.fgl:ShippingAddress.fgl:CanadaPostOutletCode,BLANK); ---Mapping not given ---
+
+	IF CAST(refToInConsignment.fgl:ShipToOutlet AS BOOLEAN) THEN
+		SET rOrder.PersonInfoShipTo.(XMLNSC.Attribute)AddressLine6 = refToInConsignment.fgl:ShippingAddress.fgl:Province||'-CPO'; ---Mapping not given ---
+	ELSE
+		SET rOrder.PersonInfoShipTo.(XMLNSC.Attribute)AddressLine6 = refToInConsignment.fgl:ShippingAddress.fgl:Province||'-REG'; ---Mapping not given ---
+	END IF;
+
+	SET rOrder.PersonInfoShipTo.(XMLNSC.Attribute)City = COALESCE(refInShippingAddress.fgl:Town,BLANK);
+	SET rOrder.PersonInfoShipTo.(XMLNSC.Attribute)State = COALESCE(refInShippingAddress.fgl:Province,BLANK);
+	SET rOrder.PersonInfoShipTo.(XMLNSC.Attribute)ZipCode = COALESCE(refInShippingAddress.fgl:PostalCode,BLANK);
+	SET rOrder.PersonInfoShipTo.(XMLNSC.Attribute)Country = COALESCE(refInShippingAddress.fgl:Country.fgl:Isocode,BLANK);
+	
+END;

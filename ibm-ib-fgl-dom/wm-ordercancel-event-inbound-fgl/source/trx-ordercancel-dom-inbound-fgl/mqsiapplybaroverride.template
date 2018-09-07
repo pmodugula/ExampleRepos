@@ -1,0 +1,6 @@
+trx.ordercancel.dom.TrxOrderCancel#IIBInBoundQueue=RECV.${ORDER_IN}
+trx.ordercancel.dom.TrxOrderCancel#WMSOutBoundQueue=SEND.${ORDER_OUT}
+trx.ordercancel.dom.TrxOrderCancel#CoreAuditDataSource=AUD${ENVN}${INST}
+trx.ordercancel.dom.TrxOrderCancel#CoreAuditEnabled=FALSE
+trx.ordercancel.dom.TrxOrderCancel#additionalInstances=${EXTRATHREADS}
+trx.ordercancel.dom.TrxOrderCancel#DOMOutboundBackupQueue=${ORDER_IN_BACKUP}

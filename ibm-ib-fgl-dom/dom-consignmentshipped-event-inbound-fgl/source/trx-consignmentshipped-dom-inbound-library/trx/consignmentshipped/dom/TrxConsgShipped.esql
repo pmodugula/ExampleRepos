@@ -1,0 +1,165 @@
+--* File name : TrxConsgShipped.esql
+--* Purpose : To implement purolator consignment shipped message flow from WMS to DOM. Input will be from ShipInvoiceEcom.
+--* Authors : Dinesh and Shubham
+--* Create Date : 23th Aug 2016
+--* Version : 1.0
+--* Revision Date: 
+--* @copyright FGLSPORTS 2015. All Rights Reserved. */
+
+BROKER SCHEMA trx.consignmentshipped.dom
+PATH core.log;
+
+-- Declare Constants-----
+DECLARE APOSTROPHE CONSTANT CHARACTER '''';
+DECLARE SHIPPING_INVOICE CONSTANT CHARACTER 'SHIPPING_INVOICE';
+DECLARE theSchema CONSTANT CHARACTER 'trx.consignmentshipped.dom';
+DECLARE ATMOSPHERE CONSTANT CHARACTER 'ATMOSPHERE';
+DECLARE SPORTCHEK CONSTANT CHARACTER 'SPORTCHEK';
+DECLARE PUROLATOR CONSTANT CHARACTER 'PUROLATOR';
+
+
+-- Declare Namespace --
+DECLARE wms NAMESPACE 'http://www.fglsports.com/schema/wmstaging/tables/v1';
+
+CREATE FILTER MODULE dom_Filter
+	DECLARE theModule CONSTANT CHARACTER theSchema||'.'||'dom_Filter';
+	CREATE FUNCTION Main() RETURNS BOOLEAN
+	BEGIN
+		DECLARE rEnv REFERENCE TO Environment;
+		DECLARE MSG_ID CHARACTER rEnv.__MsgIdForLog4J__;
+		CALL core.log.Info(theModule||' - ID# : '||MSG_ID||' >> BEGIN');
+		DECLARE returnValue BOOLEAN TRUE;
+		--No-op implementation for wms_Filter - for future purposes as required by business/functional requirements
+		CALL core.log.Info(theModule||' - RETURN '||CAST(returnValue AS CHARACTER));
+		CALL core.log.Info(theModule||' - ID# : '||MSG_ID||' << END');
+		RETURN returnValue;
+	END;
+END MODULE;
+
+
+CREATE COMPUTE MODULE BuildShipInvoiceMessage
+	DECLARE theModule CHARACTER theSchema||'.'||'BuildShipInvoiceMessage';	
+	CREATE FUNCTION Main() RETURNS BOOLEAN
+	BEGIN
+		DECLARE rEnv REFERENCE TO Environment;
+		DECLARE rInput REFERENCE TO InputRoot;
+		DECLARE rOutput REFERENCE TO OutputRoot;
+		DECLARE MSG_ID CHARACTER rEnv.__MsgIdForLog4J__;
+		CALL core.log.Info(theModule||' - ID# : '||MSG_ID||' >> BEGIN');		
+		CALL common.common_CopyMessageHeaders(rInput, rOutput);
+		CALL common.common_CreateLastChildOfOutputRootDomainXmlnsc(rOutput);
+		
+		DECLARE nsEtl CHARACTER;
+		SET nsEtl = common.common_getNamespace('DataStage', 'ShippingInvoice', '', '');
+		DECLARE etl NAMESPACE nsEtl;
+
+		DECLARE wms NAMESPACE 'http://www.fglsports.com/schema/wmstaging/tables/v1'; 
+
+		DECLARE rInRouting REFERENCE TO rInput.XMLNSC.etl:Exchange.etl:MessageRouting;
+		DECLARE rInInvoice REFERENCE TO rInput.XMLNSC.etl:Exchange.etl:Message.etl:ShippingInvoiceBatch;
+		SET OutputRoot.XMLNSC.wms:WMStaging.wms:WMHeader.wms:SourceBusinessUnit = FIELDVALUE(rInRouting.etl:SBU_CD);
+		
+		DECLARE I INTEGER 1;
+		DECLARE J INTEGER CARDINALITY(rInInvoice.etl:ShippingInvoice.etl:Row[]);
+		CALL TraceMessage(rEnv, theModule, 'J='||CAST(J AS CHARACTER));
+		SET Environment.{theSchema||'.J'} = J;
+		DECLARE InMessageSlash CONSTANT CHARACTER '/etl:Exchange/etl:Message/etl:ShippingInvoiceBatch/';
+		
+		WHILE I <= J DO
+			CALL TraceMessage(rEnv, theModule, 'I='||CAST(I AS CHARACTER));
+			
+			SET OutputRoot.XMLNSC.wms:WMStaging.wms:WMBody._flag = 1;
+			DECLARE rBody REFERENCE TO OutputRoot.XMLNSC.wms:WMStaging.wms:WMBody;
+			
+			SET rBody.wms:ShippingInvoices.wms:ShippingInvoice._flag = 1;
+			DECLARE rInvoice REFERENCE TO rBody.wms:ShippingInvoices.wms:ShippingInvoice;			
+
+			DECLARE rInRow REFERENCE TO rInInvoice.etl:ShippingInvoice.etl:Row[I];
+		
+			SET rInvoice.O1PKTN = COALESCE(CAST(rInInvoice.etl:O1PKTN AS CHARACTER),'');
+			SET rInvoice.O3TRKN = COALESCE(CAST(rInRow.etl:O3TRKN AS CHARACTER),'');
+			SET rInvoice.O4CASN = COALESCE(CAST(rInRow.etl:O4CASN AS CHARACTER),'');
+								
+			
+			CALL InfoMessage(rEnv, theModule, InMessageSlash||buildDebugKeyValueText('etl:O4CASN',APOSTROPHE,rInvoice.O4CASN));
+						
+			DELETE FIELD rInvoice._flag;
+			DELETE FIELD rBody._flag;
+			
+			SET Environment.{theSchema||'.I'} = I;
+			IF I < J THEN
+				PROPAGATE FINALIZE NONE DELETE NONE; --https://www-01.ibm.com/support/knowledgecenter/SSMKHH_9.0.0/com.ibm.etools.mft.doc/ak05110_.htm
+				DELETE FIELD OutputRoot.XMLNSC.wms:WMStaging.wms:WMBody;
+
+			END IF;
+
+			SET I = I + 1;
+		END WHILE;
+			  		
+		CALL core.log.Info(theModule||' - ID# : '||MSG_ID||' << END');
+		RETURN TRUE;
+	END;
+	END MODULE;
+
+
+CREATE COMPUTE MODULE dom_BuildOutputMessage
+	DECLARE theModule CONSTANT CHARACTER theSchema||'.'||'dom_BuildOutputMessage';
+	CREATE FUNCTION Main() RETURNS BOOLEAN
+	BEGIN
+	
+		DECLARE rEnv REFERENCE TO Environment;        
+		DECLARE rInput REFERENCE TO InputRoot;
+		DECLARE rOutput REFERENCE TO OutputRoot;
+		DECLARE I INTEGER 1;
+		DECLARE J INTEGER;
+	    DECLARE MSG_ID CHARACTER rEnv.__MsgIdForLog4J__;
+	    CALL core.log.Info(theModule||' - ID# : '||MSG_ID||' >> BEGIN');
+		CALL common.common_CopyMessageHeaders(rInput, rOutput);
+		CALL common.common_CreateLastChildOfOutputRootDomainXmlnsc(rOutput);
+		DECLARE refToShippingInvoices REFERENCE To rInput.XMLNSC.wms:WMStaging.wms:WMBody.wms:ShippingInvoices;
+--		DECLARE refToShippingInvoice REFERENCE To refToShippingInvoices.*[1];
+--		DECLARE refToShippingInvoice REFERENCE To refToShippingInvoices.wmsstag:ShippingInvoice;
+		
+		SET J = CARDINALITY(refToShippingInvoices.wms:ShippingInvoice[]);
+		
+		WHILE I <= J DO
+			
+				CREATE FIELD OutputRoot.XMLNSC.Shipment.Containers.Container;
+				DECLARE refToContainer REFERENCE To OutputRoot.XMLNSC.Shipment.Containers.Container;
+		
+				/* Prepare Output Message */
+				SET rOutput.XMLNSC.Shipment.(XMLNSC.Attribute)ShipmentKey = FIELDVALUE(refToShippingInvoices.wms:ShippingInvoice[I].O1PKTN);
+				DECLARE ShipmentKey_NO CHARACTER;
+				SET ShipmentKey_NO = FIELDVALUE(refToShippingInvoices.wms:ShippingInvoice[I].O1PKTN);
+				CALL core.log.Info(theModule||' - ShipmentKey NO# : '||ShipmentKey_NO);
+				
+				IF(SUBSTRING((refToShippingInvoices.wms:ShippingInvoice[I].O1PKTN) FROM 1 FOR 1) = 'E') THEN
+					SET rOutput.XMLNSC.Shipment.(XMLNSC.Attribute)SellerOrganizationCode = SPORTCHEK;
+				ELSE
+					SET rOutput.XMLNSC.Shipment.(XMLNSC.Attribute)SellerOrganizationCode = ATMOSPHERE;
+				END IF;
+											    										
+				SET rOutput.XMLNSC.Shipment.(XMLNSC.Attribute)ActualShipmentDate = CURRENT_TIMESTAMP;
+				SET rOutput.XMLNSC.Shipment.(XMLNSC.Attribute)SCAC = PUROLATOR;
+				
+				DECLARE trackingNo CHAR COALESCE(refToShippingInvoices.wms:ShippingInvoice[I].O3TRKN,'');
+				SET refToContainer.(XMLNSC.Attribute)TrackingNo = trackingNo ;
+				
+				SET refToContainer.(XMLNSC.Attribute)ContainerNo = refToShippingInvoices.wms:ShippingInvoice[I].O4CASN;
+				
+				SET I = I + 1;
+				
+				IF trackingNo <> '' THEN
+					CALL core.log.Info(theModule||' - ID# : '||MSG_ID||' >> Tracking number = '||trackingNo);
+					PROPAGATE DELETE NONE;
+				ELSE
+					 CALL core.log.Info(theModule||' - ID# : '||MSG_ID||' >> This message was not sent as Tracking number was null or blank');
+				END IF;
+	
+			
+		END WHILE;
+					CALL core.log.Info(theModule||' - ID# : '||MSG_ID||' >> END');							
+		RETURN FALSE;
+
+	END;
+END MODULE;

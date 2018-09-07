@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<descriptor>
+    <interfaces>
+        <interface>
+            <group>com.fgl.eai.iib.xbr.salestransactions.event.subscriber.fgl</group>
+            <name>trx-sales-xbr-subscriber-fgl</name>
+            <version>1.1.1-SNAPSHOT</version>
+        </interface>
+        <interface>
+            <group>com.fgl.eai.iib.xbr.salestransactions.event.subscriber.fgl</group>
+            <name>trx-sales-xbr-inbound-fgl</name>
+            <version>1.1.1-SNAPSHOT</version>
+        </interface>
+    </interfaces>
+    <environments>
+        <environment>
+            <name>CI</name>
+            <snapshots>TRUE</snapshots>
+        </environment>
+        <environment>
+            <name>DV</name>
+            <snapshots>TRUE</snapshots>
+        </environment>
+        <environment>
+            <name>QA</name>
+            <snapshots>FALSE</snapshots>
+        </environment>
+        <environment>
+            <name>PP</name>
+            <snapshots>FALSE</snapshots>
+        </environment>
+        <environment>
+            <name>PROD</name>
+            <snapshots>FALSE</snapshots>
+        </environment>
+    </environments>
+</descriptor>

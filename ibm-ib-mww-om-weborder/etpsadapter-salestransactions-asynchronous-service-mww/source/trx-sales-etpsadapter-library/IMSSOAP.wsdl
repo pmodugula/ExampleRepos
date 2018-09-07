@@ -1,0 +1,100 @@
+<?xml version="1.0" encoding="UTF-8"?><wsdl:definitions xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/" name="IMS" targetNamespace="http://www.marks.com/2014/01/services/IMS/" xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/" xmlns:soap12="http://schemas.xmlsoap.org/wsdl/soap12/" xmlns:tns="http://www.marks.com/2014/01/services/IMS/" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+  <wsdl:documentation>
+    <wsdl:appinfo source="WMQI_APPINFO">
+      <MRWSDLAppInfo imported="true">
+        <generatedXSD location="IMSSOAP_InlineSchema1.xsd"/>
+        <binding hasEncoding="false" imported="true" name="IMSSOAP" originalBindingStyle="document"/>
+      </MRWSDLAppInfo>
+    </wsdl:appinfo>
+  </wsdl:documentation>
+  <wsdl:types>
+    
+          <xsd:schema targetNamespace="http://www.marks.com/2014/01/services/IMS/" xmlns:IMS="http://www.marks.com/2014/01/schemas/IMS" xmlns:ibmSchExtn="http://www.ibm.com/schema/extensions">
+<xsd:import namespace="http://www.marks.com/2014/01/schemas/IMS" schemaLocation="arts-ims.xsd"/>
+<xsd:include schemaLocation="IMSSOAP_InlineSchema1.xsd"/>
+    </xsd:schema>
+    </wsdl:types>
+  <wsdl:message name="getBusinessAccountInformationRequest">
+    <wsdl:part element="tns:getBusinessAccountInformationRequest" name="getBusinessAccountInformationRequest"/>
+  </wsdl:message>
+  <wsdl:message name="getBusinessAccountInformationResponse">
+    <wsdl:part element="tns:getBusinessAccountInformationResponse" name="getBusinessAccountInformationResponse"/>
+  </wsdl:message>
+  <wsdl:message name="findByAccountNumberRequest">
+  	<wsdl:part element="tns:findByAccountNumberRequest" name="findByAccountNumberRequest"/>
+  </wsdl:message>
+  <wsdl:message name="findByAccountNumberResponse">
+  	<wsdl:part element="tns:findByAccountNumberResponse" name="findByAccountNumberResponse"/>
+  </wsdl:message>
+  <wsdl:message name="getBusinessAccountPricingRequest">
+  	<wsdl:part element="tns:getBusinessAccountPricingRequest" name="getBusinessAccountPricingRequest"/>
+  </wsdl:message>
+  <wsdl:message name="getBusinessAccountPricingResponse">
+  	<wsdl:part element="tns:getBusinessAccountPricingResponse" name="getBusinessAccountPricingResponse"/>
+  </wsdl:message>
+  <wsdl:message name="chargeBusinessAccountRequest">
+  	<wsdl:part element="tns:chargeBusinessAccountRequest" name="chargeBusinessAccountRequest"/>
+  </wsdl:message>
+  <wsdl:message name="chargeBusinessAccountResponse">
+  	<wsdl:part element="tns:chargeBusinessAccountResponse" name="chargeBusinessAccountResponse"/>
+  </wsdl:message>
+  <wsdl:portType name="IMS">
+    <wsdl:operation name="getBusinessAccountInformation">
+      <wsdl:input message="tns:getBusinessAccountInformationRequest"/>
+      <wsdl:output message="tns:getBusinessAccountInformationResponse"/>
+    </wsdl:operation>
+
+    <wsdl:operation name="getBusinessAccountPricing">
+    	<wsdl:input message="tns:getBusinessAccountPricingRequest"/>
+    	<wsdl:output message="tns:getBusinessAccountPricingResponse"/>
+    </wsdl:operation>
+    <wsdl:operation name="chargeBusinessAccount">
+    	<wsdl:input message="tns:chargeBusinessAccountRequest"/>
+    	<wsdl:output message="tns:chargeBusinessAccountResponse"/>
+    </wsdl:operation>
+  </wsdl:portType>
+  <wsdl:binding name="IMSSOAP" type="tns:IMS">
+
+  	<soap:binding style="document" transport="http://schemas.xmlsoap.org/soap/http"/>
+  	<wsdl:operation name="getBusinessAccountInformation">
+
+  		<soap:operation soapAction="http://www.marks.com/2014/01/services/IMS/getBusinessAccountInformation"/>
+  		<wsdl:input>
+
+  			<soap:body use="literal"/>
+  		</wsdl:input>
+  		<wsdl:output>
+
+  			<soap:body use="literal"/>
+  		</wsdl:output>
+  	</wsdl:operation>
+
+  	<wsdl:operation name="getBusinessAccountPricing">
+
+  		<soap:operation soapAction="http://www.marks.com/2014/01/services/IMS/getBusinessAccountPricing"/>
+  		<wsdl:input>
+
+  			<soap:body use="literal"/>
+  		</wsdl:input>
+  		<wsdl:output>
+
+  			<soap:body use="literal"/>
+  		</wsdl:output>
+  	</wsdl:operation>
+  	<wsdl:operation name="chargeBusinessAccount">
+  		<soap:operation soapAction="http://www.marks.com/2014/01/services/IMS/chargeBusinessAccount"/>
+  		<wsdl:input>
+  			<soap:body use="literal"/>
+  		</wsdl:input>
+  		<wsdl:output>
+  			<soap:body use="literal"/>
+  		</wsdl:output>
+  	</wsdl:operation>
+  </wsdl:binding>
+
+  <wsdl:service name="IMS">
+    <wsdl:port binding="tns:IMSSOAP" name="IMSSOAP">
+      <soap:address location="http://127.0.0.1:14510/WebServiceProject/services/IMSSOAP"/>
+    </wsdl:port>
+  </wsdl:service>
+</wsdl:definitions>

@@ -1,0 +1,110 @@
+BROKER SCHEMA trx.sales.aw
+
+
+CREATE PROCEDURE Header (IN refIn REFERENCE,IN rXPOLLD REFERENCE,IN rHeader REFERENCE,IN TenderFlag CHARACTER)
+BEGIN
+	
+	CREATE LASTCHILD OF rXPOLLD AS rHeader NAME 'Header';
+	DECLARE STORENO	INTEGER; 
+	DECLARE rInPOSEOD 	REFERENCE TO refIn.arts:ControlTransaction.arts:POSEOD;
+	DECLARE rInSession 	REFERENCE TO rInPOSEOD.arts:SessionSettle;
+	DECLARE rInPayments REFERENCE TO rInSession.arts:PaymentsCollected;
+	SET rHeader.RecordType 			= 'H';
+	SET rHeader.StoreNbr			= refIn.arts:BusinessUnit.arts:BusinessUnitNumber;
+	SET rHeader.RegisterNbr			= refIn.arts:WorkstationID;
+	SET rHeader.EntryDateTime		= CAST(CAST(SUBSTRING(refIn.arts:BeginDateTime FROM 1 FOR 10) AS DATE FORMAT 'yyyy-MM-dd') AS CHARACTER FORMAT 'MM/dd/yyyy')|| ' ' || SUBSTRING(refIn.arts:BeginDateTime AFTER 'T' FOR 8);--MM/DD/YYYY HH:mm:ss
+	-- checking the Transaction@TypeCode
+	IF refIn.(XMLNSC.Attribute)TypeCode = 'POSEOD' THEN 
+		SET rHeader.TransactionSeries	= 'C';
+	ELSE
+		SET rHeader.TransactionSeries	= '';
+	END IF;
+	-- Sequence Number Check
+	IF EXISTS(refIn.arts:RetailTransaction[]) OR EXISTS(refIn.arts:TenderControlTransaction[]) THEN 
+		SET rHeader.TransactionNbr		= refIn.arts:SequenceNumber;
+		SET rHeader.CashierNbr			= FIELDVALUE(refIn.arts:OperatorID);
+		SET rHeader.TransactionCategory	= 1;
+	ELSEIF EXISTS(refIn.arts:ControlTransaction[]) THEN
+		IF refIn.(XMLNSC.Attribute)TypeCode <> 'POSEOD' THEN
+			SET rHeader.TransactionNbr		= refIn.arts:SequenceNumber;
+			SET rHeader.CashierNbr			= FIELDVALUE(refIn.arts:OperatorID);
+			SET rHeader.TransactionCategory	= 2;
+		ELSE
+			IF TenderFlag = 'TenderTotal' THEN 
+				SET rHeader.TransactionNbr		= 1;
+				SET rHeader.CashierNbr			= refIn.arts:WorkstationID;
+				SET rHeader.TransactionCategory	= 2;	
+			ELSEIF TenderFlag = 'ExpectedTenderTotal' THEN	 
+				SET rHeader.TransactionNbr		= 2;
+				SET rHeader.CashierNbr			= ''; 
+				SET rHeader.TransactionCategory	= 7;
+			END IF;	
+		END IF;
+	END IF;			
+	SET rHeader.BankDepositDeclarationFlg = 0;
+	--FPOE-7996 Fix.
+	IF refIn.(XMLNSC.Attribute)TypeCode = 'POSEOD' THEN
+		SET rHeader.StoreNbrForTaxJurisdictionLkp = 0;
+	ELSE 
+		SET rHeader.StoreNbrForTaxJurisdictionLkp = '';
+	END IF;
+	
+	SET rHeader.SendTaxExceptionForTaxJurisdiction = SPACE(1);
+	--HotFix FPOE-15063
+	IF refIn.(XMLNSC.Attribute)TypeCode = 'TransactionVoid' AND refIn.arts:ControlTransaction.arts:TransactionVoid.arts:Reason IN('CHANGED MIND','EMPLOYEE ERROR') THEN
+		SET rHeader.TransactionVoidFlag = 2;
+	ELSEIF refIn.(XMLNSC.Attribute)TypeCode = 'TransactionVoid' AND refIn.arts:ControlTransaction.arts:TransactionVoid.arts:Reason IN('VOIDED BY SYSTEM','CANCELLED BY SYSTEM') THEN
+		SET rHeader.TransactionVoidFlag = 9;
+	ELSE 
+		SET rHeader.TransactionVoidFlag = 0;
+	END IF;	
+	
+	SET rHeader.Unused1 = 0;
+	SET rHeader.Unused2 = 1;
+	IF refIn.arts:TransactionSubtypeCode = 'RetailTransaction' THEN
+		SET rHeader.PurchasingEmployeeNbr = COALESCE(refIn.arts:RetailTransaction.arts:Customer.arts:Worker.arts:WorkerID,'');
+	ELSEIF refIn.arts:TransactionSubtypeCode = 'ControlTransaction' THEN
+		SET rHeader.PurchasingEmployeeNbr = COALESCE(refIn.arts:ControlTransaction.arts:TransactionVoid.arts:Worker.arts:WorkerID,'');
+	ELSE
+		SET rHeader.PurchasingEmployeeNbr = '';
+	END IF;
+	IF refIn.(XMLNSC.Attribute)TypeCode = 'ZRead' OR refIn.(XMLNSC.Attribute)TypeCode = 'POSEOD' THEN
+		SET rHeader.CloseoutFlg	= 1;
+	ELSE
+		SET rHeader.CloseoutFlg	= 0;
+	END IF;		
+	SET rHeader.TransactionRemark = '';
+	SET rHeader.TaxOverrideFlg= 0;
+END;
+
+CREATE PROCEDURE returnPrimaryAccNo(IN PrimaryAcNo CHARACTER)RETURNS INTEGER
+BEGIN
+
+	 	-- Decoding the Base64Encoding Message (As Input XML will be getting **)           
+        DECLARE DecodAcNo 		BLOB BASE64DECODE(PrimaryAcNo);
+        DECLARE DE_PrimaryAcNo 	CHARACTER CAST(DecodAcNo AS CHARACTER CCSID 1208);
+        DECLARE IN_PrimaryAcNo 	CHARACTER ; 
+        SET IN_PrimaryAcNo 		=  REPLACE(DE_PrimaryAcNo,'*','');
+        DECLARE IN_PrimaryACNoInt INTEGER CAST(IN_PrimaryAcNo AS INTEGER);
+        RETURN IN_PrimaryACNoInt;
+END;
+
+CREATE PROCEDURE TransactionNoteType (IN rInTransaction REFERENCE,IN rXPOLLD REFERENCE,IN rLineNote REFERENCE)
+BEGIN
+		CREATE LASTCHILD OF rXPOLLD AS rLineNote NAME 'LineNote';
+		SET rLineNote.RecordType = 'N';
+		SET rLineNote.LineId = 0;
+		SET rLineNote.LineNoteType = 18;
+		SET rLineNote.LineNote = rInTransaction.arts:TransactionApproval.arts:ApproverID;
+		
+END;
+
+CREATE PROCEDURE LineItemNoteType (IN rLineitems REFERENCE,IN rXPOLLD REFERENCE,IN rLineNote REFERENCE)
+BEGIN
+		CREATE LASTCHILD OF rXPOLLD AS rLineNote NAME 'LineNote';
+		SET rLineNote.RecordType = 'N';
+		SET rLineNote.LineId = rLineitems.arts:SequenceNumber;
+		SET rLineNote.LineNoteType = 18;
+		SET rLineNote.LineNote = rLineitems.arts:LineItemApproval.arts:ApproverID;
+		
+END;

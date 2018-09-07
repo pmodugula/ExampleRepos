@@ -1,0 +1,121 @@
+<eai:Exchange xmlns:eai="http://www.fgl.com/exchange/" xmlns:arts="http://www.fgl.com/ARTS" MajorVersion="1"
+              MinorVersion="4" FixVersion="0">
+    <eai:MessageRouting>
+        <eai:Guid>{A52BF8E7-5BB3-4958-AE73-58E0A86CBEA9}</eai:Guid>
+        <eai:MessageId>{A52BF8E7-5BB3-4958-AE73-58E0A86CBEA9}</eai:MessageId>
+        <eai:MessageType>PubSub</eai:MessageType>
+        <eai:SubjectArea>Retail Sales Transactions</eai:SubjectArea>
+        <eai:SbuNumber>2</eai:SbuNumber>
+        <eai:SbuCode>MWW</eai:SbuCode>
+        <eai:SbuName>Marks Ltd.</eai:SbuName>
+        <eai:DataSourceCode>MC</eai:DataSourceCode>
+        <eai:DataSourceCodeName>Marks Commercial</eai:DataSourceCodeName>
+    </eai:MessageRouting>
+    <eai:MessageRoutingExtension/>
+    <eai:Messages>
+        <eai:Count>1</eai:Count>
+        <eai:SourceSystems>
+            <eai:Count>1</eai:Count>
+            <eai:SourceSystem>
+                <eai:Index>1</eai:Index>
+                <eai:SbuNumber>2</eai:SbuNumber>
+                <eai:SbuCode>MWW</eai:SbuCode>
+                <eai:SbuName>Marks Ltd.</eai:SbuName>
+                <eai:MessageSourceCode>MC</eai:MessageSourceCode>
+                <eai:MessageSourceCodeName>Marks Commercial</eai:MessageSourceCodeName>
+            </eai:SourceSystem>
+        </eai:SourceSystems>
+        <eai:POSLog>
+            <arts:Count>1</arts:Count>
+            <arts:DataSource>
+                <arts:SbuNumber>2</arts:SbuNumber>
+                <arts:SbuCode>MWW</arts:SbuCode>
+                <arts:SbuName>Marks Ltd.</arts:SbuName>
+                <arts:DataSourceCode>MC</arts:DataSourceCode>
+                <arts:DataSourceName>Marks Commercial</arts:DataSourceName>
+            </arts:DataSource>
+            <arts:Transaction MajorVersion="4">
+                <arts:RetailStoreID>0551</arts:RetailStoreID>
+                <arts:TransactionID>5517820170104100095</arts:TransactionID>
+                <arts:WorkstationID>78</arts:WorkstationID>
+                <arts:SequenceNumber>100095</arts:SequenceNumber>
+                <arts:BeginDateTime>2017-01-04T12:59:05.192-06:00</arts:BeginDateTime>
+                <arts:EndDateTime>2017-01-04T12:59:05.192-06:00</arts:EndDateTime>
+                <arts:OperatorID>0</arts:OperatorID>
+                <arts:RetailTransaction>
+                    <arts:LineItem>
+                        <arts:SequenceNumber>1</arts:SequenceNumber>
+                        <arts:Sale>
+                            <arts:ItemID>400006142177</arts:ItemID>
+                            <arts:MerchandiseHierarchy Level="4" ID="6C"/>
+                            <arts:RegularSalesUnitPrice>19.99</arts:RegularSalesUnitPrice>
+                            <arts:ActualSalesUnitPrice>0</arts:ActualSalesUnitPrice>
+                            <arts:DiscountAmount>0</arts:DiscountAmount>
+                            <arts:Quantity>2.00</arts:Quantity>
+                            <arts:RetailPriceModifier>
+                                <arts:SequenceNumber>3</arts:SequenceNumber>
+                                <arts:Amount Action="Subtract">0</arts:Amount>
+                                <arts:ReasonCode>ACCOUNT_DISCOUNT</arts:ReasonCode>
+                            </arts:RetailPriceModifier>
+                            <arts:Tax TaxType="HSTNLF" TypeCode="Sale">
+                                <arts:Amount>2.00000000000000000000</arts:Amount>
+                            </arts:Tax>
+                            <arts:Tax TaxType="HSTNLP" TypeCode="Sale">
+                                <arts:Amount>4.00000000000000000000</arts:Amount>
+                            </arts:Tax>
+                        </arts:Sale>
+                    </arts:LineItem>
+                    <arts:LineItem>
+                        <arts:SequenceNumber>2</arts:SequenceNumber>
+                        <arts:Tax TaxType="HSTNLF" TypeCode="Sale">
+                            <arts:SequenceNumber>0</arts:SequenceNumber>
+                            <arts:Amount>2.00000000000000000000</arts:Amount>
+                        </arts:Tax>
+                    </arts:LineItem>
+                    <arts:LineItem>
+                        <arts:SequenceNumber>3</arts:SequenceNumber>
+                        <arts:Tax TaxType="HSTNLP" TypeCode="Sale">
+                            <arts:SequenceNumber>1</arts:SequenceNumber>
+                            <arts:Amount>4.00000000000000000000</arts:Amount>
+                        </arts:Tax>
+                    </arts:LineItem>
+                    <arts:LineItem>
+                        <arts:SequenceNumber>0</arts:SequenceNumber>
+                        <arts:Tender TypeCode="Sale" TenderType="CustomerAccount" SubTenderType="CAD">
+                            <arts:Amount>27.59</arts:Amount>
+                            <arts:Authorization>
+                                <arts:AuthorizationCode/>
+                            </arts:Authorization>
+                            <arts:CreditDebit>
+                                <arts:PrimaryAccountNumber/>
+                                <arts:ExpirationDate/>
+                            </arts:CreditDebit>
+                        </arts:Tender>
+                    </arts:LineItem>
+                    <arts:Total TypeCode="Sale" TotalType="TransactionGrossAmount">39.98000000000000000000</arts:Total>
+                    <arts:Total TypeCode="Sale" TotalType="TransactionSubTotal">45.98</arts:Total>
+                    <arts:Customer>
+                        <arts:Worker>
+                            <arts:Name>
+                                <arts:Name TypeCode="FirstName"/>
+                                <arts:Name TypeCode="LastName"/>
+                            </arts:Name>
+                        </arts:Worker>
+                        <arts:Address>
+                            <arts:AddressLine>P.O. BOX 160 ATTN: ACCOUNTS PAYABLE</arts:AddressLine>
+                            <arts:City>CORNER BROOK</arts:City>
+                            <arts:PostalCode>A2H 6C7</arts:PostalCode>
+                            <arts:Country>CAN</arts:Country>
+                            <arts:FullAddress>P.O. BOX 160 ATTN: ACCOUNTS PAYABLE
+                                CORNER BROOK, NL, A2H 6C7
+                                CAN
+                            </arts:FullAddress>
+                            <arts:State>NL</arts:State>
+                        </arts:Address>
+                        <arts:AccountNumber>68329700</arts:AccountNumber>
+                    </arts:Customer>
+                </arts:RetailTransaction>
+            </arts:Transaction>
+        </eai:POSLog>
+    </eai:Messages>
+</eai:Exchange>

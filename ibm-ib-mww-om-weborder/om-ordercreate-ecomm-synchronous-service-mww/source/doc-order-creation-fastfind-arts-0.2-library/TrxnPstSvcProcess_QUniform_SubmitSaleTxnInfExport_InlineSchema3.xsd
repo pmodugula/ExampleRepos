@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?><xsd:schema attributeFormDefault="unqualified" elementFormDefault="unqualified" targetNamespace="http://TrxnPstSvcLib/bo" xmlns:bons0="http://TrxnPstSvcLib/submitSaleTxnInf" xmlns:bons1="http://com/marks/TxnPost/bo" xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/" xmlns:tns="http://com/marks/TxnPost/inf" xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+                      <xsd:complexType name="FastFindVirtuaGiftCard">
+		<xsd:sequence>
+			<xsd:element minOccurs="0" name="giftcardnumber" type="xsd:int">
+			</xsd:element>
+			<xsd:element minOccurs="0" name="giftcardvalue" type="xsd:decimal">
+			</xsd:element>
+
+
+
+
+
+
+
+
+
+
+		</xsd:sequence>
+	</xsd:complexType>
+        </xsd:schema>

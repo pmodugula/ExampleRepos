@@ -1,0 +1,9 @@
+dat.price.pmm.publisher#IIBInboundQueue=RECV.${PRICEADV_BATCH_IN_DS}
+dat.price.pmm.publisher#IIBPublication=${PRICEADV_TOPICSTR}
+dat.price.pmm.publisher#IIBDataSource=FGLRPL${ENVN}${INST}
+dat.price.pmm.publisher#CoreAuditDataSource=AUD${ENVN}${INST}
+dat.price.pmm.publisher#additionalInstances=${EXTRATHREADS}
+dat.price.pmm.publisher#PreProcessorAuditEnabled=False
+dat.price.pmm.publisher#PostProcessorAuditEnabled=False
+dat.price.pmm.publisher#CoreDatastageMessageValidation=${DS_VALIDATION}
+dat.price.pmm.publisher#CoreArtsMessageValidation=${ARTS_VALIDATION}

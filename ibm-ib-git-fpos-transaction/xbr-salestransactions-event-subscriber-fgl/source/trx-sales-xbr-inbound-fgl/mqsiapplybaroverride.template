@@ -1,0 +1,14 @@
+trx.sales.xbr.inbound#IIBInboundQueue=RECV.${INBOUND_IN}
+trx.sales.xbr.inbound#OutputDirectory=${XBR_DIR_PATH}
+trx.sales.xbr.inbound#CoreAuditDataSource=FGLRPL${ENVN}${INST}
+trx.sales.xbr.inbound#PreProcessorAuditEnabled=False
+trx.sales.xbr.inbound#PostProcessorAuditEnabled=False
+trx.sales.xbr.inbound#additionalInstances=${EXTRATHREADS}
+trx.sales.xbr.inbound#additionalInstances=0
+trx.sales.xbr.cutover#IIBTimeoutControlQueueName=RECV.${CUTOVER_IN}
+trx.sales.xbr.cutover#CoreAuditDataSource=AUD${ENVN}${INST}
+trx.sales.xbr.cutover#CoreAuditEnabled=false
+trx.sales.xbr.cutover#FileReadyDirectory=${XBR_READY_DIR_PATH}
+trx.sales.xbr.cutover#FileInputDirectory=${XBR_DIR_PATH}
+trx.sales.xbr.cutover#FileName=${XBR_FILE_NAME}
+trx.sales.xbr.cutover#FileExtension=${FILE_EXTENSION}

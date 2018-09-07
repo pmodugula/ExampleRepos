@@ -1,0 +1,32 @@
+<submitTxnRequest xmlns:q0="http://com/marks/TxnPost/inf" xmlns:inf="http://com/marks/TxnPost/inf" xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:dpconfig="http://www.datapower.com/param/config">
+    <store xmlns:soapenc="http://schemas.xmlsoap.org/soap/encoding/" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">999</store>
+    <consumerid>FF</consumerid>
+    <createddate>2016-05-17T07:39:15.466Z</createddate>
+    <submitteddate>2016-05-17T07:39:15.466Z</submitteddate>
+    <purchaseditems>
+        <sku xmlns:soapenc="http://schemas.xmlsoap.org/soap/encoding/" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">400009421842</sku>
+        <originalprice>14.88</originalprice>
+        <lineitemdetail>
+            <soldprice>14.88</soldprice>
+            <federaltaxamount>0.74</federaltaxamount>
+            <provincialtaxamount>0.00</provincialtaxamount>
+        </lineitemdetail>
+        <regionaltaxexemptid>WAIVED</regionaltaxexemptid>
+    </purchaseditems>
+    <purchaseditems>
+        <sku xmlns:soapenc="http://schemas.xmlsoap.org/soap/encoding/" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">400003826100</sku>
+        <originalprice>1.04</originalprice>
+        <lineitemdetail>
+            <soldprice>1.04</soldprice>
+            <federaltaxamount>0.00</federaltaxamount>
+            <provincialtaxamount>0.00</provincialtaxamount>
+        </lineitemdetail>
+    </purchaseditems>
+    <netamount>14.88</netamount>
+    <totalamount>16.66</totalamount>
+    <gcpayments>
+        <id xmlns:soapenc="http://schemas.xmlsoap.org/soap/encoding/" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">9026150905</id>
+        <amount xmlns:soapenc="http://schemas.xmlsoap.org/soap/encoding/" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">16.66</amount>
+        <comment xmlns:soapenc="http://schemas.xmlsoap.org/soap/encoding/" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">FF order 2615090 fulfillment transaction</comment>
+    </gcpayments>
+</submitTxnRequest>

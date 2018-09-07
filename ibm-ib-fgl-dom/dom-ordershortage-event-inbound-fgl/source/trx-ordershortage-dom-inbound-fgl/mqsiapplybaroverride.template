@@ -1,0 +1,9 @@
+trx.ordershortage.dom.TrxOrderShortage#IIBInBoundQueue=RECV.${SHORT_IN}
+trx.ordershortage.dom.TrxOrderShortage#WMSOutBoundQueue=SEND.${SHORT_OUT}
+trx.ordershortage.dom.TrxOrderShortage#CoreAuditDataSource=AUD${ENVN}${INST}
+trx.ordershortage.dom.TrxOrderShortage#CoreMessageValidation1=FALSE
+trx.ordershortage.dom.TrxOrderShortage#CoreMessageValidation2=FALSE
+trx.ordershortage.dom.TrxOrderShortage#CoreAuditEnabled=FALSE
+trx.ordershortage.dom.TrxOrderShortage#CoreAuditDetailEnabled=FALSE
+trx.ordershortage.dom.TrxOrderShortage#additionalInstances=${EXTRATHREADS}
+trx.ordershortage.dom.TrxOrderShortage#DOMOutboundBackupQueue=${SHORT_IN_BACKUP}

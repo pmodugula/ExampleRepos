@@ -1,0 +1,158 @@
+/*
+* File name: dom_BuildConsignMessage.esql
+*
+* Purpose: Consignment Packed WM to DOM
+*
+* Version: Initial Version
+*
+* Authors: Rajeev
+*
+* Create Date: 26 August 2016
+*
+* @copyright FGL 2016. All rights reserved.
+*/
+
+BROKER SCHEMA trx.consignmentpacked.dom
+
+DECLARE theSchema CONSTANT CHARACTER 'trx.consignmentpacked.dom';
+DECLARE nsWms,nsDataStage CHARACTER NULL;
+DECLARE I INTEGER 1;
+DECLARE FULLFILLMENT CONSTANT CHARACTER 'Fulfillment';
+
+
+CREATE COMPUTE MODULE dom_BuildConsignMessage
+	DECLARE theModule CONSTANT CHARACTER theSchema||'.'||'dom_BuildConsignMessage';
+	CREATE FUNCTION Main() RETURNS BOOLEAN
+	BEGIN
+		DECLARE rEnv REFERENCE TO Environment;
+		DECLARE MSG_ID CHARACTER rEnv.__MsgIdForLog4J__;
+		CALL core.log.Info(theModule||' - ID# : '||MSG_ID||' >> BEGIN');
+		--Declaring Namespaces
+		IF nsDataStage IS NULL THEN CALL common.datastagePIXgetNamespace() INTO nsDataStage;
+		END IF;
+		DECLARE eai NAMESPACE nsDataStage;
+
+		DECLARE rInput REFERENCE TO InputRoot;
+		DECLARE rOutput REFERENCE TO OutputRoot;
+		
+		CALL common.common_CopyMessageHeaders(rInput, rOutput);
+		CALL common.common_CreateLastChildOfOutputRootDomainXmlnsc(rOutput);
+		SET OutputRoot.MQMD.Format = MQFMT_STRING;
+		CREATE FIELD rOutput.XMLNSC.Shipment;
+		DECLARE outrefToShipment REFERENCE TO rOutput.XMLNSC.Shipment;
+		DECLARE inrefToPixTransaction REFERENCE TO InputRoot.XMLNSC.eai:Exchange.eai:Message.eai:PixTransaction;
+		SET outrefToShipment.(XMLNSC.Attribute)ShipmentKey = TRIM(inrefToPixTransaction.eai:PXSTYL00[1].eai:PXSHMT);
+		DECLARE ShipmentKey_NO CHARACTER;
+		SET ShipmentKey_NO = TRIM(inrefToPixTransaction.eai:PXSTYL00[1].eai:PXSHMT);
+		CALL core.log.Info(theModule||' - ShipmentKey NO# : '||ShipmentKey_NO);
+		--SET outrefToShipment.(XMLNSC.Attribute)ShipmentNo = ''; --requires to be set to null
+		--SET outrefToShipment.(XMLNSC.Attribute)ShipNode = ''; --requires to be set to null
+		DECLARE shipmntKeyChar CHAR '';
+		SET shipmntKeyChar=SUBSTRING(TRIM(inrefToPixTransaction.eai:PXSTYL00[1].eai:PXSHMT) FROM 1 FOR 1);
+		IF(shipmntKeyChar = 'E') THEN
+		SET outrefToShipment.(XMLNSC.Attribute)SellerOrganizationCode = 'SPORTCHEK';
+	ELSE
+		SET outrefToShipment.(XMLNSC.Attribute)SellerOrganizationCode = 'ATMOSPHERE';
+	END IF;
+
+	DECLARE dateYear, dateMon, dateDay,stDate CHARACTER SUBSTRING(inrefToPixTransaction.eai:PXSTYL00[1].eai:PXDCR FROM 1 FOR 4);
+	SET dateYear = SUBSTRING(inrefToPixTransaction.eai:PXSTYL00[1].eai:PXDCR FROM 1 FOR 4);
+	SET dateMon = SUBSTRING(inrefToPixTransaction.eai:PXSTYL00[1].eai:PXDCR FROM 5 FOR 2);
+	SET dateDay = SUBSTRING(inrefToPixTransaction.eai:PXSTYL00[1].eai:PXDCR FROM 7 FOR 2);
+	--DECLARE statusDate DATE;
+	SET stDate = dateYear||'-'||dateMon||'-'||dateDay;
+	
+	
+    SET outrefToShipment.(XMLNSC.Attribute)StatusDate = stDate;
+    
+	SET outrefToShipment.(XMLNSC.Attribute)BackOrderRemovedQuantity = 'Y';
+
+	DECLARE PXSTYL00Size INTEGER CARDINALITY(inrefToPixTransaction.eai:PXSTYL00[]);
+	DECLARE containerCnt,I ,A INTEGER 1;
+	DECLARE checkNumber CHAR ''; 
+	
+	WHILE I <= PXSTYL00Size DO
+		
+		DECLARE rPXSTYL00 REFERENCE TO inrefToPixTransaction.eai:PXSTYL00[I];
+		DECLARE FieldExists BOOLEAN 
+ 	    EXISTS(SELECT F.* FROM Environment.ShipLine.ShipmentNo[] AS F where F =rPXSTYL00.eai:PXPOLN);
+        
+		IF NOT FieldExists THEN
+			CREATE FIELD outrefToShipment.ShipmentLines.ShipmentLine[A];
+			DECLARE outrefToShipmentLine REFERENCE TO outrefToShipment.ShipmentLines.ShipmentLine[A];
+			SET outrefToShipmentLine.(XMLNSC.Attribute)ShipmentLineNo = TRIM(rPXSTYL00.eai:PXPOLN);
+			--SET outrefToShipmentLines.ShipmentLine[I].(XMLNSC.Attribute)ShortageQty = ''; --requires to be set to null
+			SET outrefToShipmentLine.(XMLNSC.Attribute)BackroomPickComplete = 'Y';
+			--DECLARE rPDPICK00 REFERENCE TO inrefToPixTransaction.eai:PDPICK00[I];
+			SET outrefToShipmentLine.(XMLNSC.Attribute)Quantity = TRIM(rPXSTYL00.eai:PXCSRC);
+			SET outrefToShipmentLine.(XMLNSC.Attribute)BackroomPickedQuantity = TRIM(rPXSTYL00.eai:PXCSRC);
+			SET Environment.ShipLine.ShipmentNo[A]= rPXSTYL00.eai:PXPOLN;
+			SET A= A+1;
+		END IF;
+		
+		SET I = I +1;
+     END WHILE;
+     
+    
+
+	
+	SET I = 1;
+	DECLARE nextContainerNo, currentContainerNo CHARACTER '';
+	--SET nextContainerNo = inrefToPixTransaction.eai:PXSTYL00[1].eai:PXCASN;
+
+	WHILE I <= PXSTYL00Size DO
+		-- I will increment by the number of rows/items in a particular containerNo
+		-- containerCnt will increment by 1 each time the loop runs
+		
+		CREATE FIELD outrefToShipment.Containers.Container[containerCnt];
+		--DECLARE outrefToContainers REFERENCE TO outrefToShipment.Containers;
+		DECLARE rPXSTYL00 REFERENCE TO inrefToPixTransaction.eai:PXSTYL00[I];
+
+		--CREATE FIELD outrefToContainers.Container[containerCnt];
+		DECLARE outRefContainer REFERENCE TO outrefToShipment.Containers.Container[containerCnt];
+		SET outRefContainer.(XMLNSC.Attribute)ContainerNo = TRIM(rPXSTYL00.eai:PXCASN);
+		SET outRefContainer.(XMLNSC.Attribute)ContainerGrossWeight = TRIM(rPXSTYL00.eai:PXUNSH);
+		SET outRefContainer.(XMLNSC.Attribute)ContainerGrossWeightUOM = TRIM(rPXSTYL00.eai:PXREF5);
+		SET outRefContainer.(XMLNSC.Attribute)ContainerHeight = TRIM(rPXSTYL00.eai:PXNUM2);
+		SET outRefContainer.(XMLNSC.Attribute)ContainerHeightUOM = TRIM(rPXSTYL00.eai:PXREF3);
+		SET outRefContainer.(XMLNSC.Attribute)ContainerLength = TRIM(rPXSTYL00.eai:PXNUM1);
+		SET outRefContainer.(XMLNSC.Attribute)ContainerLengthUOM = TRIM(rPXSTYL00.eai:PXREF2);
+		SET outRefContainer.(XMLNSC.Attribute)ContainerWidth = TRIM(rPXSTYL00.eai:PXNUM3);
+		SET outRefContainer.(XMLNSC.Attribute)ContainerWidthUOM = TRIM(rPXSTYL00.eai:PXREF4);
+		SET outRefContainer.(XMLNSC.Attribute)ContainerNetWeight = TRIM(rPXSTYL00.eai:PXWGHT);
+		SET outRefContainer.(XMLNSC.Attribute)ContainerNetWeightUOM = TRIM(rPXSTYL00.eai:PXREF1);
+	
+
+		CREATE FIELD outRefContainer.ContainerDetails;
+		DECLARE outRefContainerDetails REFERENCE TO outRefContainer.ContainerDetails;
+
+		SET currentContainerNo = rPXSTYL00.eai:PXCASN;
+		DECLARE J,containerDetailCnt INTEGER 1;
+		SET J = I;
+		--Initialize to enter the while loop below
+		SET nextContainerNo = currentContainerNo;
+
+		WHILE currentContainerNo=nextContainerNo DO
+			SET currentContainerNo = nextContainerNo;
+			SET nextContainerNo = inrefToPixTransaction.eai:PXSTYL00[J+1].eai:PXCASN;
+			CREATE FIELD outRefContainerDetails.ContainerDetail[containerDetailCnt];
+			DECLARE outRefContainerDetail REFERENCE TO outRefContainerDetails.ContainerDetail[containerDetailCnt];
+			SET outRefContainerDetail.(XMLNSC.Attribute)Quantity = TRIM(inrefToPixTransaction.eai:PXSTYL00[J].eai:PXUNRC);
+			SET outRefContainerDetail.ShipmentLine.(XMLNSC.Attribute)ShipmentLineNo = TRIM(inrefToPixTransaction.eai:PXSTYL00[J].eai:PXPOLN);
+			--SET outRefContainerDetails.ContainerDetail[containerDetailCnt].(XMLNSC.Attribute)Quantity = TRIM(inrefToPixTransaction.eai:PXSTYL00[J].eai:PXUNRC);
+			-- SET outRefContainerDetails.ContainerDetail[containerDetailCnt].ShipmentLine.(XMLNSC.Attribute)ShipmentLineNo = TRIM(inrefToPixTransaction.eai:PXSTYL00[J].eai:PXPOLN);
+
+			SET containerDetailCnt = containerDetailCnt+1;
+			SET J = J+1;
+
+		END WHILE;
+
+		SET containerCnt = containerCnt+1;
+		SET I = I+containerDetailCnt-1;
+	END WHILE;
+
+	CALL core.log.Info(theModule||' - ID# : '||MSG_ID||' << END');
+
+	RETURN TRUE;
+END;
+END MODULE;

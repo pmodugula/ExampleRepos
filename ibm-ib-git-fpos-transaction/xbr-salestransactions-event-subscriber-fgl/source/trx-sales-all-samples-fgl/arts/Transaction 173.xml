@@ -1,0 +1,153 @@
+<eai:Exchange xmlns:eai="http://www.fgl.com/exchange/" xmlns:arts="http://www.fgl.com/ARTS" MinorVersion="0" MajorVersion="2" FixVersion="0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.fgl.com/exchange/ ../../../../GIT-REPO/IIB/xsd/arts/ARTSTransactionMessageV2_01_00.xsd">
+	<eai:MessageRouting>
+		<eai:Guid>39F2A9587B1743C29A49A8B0C97C954F</eai:Guid>
+		<eai:MessageId>414d51204142515146504f53202020205c650e5808c10020</eai:MessageId>
+		<eai:MessageType>PubSub</eai:MessageType>
+		<eai:SubjectArea>Normal Retail Sales Transactions</eai:SubjectArea>
+		<eai:SbuNumber>3</eai:SbuNumber>
+		<eai:SbuCode>FGL</eai:SbuCode>
+		<eai:SbuName>FGL Sports Ltd.</eai:SbuName>
+		<eai:DataSourceCode>POE</eai:DataSourceCode>
+		<eai:DataSourceCodeName>POE POS FGL</eai:DataSourceCodeName>
+		<eai:MessageIndex>1</eai:MessageIndex>
+		<eai:MessageCount>1</eai:MessageCount>
+		<eai:SubjectAreaRunName>salestransactions-155-20161024-143100</eai:SubjectAreaRunName>
+	</eai:MessageRouting>
+	<eai:Messages>
+		<eai:Count>1</eai:Count>
+		<eai:SourceSystems>
+			<eai:Count>1</eai:Count>
+			<eai:SourceSystem>
+				<eai:Index>1</eai:Index>
+				<eai:SbuNumber>3</eai:SbuNumber>
+				<eai:SbuCode>FGL</eai:SbuCode>
+				<eai:SbuName>FGL Sports Ltd.</eai:SbuName>
+				<eai:MessageSourceCode>CSS</eai:MessageSourceCode>
+				<eai:MessageSourceCodeName>Central Sales Server</eai:MessageSourceCodeName>
+			</eai:SourceSystem>
+		</eai:SourceSystems>
+		<eai:POSLog>
+			<arts:Count>1</arts:Count>
+			<arts:Transaction TypeCode="SaleTransaction">
+				<arts:BusinessUnit>
+					<arts:Index>1</arts:Index>
+					<arts:BusinessUnitNumber>155</arts:BusinessUnitNumber>
+					<arts:BusinessUnitTypeCode>RT</arts:BusinessUnitTypeCode>
+					<arts:BusinessUnitShortName>CM155</arts:BusinessUnitShortName>
+					<arts:BusinessUnitName>CMS DEERFOOT MEADOWS</arts:BusinessUnitName>
+				</arts:BusinessUnit>
+				<arts:WorkstationID>001</arts:WorkstationID>
+				<arts:SequenceNumber>000173</arts:SequenceNumber>
+				<arts:BeginDateTime>2016-10-24T14:26:27-06:00</arts:BeginDateTime>
+				<arts:EndDateTime>2016-10-24T14:30:20-06:00</arts:EndDateTime>
+				<arts:OperatorID OperatorName="Store Cashier" LastName="Cashier" FirstName="Store">000015506</arts:OperatorID>
+				<arts:RetailTransaction>
+					<arts:LineItemCount>6</arts:LineItemCount>
+					<arts:CustomerCount>0</arts:CustomerCount>
+					<arts:AssociateCount>0</arts:AssociateCount>
+					<arts:LineItem VoidFlag="false">
+						<arts:Index>1</arts:Index>
+						<arts:SequenceNumber>1</arts:SequenceNumber>
+						<arts:Sale TaxableFlag="true" ItemType="Stock">
+							<arts:TaxCount>1</arts:TaxCount>
+							<arts:RetailPriceModifierCount>3</arts:RetailPriceModifierCount>
+							<arts:Item>
+								<arts:ItemNumber>331297748</arts:ItemNumber>
+								<arts:ItemName>THERM-A-REST NEOAIR DREAM L 99 00</arts:ItemName>
+								<arts:UPCNumber>40818069608</arts:UPCNumber>
+							</arts:Item>
+							<arts:MerchandiseHierarchy Level="4" ID="3613"/>
+							<arts:RegularSalesUnitPrice>139.99</arts:RegularSalesUnitPrice>
+							<arts:ActualSalesUnitPrice>3.12</arts:ActualSalesUnitPrice>
+							<arts:DiscountAmount>136.87</arts:DiscountAmount>
+							<arts:Quantity>1</arts:Quantity>
+							<arts:RetailPriceModifier>
+								<arts:Index>1</arts:Index>
+								<arts:SequenceNumber>2</arts:SequenceNumber>
+								<arts:Amount Action="Subtract">89.99</arts:Amount>
+								<arts:ReasonCode>PRICE MATCHING OVER</arts:ReasonCode>
+								<arts:CompetitorName>Reebok</arts:CompetitorName>
+								<arts:Approval>
+									<arts:ApproverID>000012345</arts:ApproverID>
+								</arts:Approval>
+							</arts:RetailPriceModifier>
+							<arts:RetailPriceModifier>
+								<arts:Index>2</arts:Index>
+								<arts:SequenceNumber>3</arts:SequenceNumber>
+								<arts:Amount Action="Subtract">37.50</arts:Amount>
+								<arts:ReasonCode>PRICE MATCHING ITEM DISCOUNT</arts:ReasonCode>
+								<arts:CompetitorName>Nike</arts:CompetitorName>
+								<arts:Approval>
+									<arts:ApproverID>000015503</arts:ApproverID>
+								</arts:Approval>
+							</arts:RetailPriceModifier>
+							<arts:RetailPriceModifier>
+								<arts:Index>3</arts:Index>
+								<arts:SequenceNumber>5</arts:SequenceNumber>
+								<arts:Amount Action="Subtract">9.38</arts:Amount>
+								<arts:ReasonCode>PRICE MATCHING SUBTOTAL DISCOUNT</arts:ReasonCode>
+								<arts:CompetitorName>Golf Town</arts:CompetitorName>
+							</arts:RetailPriceModifier>
+							<arts:Tax TypeCode="Sale" TaxType="GST" SourceSystemTaxExemptionFlag="false">
+								<arts:Index>1</arts:Index>
+								<arts:Amount>0.16</arts:Amount>
+								<arts:Percent>5</arts:Percent>
+							</arts:Tax>
+						</arts:Sale>
+						<arts:LineItemSubtypeCode>Sale</arts:LineItemSubtypeCode>
+					</arts:LineItem>
+					<arts:LineItem>
+						<arts:Index>2</arts:Index>
+						<arts:SequenceNumber>4</arts:SequenceNumber>
+						<arts:Tax TypeCode="Sale" TaxType="GST">
+							<arts:Index>1</arts:Index>
+							<arts:Amount>0.16</arts:Amount>
+							<arts:Percent>5</arts:Percent>
+						</arts:Tax>
+						<arts:LineItemSubtypeCode>Tax</arts:LineItemSubtypeCode>
+					</arts:LineItem>
+					<arts:LineItem>
+						<arts:Index>3</arts:Index>
+						<arts:SequenceNumber>5</arts:SequenceNumber>
+						<arts:Discount>
+							<arts:Amount>9.38</arts:Amount>
+							<arts:CompetitorName>Golf Town</arts:CompetitorName>
+							<arts:ReasonCode>PRICE MATCHING SUBTOTAL DISCOUNT</arts:ReasonCode>
+						</arts:Discount>
+						<arts:LineItemApproval>
+							<arts:ApproverID>000013305</arts:ApproverID>
+						</arts:LineItemApproval>
+						<arts:LineItemSubtypeCode>Discount</arts:LineItemSubtypeCode>
+					</arts:LineItem>
+					<arts:LineItem>
+						<arts:Index>4</arts:Index>
+						<arts:SequenceNumber>6</arts:SequenceNumber>
+						<arts:Tender TypeCode="Sale" TenderType="Cash" SubTenderType="CAD">
+							<arts:Amount>5.00</arts:Amount>
+						</arts:Tender>
+						<arts:LineItemSubtypeCode>Tender</arts:LineItemSubtypeCode>
+					</arts:LineItem>
+					<arts:LineItem>
+						<arts:Index>5</arts:Index>
+						<arts:SequenceNumber>7</arts:SequenceNumber>
+						<arts:Tender TypeCode="Refund" TenderType="Cash" SubTenderType="CAD">
+							<arts:Amount>1.70</arts:Amount>
+						</arts:Tender>
+						<arts:LineItemSubtypeCode>Tender</arts:LineItemSubtypeCode>
+					</arts:LineItem>
+					<arts:LineItem>
+						<arts:Index>6</arts:Index>
+						<arts:SequenceNumber>8</arts:SequenceNumber>
+						<arts:Tender TypeCode="Sale" TenderType="PennyRounding">
+							<arts:Amount>0.02</arts:Amount>
+						</arts:Tender>
+						<arts:LineItemSubtypeCode>Tender</arts:LineItemSubtypeCode>
+					</arts:LineItem>
+					<arts:Total TotalType="TransactionGrossAmount">3.28</arts:Total>
+					<arts:Total TotalType="TransactionSubtotal">3.12</arts:Total>
+				</arts:RetailTransaction>
+				<arts:TransactionSubtypeCode>RetailTransaction</arts:TransactionSubtypeCode>
+			</arts:Transaction>
+		</eai:POSLog>
+	</eai:Messages>
+</eai:Exchange>

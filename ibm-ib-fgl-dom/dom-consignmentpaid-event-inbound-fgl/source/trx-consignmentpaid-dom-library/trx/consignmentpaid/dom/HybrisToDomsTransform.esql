@@ -1,0 +1,49 @@
+--* File name : TrxConsgPaid.esql
+--* Purpose : To implement trx-pickconsignmentpaid-dom flow.
+--* Authors : Rohit Sharma
+--* Create Date : 18th Aug 2016
+--* Version : 1.0
+--* Revision Date: 
+--* @copyright MWW-FGLSPORTS 2015. All Rights Reserved.
+BROKER SCHEMA trx.consignmentpaid.dom
+
+--Decalre Constants and Variables-----
+DECLARE theSchema CONSTANT CHARACTER 'trx.consignmentpaid.dom';
+--DECLARE nsFgl CHARACTER NULL;
+--DECLARE nsYfc CHARACTER NULL;
+
+CREATE COMPUTE MODULE HybrisToDomsTransform
+	DECLARE theModule CONSTANT CHARACTER theSchema||'.'||'HybrisToDomsTransform';
+	CREATE FUNCTION Main() RETURNS BOOLEAN
+	BEGIN
+		DECLARE rEnv REFERENCE TO Environment;
+		DECLARE fgl NAMESPACE 'http://www.fglsports.com/schema/hybris/order/v2';
+        --DECLARE yfc NAMESPACE 'http://www.sterlingcommerce.com/documentation/YDM/confirmShipment/input'; --Dom Namespace is not used        
+		DECLARE BLANK CONSTANT CHARACTER '';
+		DECLARE rInput REFERENCE TO InputRoot;
+		DECLARE rOutput REFERENCE TO OutputRoot;
+	    DECLARE MSG_ID CHARACTER rEnv.__MsgIdForLog4J__;
+	    CALL core.log.Info(theModule||' - ID# : '||MSG_ID||' >> BEGIN');
+	    DECLARE refToInConsignmentPaid Reference To InputRoot.XMLNSC.fgl:OrderConsignmentPaid;
+		DECLARE refToInConsignment REFERENCE To InputRoot.XMLNSC.fgl:OrderConsignmentPaid.fgl:Consignment;
+		
+		CALL core.log.Info(theModule||' - ID# : '||MSG_ID||' - SellerOrganizationCode :'||'/fgl:OrderConsignmentPaid.(XMLNSC.Attribute)bannerName -'|| refToInConsignmentPaid.(XMLNSC.Attribute)BannerName);
+		CALL core.log.Info(theModule||' - ID# : '||MSG_ID||' - ShipmentKey :'||'/fgl:OrderConsignmentPaid/fgl:ShipmentKey -'|| refToInConsignment.fgl:ShipmentKey);
+		
+		CALL common.common_CopyMessageHeaders(rInput, rOutput);   ---Copy Message Headers
+		CALL common.common_CreateLastChildOfOutputRootDomainXmlnsc(rOutput);  --- XMLNSC domain Creation for XML message
+--		SET rOutput.XMLNSC.(XMLNSC.XmlDeclaration)*.(XMLNSC.Attribute)Version = '1.0';
+--		SET rOutput.XMLNSC.(XMLNSC.XmlDeclaration)*.(XMLNSC.Attribute)Encoding = 'UTF-8';
+		CREATE FIELD rOutput.XMLNSC.Shipment;
+		DECLARE rShipment REFERENCE TO rOutput.XMLNSC.Shipment;
+		
+		--Mapping Begins-- 
+		--SET rShipment.(XMLNSC.Attribute)ShipNode = BLANK;
+		SET rShipment.(XMLNSC.Attribute)SellerOrganizationCode = COALESCE(refToInConsignmentPaid.(XMLNSC.Attribute)bannerName, BLANK);
+		--SET rShipment.(XMLNSC.Attribute)ShipmentNo = BLANK;
+		SET rShipment.(XMLNSC.Attribute)ShipmentKey = COALESCE(refToInConsignment.fgl:ShipmentKey, BLANK);
+		SET rShipment.Extn.(XMLNSC.Attribute)ExtnConsignmentNumber = COALESCE(refToInConsignment.fgl:Code, BLANK);
+        --END Mapping--
+       
+     	END;
+END MODULE;

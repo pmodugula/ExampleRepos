@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?><xsd:schema targetNamespace="http://com/marks/TxnPost/inf" xmlns:bons0="http://TrxnPstSvcLib/submitSaleTxnInf" xmlns:bons1="http://com/marks/TxnPost/bo" xmlns:ns1="http://TrxnPstSvcLib/bo" xmlns:tns="http://com/marks/TxnPost/inf" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+  <xsd:import namespace="http://TrxnPstSvcLib/bo" schemaLocation="TrxnPstSvcProcess_QUniform_SubmitSaleTxnInfExport_InlineSchema3.xsd"/>
+  <xsd:import namespace="http://com/marks/TxnPost/bo" schemaLocation="TrxnPstSvcProcess_QUniform_SubmitSaleTxnInfExport_InlineSchema2.xsd"/>
+  <xsd:include schemaLocation="TrxnPstSvcProcess_QUniform_SubmitSaleTxnInfExport_InlineSchema1.xsd"/>
+
+<!-- BEGIN Global group petaining to all wsdl:message definitions -->
+<!-- END Global group -->
+
+
+<!-- BEGIN Message Definitions for the wsdl:operations  -->
+<!-- END Message Definitions -->
+
+
+</xsd:schema>

@@ -1,0 +1,9 @@
+task listOptions() {
+    println "****************************************************"
+    println "*                PROJECT OPTIONS                   *"
+    println "****************************************************"
+    println " - cleanProject,               < cP >"
+    println " - refreshDependencies,        < rD >"
+    println " - test                        < test >"
+    println "****************************************************"
+}

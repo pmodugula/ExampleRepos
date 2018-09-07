@@ -1,0 +1,48 @@
+{
+  "msgType": "transaction",
+  "transactionId": "0200420160425100143",
+  "transactionTypeCode": "SaleTransaction",
+  "majorVersion": 4,
+  "retailStoreId": "20",
+  "workstationId": "04",
+  "sequenceNumber": "100143",
+  "beginDateTime": "2016-04-25T16:44:24-06:00",
+  "endDateTime": "2016-04-25T16:45:30-06:00",
+  "operatorId": "64779",
+  "sourceSystem": "FF",
+  "retailTransaction": {
+    "productLineItems": [
+      {
+        "itemNumber": "400008725941",
+        "cardNumber": "9029886299",
+        "initialBalance": 65.09
+      }
+    ],
+    "tenders": [
+      {
+        "amount": 65.09,
+        "subTenderType": "Visa",
+        "successfulPedTransactionUuid": "12345",
+        "tenderType": "CreditDebit"
+      }
+    ],
+    "allPedTransactions": [
+      {
+        "accountNumber": "452088******9857",
+        "amount": 65.09,
+        "approvalNumber": "079721",
+        "cardName": "VISA",
+        "cashBackAmount": 0,
+        "creditDebitCardType": "Visa",
+        "expiryDate": "1609",
+        "pedTransactionUid": "0010128350",
+        "storeCode": "20",
+        "pedNumber": "66235147",
+        "uuid": "12345",
+        "pedTransactionStatus": "APPROVED"
+      }
+    ],
+    "transactionGrossAmount": 65.09,
+    "transactionSubtotal": 65.09
+  }
+}

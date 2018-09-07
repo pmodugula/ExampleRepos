@@ -1,0 +1,48 @@
+<?xml version="1.0"?>
+<descriptor>
+
+    <!-- configure any buildable artifacts and provide version number -->
+     <interfaces>
+        <interface>
+            <group>com.fgl.eai.iib.pmm.cost.batch.publisher.fgl</group>
+            <name>dat-cost-pos-outbound-file-fgl</name>
+            <version>1.0.1-SNAPSHOT</version>
+        </interface>
+        <interface>
+            <group>com.fgl.eai.iib.pmm.cost.batch.publisher.fgl</group>
+            <name>dat-cost-pmm-outbound-fgl</name>
+            <version>1.0.1-SNAPSHOT</version>
+        </interface>
+        <interface>
+            <group>com.fgl.eai.iib.pmm.cost.batch.publisher.fgl</group>
+            <name>dat-cost-pmm-publisher-fgl</name>
+            <version>1.0.1-SNAPSHOT</version>
+        </interface>
+    </interfaces>
+
+    <!-- Configure your environments and if SNAPSHOT versions can be deployed there
+         as this will generate environment specific bar files with environment
+         properties applied -->
+    <environments>
+        <environment>
+            <name>CI</name>
+            <snapshots>TRUE</snapshots>
+        </environment>
+        <environment>
+            <name>DV</name>
+            <snapshots>TRUE</snapshots>
+        </environment>
+        <environment>
+            <name>QA</name>
+            <snapshots>FALSE</snapshots>
+        </environment>
+        <environment>
+            <name>PP</name>
+            <snapshots>FALSE</snapshots>
+        </environment>
+        <environment>
+            <name>PROD</name>
+            <snapshots>FALSE</snapshots>
+        </environment>
+    </environments>
+</descriptor>

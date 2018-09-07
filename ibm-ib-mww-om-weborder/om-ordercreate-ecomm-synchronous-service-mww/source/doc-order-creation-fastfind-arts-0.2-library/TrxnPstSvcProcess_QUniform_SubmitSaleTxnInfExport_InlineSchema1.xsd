@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?><xsd:schema targetNamespace="http://com/marks/TxnPost/inf" xmlns:bons0="http://com/marks/TxnPost/inf" xmlns:bons1="http://com/marks/TxnPost/bo" xmlns:ibmSchExtn="http://www.ibm.com/schema/extensions" xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/" xmlns:tns="http://TrxnPstSvcLib/submitSaleTxnInf" xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+                                                        <xsd:import namespace="http://com/marks/TxnPost/bo" schemaLocation="TrxnPstSvcProcess_QUniform_SubmitSaleTxnInfExport_InlineSchema2.xsd"/>
+            <xsd:element ibmSchExtn:docRoot="true" name="submitTxn">
+        <xsd:complexType>
+          <xsd:sequence>
+            <xsd:element name="submitTxnRequest" nillable="true" type="bons1:submit-pos-sale-trxn"/>
+          </xsd:sequence>
+        </xsd:complexType>
+      </xsd:element>
+            <xsd:element ibmSchExtn:docRoot="true" name="submitTxnResponse">
+        <xsd:complexType>
+          <xsd:sequence>
+            <xsd:element name="submitTxnResponse" nillable="true" type="bons1:submit-pos-trxn-pst-svc-resp"/>
+          </xsd:sequence>
+        </xsd:complexType>
+      </xsd:element>
+            <xsd:element ibmSchExtn:docRoot="true" name="string_element" nillable="true">
+    <xsd:complexType>
+      <xsd:simpleContent>
+        <xsd:extension base="xsd:string"/>
+      </xsd:simpleContent>
+    </xsd:complexType>
+  </xsd:element>
+        </xsd:schema>

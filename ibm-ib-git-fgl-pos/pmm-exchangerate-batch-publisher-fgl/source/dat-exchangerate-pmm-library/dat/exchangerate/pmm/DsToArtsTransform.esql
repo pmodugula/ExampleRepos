@@ -1,0 +1,130 @@
+/*
+ * File name: DsToArtsTransform.esql
+ *
+ * Purpose:   ESQL file for DS to ARTS message transformation.
+ *
+ * Version:   Initial Version
+ *
+ * Authors:   Madanlal Tulsiram
+ *                 
+ * Create Date:  8th September 2016
+ * 
+ * @copyright FGL 2016.  All rights reserved.
+ */
+BROKER SCHEMA dat.exchangerate.pmm
+
+-- Declaration of Code translation code type constants
+DECLARE CURRENCY_CODE CONSTANT CHARACTER 'CURRENCY CODE';
+DECLARE SBU CONSTANT CHARACTER 'FGL';
+DECLARE DATASOURCE CONSTANT CHARACTER 'PMM';
+DECLARE CMN_CODE_DSCRPT_TXT CONSTANT CHARACTER 'CMN_CODE_DSCRPT_TXT';
+-- Namespace Declaration
+DECLARE eai NAMESPACE 'http://www.fgl.com/exchange/';
+DECLARE arts NAMESPACE 'http://www.fgl.com/ARTS';
+DECLARE xsi NAMESPACE 'http://www.w3.org/2001/XMLSchema-instance';
+DECLARE etl NAMESPACE 'http://www.fgl.com/SourceStagingExchangeRatePmmFgl';
+
+/* Module to setup code translation environment variables */
+CREATE COMPUTE MODULE pmm_SetupCodeTranslation
+	CREATE FUNCTION Main() RETURNS BOOLEAN
+	BEGIN
+		DECLARE RefEnv REFERENCE TO Environment;
+		DECLARE RefMsg REFERENCE TO InputRoot.XMLNSC.etl:Exchange.etl:Message;
+		-- condition to tackle double call to common_InitCodeTranslation
+		IF RefEnv.__InitCodeTranslation__ IS NULL OR RefEnv.__InitCodeTranslation__ <> TRUE THEN
+			CALL common.common_translateCodeInit(RefEnv);
+		END IF;				
+		CALL common.common_TranslateCodeWithSuffix(RefEnv,SBU,DATASOURCE,CURRENCY_CODE,'',RefMsg.etl:CURR_CODE);
+		CALL common.common_TranslateCodeWithSuffix(RefEnv,SBU,DATASOURCE,CURRENCY_CODE,'',RefMsg.etl:TO_CURR_CODE);					
+		SET OutputRoot = InputRoot;
+		RETURN TRUE;
+	END;	
+END MODULE;
+
+/* Module to do DS to ARTS message transformation */
+CREATE COMPUTE MODULE DsToArtsTransform
+CREATE FUNCTION Main() RETURNS BOOLEAN
+BEGIN	
+ 
+		--Copying Properties and MQMD
+		SET OutputRoot.Properties = InputRoot.Properties;
+     	SET OutputRoot.MQMD = InputRoot.MQMD;
+		-- Declaring References to Input & Output
+	 	DECLARE RefOut,RefOutExch,RefMsgOutRtng,RefOutMsgs,RefOutSrcSys,RefOutArtsExchRt REFERENCE TO OutputRoot;	 
+	 	DECLARE RefInExch REFERENCE TO InputRoot.XMLNSC.etl:Exchange;
+        DECLARE RefInMsgRtng REFERENCE TO RefInExch.etl:MessageRouting;
+        DECLARE RefInMsg REFERENCE TO RefInExch.etl:Message;
+        DECLARE RefInExchRate REFERENCE TO RefInMsg.etl:ExchangeRate;        
+	 	DECLARE RefEnv REFERENCE TO Environment;
+	 	
+	 	-- Declaring Variables
+	 	DECLARE schemaName CHARACTER 'dat.exchangerate.pmm';
+		DECLARE moduleName CHARACTER 'DsToArtsTransform';	 	
+		-- Logging DebugMessage for the Key Business Fields and Module Start.
+		CALL core.log.DebugMessage(RefEnv, schemaName || '.' || moduleName,  ' [_MODULE - START]' );		
+			
+	    -- Constructing Header of the Output XML
+        CREATE LASTCHILD OF OutputRoot AS RefOut DOMAIN 'XMLNSC';
+        CREATE LASTCHILD OF RefOut AS RefOutExch NAMESPACE eai NAME 'Exchange';
+	    SET RefOutExch.(XMLNSC.NamespaceDecl)xmlns:"eai" = eai;
+	    SET RefOutExch.(XMLNSC.NamespaceDecl)xmlns:"arts" = arts;
+	    SET RefOutExch.(XMLNSC.NamespaceDecl)xmlns:"xsi" = xsi;
+	    SET RefOutExch.(XMLNSC.Attribute)MajorVersion = 1;
+	    SET RefOutExch.(XMLNSC.Attribute)MinorVersion = 0;
+	    SET RefOutExch.(XMLNSC.Attribute)FixVersion = 0;
+	 
+	 	CREATE LASTCHILD OF RefOutExch AS RefMsgOutRtng NAMESPACE eai NAME 'MessageRouting';
+	    SET RefMsgOutRtng.eai:Guid = RefInMsgRtng.etl:Guid;
+	    SET RefMsgOutRtng.eai:MessageId = InputRoot.MQMD.MsgId;
+		SET RefMsgOutRtng.eai:MessageType = 'PubSub';
+		SET RefMsgOutRtng.eai:SubjectArea = RefInMsgRtng.etl:SubjectArea;
+	    SET RefMsgOutRtng.eai:SbuNumber = RefInMsgRtng.etl:SBU_NBR;
+	    SET RefMsgOutRtng.eai:SbuCode = RefInMsgRtng.etl:SBU_CD;
+	    SET RefMsgOutRtng.eai:SbuName = RefInMsgRtng.etl:SBU_NM;
+	    SET RefMsgOutRtng.eai:DataSourceCode = RefInMsgRtng.etl:DATA_SOURCE_CD;
+	    SET RefMsgOutRtng.eai:DataSourceCodeName = RefInMsgRtng.etl:DATA_SOURCE_NM;
+	    SET RefMsgOutRtng.eai:MessageIndex = RefInMsgRtng.etl:MessageIndex;
+	    SET RefMsgOutRtng.eai:MessageCount = RefInMsgRtng.etl:MessageCount;
+	    SET RefMsgOutRtng.eai:SubjectAreaRunName = RefInMsgRtng.etl:SubjectAreaRunName;
+	
+		CREATE LASTCHILD OF RefOutExch AS RefOutMsgs NAMESPACE eai NAME 'Messages';
+        SET RefOutMsgs.eai:Count = 1;   
+        	CREATE LASTCHILD OF RefOutMsgs AS RefOutSrcSys NAMESPACE eai NAME 'SourceSystems';         
+	    	SET RefOutSrcSys.eai:Count = 1;
+	    	SET RefOutSrcSys.eai:SourceSystem.eai:Index = 1;
+	    	SET RefOutSrcSys.eai:SourceSystem.eai:SbuNumber = RefInMsgRtng.etl:SBU_NBR;
+	    	SET RefOutSrcSys.eai:SourceSystem.eai:SbuCode = RefInMsgRtng.etl:SBU_CD;
+	    	SET RefOutSrcSys.eai:SourceSystem.eai:SbuName = RefInMsgRtng.etl:SBU_NM;
+	    	SET RefOutSrcSys.eai:SourceSystem.eai:MessageSourceCode = RefInMsgRtng.etl:MessageSourceCode;
+	    	SET RefOutSrcSys.eai:SourceSystem.eai:MessageSourceCodeName = RefInMsgRtng.etl:MessageSourceCodeName;
+	            
+        CREATE LASTCHILD OF RefOutMsgs AS RefOutArtsExchRt NAMESPACE eai NAME 'ArtsExchangeRate';
+        CALL common.mapChangeActionFlagOrActionFromEtlToArts(RefInExchRate.(XMLNSC.Attribute)Action) INTO RefOutArtsExchRt.(XMLNSC.Attribute)Action;
+        SET RefOutArtsExchRt.arts:Index = 1;	        
+		-- Code translation for for Common code on CURR_CODE
+		CALL common.common_TranslateCodeGet_Code(RefEnv,SBU,DATASOURCE,CURRENCY_CODE,RefInMsg.etl:CURR_CODE) INTO RefOutArtsExchRt.arts:FromCurrencyCode;
+		-- Code translation for for Common code description on CURR_CODE
+		CALL common.common_TranslateCodeGet_Code_Description(RefEnv,SBU,DATASOURCE,CURRENCY_CODE,CMN_CODE_DSCRPT_TXT,RefInMsg.etl:CURR_CODE) INTO RefOutArtsExchRt.arts:FromCurrencyDescriptionText;		
+		
+		-- Code translation for for Common code on TO_CURRENCY_CODE
+		CALL common.common_TranslateCodeGet_Code(RefEnv,SBU,DATASOURCE,CURRENCY_CODE,RefInMsg.etl:TO_CURR_CODE) INTO RefOutArtsExchRt.arts:ToCurrencyCode;
+		-- Code translation for for Common code description on TO_CURRENCY_CODE
+		CALL common.common_TranslateCodeGet_Code_Description(RefEnv,SBU,DATASOURCE,CURRENCY_CODE,CMN_CODE_DSCRPT_TXT,RefInMsg.etl:TO_CURR_CODE) INTO RefOutArtsExchRt.arts:ToCurrencyDescriptionText;
+			
+		IF RefInExchRate.etl:MD_FLAG = 0 THEN
+	    	SET RefOutArtsExchRt.arts:ExchangeRate = RefInExchRate.etl:RATE_RATE;
+		ELSE
+			SET RefOutArtsExchRt.arts:ExchangeRate = RefInExchRate.etl:RATE_RECIPRICAL;
+		END IF;	
+		DECLARE rateDate BOOLEAN;
+		CALL common.common_valueIsNotNullAndNotBlank(RefInExchRate.etl:RATE_DATE) INTO rateDate;
+		IF rateDate THEN
+	    	SET RefOutArtsExchRt.arts:EffectiveDate = SUBSTRING(RefInExchRate.etl:RATE_DATE FROM 1 FOR 10);
+		END IF;					   
+	    -- Logging InfoMessage for the Key Business Fields and transformation completion status.
+		CALL core.log.InfoMessage(RefEnv, schemaName || '.' || moduleName, ' Transformation completed successfully.');
+		-- Logging DebugMessage for the Key Business Fields and Module End.
+		CALL core.log.DebugMessage(RefEnv, schemaName || '.' || moduleName, ' [_MODULE - END]');	
+	RETURN TRUE;
+END;	
+END MODULE;

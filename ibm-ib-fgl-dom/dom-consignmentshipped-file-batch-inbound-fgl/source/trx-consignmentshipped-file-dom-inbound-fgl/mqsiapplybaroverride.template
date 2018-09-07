@@ -1,0 +1,8 @@
+trx.consignmentshipped.file.TrxConsgShipped#CanadaPostInput=${FILE_PATH}
+trx.consignmentshipped.file.TrxConsgShipped#DOMOutBoundQueue=SEND.${CONSIGN_OUT}
+trx.consignmentshipped.file.TrxConsgShipped#CoreAuditDataSource=AUD${ENVN}${INST}
+trx.consignmentshipped.file.TrxConsgShipped#CoreAuditEnabled=FALSE
+trx.consignmentshipped.file.TrxConsgShipped#CoreAuditDetailEnabled=FALSE
+trx.consignmentshipped.file.TrxConsgShipped#CoreMessageValidation1=${VALIDATE_MSG_IN}
+trx.consignmentshipped.file.TrxConsgShipped#CoreMessageValidation2=${VALIDATE_MSG_OUT}
+trx.consignmentshipped.file.TrxConsgShipped#additionalInstances=${EXTRATHREADS}

@@ -1,0 +1,97 @@
+<eai:Exchange xmlns:eai="http://www.fgl.com/exchange/" xmlns:arts="http://www.fgl.com/ARTS" MajorVersion="0" MinorVersion="0" FixVersion="0">
+ <eai:MessageRouting>
+  <eai:Guid>1</eai:Guid>
+  <eai:MessageType>PointToPoint</eai:MessageType>
+  <eai:SubjectArea>CustomerOrderStatus</eai:SubjectArea>
+  <eai:SbuNumber>2</eai:SbuNumber>
+  <eai:SbuCode>MWW</eai:SbuCode>
+  <eai:SbuName>Marks Ltd.</eai:SbuName>
+  <eai:DataSourceCode>FF</eai:DataSourceCode>
+  <eai:DataSourceCodeName>FastFind</eai:DataSourceCodeName>
+ </eai:MessageRouting>
+ <eai:Messages>
+  <eai:Count>1</eai:Count>
+  <eai:SourceSystems>
+   <eai:Count>1</eai:Count>
+   <eai:SourceSystem>
+    <eai:Index>1</eai:Index>
+    <eai:SbuNumber>2</eai:SbuNumber>
+    <eai:SbuCode>MWW</eai:SbuCode>
+    <eai:SbuName>Marks Ltd.</eai:SbuName>
+    <eai:MessageSourceCode>FF</eai:MessageSourceCode>
+    <eai:MessageSourceCodeName>FastFind</eai:MessageSourceCodeName>
+   </eai:SourceSystem>
+  </eai:SourceSystems>
+  <eai:POSLog>
+   <arts:Count>1</arts:Count>
+   <arts:DataSource>
+    <arts:SbuNumber>2</arts:SbuNumber>
+    <arts:SbuCode>MWW</arts:SbuCode>
+    <arts:SbuName>Marks Ltd.</arts:SbuName>
+    <arts:DataSourceCode>FF</arts:DataSourceCode>
+    <arts:DataSourceName>FastFind</arts:DataSourceName>
+   </arts:DataSource>
+   <arts:Transaction MajorVersion="4" MinorVersion="0" FixVersion="0">
+    <arts:RetailStoreID>231</arts:RetailStoreID>
+    <arts:TransactionID>2310320170711320838</arts:TransactionID>
+    <arts:WorkstationID>03</arts:WorkstationID>
+    <arts:SequenceNumber>320838</arts:SequenceNumber>
+    <arts:BeginDateTime>2017-07-11T20:48:19-07:00</arts:BeginDateTime>
+    <arts:EndDateTime>2017-07-11T20:49:00-07:00</arts:EndDateTime>
+    <arts:OperatorID>63668</arts:OperatorID>
+    <arts:PinpadNumber>66235307</arts:PinpadNumber>
+    <arts:RetailTransaction>
+     <arts:LineItem>
+      <arts:SequenceNumber>0</arts:SequenceNumber>
+      <arts:Tender TenderType="CreditDebit" TypeCode="Sale" SubTenderType="Visa">
+       <arts:Amount>117.99</arts:Amount>
+       <arts:Authorization>
+        <arts:AuthorizationCode>056946</arts:AuthorizationCode>
+       </arts:Authorization>
+       <arts:CreditDebit>
+        <arts:PrimaryAccountNumber>NDUwNTUzKioqKioqODQ0Mw==</arts:PrimaryAccountNumber>
+        <arts:ExpirationDate>1904-02</arts:ExpirationDate>
+        <arts:BankResponseSequenceNumber>0010010011</arts:BankResponseSequenceNumber>
+       </arts:CreditDebit>
+      </arts:Tender>
+     </arts:LineItem>
+     <arts:LineItem>
+      <arts:SequenceNumber>1</arts:SequenceNumber>
+      <arts:SaleOfGiftCard>
+       <arts:CardNumber>9032644784</arts:CardNumber>
+       <arts:ItemID>400008725941</arts:ItemID>
+       <arts:InitialBalance>167.99</arts:InitialBalance>
+      </arts:SaleOfGiftCard>
+     </arts:LineItem>
+     <arts:LineItem>
+      <arts:SequenceNumber>1</arts:SequenceNumber>
+      <arts:Tender TenderType="LoyaltyRedemption" TypeCode="Sale">
+       <arts:LoyaltyRedemption>
+        <arts:LoyaltyProgramName>Enterprise Loyalty Program</arts:LoyaltyProgramName>
+        <arts:LoyaltyCardNumber>6046460454437820</arts:LoyaltyCardNumber>
+        <arts:LoyaltyCurrencies>
+         <arts:Count>1</arts:Count>
+         <arts:LoyaltyCurrency>
+          <arts:Index>1</arts:Index>
+          <arts:LoyaltyCurrencyTypeCode>CTMONEY</arts:LoyaltyCurrencyTypeCode>
+          <arts:LoyaltyCurrencyDescriptionText>Canadian Tire Money</arts:LoyaltyCurrencyDescriptionText>
+          <arts:LoyaltyCurrencyDetail>
+           <arts:UnitsRedeemedQuantity>50.00</arts:UnitsRedeemedQuantity>
+          </arts:LoyaltyCurrencyDetail>
+          <arts:MonetaryValueAmount>
+           <arts:Amount>50.00</arts:Amount>
+           <arts:CurrencyCode>CAD</arts:CurrencyCode>
+          </arts:MonetaryValueAmount>
+         </arts:LoyaltyCurrency>
+        </arts:LoyaltyCurrencies>
+       </arts:LoyaltyRedemption>
+      </arts:Tender>
+     </arts:LineItem>
+     <arts:Total TotalType="TransactionGrossAmount">167.99</arts:Total>
+     <arts:Total TotalType="TransactionSubtotal">167.99</arts:Total>
+    </arts:RetailTransaction>
+	<arts:LoyaltyTransactionID>MKS43000012017063000271000</arts:LoyaltyTransactionID>
+   </arts:Transaction>
+  </eai:POSLog>
+ </eai:Messages>
+</eai:Exchange>

@@ -1,0 +1,8 @@
+trx.sales.fgl.publisher#IIBInboundQueue=RECV.${SLSRW_EVENT_IN_IB}
+trx.sales.fgl.publisher#CoreAuditDataSource=FGLRPL${ENVN}${INST}
+trx.sales.fgl.publisher#IIBPublication=${SLSRW_TOPICSTR}
+trx.sales.fgl.publisher#PreProcessorAuditEnabled=False
+trx.sales.fgl.publisher#PostProcessorAuditEnabled=False
+trx.sales.fgl.publisher#CoreInputArtsMessageValidation=${INPUT_ARTS_VALIDATION}
+trx.sales.fgl.publisher#CoreOutputArtsMessageValidation=${OUTPUT_ARTS_VALIDATION}
+trx.sales.fgl.publisher#additionalInstances=${EXTRATHREADS}

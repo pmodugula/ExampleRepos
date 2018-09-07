@@ -1,0 +1,4 @@
+ext{
+   buildAll=true
+   repoName='xbr-salestransactions-event-subscriber-fgl'
+}

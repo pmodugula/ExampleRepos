@@ -1,0 +1,83 @@
+{
+  "msgType": "transaction",
+  "transactionId": "5517820170104100035",
+  "transactionTypeCode": "SaleTransaction",
+  "majorVersion": 4,
+  "workstationId": "78",
+  "sequenceNumber": "100035",
+  "beginDateTime": "2017-01-04T12:59:05.192-06:00",
+  "endDateTime": "2017-01-04T12:59:05.192-06:00",
+  "operatorId": "0",
+  "sourceSystem": "MC",
+  "retailTransaction": {
+    "productLineItems": [
+      {
+        "lineItemSeqNumber": "1",
+        "itemNumber": "400006142177",
+        "merchandiseHierarchyLevel": "4",
+        "merchandiseHierarchyId": "6C",
+        "regularSalesUnitPrice": 19.99,
+        "actualSalesPrice": 0,
+        "basePrice": 0,
+        "proratedPrice": 0,
+        "discountAmount": 0,
+        "quantity": 2,
+        "priceModifiers": [
+          {
+            "reason": {
+              "reasonCode": "ACCOUNT_DISCOUNT",
+              "reasonUniqueId": 4
+            },
+            "amount": 0,
+            "action": "Subtract",
+            "type": "DISCOUNT"
+          }
+        ],
+        "taxes": [
+          {
+            "type": "HSTNLF",
+            "taxAmountPerItem": 2.0
+          },
+          {
+            "type": "HSTNLP",
+            "taxAmountPerItem": 4.0
+          }
+        ]
+      }
+    ],
+    "taxes": [
+      {
+        "type": "HSTNLF",
+        "typeCode": "Sale",
+        "amount": 2.0
+      },
+      {
+        "type": "HSTNLP",
+        "typeCode": "Sale",
+        "amount": 4.0
+      }
+    ],
+    "tenders": [
+      {
+        "amount": 27.59,
+        "subTenderType": "CAD",
+        "tenderType": "CustomerAccount"
+      }
+    ],
+    "customerInformation": {
+      "businessCustomerFlag": "true"
+    },
+    "imagewearTransaction": {
+      "type": "NON_IONS",
+      "customerAccount": {
+        "number": "68329700",
+        "addressLine1": "P.O. BOX 160 ATTN: ACCOUNTS PAYABLE",
+        "city": "CORNER BROOK",
+        "provinceState": "NL",
+        "postalCode": "A2H 6C7"
+      },
+      "taxAreaCode": "NL"
+    },
+    "transactionGrossAmount": 39.98
+  }
+}

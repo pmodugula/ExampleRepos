@@ -1,0 +1,172 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ecore:EPackage xmi:version="2.0"
+    xmlns:xmi="http://www.omg.org/XMI" xmlns:ComIbmFlowOrder.msgnode="ComIbmFlowOrder.msgnode" xmlns:ComIbmMQHeader.msgnode="ComIbmMQHeader.msgnode" xmlns:ComIbmMQInput.msgnode="ComIbmMQInput.msgnode" xmlns:ComIbmMQOutput.msgnode="ComIbmMQOutput.msgnode" xmlns:core_message__postprocessor.subflow="core/message/_postprocessor.subflow" xmlns:core_message__preprocessor.subflow="core/message/_preprocessor.subflow" xmlns:ecore="http://www.eclipse.org/emf/2002/Ecore" xmlns:eflow="http://www.ibm.com/wbi/2005/eflow"
+    xmlns:trx_pickticket_wms_DomsToWmsTransform.subflow="trx/pickticket/wms/DomsToWmsTransform.subflow" xmlns:utility="http://www.ibm.com/wbi/2005/eflow_utility" nsURI="trx/pickticket/wms/inbound.msgflow"
+    nsPrefix="trx_pickticket_wms_inbound.msgflow">
+  <eClassifiers xmi:type="eflow:FCMComposite" name="FCMComposite_1">
+    <eSuperTypes href="http://www.ibm.com/wbi/2005/eflow#//FCMBlock"/>
+    <eStructuralFeatures xmi:type="ecore:EAttribute" xmi:id="Property.IIBInboundQueue" name="IIBInboundQueue" lowerBound="1" defaultValueLiteral="RECV.FGL.WM.DOM.ORDER_IN.IIB.DV">
+      <eType xmi:type="ecore:EDataType" href="http://www.eclipse.org/emf/2002/Ecore#//EString"/>
+    </eStructuralFeatures>
+    <eStructuralFeatures xmi:type="ecore:EAttribute" xmi:id="Property.WMSCaldcInboundQueue" name="WMSCaldcInboundQueue" defaultValueLiteral="SEND.FGL.WM.DOM.ORDER_IN.IIB.CALDC.DV">
+      <eType xmi:type="ecore:EDataType" href="http://www.eclipse.org/emf/2002/Ecore#//EString"/>
+    </eStructuralFeatures>
+    <eStructuralFeatures xmi:type="ecore:EAttribute" xmi:id="Property.WMSMisdcInboundQueue" name="WMSMisdcInboundQueue" defaultValueLiteral="SEND.FGL.WM.DOM.ORDER_IN.IIB.MISDC.DV">
+      <eType xmi:type="ecore:EDataType" href="http://www.eclipse.org/emf/2002/Ecore#//EString"/>
+    </eStructuralFeatures>
+    <eStructuralFeatures xmi:type="ecore:EAttribute" xmi:id="Property.IIBDataSource" name="IIBDataSource" defaultValueLiteral="INTDEV">
+      <eType xmi:type="ecore:EDataType" href="http://www.eclipse.org/emf/2002/Ecore#//EString"/>
+    </eStructuralFeatures>
+    <eStructuralFeatures xmi:type="ecore:EAttribute" xmi:id="Property.CALDCSchemaName" name="CALDCSchemaName" defaultValueLiteral="CDEVWM">
+      <eType xmi:type="ecore:EDataType" href="http://www.eclipse.org/emf/2002/Ecore#//EString"/>
+    </eStructuralFeatures>
+    <eStructuralFeatures xmi:type="ecore:EAttribute" xmi:id="Property.MISDCSchemaName" name="MISDCSchemaName" defaultValueLiteral="DEVWM">
+      <eType xmi:type="ecore:EDataType" href="http://www.eclipse.org/emf/2002/Ecore#//EString"/>
+    </eStructuralFeatures>
+    <eStructuralFeatures xmi:type="ecore:EAttribute" xmi:id="Property.CoreAuditDataSource" name="CoreAuditDataSource" defaultValueLiteral="AUDDEV">
+      <eType xmi:type="ecore:EDataType" href="http://www.eclipse.org/emf/2002/Ecore#//EString"/>
+    </eStructuralFeatures>
+    <eStructuralFeatures xmi:type="ecore:EAttribute" xmi:id="Property.PreProcessorAuditEnabled" name="PreProcessorAuditEnabled" lowerBound="1" defaultValueLiteral="false">
+      <eType xmi:type="ecore:EDataType" href="http://www.eclipse.org/emf/2002/Ecore#//EBoolean"/>
+    </eStructuralFeatures>
+    <eStructuralFeatures xmi:type="ecore:EAttribute" xmi:id="Property.PostProcessorAuditEnabled" name="PostProcessorAuditEnabled" lowerBound="1" defaultValueLiteral="false">
+      <eType xmi:type="ecore:EDataType" href="http://www.eclipse.org/emf/2002/Ecore#//EBoolean"/>
+    </eStructuralFeatures>
+    <eStructuralFeatures xmi:type="ecore:EAttribute" xmi:id="Property.WCDCDataSource" name="WCDCDataSource" defaultValueLiteral="WMCDCPRD">
+      <eType xmi:type="ecore:EDataType" href="http://www.eclipse.org/emf/2002/Ecore#//EString"/>
+    </eStructuralFeatures>
+    <eStructuralFeatures xmi:type="ecore:EAttribute" xmi:id="Property.WMDCDataSource" name="WMDCDataSource" defaultValueLiteral="WMMDCPRD">
+      <eType xmi:type="ecore:EDataType" href="http://www.eclipse.org/emf/2002/Ecore#//EString"/>
+    </eStructuralFeatures>
+    <eStructuralFeatures xmi:type="ecore:EAttribute" xmi:id="Property.DOMOutboundBackupQueue" name="DOMOutboundBackupQueue" defaultValueLiteral="FGL.WM.DOM.ORDER_IN.AMB.2">
+      <eType xmi:type="ecore:EDataType" href="http://www.eclipse.org/emf/2002/Ecore#//EString"/>
+    </eStructuralFeatures>
+    <translation xmi:type="utility:TranslatableString" key="inbound" bundleName="trx/pickticket/wms/inbound" pluginId="trx-pickticket-wms-inbound-fgl"/>
+    <colorGraphic16 xmi:type="utility:GIFFileGraphic" resourceName="platform:/plugin/trx-pickticket-wms-inbound-fgl/icons/full/obj16/inbound.gif"/>
+    <colorGraphic32 xmi:type="utility:GIFFileGraphic" resourceName="platform:/plugin/trx-pickticket-wms-inbound-fgl/icons/full/obj30/inbound.gif"/>
+    <shortDescription xmi:type="utility:ConstantString" string="To send Order message from DOM to CALDC and MISDC."/>
+    <longDescription xmi:type="utility:ConstantString" string="To send Order message from DOM to CALDC and MISDC, DOM if transformed to WM format"/>
+    <composition>
+      <nodes xmi:type="ComIbmMQInput.msgnode:FCMComposite_1" xmi:id="FCMComposite_1_1" location="10,20">
+        <translation xmi:type="utility:ConstantString" string="RECV.FGL.WM.DOM.ORDER_IN.IIB.DV"/>
+      </nodes>
+      <nodes xmi:type="ComIbmMQOutput.msgnode:FCMComposite_1" xmi:id="FCMComposite_1_2" location="592,101">
+        <translation xmi:type="utility:ConstantString" string="SEND.FGL.WM.DOM.ORDER_IN.IIB.CALDC.DV"/>
+      </nodes>
+      <nodes xmi:type="core_message__preprocessor.subflow:FCMComposite_1" xmi:id="FCMComposite_1_3" location="246,20">
+        <translation xmi:type="utility:ConstantString" string="CoreMessagePreProcessor"/>
+      </nodes>
+      <nodes xmi:type="core_message__postprocessor.subflow:FCMComposite_1" xmi:id="FCMComposite_1_4" location="870,20">
+        <translation xmi:type="utility:ConstantString" string="CoreMessagePostProcessor"/>
+      </nodes>
+      <nodes xmi:type="trx_pickticket_wms_DomsToWmsTransform.subflow:FCMComposite_1" xmi:id="FCMComposite_1_6" location="425,101">
+        <translation xmi:type="utility:ConstantString" string="DomsToWmsTransform"/>
+      </nodes>
+      <nodes xmi:type="ComIbmMQOutput.msgnode:FCMComposite_1" xmi:id="FCMComposite_1_5" location="593,182">
+        <translation xmi:type="utility:ConstantString" string="SEND.FGL.WM.DOM.ORDER_IN.IIB.MISDC.DV"/>
+      </nodes>
+      <nodes xmi:type="ComIbmFlowOrder.msgnode:FCMComposite_1" xmi:id="FCMComposite_1_7" location="152,96">
+        <translation xmi:type="utility:ConstantString" string="Flow Order"/>
+      </nodes>
+      <nodes xmi:type="ComIbmMQHeader.msgnode:FCMComposite_1" xmi:id="FCMComposite_1_8" location="289,148" mqmdAAAOptions="Modify header" mqmdCodedCharSetId="Inherit" mqmdFormat="Inherit" mqmdMsgType="Inherit" mqmdExpiry="6048000" mqmdFeedback="Inherit" mqmdPersistence="MQPER_PERSISTENT" mqmdMsgId="Inherit" mqmdCorrelId="Inherit" mqmdReplyToQ="Inherit" mqmdReplyToQMgr="Inherit">
+        <translation xmi:type="utility:ConstantString" string="MQ Header"/>
+      </nodes>
+      <nodes xmi:type="ComIbmMQOutput.msgnode:FCMComposite_1" xmi:id="FCMComposite_1_9" location="389,214">
+        <translation xmi:type="utility:ConstantString" string="FGL.WM.DOM.ORDER_IN.AMB.2"/>
+      </nodes>
+      <connections xmi:type="eflow:FCMConnection" xmi:id="FCMConnection_1" targetNode="FCMComposite_1_3" sourceNode="FCMComposite_1_1" sourceTerminalName="OutTerminal.failure" targetTerminalName="InTerminal.FailureInput"/>
+      <connections xmi:type="eflow:FCMConnection" xmi:id="FCMConnection_3" targetNode="FCMComposite_1_3" sourceNode="FCMComposite_1_1" sourceTerminalName="OutTerminal.catch" targetTerminalName="InTerminal.Input"/>
+      <connections xmi:type="eflow:FCMConnection" xmi:id="FCMConnection_4" targetNode="FCMComposite_1_4" sourceNode="FCMComposite_1_2" sourceTerminalName="OutTerminal.failure" targetTerminalName="InTerminal.Input"/>
+      <connections xmi:type="eflow:FCMConnection" xmi:id="FCMConnection_5" targetNode="FCMComposite_1_4" sourceNode="FCMComposite_1_2" sourceTerminalName="OutTerminal.out" targetTerminalName="InTerminal.Input1"/>
+      <connections xmi:type="eflow:FCMConnection" xmi:id="FCMConnection_6" targetNode="FCMComposite_1_4" sourceNode="FCMComposite_1_3" sourceTerminalName="OutTerminal.Output" targetTerminalName="InTerminal.Input"/>
+      <connections xmi:type="eflow:FCMConnection" xmi:id="FCMConnection_8" targetNode="FCMComposite_1_4" sourceNode="FCMComposite_1_3" sourceTerminalName="OutTerminal.FailureOutput" targetTerminalName="InTerminal.Input2"/>
+      <connections xmi:type="eflow:FCMConnection" xmi:id="FCMConnection_10" targetNode="FCMComposite_1_6" sourceNode="FCMComposite_1_3" sourceTerminalName="OutTerminal.CatchOutput" targetTerminalName="InTerminal.Input"/>
+      <connections xmi:type="eflow:FCMConnection" xmi:id="FCMConnection_11" targetNode="FCMComposite_1_2" sourceNode="FCMComposite_1_6" sourceTerminalName="OutTerminal.Output" targetTerminalName="InTerminal.in"/>
+      <connections xmi:type="eflow:FCMConnection" xmi:id="FCMConnection_7" targetNode="FCMComposite_1_5" sourceNode="FCMComposite_1_6" sourceTerminalName="OutTerminal.Output1" targetTerminalName="InTerminal.in"/>
+      <connections xmi:type="eflow:FCMConnection" xmi:id="FCMConnection_9" targetNode="FCMComposite_1_4" sourceNode="FCMComposite_1_5" sourceTerminalName="OutTerminal.failure" targetTerminalName="InTerminal.Input"/>
+      <connections xmi:type="eflow:FCMConnection" xmi:id="FCMConnection_12" targetNode="FCMComposite_1_4" sourceNode="FCMComposite_1_5" sourceTerminalName="OutTerminal.out" targetTerminalName="InTerminal.Input1"/>
+      <connections xmi:type="eflow:FCMConnection" xmi:id="FCMConnection_13" targetNode="FCMComposite_1_9" sourceNode="FCMComposite_1_8" sourceTerminalName="OutTerminal.out" targetTerminalName="InTerminal.in"/>
+      <connections xmi:type="eflow:FCMConnection" xmi:id="FCMConnection_14" targetNode="FCMComposite_1_8" sourceNode="FCMComposite_1_7" sourceTerminalName="OutTerminal.second" targetTerminalName="InTerminal.in"/>
+      <connections xmi:type="eflow:FCMConnection" xmi:id="FCMConnection_15" targetNode="FCMComposite_1_3" sourceNode="FCMComposite_1_7" sourceTerminalName="OutTerminal.first" targetTerminalName="InTerminal.CatchInput"/>
+      <connections xmi:type="eflow:FCMConnection" xmi:id="FCMConnection_16" targetNode="FCMComposite_1_7" sourceNode="FCMComposite_1_1" sourceTerminalName="OutTerminal.out" targetTerminalName="InTerminal.in"/>
+    </composition>
+    <propertyOrganizer>
+      <propertyDescriptor groupName="Group.Basic" propertyEditor="com.ibm.etools.mft.ibmnodes.editors.mq.MQQueueNameEditor" configurable="true" describedAttribute="Property.IIBInboundQueue">
+        <propertyName xmi:type="utility:TranslatableString" key="Property.IIBInboundQueue" bundleName="trx/pickticket/wms/inbound" pluginId="trx-pickticket-wms-inbound-fgl"/>
+        <propertyDescriptor groupName="Group.Basic" propertyEditor="com.ibm.etools.mft.ibmnodes.editors.mq.MQQueueNameEditor" configurable="true" describedAttribute="Property.WMSCaldcInboundQueue">
+          <propertyName xmi:type="utility:TranslatableString" key="Property.WMSCaldcInboundQueue" bundleName="trx/pickticket/wms/inbound" pluginId="trx-pickticket-wms-inbound-fgl"/>
+          <propertyDescriptor groupName="Group.Basic" propertyEditor="com.ibm.etools.mft.ibmnodes.editors.mq.MQQueueNameEditor" configurable="true" describedAttribute="Property.WMSMisdcInboundQueue">
+            <propertyName xmi:type="utility:TranslatableString" key="Property.WMSMisdcInboundQueue" bundleName="trx/pickticket/wms/inbound" pluginId="trx-pickticket-wms-inbound-fgl"/>
+            <propertyDescriptor groupName="Group.Basic" configurable="true" describedAttribute="Property.IIBDataSource">
+              <propertyName xmi:type="utility:TranslatableString" key="Property.IIBDataSource" bundleName="trx/pickticket/wms/GetCalDcControlSequence" pluginId="trx-pickticket-wms-library"/>
+              <propertyDescriptor groupName="Group.Basic" configurable="true" userDefined="true" describedAttribute="Property.CALDCSchemaName">
+                <propertyName xmi:type="utility:TranslatableString" key="Property.CALDCSchemaName" bundleName="trx/pickticket/wms/DomsToWmsTransform" pluginId="trx-pickticket-wms-library"/>
+                <propertyDescriptor groupName="Group.Basic" configurable="true" userDefined="true" describedAttribute="Property.MISDCSchemaName">
+                  <propertyName xmi:type="utility:TranslatableString" key="Property.MISDCSchemaName" bundleName="trx/pickticket/wms/DomsToWmsTransform" pluginId="trx-pickticket-wms-library"/>
+                  <propertyDescriptor groupName="Group.Basic" configurable="true" describedAttribute="Property.CoreAuditDataSource">
+                    <propertyName xmi:type="utility:TranslatableString" key="Property.CoreAuditDataSource" bundleName="core/audit/_audit" pluginId="core-audit-handler-library"/>
+                    <propertyDescriptor groupName="Group.Basic" configurable="true" userDefined="true" describedAttribute="Property.PreProcessorAuditEnabled">
+                      <propertyName xmi:type="utility:TranslatableString" key="Property.PreProcessorAuditEnabled" bundleName="trx/pickticket/wms/inbound" pluginId="trx-pickticket-wms-inbound-fgl"/>
+                      <propertyDescriptor groupName="Group.Basic" configurable="true" userDefined="true" describedAttribute="Property.PostProcessorAuditEnabled">
+                        <propertyName xmi:type="utility:TranslatableString" key="Property.PostProcessorAuditEnabled" bundleName="trx/pickticket/wms/inbound" pluginId="trx-pickticket-wms-inbound-fgl"/>
+                        <propertyDescriptor groupName="Group.Basic" configurable="true" describedAttribute="Property.WCDCDataSource">
+                          <propertyName xmi:type="utility:TranslatableString" key="Property.WCDCDataSource" bundleName="trx/pickticket/wms/DomsToWmsTransform" pluginId="trx-pickticket-wms-library"/>
+                          <propertyDescriptor groupName="Group.Basic" configurable="true" describedAttribute="Property.WMDCDataSource">
+                            <propertyName xmi:type="utility:TranslatableString" key="Property.WMDCDataSource" bundleName="trx/pickticket/wms/DomsToWmsTransform" pluginId="trx-pickticket-wms-library"/>
+                            <propertyDescriptor groupName="Group.Basic" propertyEditor="com.ibm.etools.mft.ibmnodes.editors.mq.MQQueueNameEditor" configurable="true" describedAttribute="Property.DOMOutboundBackupQueue">
+                              <propertyName xmi:type="utility:TranslatableString" key="Property.DOMOutboundBackupQueue" bundleName="trx/pickticket/wms/inbound" pluginId="trx-pickticket-wms-inbound-fgl"/>
+                            </propertyDescriptor>
+                          </propertyDescriptor>
+                        </propertyDescriptor>
+                      </propertyDescriptor>
+                    </propertyDescriptor>
+                  </propertyDescriptor>
+                </propertyDescriptor>
+              </propertyDescriptor>
+            </propertyDescriptor>
+          </propertyDescriptor>
+        </propertyDescriptor>
+      </propertyDescriptor>
+    </propertyOrganizer>
+    <attributeLinks promotedAttribute="Property.IIBInboundQueue" overriddenNodes="FCMComposite_1_1">
+      <overriddenAttribute href="ComIbmMQInput.msgnode#Property.queueName"/>
+    </attributeLinks>
+    <attributeLinks promotedAttribute="Property.WMSCaldcInboundQueue" overriddenNodes="FCMComposite_1_2">
+      <overriddenAttribute href="ComIbmMQOutput.msgnode#Property.queueName"/>
+    </attributeLinks>
+    <attributeLinks promotedAttribute="Property.WMSMisdcInboundQueue" overriddenNodes="FCMComposite_1_5">
+      <overriddenAttribute href="ComIbmMQOutput.msgnode#Property.queueName"/>
+    </attributeLinks>
+    <attributeLinks promotedAttribute="Property.IIBDataSource" overriddenNodes="FCMComposite_1_6">
+      <overriddenAttribute href="trx/pickticket/wms/DomsToWmsTransform.subflow#Property.IIBDataSource"/>
+    </attributeLinks>
+    <attributeLinks promotedAttribute="Property.CALDCSchemaName" overriddenNodes="FCMComposite_1_6">
+      <overriddenAttribute href="trx/pickticket/wms/DomsToWmsTransform.subflow#Property.CALDCSchemaName"/>
+    </attributeLinks>
+    <attributeLinks promotedAttribute="Property.MISDCSchemaName" overriddenNodes="FCMComposite_1_6">
+      <overriddenAttribute href="trx/pickticket/wms/DomsToWmsTransform.subflow#Property.MISDCSchemaName"/>
+    </attributeLinks>
+    <attributeLinks promotedAttribute="Property.CoreAuditDataSource" overriddenNodes="FCMComposite_1_3">
+      <overriddenAttribute href="core/message/_preprocessor.subflow#Property.CoreAuditDataSource"/>
+    </attributeLinks>
+    <attributeLinks promotedAttribute="Property.CoreAuditDataSource" overriddenNodes="FCMComposite_1_4">
+      <overriddenAttribute href="core/message/_postprocessor.subflow#Property.CoreAuditDataSource"/>
+    </attributeLinks>
+    <attributeLinks promotedAttribute="Property.PreProcessorAuditEnabled" overriddenNodes="FCMComposite_1_3">
+      <overriddenAttribute href="core/message/_preprocessor.subflow#Property.CoreAuditEnabled"/>
+    </attributeLinks>
+    <attributeLinks promotedAttribute="Property.PostProcessorAuditEnabled" overriddenNodes="FCMComposite_1_4">
+      <overriddenAttribute href="core/message/_postprocessor.subflow#Property.CoreAuditEnabled"/>
+    </attributeLinks>
+    <attributeLinks promotedAttribute="Property.WCDCDataSource" overriddenNodes="FCMComposite_1_6">
+      <overriddenAttribute href="trx/pickticket/wms/DomsToWmsTransform.subflow#Property.WCDCDataSource"/>
+    </attributeLinks>
+    <attributeLinks promotedAttribute="Property.WMDCDataSource" overriddenNodes="FCMComposite_1_6">
+      <overriddenAttribute href="trx/pickticket/wms/DomsToWmsTransform.subflow#Property.WMDCDataSource"/>
+    </attributeLinks>
+    <attributeLinks promotedAttribute="Property.DOMOutboundBackupQueue" overriddenNodes="FCMComposite_1_9">
+      <overriddenAttribute href="ComIbmMQOutput.msgnode#Property.queueName"/>
+    </attributeLinks>
+    <stickyBoard/>
+  </eClassifiers>
+</ecore:EPackage>

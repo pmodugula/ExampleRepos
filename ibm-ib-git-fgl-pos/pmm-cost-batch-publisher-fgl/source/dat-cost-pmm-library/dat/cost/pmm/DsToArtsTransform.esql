@@ -1,0 +1,170 @@
+BROKER SCHEMA dat.cost.pmm
+
+/*
+* Authors : Greeshma Vidyadharan.
+* File Name: common.esql
+* Create Date: 26-Aug-2016
+* Version History:
+* Version 				Module 				Name 				Date 					Revision Details
+* ======= ========================== ===================== =====================  ==================================
+* 1.0 	  SetupCodeTranslation 	     Greeshma Vidyadharan  	29-Aug-2016 			Inital Version
+* 1.0 	  DsToArtsTransform 		 Greeshma Vidyadharan	29-Aug-2016             Inital Version
+* FGL/MWW (C)2014,2015. All rights reserved.
+*/
+-- Global NameSpace Declration.
+DECLARE eai NAMESPACE 'http://www.fgl.com/exchange/';
+DECLARE arts NAMESPACE 'http://www.fgl.com/ARTS';
+DECLARE xsi NAMESPACE 'http://www.w3.org/2001/XMLSchema-instance';
+--Added Datastage namespace declaration.
+DECLARE ds NAMESPACE 'http://www.fgl.com/SourceStagingCostPmmFgl';
+
+DECLARE CURR_TYPE_CODE CONSTANT CHARACTER 'CURRENCY CODE';
+DECLARE CMN_CODE_DSCRPT_TXT CONSTANT CHARACTER 'CMN_CODE_DSCRPT_TXT'; 
+
+CREATE COMPUTE MODULE SetupCodeTranslation
+	CREATE FUNCTION Main() RETURNS BOOLEAN
+	BEGIN
+		DECLARE rEnv REFERENCE TO Environment;
+		DECLARE SBU CHARACTER InputRoot.XMLNSC.ds:Exchange.ds:MessageRouting.ds:SBU_CD;
+		DECLARE DATA_SOURCE CHARACTER InputRoot.XMLNSC.ds:Exchange.ds:MessageRouting.ds:DATA_SOURCE_CD;
+		-- condition added by Piyush Vaishnav to tackle double call to common_InitCodeTranslation
+		IF rEnv.__InitCodeTranslation__ IS NULL AND rEnv.__InitCodeTranslation__ <> TRUE THEN
+			CALL common.common_TranslateCodeInit(rEnv);
+		END IF;
+		DECLARE rCurrCd REFERENCE TO InputRoot.XMLNSC.ds:Exchange.ds:Message.ds:Cost.ds:CostDetail;
+		--SET Environment.XMLNSC.*[] = InputRoot.XMLNSC.*[];
+		CALL common.common_TranslateCodeWithSuffix(rEnv,SBU,DATA_SOURCE,CURR_TYPE_CODE,'',rCurrCd.ds:CURR_CODE);
+		SET OutputRoot = InputRoot;
+		RETURN TRUE;
+	END;
+END MODULE;
+
+
+
+CREATE COMPUTE MODULE DsToArtsTransform
+	CREATE FUNCTION Main() RETURNS BOOLEAN
+	BEGIN
+		-- copy message headers
+		SET OutputRoot.Properties = InputRoot.Properties;
+		SET OutputRoot.MQMD = InputRoot.MQMD;
+		-- Declaring References
+		DECLARE rOut, rOutExch, rOutMsgRtng, rOutMsgs, rOutSrcSys, rOutSrcSym, rOutArtsProdCost, rOutPrmVndr, rOutStl, rOutBusnUntGrps, rOutBusnUntGrp, rOutBusnUntGrplvl, rOutMrchdsHireGrps,rOutMrchdsHireGrp, rOutMrchdsHireGrpslvl, rOutMrchdsHireGrpslvls REFERENCE TO OutputRoot;
+		DECLARE rInExch REFERENCE TO InputRoot.XMLNSC.ds:Exchange;
+		DECLARE rInMsgRtng REFERENCE TO rInExch.ds:MessageRouting;
+		DECLARE rInMsg REFERENCE TO rInExch.ds:Message;
+		DECLARE rInCost REFERENCE TO rInMsg.ds:Cost;
+		DECLARE rInCostDtl REFERENCE TO rInMsg.ds:Cost.ds:CostDetail;
+		DECLARE rEnv REFERENCE TO Environment;
+		DECLARE count INTEGER;
+
+		DECLARE SBU CHARACTER rInMsgRtng.ds:SBU_CD;
+		DECLARE DATA_SOURCE CHARACTER rInMsgRtng.ds:DATA_SOURCE_CD;
+		-- Logging Module Start
+		DECLARE schemaName CHARACTER 'dat.cost.pmm';
+		DECLARE moduleName CHARACTER 'DsToArtsTransform';
+		CALL core.log.DebugMessage(rEnv, schemaName || '.' || moduleName, ' [_MODULE - START]' );
+		-- Constructing Header of the Output XML
+		CREATE LASTCHILD OF OutputRoot AS rOut DOMAIN 'XMLNSC';
+		CREATE LASTCHILD OF rOut AS rOutExch NAMESPACE eai NAME 'Exchange';
+		SET rOutExch.(XMLNSC.NamespaceDecl)xmlns:"eai" = eai;
+		SET rOutExch.(XMLNSC.NamespaceDecl)xmlns:"arts" = arts;
+		SET rOutExch.(XMLNSC.NamespaceDecl)xmlns:"xsi" = xsi;
+		SET rOutExch.(XMLNSC.Attribute)MajorVersion = 1;
+		SET rOutExch.(XMLNSC.Attribute)MinorVersion = 0;
+		SET rOutExch.(XMLNSC.Attribute)FixVersion = 0;
+		-- Constructing Exchange/MessageRouting
+		CREATE LASTCHILD OF rOutExch AS rOutMsgRtng NAMESPACE eai NAME 'MessageRouting';
+		SET rOutMsgRtng.eai:Guid = rInMsgRtng.ds:Guid;
+		SET rOutMsgRtng.eai:MessageId = InputRoot.MQMD.MsgId;
+		SET rOutMsgRtng.eai:MessageType = 'PubSub';
+		SET rOutMsgRtng.eai:SubjectArea = rInMsgRtng.ds:SubjectArea;
+		SET rOutMsgRtng.eai:SbuNumber = rInMsgRtng.ds:SBU_NBR;
+		SET rOutMsgRtng.eai:SbuCode = rInMsgRtng.ds:SBU_CD;
+		SET rOutMsgRtng.eai:SbuName = rInMsgRtng.ds:SBU_NM;
+		SET rOutMsgRtng.eai:DataSourceCode = rInMsgRtng.ds:DATA_SOURCE_CD;
+		SET rOutMsgRtng.eai:DataSourceCodeName = rInMsgRtng.ds:DATA_SOURCE_NM;
+		SET rOutMsgRtng.eai:MessageIndex = rInMsgRtng.ds:MessageIndex;
+		SET rOutMsgRtng.eai:MessageCount = rInMsgRtng.ds:MessageCount;
+		SET rOutMsgRtng.eai:SubjectAreaRunName = rInMsgRtng.ds:SubjectAreaRunName;
+		-- Constructing Exchange/Messages
+		CREATE LASTCHILD OF rOutExch AS rOutMsgs NAMESPACE eai NAME 'Messages';
+		SET rOutMsgs.eai:Count = 1;
+		-- Constructing Exchange/Messages/SourceSystems
+		CREATE LASTCHILD OF rOutMsgs AS rOutSrcSys NAMESPACE eai NAME 'SourceSystems';
+		SET rOutSrcSys.eai:Count = 1;
+		CREATE LASTCHILD OF rOutSrcSys AS rOutSrcSym NAMESPACE eai NAME 'SourceSystem';
+		SET rOutSrcSym.eai:Index = 1;
+		SET rOutSrcSym.eai:SbuNumber = rInMsgRtng.ds:SBU_NBR;
+		SET rOutSrcSym.eai:SbuCode = rInMsgRtng.ds:SBU_CD;
+		SET rOutSrcSym.eai:SbuName = rInMsgRtng.ds:SBU_NM;
+		SET rOutSrcSym.eai:MessageSourceCode = rInMsgRtng.ds:MessageSourceCode;
+		SET rOutSrcSym.eai:MessageSourceCodeName = rInMsgRtng.ds:MessageSourceCodeName;
+		-- Constructing the payload (Exchange/Messages/Cost)
+		CREATE LASTCHILD OF rOutMsgs AS rOutArtsProdCost NAMESPACE eai NAME 'ArtsProductCost';
+		CALL common.mapChangeActionFlagOrActionFromEtlToArts(rInCost.(XMLNSC.Attribute)Action) INTO rOutArtsProdCost.(XMLNSC.Attribute)Action;
+		SET rOutArtsProdCost.arts:Index=1; 
+		IF rInCostDtl.ds:CostType='2' THEN
+			SET rOutArtsProdCost.arts:CostTypeCode='AVERAGE COST';
+			SET rOutArtsProdCost.arts:AverageCostAmount=rInCostDtl.ds:CostAmount;
+		END IF;
+		IF rInCostDtl.ds:CostType='1' THEN
+			SET rOutArtsProdCost.arts:CostTypeCode='VENDOR PRODUCT COST';
+			SET rOutArtsProdCost.arts:VendorProductCostAmount=rInCostDtl.ds:CostAmount;
+		END IF;
+		-- Map CURR_CDE using Code Translation data
+		CALL common.common_TranslateCodeGet_Code(rEnv,SBU,DATA_SOURCE,CURR_TYPE_CODE,rInCostDtl.ds:CURR_CODE) INTO rOutArtsProdCost.arts:CurrencyCode;
+		CALL common.common_TranslateCodeGet_Code_Description(rEnv,SBU,DATA_SOURCE,CURR_TYPE_CODE,CMN_CODE_DSCRPT_TXT,rInCostDtl.ds:CURR_CODE) INTO rOutArtsProdCost.arts:CurrencyDescriptionText;
+		--Constructing (Exchange/Messages/Cost/PrimaryVendor)
+		IF rInCostDtl.ds:CostType='1' THEN
+			CREATE LASTCHILD OF rOutArtsProdCost AS rOutPrmVndr NAMESPACE arts NAME 'PrimaryVendor';
+			SET rOutPrmVndr.arts:Index=1;
+			SET rOutPrmVndr.arts:VendorNumber=rInCostDtl.ds:VENDOR_NUMBER;
+			SET rOutPrmVndr.arts:VendorName=rInCostDtl.ds:VENDOR_NAME;
+		END IF;	
+		SET rOutArtsProdCost.arts:SourceProductCostNumber=rInCostDtl.ds:CostKey;
+		SET rOutArtsProdCost.arts:CostSubtypeCode='STYLE';
+		CREATE LASTCHILD OF rOutArtsProdCost AS rOutStl NAMESPACE arts NAME 'Style';
+		SET rOutStl.arts:Index='1';
+		SET rOutStl.arts:StyleNumber=rInCostDtl.ds:PRD_LVL_NUMBER;
+		SET rOutStl.arts:StyleName=rInCostDtl.ds:PRD_NAME_FULL;
+		SET rOutArtsProdCost.arts:EffectiveDateTime=CAST(CAST(rInCostDtl.ds:EffectiveDateTime AS CHARACTER FORMAT 'YYYY-MM-DDThh:mm:ss') AS TIMESTAMP);
+		SET rOutArtsProdCost.arts:ExpirationDateTime=CAST(CAST(rInCostDtl.ds:ExpiryDateTime AS CHARACTER FORMAT 'YYYY-MM-DDThh:mm:ss') AS TIMESTAMP);
+		--Constructing (Exchange/Messages/Cost/BusinessUnitGroups)
+		CREATE LASTCHILD OF rOutArtsProdCost AS rOutBusnUntGrps NAMESPACE arts NAME 'BusinessUnitGroups';
+		SET rOutBusnUntGrps.arts:Count=1;
+		CREATE LASTCHILD OF rOutBusnUntGrps AS rOutBusnUntGrp NAMESPACE arts NAME 'BusinessUnitGroup';
+		SET rOutBusnUntGrp.arts:Index=1;
+		SET rOutBusnUntGrp.arts:BusinessUnitGroupFunctionName='Cost and Price Hierarchy';
+		SET rOutBusnUntGrp.arts:Count=1;
+		CREATE LASTCHILD OF rOutBusnUntGrp AS rOutBusnUntGrplvl NAMESPACE arts NAME 'BusinessUnitGroupLevel';
+		SET rOutBusnUntGrplvl.arts:Index=1;
+		SET rOutBusnUntGrplvl.arts:ParentBusinessUnitGroupNumber=rInCostDtl.ds:CAP_CHAIN_ID;
+		SET rOutBusnUntGrplvl.arts:BusinessUnitGroupNumber=rInCostDtl.ds:CAP_CHAIN_ID;
+		SET rOutBusnUntGrplvl.arts:BusinessUnitGroupName=rInCostDtl.ds:CAP_CHAIN_NAME;
+		SET rOutBusnUntGrplvl.arts:BusinessUnitGroupLevelNumber=rInCostDtl.ds:CAP_CHAIN_ID;
+		SET rOutBusnUntGrplvl.arts:BusinessUnitGroupLevelName=rInCostDtl.ds:CAP_CHAIN_NAME;
+		--Constructing (Exchange/Messages/Cost/MerchandiseHierarchyGroups)
+		CREATE LASTCHILD OF rOutArtsProdCost AS rOutMrchdsHireGrps NAMESPACE arts NAME 'MerchandiseHierarchyGroups';
+		SET rOutMrchdsHireGrps.arts:Count=1;
+		CREATE LASTCHILD OF rOutMrchdsHireGrps AS rOutMrchdsHireGrp NAMESPACE arts NAME 'MerchandiseHierarchyGroup';
+		SET rOutMrchdsHireGrp.arts:Index=1;
+		CREATE LASTCHILD OF rOutMrchdsHireGrp AS rOutMrchdsHireGrpslvls NAMESPACE arts NAME 'MerchandiseHierarchyLevels';
+		SET rOutMrchdsHireGrpslvls.arts:Count=1;		
+		SET rOutMrchdsHireGrpslvls.arts:MerchandiseHierarchyFunctionName='Cost Product Hierarchy';
+		CREATE LASTCHILD OF rOutMrchdsHireGrpslvls AS rOutMrchdsHireGrpslvl NAMESPACE arts NAME 'MerchandiseHierarchyLevel';
+		SET rOutMrchdsHireGrpslvl.arts:Index=1;
+		SET count =rInCostDtl.ds:PRD_LVL_NUMBER;
+		SET rOutMrchdsHireGrpslvl.arts:MerchandiseHierarchyGroupNumber=count;
+		SET rOutMrchdsHireGrpslvl.arts:ParentMerchandiseHierarchyLevelNumber= count + 1 ;
+		SET rOutMrchdsHireGrpslvl.arts:ParentMerchandiseHierarchyGroupNumber=rInCostDtl.ds:ProductHierarchyParentNumber;
+		SET rOutMrchdsHireGrpslvl.arts:MerchandiseHierarchyGroupName=rInCostDtl.ds:PRD_NAME_FULL;
+		SET rOutMrchdsHireGrpslvl.arts:MerchandiseHierarchyLevelNumber=rInCostDtl.ds:PRD_LVL_ID;
+		SET rOutMrchdsHireGrpslvl.arts:MerchandiseHierarchyLevelCode=rInCostDtl.ds:PRD_LVL_ID;
+		SET rOutMrchdsHireGrpslvl.arts:MerchandiseHierarchyLevelName='STYLE';
+		-- Writing success log.
+		CALL core.log.InfoMessage(rEnv, schemaName || '.' || moduleName, ' Transformation completed successfully.');
+		-- Writing Module End Log.
+		CALL core.log.DebugMessage(rEnv, schemaName || '.' || moduleName, ' [_MODULE - END]' );
+		RETURN TRUE;
+	END;
+END MODULE;

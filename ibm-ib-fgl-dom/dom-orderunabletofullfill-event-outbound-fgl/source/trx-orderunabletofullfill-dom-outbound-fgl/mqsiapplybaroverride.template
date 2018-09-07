@@ -1,0 +1,10 @@
+trx.orderunabletofullfill.dom.TrxOrderUnableToFullFill#IIBInBoundQueue=RECV.${CONSIGN_IN}
+trx.orderunabletofullfill.dom.TrxOrderUnableToFullFill#SCDestinationqueue=FGL.${emsEnvQ}.HYBRIS.SC.ORDER.UNABLETOFULFILL.Q
+trx.orderunabletofullfill.dom.TrxOrderUnableToFullFill#ATMODestinationqueue=FGL.${emsEnvQ}.HYBRIS.ATMO.ORDER.UNABLETOFULFILL.Q
+trx.orderunabletofullfill.dom.TrxOrderUnableToFullFill#CoreAuditDataSource=AUD${ENVN}${INST}
+trx.orderunabletofullfill.dom.TrxOrderUnableToFullFill#CoreMessageValidation1=FALSE
+trx.orderunabletofullfill.dom.TrxOrderUnableToFullFill#CoreMessageValidation2=FALSE
+trx.orderunabletofullfill.dom.TrxOrderUnableToFullFill#CoreAuditEnabled=FALSE
+trx.orderunabletofullfill.dom.TrxOrderUnableToFullFill#CoreAuditDetailEnabled=FALSE
+trx.orderunabletofullfill.dom.TrxOrderUnableToFullFill#additionalInstances=${EXTRATHREADS}
+trx.orderunabletofullfill.dom.TrxOrderUnableToFullFill#DOMOutboundBackupQueue=${CONSIGN_IN_BACKUP}

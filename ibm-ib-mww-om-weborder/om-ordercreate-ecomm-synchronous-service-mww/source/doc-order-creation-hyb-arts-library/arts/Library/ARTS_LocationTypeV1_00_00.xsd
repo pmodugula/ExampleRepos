@@ -1,0 +1,203 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<!-- edited with XMLSpy v2014 rel. 2 (http://www.altova.com) by Ron Matyjanka (FGL SPORTS LTD) -->
+<!--
+ * ER/Studio Data Architect XE3 %s XML Schema Generation
+ * Company:		FGL Sports
+ * Project:		FGL Corporate Data Warehouse
+ * Author:		Warren Whale
+ * Version:		1.0
+ * Date Created:	2015-01-23
+-->
+<xs:schema xmlns:arts="http://www.fgl.com/ARTS" xmlns:xs="http://www.w3.org/2001/XMLSchema" targetNamespace="http://www.fgl.com/ARTS" elementFormDefault="qualified">
+	<xs:include schemaLocation="AttributeGroupsV1_00_00.xsd"/>
+	<xs:complexType name="ArtsLocation">
+		<xs:sequence>
+			<xs:element name="Index"/>
+			<xs:element name="DataSource" type="arts:DataSource"/>
+			<xs:element name="LocationId" minOccurs="0">
+				<xs:annotation>
+					<xs:documentation>A unique system assigned identifier for the Location.</xs:documentation>
+				</xs:annotation>
+				<xs:complexType>
+					<xs:simpleContent>
+						<xs:extension base="xs:long">
+							<xs:attributeGroup ref="arts:ElementControlAttributeGroup"/>
+						</xs:extension>
+					</xs:simpleContent>
+				</xs:complexType>
+			</xs:element>
+			<xs:element name="LocationNumber" nillable="true">
+				<xs:annotation>
+					<xs:documentation>Number or code that identifies the location</xs:documentation>
+				</xs:annotation>
+				<xs:complexType>
+					<xs:simpleContent>
+						<xs:extension base="xs:string">
+							<xs:attributeGroup ref="arts:ElementControlAttributeGroup"/>
+						</xs:extension>
+					</xs:simpleContent>
+				</xs:complexType>
+			</xs:element>
+			<xs:element name="UnitOfMeasureCode" nillable="true">
+				<xs:annotation>
+					<xs:documentation>The code used to specify the units in which a value is being expressed, or manner in which a measurement has been taken. This code relates to the UCC data element 355.</xs:documentation>
+				</xs:annotation>
+				<xs:complexType>
+					<xs:simpleContent>
+						<xs:extension base="xs:string">
+							<xs:attributeGroup ref="arts:ElementControlAttributeGroup"/>
+						</xs:extension>
+					</xs:simpleContent>
+				</xs:complexType>
+			</xs:element>
+			<xs:element name="LocationLevel" nillable="true" minOccurs="0" maxOccurs="1">
+				<xs:annotation>
+					<xs:documentation>A unique identifier for the Locationlevel, within the location hierarchy that this Location resides at.  Eg: Site, RetailStore, Department, DistributionCenter, WareHouse, Floor, Aisle, Rack, Bin, etc...</xs:documentation>
+				</xs:annotation>
+				<xs:complexType>
+					<xs:sequence>
+						<xs:element name="Description">
+							<xs:annotation>
+								<xs:documentation>A narrative that describes a location level.</xs:documentation>
+							</xs:annotation>
+							<xs:complexType>
+								<xs:attributeGroup ref="arts:ElementControlAttributeGroup"/>
+							</xs:complexType>
+						</xs:element>
+						<xs:element name="StockLedgerControlFlag">
+							<xs:annotation>
+								<xs:documentation>A flag that indicates whether or not a LOCATION LEVEL will be used to track stock ledger items.  
+
+If a LOCATION LEVEL has a stock-ledger-control-flag of 'N', no lower levels can have a stock-ledger-control-flag of 'Y'.</xs:documentation>
+							</xs:annotation>
+							<xs:complexType>
+								<xs:simpleContent>
+									<xs:extension base="xs:string">
+										<xs:attributeGroup ref="arts:ElementControlAttributeGroup"/>
+									</xs:extension>
+								</xs:simpleContent>
+							</xs:complexType>
+						</xs:element>
+					</xs:sequence>
+					<xs:attributeGroup ref="arts:TypeControlAttributeGroup"/>
+				</xs:complexType>
+			</xs:element>
+			<xs:element name="ParentLocationId" nillable="true" minOccurs="0" maxOccurs="1">
+				<xs:annotation>
+					<xs:documentation>A unique system assigned identifier for the Location's parent Location.</xs:documentation>
+				</xs:annotation>
+				<xs:complexType>
+					<xs:simpleContent>
+						<xs:extension base="xs:long">
+							<xs:attributeGroup ref="arts:ElementControlAttributeGroup"/>
+						</xs:extension>
+					</xs:simpleContent>
+				</xs:complexType>
+			</xs:element>
+			<xs:element name="FunctionCode" nillable="true">
+				<xs:annotation>
+					<xs:documentation>A code that describes what business activities and functions are performed in a specific location.
+
+Activities may include:
+ADMIN - Administration functions (no stock or customer services are handled here)
+DISPLY - Merchandise display (stock is presented to the customer for sale)
+CUSTSVC - Customer service - Customer merchandise may be picked up, returned, etc.  
+RETADJ - Returns and adjustments - where a customer may return merchandise for a credit or refund.  Where customers may request price adjustments (e.g. when they bought a sale item just before it went on special)
+STOCKPT - Stock Point - Out of customer sight location where merchandise is stored, counted and tracked at a physical and financial level.  This could be the "back room" (like you see in shoe stores) or it could be a receiving dock, etc.  
+RECV - Receiving or merchandise intake location where merchandise is physically unloaded and accepted by the retail store into its inventory (or at least acknowledged).  
+And lots more depending on the retailer.
+These codes should indicate which locations involve merchandise sales and tracking.  Based on the examples above DISPLY, STOCKPT, CUSTSVC, RECV and RETADJ all represent types of locations that involve the storage, sale or return of merchandise.   There are many additional functions and codes that might be assigned depending on the retailer.  As Internet sales open up, the concept of location changes.  Instead of physical locations, merchandise tracking may be by URL and HTML name.  The goal is still to understand WHERE merchandise is moving and where the ownership gets transferred from one party to another.</xs:documentation>
+				</xs:annotation>
+				<xs:complexType>
+					<xs:simpleContent>
+						<xs:extension base="xs:string">
+							<xs:attributeGroup ref="arts:ElementControlAttributeGroup"/>
+						</xs:extension>
+					</xs:simpleContent>
+				</xs:complexType>
+			</xs:element>
+			<xs:element name="Size" default="0">
+				<xs:annotation>
+					<xs:documentation>The floor area of the Location expressed in an appropriate UnitOfMeasure
+</xs:documentation>
+				</xs:annotation>
+				<xs:complexType>
+					<xs:simpleContent>
+						<xs:extension base="xs:decimal">
+							<xs:attributeGroup ref="arts:ElementControlAttributeGroup"/>
+						</xs:extension>
+					</xs:simpleContent>
+				</xs:complexType>
+			</xs:element>
+			<xs:element name="LocationName" nillable="true">
+				<xs:annotation>
+					<xs:documentation>The common name  for the Location.</xs:documentation>
+				</xs:annotation>
+				<xs:complexType>
+					<xs:simpleContent>
+						<xs:extension base="xs:string">
+							<xs:attributeGroup ref="arts:ElementControlAttributeGroup"/>
+						</xs:extension>
+					</xs:simpleContent>
+				</xs:complexType>
+			</xs:element>
+			<xs:element name="FrenchLocationName" nillable="true" minOccurs="0">
+				<xs:complexType>
+					<xs:simpleContent>
+						<xs:extension base="xs:string">
+							<xs:attributeGroup ref="arts:ElementControlAttributeGroup"/>
+						</xs:extension>
+					</xs:simpleContent>
+				</xs:complexType>
+			</xs:element>
+			<xs:element name="LocationTypeCode" type="xs:string">
+				<xs:annotation>
+					<xs:documentation>Indicates which of the choices below is present.</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:choice>
+				<xs:element name="SellingLocation">
+					<xs:complexType>
+						<xs:sequence>
+							<xs:element name="SellingLocationFlag">
+								<xs:complexType>
+									<xs:simpleContent>
+										<xs:extension base="xs:string">
+											<xs:attributeGroup ref="arts:ElementControlAttributeGroup"/>
+										</xs:extension>
+									</xs:simpleContent>
+								</xs:complexType>
+							</xs:element>
+						</xs:sequence>
+						<xs:attributeGroup ref="arts:TypeControlAttributeGroup"/>
+					</xs:complexType>
+				</xs:element>
+				<xs:element name="WorkLocation">
+					<xs:annotation>
+						<xs:documentation>To be modelled later.</xs:documentation>
+					</xs:annotation>
+				</xs:element>
+				<xs:element name="InventoryLocation">
+					<xs:complexType>
+						<xs:sequence>
+							<xs:element name="SecurityClassCode" nillable="true" minOccurs="0">
+								<xs:annotation>
+									<xs:documentation>Defines the level of security required for a specific location.  This is to accommodate secured merchandise like prescription drugs, guns and ammunition, upper end sound and video equipment, etc.  </xs:documentation>
+								</xs:annotation>
+								<xs:complexType>
+									<xs:simpleContent>
+										<xs:extension base="xs:string">
+											<xs:attributeGroup ref="arts:ElementControlAttributeGroup"/>
+										</xs:extension>
+									</xs:simpleContent>
+								</xs:complexType>
+							</xs:element>
+						</xs:sequence>
+						<xs:attributeGroup ref="arts:TypeControlAttributeGroup"/>
+					</xs:complexType>
+				</xs:element>
+			</xs:choice>
+		</xs:sequence>
+		<xs:attributeGroup ref="arts:TypeControlAttributeGroup"/>
+	</xs:complexType>
+</xs:schema>

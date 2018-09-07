@@ -1,0 +1,782 @@
+BROKER SCHEMA trx.sales.etps
+/*
+* Authors: Raju, Rhett
+* Create Date: 24-01-2016
+* Version History:
+* Version 	ModuleName 						RevisionDate 	Revision Details
+* =======	==========================		============= 	============================================
+* 1.0 		mod_LegacyTPS_To_eTPS_Compute 	28-Jun-15 		Inital Version of Legacy TPS  to ARTS xml
+* 1.1.1		mod_LegacyTPS_To_eTPS_Compute	17-AUG-17		Enterprise Loyalty Project - OperationId is default '0'(EL-1685)
+*
+*/
+ -- Declaration of NameSpace Variable
+	DECLARE xsd		NAMESPACE 'http://www.w3.org/2001/XMLSchema';
+	DECLARE xsi 	NAMESPACE 'http://www.w3.org/2001/XMLSchema-instance';
+	DECLARE eai 	NAMESPACE 'http://www.fgl.com/exchange/';
+	DECLARE arts	NAMESPACE  'http://www.fgl.com/ARTS';
+	-- Declaration Of External variable
+	DECLARE STGCATSchemaName EXTERNAL	CHARACTER STGCATSchemaName;
+	DECLARE STGSEQSchemaName EXTERNAL	CHARACTER STGSEQSchemaName;
+	DECLARE STGENTSchemaName EXTERNAL	CHARACTER STGENTSchemaName;
+	DECLARE PMMTAXSchemaName EXTERNAL	CHARACTER PMMTAXSchemaName;
+
+	
+CREATE COMPUTE MODULE mod_LegacyTPS_To_eTPS_Compute
+	CREATE FUNCTION Main() RETURNS BOOLEAN
+	BEGIN
+		 --CALL CopyMessageHeaders();
+	   -- Declare Reference Variable
+		SET OutputRoot.Properties = Environment.Properties;
+		SET OutputRoot.MQMD = Environment.MQMD;
+		
+		SET OutputRoot.MQRFH2 = InputRoot.MQRFH2; 
+		
+		DECLARE rInsubmitTxnReq 	REFERENCE TO Environment.XMLNSC.submitTxnRequest;
+		DECLARE rIndcpayments 		REFERENCE TO rInsubmitTxnReq.dcpayments;
+		DECLARE rIngcpayments 		REFERENCE TO rInsubmitTxnReq.gcpayments;
+		DECLARE rInbapayments 		REFERENCE TO rInsubmitTxnReq.bapayments;
+		DECLARE rInpurchaseditems 	REFERENCE TO rInsubmitTxnReq.purchaseditems;
+		DECLARE rInLineitems 		REFERENCE TO rInpurchaseditems.lineitemdetail;
+		DECLARE rInbusinessaccount	REFERENCE TO rInsubmitTxnReq.businessaccount;
+		
+	
+		
+		DECLARE rOut,rOutEai,rOutMsgRtng,rOutMsgs,rOutSrcSystems,rOutSrcSystem,rOutPLog,rOutDSource,rOutTxn,rOutRtlTxn,rOutLineItem,rOutLineItemSale,rOutSaleTax,rOutRtlPriceMdfr,rOutLineItemTax,rOutLineItemTender,rOutRtlCust,rOutCustWrkr,rOutTotal REFERENCE TO OutputRoot;
+		
+		-- Constructing ARTS XML Header of the Output
+		CREATE LASTCHILD OF OutputRoot AS rOut DOMAIN 'XMLNSC';
+		CREATE FIRSTCHILD OF rOut TYPE XMLNSC.XmlDeclaration NAME 'XmlDeclaration';
+		SET rOut.(XMLNSC.XmlDeclaration)*.(XMLNSC.Attribute)Version = '1.0'; 
+		SET rOut.(XMLNSC.XmlDeclaration)*.(XMLNSC.Attribute)Encoding = 'UTF-8'; 
+		CREATE LASTCHILD OF rOut AS rOutEai NAMESPACE eai NAME 'Exchange';
+		SET rOutEai.(XMLNSC.NamespaceDecl)xmlns:"arts" 	= arts;
+		SET rOutEai.(XMLNSC.NamespaceDecl)xmlns:"eai" 	= eai;
+		SET rOutEai.(XMLNSC.NamespaceDecl)xmlns:"xsi" 	= xsi;
+		SET rOutEai.(XMLNSC.Attribute)MajorVersion 		= '4';
+		SET rOutEai.(XMLNSC.Attribute)MinorVersion 		= '0';
+		SET rOutEai.(XMLNSC.Attribute)FixVersion 		= '0';
+		-- Construction Body part of ARTS XML
+		CREATE LASTCHILD OF rOutEai AS rOutMsgRtng NAMESPACE eai NAME 'MessageRouting';
+		SET rOutMsgRtng.eai:Guid 				= 'String';
+		SET rOutMsgRtng.eai:MessageId 			= 'String';
+		SET rOutMsgRtng.eai:MessageType 		= 'RequestReply';
+		SET rOutMsgRtng.eai:SubjectArea 		= '';
+		SET rOutMsgRtng.eai:SbuNumber 			= 2;
+		SET rOutMsgRtng.eai:SbuCode 			= 'MWW';
+		SET rOutMsgRtng.eai:SbuName 			= 'Marks Ltd.';
+		SET rOutMsgRtng.eai:DataSourceCode 		= 'ETPS';
+		SET rOutMsgRtng.eai:DataSourceCodeName 	= 'Electronic Transaction Posting Service';
+		CREATE LASTCHILD OF rOutEai AS rOutMsgs NAMESPACE eai NAME 'Messages';
+		SET rOutMsgs.eai:Count 					= 0;
+		CREATE LASTCHILD OF rOutMsgs AS rOutSrcSystems NAMESPACE eai NAME 'SourceSystems';
+		SET rOutSrcSystems.eai:Count 			= 0;
+		CREATE LASTCHILD OF rOutSrcSystems AS rOutSrcSystem NAMESPACE eai NAME 'SourceSystem';
+		SET rOutSrcSystem.eai:Index 				= 0;
+		SET rOutSrcSystem.eai:SbuNumber 			= 2;
+		SET rOutSrcSystem.eai:SbuCode 				= 'MWW';
+		SET rOutSrcSystem.eai:SbuName 				= 'Marks Ltd.';
+		SET rOutSrcSystem.eai:MessageSourceCode 	= 'FF';
+		SET rOutSrcSystem.eai:MessageSourceCodeName = 'FastFind';
+		CREATE LASTCHILD OF rOutMsgs AS rOutPLog NAMESPACE eai NAME 'POSLog';
+		SET rOutPLog.arts:Count 				= 0;
+		CREATE LASTCHILD OF rOutPLog AS rOutDSource NAMESPACE arts NAME 'DataSource';
+		SET rOutDSource.arts:SbuNumber 				= 2;
+		SET rOutDSource.arts:SbuCode 				= 'MWW';
+		SET rOutDSource.arts:SbuName 				= 'Marks Ltd.';
+		SET rOutDSource.arts:DataSourceCode 		= 'ETPS';
+		SET rOutDSource.arts:DataSourceName 		= 'Electronic Transaction Posting Service';
+		CREATE LASTCHILD OF rOutPLog AS rOutTxn NAMESPACE arts NAME 'Transaction';
+		SET rOutTxn.(XMLNSC.Attribute)TypeCode 		= 'Sale';
+		SET rOutTxn.(XMLNSC.Attribute)MajorVersion 	= 4;
+		-- Declaration of Variables
+		DECLARE submitdate 		CHARACTER;
+		DECLARE SKU 			CHARACTER;
+		DECLARE RegNumber 		CHARACTER;
+		DECLARE Merch_TranQuery,ProvinceCode_Query,FFProvTax_Query CHARACTER;
+		DECLARE MerchID			CHARACTER;
+		DECLARE TransSeqNum_selectQuery CHARACTER;
+		DECLARE TransLink_selectQuery 	CHARACTER;
+		DECLARE StoreNo,TAXTYPE			CHARACTER;
+		DECLARE I	INTEGER 1;
+		DECLARE GST,HSTNBF,HSTNLF,HSTNSF,HSTONF,HSTPEF INTEGER 0;
+		DECLARE TAX_AMOUNT,TENDERAMOUNT,TOTALSALEPRICE,FedLineTotal,ProvLineTotal DECIMAL 0.0;
+	
+		-- Declaration Of Logging Varaiabes
+		DECLARE schemaName CHARACTER 'trx.sales.etps';
+		DECLARE moduleName CHARACTER 'mod_LegacyTPS_To_eTPS_Compute';
+		DECLARE	rEnv REFERENCE TO Environment;
+		SET StoreNo = rInsubmitTxnReq.store;
+		SET rOutTxn.arts:RetailStoreID				= StoreNo;
+		-- Checking FF or IONS order
+		IF FIELDVALUE(rInsubmitTxnReq.consumerid)= 'FF' THEN
+			SET RegNumber = '61'; 
+			SET Environment.Variables.RegNumber = RegNumber;
+		ELSEIF FIELDVALUE(rInsubmitTxnReq.consumerid)= 'IONS' THEN
+			SET RegNumber = '62';
+			SET Environment.Variables.RegNumber = RegNumber; 
+		END IF;
+		-- Trasaction Sequence Number logic
+		SET TransSeqNum_selectQuery = 'SELECT CURSEQ FROM ' || STGSEQSchemaName || '.TRNSCT_ETPS_SEQUENCE WHERE STOREID = ? AND REGISTER = ?';
+		SET OutputLocalEnvironment.Variables.Transaction[] = PASSTHRU(TransSeqNum_selectQuery, StoreNo, RegNumber);
+		
+		DECLARE refCurSeq REFERENCE TO OutputLocalEnvironment.Variables.Transaction[1];
+		DECLARE CurrTransSeqNum INTEGER;
+		IF (LASTMOVE(refCurSeq)) THEN
+			
+			IF (OutputLocalEnvironment.Variables.Transaction.CURSEQ > 999999) THEN
+				DECLARE resetTransSeqNum_Query CHARACTER 'UPDATE ' || STGSEQSchemaName || '.TRNSCT_ETPS_SEQUENCE SET CURSEQ = ? WHERE STOREID = ? AND REGISTER = ?;';
+				SET OutputLocalEnvironment.Variables.Transaction[] = PASSTHRU(resetTransSeqNum_Query, 100000, StoreNo, RegNumber);
+				SET CurrTransSeqNum = 100000;
+				--Logging what we are rolling over the sequence number
+				CALL core.log.InfoMessage(rEnv, schemaName || '.' || moduleName, 'CURSEQ When CURSEQ > 999999 : ' || CAST(CurrTransSeqNum AS CHARACTER));
+			ELSE
+				SET CurrTransSeqNum =CAST(OutputLocalEnvironment.Variables.Transaction.CURSEQ AS INTEGER) + 1;
+				DECLARE resetTransSeqNum_Query CHARACTER 'UPDATE ' || STGSEQSchemaName || '.TRNSCT_ETPS_SEQUENCE SET CURSEQ = ? WHERE STOREID = ? AND REGISTER = ?;';
+				SET OutputLocalEnvironment.Variables.Transaction[] = PASSTHRU(resetTransSeqNum_Query, CurrTransSeqNum, StoreNo, RegNumber);
+				-- Logging the current sequence number and that we are increasing it
+				CALL core.log.InfoMessage(rEnv, schemaName || '.' || moduleName, 'Incremented CURSEQ When CURSEQ < 999999 : ' || CAST(CurrTransSeqNum AS CHARACTER));
+			END IF;
+		ELSE
+			DECLARE insertQuery CHARACTER 'INSERT INTO ' || STGSEQSchemaName || '.TRNSCT_ETPS_SEQUENCE (STOREID, REGISTER, CURSEQ, MAXSEQ, INCR) VALUES (?, ?, ?, ?, ?);';
+			SET OutputLocalEnvironment.Variables.Transaction[] = PASSTHRU(insertQuery, StoreNo, RegNumber, 100000, 999999, 1);
+			SET CurrTransSeqNum = 100000;
+			--Logging what we are initializing the sequence number for the storeID and Register combination
+			CALL core.log.InfoMessage(rEnv, schemaName || '.' || moduleName, 'CURSEQ when there is no CURSEQ found for the StoreID:' || CAST(StoreNo AS CHARACTER) || 'and  REGISTER No: ' || CAST(RegNumber AS CHARACTER)  || 'combination' || CAST(CurrTransSeqNum AS CHARACTER));
+		END IF;
+				
+		DECLARE submitDateTime TIMESTAMP;
+        DECLARE mstsubmitdateTime CHARACTER;
+   		SET submitDateTime = CAST(rInsubmitTxnReq.submitteddate AS TIMESTAMP FORMAT 'I');
+        ------------- POE-27527 converted to MST time stamp --------
+        CALL getTimestampInMST(submitDateTime) INTO mstsubmitdateTime;
+        -- get just the date without - to use in the transaction number
+        SET  submitdate = REPLACE(SUBSTRING(CAST(mstsubmitdateTime AS CHARACTER) BEFORE ' '),'-','');
+                
+		-- Storing the Submitdate and StoreNo to use in IONS Tax call to PMM
+		SET Environment.Variables.IONS.submitdate = submitdate;
+		SET Environment.Variables.IONS.StoreNo 	  = StoreNo;
+		SET rOutTxn.arts:TransactionID 	= StoreNo || RegNumber || submitdate || CAST(CurrTransSeqNum AS CHARACTER);
+		--Storing in Env for later Use.
+		SET Environment.Variables.TransID = rOutTxn.arts:TransactionID;
+		-- logging the generated transaction number
+		CALL core.log.InfoMessage(rEnv, schemaName || '.' || moduleName, 'Generated TransactionID : ' || Environment.Variables.TransID);
+		SET rOutTxn.arts:WorkstationID  = RegNumber;
+		SET rOutTxn.arts:SequenceNumber	= CurrTransSeqNum;
+		
+		DECLARE createDateTime TIMESTAMP;
+        DECLARE mstcreatedateTime CHARACTER;
+   		SET createDateTime = CAST(rInsubmitTxnReq.createddate AS TIMESTAMP FORMAT 'I');
+        ------------- POE-27527 converted to MST time stamp --------
+        CALL getTimestampInMST(createDateTime) INTO mstcreatedateTime;
+
+		-- get the current offset
+		DECLARE currentTimezoneOffset CHARACTER;
+		CALL getCurrentTimeZoneOffset() INTO currentTimezoneOffset;
+		
+        SET rOutTxn.arts:BeginDateTime	= SUBSTRING(CAST(mstcreatedateTime AS CHARACTER FORMAT 'yyyyMMdd HHmmss') FROM 1 FOR 10) ||'T'||SUBSTRING(CAST(mstcreatedateTime AS CHARACTER FORMAT 'yyyyMMdd HHmmss') FROM 12 FOR 19)|| currentTimezoneOffset;
+		SET rOutTxn.arts:EndDateTime	= SUBSTRING(CAST(mstsubmitdateTime AS CHARACTER FORMAT 'yyyyMMdd HHmmss')FROM 1 FOR 10)||'T'||SUBSTRING(CAST(mstsubmitdateTime AS CHARACTER FORMAT 'yyyyMMdd HHmmss')FROM 12 FOR 19)|| currentTimezoneOffset;
+
+		SET rOutTxn.arts:OperatorID		= 0;
+		SET rOutTxn.arts:PinpadNumber	= rIndcpayments.terminalid;
+		
+		CREATE LASTCHILD OF rOutTxn AS rOutRtlTxn NAMESPACE arts NAME 'RetailTransaction';
+		-- Looping over purchased items
+		MOVE rInpurchaseditems TO rInsubmitTxnReq.purchaseditems[1];
+		DECLARE TaxSeq INTEGER 0; 
+		DECLARE LnItmCnt INTEGER 0;
+		DECLARE COMMENT CHARACTER rIngcpayments.comment;
+		DECLARE COUNT1,FORCOUNT INTEGER;
+		
+		--Fetch the order number from the comment
+		SET COUNT1 = POSITION('order'IN COMMENT) + 6;
+		SET FORCOUNT = POSITION('fulfillment'IN COMMENT) - COUNT1 -1;
+		SET Environment.Variables.OrderNumber = SUBSTRING(COMMENT FROM COUNT1 FOR FORCOUNT);
+		
+		
+		WHILE LASTMOVE(rInpurchaseditems) DO
+		 -- Checking Provincial Tax SKU's 
+		 IF rInpurchaseditems.sku  NOT IN ('400003826100','400003826117','400003826063','400003826087','400003826094','400003826124','400003826131','400003826155','400003826148')  THEN
+			CREATE LASTCHILD OF rOutRtlTxn AS rOutLineItem NAMESPACE arts NAME 'LineItem';
+		 	SET rOutLineItem.arts:SequenceNumber = I;
+		 	CREATE LASTCHILD OF rOutLineItem AS rOutLineItemSale NAMESPACE arts NAME 'Sale';
+		 	DECLARE LineItemDeatilCount INTEGER CARDINALITY(rInpurchaseditems.lineitemdetail[]);
+
+		 	--SET LnItmCnt = LnItmCnt+1;
+		 	SET LnItmCnt = CARDINALITY(rInpurchaseditems.lineitemdetail[]);
+		 	
+		  	SET SKU = rInpurchaseditems.sku;
+		 	SET rOutLineItemSale.arts:ItemID = SKU;
+			SET Merch_TranQuery = 'SELECT CAT.PRD_LVL_NUMBER FROM ' || STGCATSchemaName || '.PRDMSTEE SKU INNER JOIN ' || STGCATSchemaName || '.PRDMSTEE STY ON SKU.PRD_LVL_PARENT = STY.PRD_LVL_CHILD
+									INNER JOIN ' || STGCATSchemaName || '.PRDMSTEE DIS ON DIS.PRD_LVL_CHILD = STY.PRD_LVL_PARENT
+									INNER JOIN ' || STGCATSchemaName || '.PRDMSTEE COM ON COM.PRD_LVL_CHILD = DIS.PRD_LVL_PARENT
+									INNER JOIN ' || STGCATSchemaName || '.PRDMSTEE CAT ON CAT.PRD_LVL_CHILD = COM.PRD_LVL_PARENT
+									WHERE SKU.PRD_LVL_ID=0 AND TRIM(SKU.PRD_LVL_NUMBER)=?';
+			SET OutputLocalEnvironment.Variables.ResultSet[] = PASSTHRU(Merch_TranQuery, SKU);
+		 	DECLARE refOutMerchID REFERENCE TO OutputLocalEnvironment.Variables.ResultSet;
+		 	SET rOutLineItemSale.arts:MerchandiseHierarchy.(XMLNSC.Attribute)ID 	= TRIM(refOutMerchID.PRD_LVL_NUMBER);
+		 	SET rOutLineItemSale.arts:MerchandiseHierarchy.(XMLNSC.Attribute)Level 	= 4;
+		 	SET rOutLineItemSale.arts:RegularSalesUnitPrice 						= rInpurchaseditems.originalprice;
+		 	SET rOutLineItemSale.arts:ActualSalesUnitPrice 							= rInpurchaseditems.lineitemdetail.soldprice;
+		 	IF CONTAINS(rInpurchaseditems.lineitemdetail.reductions.amount,'.') THEN
+		 		DECLARE ReductionAmt CHARACTER rInpurchaseditems.lineitemdetail.reductions.amount;
+		 		SET rOutLineItemSale.arts:DiscountAmount							= SUBSTRING(ReductionAmt BEFORE '.') || '.' || SUBSTRING(ReductionAmt AFTER '.' FOR 2);
+		 	ELSE	
+		 		SET rOutLineItemSale.arts:DiscountAmount							= rInpurchaseditems.lineitemdetail.reductions.amount;
+		 	END IF;	
+		 	SET rOutLineItemSale.arts:Quantity										= LineItemDeatilCount;
+		 	-- Sale/ReatalPriceModifiers Loop
+		 	DECLARE rInSalereductions	REFERENCE TO rInpurchaseditems.lineitemdetail.reductions[1];
+		 	WHILE LASTMOVE(rInSalereductions) DO
+		 		CREATE LASTCHILD OF rOutLineItemSale AS rOutRtlPriceMdfr NAMESPACE arts NAME 'RetailPriceModifier'; 
+		 		DECLARE reductionAmount CHARACTER rInSalereductions.amount;
+		 		IF CONTAINS(reductionAmount,'.') THEN
+		 			SET reductionAmount = SUBSTRING(reductionAmount BEFORE '.') || '.' || SUBSTRING(reductionAmount AFTER '.' FOR 2);
+		 			SET rOutRtlPriceMdfr.arts:Amount = CAST(reductionAmount AS DECIMAL);
+		 		ELSE 
+		 		  	SET rOutRtlPriceMdfr.arts:Amount = reductionAmount;
+		 		END IF;  	
+		 		SET rOutRtlPriceMdfr.arts:Amount.(XMLNSC.Attribute)Action = 'Subtract';
+		 		SET rOutRtlPriceMdfr.arts:ReasonCode = rInSalereductions.reasonCode;
+		 	MOVE rInSalereductions NEXTSIBLING REPEAT TYPE NAME;
+		 	END WHILE;
+				
+			DECLARE fedTaxAmt DECIMAL CAST(rInpurchaseditems.lineitemdetail.federaltaxamount AS DECIMAL);
+			-- Federal Tax Logic for FF and IONS
+			 	IF (fedTaxAmt > 0) THEN
+				 	CREATE LASTCHILD OF rOutLineItemSale AS rOutSaleTax NAMESPACE arts NAME 'Tax';
+		        	SET rOutSaleTax.(XMLNSC.Attribute)TaxType = 'GST'; 
+		        	SET rOutSaleTax.arts:Amount = fedTaxAmt;
+		        	 -- To store federal tax total amount
+		        	DECLARE refLineItmDtl REFERENCE TO rInpurchaseditems.lineitemdetail[1];
+		            WHILE LASTMOVE(refLineItmDtl) DO
+		        		SET FedLineTotal = FedLineTotal + CAST(refLineItmDtl.federaltaxamount AS DECIMAL);
+		        		MOVE refLineItmDtl NEXTSIBLING REPEAT NAME;
+		        	END WHILE;
+			 	END IF;
+		 	 		 	
+		 	 DECLARE ProvTaxAmt DECIMAL CAST(rInpurchaseditems.lineitemdetail.provincialtaxamount AS DECIMAL);
+			-- provincial Tax Logic for IONS 
+			 	IF (ProvTaxAmt > 0) THEN
+				 	CREATE LASTCHILD OF rOutLineItemSale AS rOutSaleTax NAMESPACE arts NAME 'Tax';
+		        	SET rOutSaleTax.arts:Amount = ProvTaxAmt;
+		        	SET rOutSaleTax.(XMLNSC.Attribute)TaxType = 'PST';
+		        	-- To store provincial tax total amount
+		        	DECLARE refLineItmDtl REFERENCE TO rInpurchaseditems.lineitemdetail[1];
+		            WHILE LASTMOVE(refLineItmDtl) DO
+		        		SET ProvLineTotal = ProvLineTotal + CAST(refLineItmDtl.provincialtaxamount AS DECIMAL);
+		        		MOVE refLineItmDtl NEXTSIBLING REPEAT NAME;
+		        	END WHILE;
+			 	END IF;
+			 	
+		 	 SET I = I+1;	
+		 	ELSE
+			--  Provincial Tax line Item For FF
+			  	DECLARE ProvTaxAmt DECIMAL CAST(rInpurchaseditems.lineitemdetail.provincialtaxamount AS DECIMAL); 
+		 	   	CREATE LASTCHILD OF rOutRtlTxn AS rOutLineItem NAMESPACE arts NAME 'LineItem';
+				SET rOutLineItem.arts:SequenceNumber = TaxSeq;
+		 	  	 CREATE LASTCHILD OF rOutLineItem AS rOutLineItemTax NAMESPACE arts NAME 'Tax';
+		 	   	 SET rOutLineItemTax.(XMLNSC.Attribute)TypeCode = 'Sale';
+		 	   	 
+		 	    IF rInpurchaseditems.sku = '400003826100' THEN 
+		 	   	   SET rOutLineItemTax.(XMLNSC.Attribute)TaxType = 'PSTBC';
+		 	   	   SET Environment.Variables.Provincial.TaxType = 'PSTBC';
+		 	    ELSEIF rInpurchaseditems.sku = '400003826117' THEN 
+		 	   	   SET rOutLineItemTax.(XMLNSC.Attribute)TaxType = 'PSTMB';
+		 	   	   SET Environment.Variables.Provincial.TaxType = 'PSTMB';
+		 	   	ELSEIF rInpurchaseditems.sku = '400003826063' THEN 
+		 	   	   SET rOutLineItemTax.(XMLNSC.Attribute)TaxType = 'HSTNBP';
+		 	   	   SET Environment.Variables.Provincial.TaxType = 'HSTNBP';
+		 	   	ELSEIF rInpurchaseditems.sku = '400003826087' THEN 
+		 	   	   SET rOutLineItemTax.(XMLNSC.Attribute)TaxType = 'HSTNLP';
+		 	   	   SET Environment.Variables.Provincial.TaxType = 'HSTNLP';
+		 	   	ELSEIF rInpurchaseditems.sku = '400003826094' THEN 
+		 	   	   SET rOutLineItemTax.(XMLNSC.Attribute)TaxType = 'HSTNSP';
+		 	   	   SET Environment.Variables.Provincial.TaxType = 'HSTNSP';
+		 	   	ELSEIF rInpurchaseditems.sku = '400003826124' THEN 
+		 	   	   SET rOutLineItemTax.(XMLNSC.Attribute)TaxType = 'HSTONP';
+		 	   	   SET Environment.Variables.Provincial.TaxType = 'HSTONP';
+		 	   	ELSEIF rInpurchaseditems.sku = '400003826131' THEN 
+		 	   	   SET rOutLineItemTax.(XMLNSC.Attribute)TaxType = 'HSTPEP'; 
+		 	   	   SET Environment.Variables.Provincial.TaxType = 'HSTPEP';  
+		 	   	ELSEIF rInpurchaseditems.sku = '400003826155' THEN 
+		 	   	   SET rOutLineItemTax.(XMLNSC.Attribute)TaxType = 'QST';
+		 	   	   SET Environment.Variables.Provincial.TaxType = 'QST'; 
+		 	  	ELSEIF rInpurchaseditems.sku = '400003826148' THEN 
+		 	   	   SET rOutLineItemTax.(XMLNSC.Attribute)TaxType = 'PSTSK'; 
+		 	   	   SET Environment.Variables.Provincial.TaxType = 'PSTSK';    
+		 	    END IF; 
+		 	  IF RegNumber = 61 THEN                 
+		 	   SET rOutLineItemTax.arts:Amount = rInpurchaseditems.originalprice;
+		 	  ELSE 
+		 	  	SET rOutLineItemTax.arts:Amount = ProvTaxAmt;
+		 	  END IF;	
+		 	   SET TaxSeq = TaxSeq + 1;
+		  END IF;
+		MOVE rInpurchaseditems NEXTSIBLING REPEAT TYPE NAME;
+		END WHILE;
+		
+		DECLARE J INTEGER 0; 	
+		-- CreditDebit card(dcpayments) Check 
+		WHILE LASTMOVE(rIndcpayments) DO
+			CREATE LASTCHILD OF rOutRtlTxn AS rOutLineItem NAMESPACE arts NAME 'LineItem';
+			SET rOutLineItem.arts:SequenceNumber = J;
+			CREATE LASTCHILD OF rOutLineItem AS rOutLineItemTender NAMESPACE arts NAME 'Tender';
+			SET rOutLineItemTender.(XMLNSC.Attribute)TenderType 	= 'CreditDebit';
+			SET rOutLineItemTender.(XMLNSC.Attribute)SubTenderType  = rIndcpayments.cardtype;
+			DECLARE dcAmount CHARACTER rIndcpayments.amount;
+			SET dcAmount = SUBSTRING(rIndcpayments.amount BEFORE '.') || '.' || SUBSTRING(rIndcpayments.amount AFTER '.' FOR 2);
+			SET rOutLineItemTender.arts:Amount										= CAST(dcAmount AS DECIMAL);
+			SET TENDERAMOUNT = TENDERAMOUNT +  CAST(dcAmount AS DECIMAL);
+			SET rOutLineItemTender.arts:Authorization.arts:AuthorizationCode = rIndcpayments.authorizationnumber;
+			DECLARE PrimaryAcNo CHARACTER CAST(rIndcpayments.cardnumber AS CHARACTER);
+			SET rOutLineItemTender.arts:CreditDebit.arts:PrimaryAccountNumber 		= BASE64ENCODE(PrimaryAcNo);
+			SET rOutLineItemTender.arts:CreditDebit.arts:ExpirationDate 			= rIndcpayments.expirationdate;
+			SET rOutLineItemTender.arts:CreditDebit.arts:BankResponseSequenceNumber = rIndcpayments.banksequence;
+			SET J=J+1;
+			MOVE rIndcpayments NEXTSIBLING REPEAT TYPE NAME;
+		END WHILE; 	
+		-- Giftcard (gcpayments) Check
+		WHILE LASTMOVE(rIngcpayments) DO
+			CREATE LASTCHILD OF rOutRtlTxn AS rOutLineItem NAMESPACE arts NAME 'LineItem';
+			SET rOutLineItem.arts:SequenceNumber = J;
+			CREATE LASTCHILD OF rOutLineItem AS rOutLineItemTender NAMESPACE arts NAME 'Tender';
+			SET rOutLineItemTender.(XMLNSC.Attribute)TenderType 	= 'GiftCard';
+			SET rOutLineItemTender.(XMLNSC.Attribute)SubTenderType  = 'CAD';
+			SET rOutLineItemTender.arts:Amount						= rIngcpayments.amount;
+			SET rOutLineItemTender.arts:GiftCard.arts:CardNumber	= rIngcpayments.id;
+			SET J=J+1;
+			SET TENDERAMOUNT = TENDERAMOUNT +  CAST(rIngcpayments.amount AS DECIMAL);
+		MOVE rIngcpayments NEXTSIBLING REPEAT TYPE NAME;
+		END WHILE; 			
+		-- CustomerAccount(bapayments) check 
+		WHILE LASTMOVE(rInbapayments) DO
+			CREATE LASTCHILD OF rOutRtlTxn AS rOutLineItem NAMESPACE arts NAME 'LineItem';
+			SET rOutLineItem.arts:SequenceNumber = J;
+			CREATE LASTCHILD OF rOutLineItem AS rOutLineItemTender NAMESPACE arts NAME 'Tender';
+			-- New Change in IONS requirement 
+			SET rOutLineItemTender.(XMLNSC.Attribute)TenderType 	= 'BusinessAccount';
+			SET rOutLineItemTender.(XMLNSC.Attribute)SubTenderType  = 'CAD';
+			DECLARE baAmount CHARACTER rInbapayments.amount;
+			SET baAmount = SUBSTRING(rInbapayments.amount BEFORE '.') || '.' || SUBSTRING(rInbapayments.amount AFTER '.' FOR 2);
+			SET rOutLineItemTender.arts:Amount		= CAST(baAmount AS DECIMAL);
+			SET Environment.Variables.IONS.bamount = CAST(baAmount AS DECIMAL);
+			SET TENDERAMOUNT = TENDERAMOUNT +  CAST(baAmount AS DECIMAL);
+			SET J=J+1;
+			MOVE rInbapayments NEXTSIBLING REPEAT TYPE NAME;
+		END WHILE; 
+		
+		-- Create tax lineItem for the total federal tax amount of sale line item
+		--start
+		CREATE NEXTSIBLING OF rOutLineItem AS rOutLineItem NAMESPACE arts NAME 'LineItem';
+		IF TaxSeq > 0 THEN
+			SET rOutLineItem.arts:SequenceNumber = TaxSeq;
+		ELSE 
+			SET rOutLineItem.arts:SequenceNumber = 0;
+		END IF;	
+		CREATE LASTCHILD OF rOutLineItem AS rOutLineItemTax NAMESPACE arts NAME 'Tax';	  				
+		SET rOutLineItemTax.(XMLNSC.Attribute)TypeCode = 'Sale';
+		SET rOutLineItemTax.(XMLNSC.Attribute)TaxType = TAXTYPE;
+		SET rOutLineItemTax.arts:Amount = FedLineTotal;
+		-- Create tax lineItem for the total Provincial tax amount of sale line item
+		IF RegNumber = 62 THEN	
+		CREATE NEXTSIBLING OF rOutLineItem AS rOutLineItem NAMESPACE arts NAME 'LineItem';
+			SET  rOutLineItem.arts:SequenceNumber = 1; 
+			SET  rOutLineItem.arts:Tax.(XMLNSC.Attribute)TypeCode = 'Sale';				
+			SET  rOutLineItem.arts:Tax.(XMLNSC.Attribute)TaxType = TAXTYPE;
+			SET  rOutLineItem.arts:Tax.arts:Amount = ProvLineTotal;
+		END IF;	
+		--end
+		-- Customer Details 
+		IF LASTMOVE(rInbusinessaccount) THEN
+		 	CREATE LASTCHILD OF rOutRtlTxn  AS rOutRtlCust 	NAMESPACE arts NAME 'Customer';
+			CREATE LASTCHILD OF rOutRtlCust AS rOutCustWrkr NAMESPACE arts NAME 'Worker';
+			SET rOutCustWrkr.arts:WorkerID = rInbusinessaccount.employeeId;
+			IF FIELDNAME(rInbusinessaccount.firstName) = 'firstName' THEN
+				SET rOutCustWrkr.arts:Name.arts:Name[1]  = rInbusinessaccount.firstName;
+				SET rOutCustWrkr.arts:Name.arts:Name[1].(XMLNSC.Attribute)TypeCode =  'FirstName';
+			END IF;
+			IF FIELDNAME(rInbusinessaccount.lastName) = 'lastName' THEN
+				SET rOutCustWrkr.arts:Name.arts:Name[2]  = rInbusinessaccount.lastName;
+				SET rOutCustWrkr.arts:Name.arts:Name[2].(XMLNSC.Attribute)TypeCode =  'LastName';
+			END IF;
+			SET rOutRtlCust.arts:AccountNumber = rInbusinessaccount.accountNum;
+			SET rOutRtlCust.arts:Note		   = TRIM(rInbusinessaccount.PONumber);
+			SET Environment.Variables.IONS.AccountNumber = rInbusinessaccount.accountNum;
+		END IF;
+		-- Total Amount
+		-- FF check
+		IF RegNumber = '61' THEN
+			IF FIELDNAME(rInsubmitTxnReq.netamount)='netamount' THEN
+				SET rOutRtlTxn.arts:Total[1] = CAST(rInsubmitTxnReq.netamount AS DECIMAL);
+				SET rOutRtlTxn.arts:Total[1].(XMLNSC.Attribute)TotalType = 'TransactionSubtotal';
+			END IF;
+		-- IONS check
+		ELSEIF RegNumber = '62' THEN 
+			IF FIELDNAME(rInsubmitTxnReq.netamount)='netamount' THEN
+				SET rOutRtlTxn.arts:Total[1] = (CAST(rInsubmitTxnReq.totalamount AS DECIMAL))-(FedLineTotal+ProvLineTotal);
+				SET rOutRtlTxn.arts:Total[1].(XMLNSC.Attribute)TotalType = 'TransactionSubtotal';
+			END IF;
+		END IF;
+		-- For both FF and IONS same logic	
+		IF FIELDNAME(rInsubmitTxnReq.totalamount)='totalamount' THEN
+			SET rOutRtlTxn.arts:Total[2] = CAST(rInsubmitTxnReq.totalamount AS DECIMAL);
+			SET rOutRtlTxn.arts:Total[2].(XMLNSC.Attribute)TotalType = 'TransactionGrossAmount';
+		END IF;	
+		RETURN TRUE;
+	END;
+END MODULE;
+
+/**************************************************************************************
+* Node Name:		FastFind_OrderCheck
+* Module Name:		mod_FastFind_OrderCheck
+* Description:		Querying to ENTERPRICE DB to find the POS_TRANID and PROVINCEABBREV.
+***************************************************************************************/
+
+CREATE COMPUTE MODULE mod_FastFind_OrderCheck
+	CREATE FUNCTION Main() RETURNS BOOLEAN
+	BEGIN
+		DECLARE refTrnLnk,rOutSaleTax REFERENCE TO OutputRoot;
+		DECLARE Datasource,TransSeqNum_selectQuery,ProvinceCode_Query,TAXTYPE,FFProvTaX_Query CHARACTER;
+		DECLARE	rEnv REFERENCE TO Environment;
+		DECLARE schemaName CHARACTER 'trx.sales.etps';
+		DECLARE moduleName CHARACTER 'mod_addTransactionLink';
+		DECLARE rInsubmitTxnReq 	REFERENCE TO Environment.XMLNSC.submitTxnRequest;
+		DECLARE rInpurchaseditems 	REFERENCE TO rInsubmitTxnReq.purchaseditems;
+		DECLARE ProvLineTotal DECIMAL 0.0; 
+		
+		SET OutputRoot = InputRoot;
+--		-- Declaration Of Logging Varaiabes
+--		DECLARE schemaName CHARACTER 'trx.sales.etps';
+--		DECLARE moduleName CHARACTER 'mod_addTransactionLink';
+		DECLARE refInLneItm1 REFERENCE TO OutputRoot.XMLNSC.eai:Exchange.eai:Messages.eai:POSLog.arts:Transaction.arts:RetailTransaction.arts:LineItem[1];
+		DECLARE refInLneItm REFERENCE TO OutputRoot.XMLNSC.eai:Exchange.eai:Messages.eai:POSLog.arts:Transaction.arts:RetailTransaction.arts:LineItem[1];
+		
+		WHILE LASTMOVE(refInLneItm1) DO
+			DECLARE refInSale1 REFERENCE TO refInLneItm1.arts:Sale;
+			IF LASTMOVE(refInSale1) THEN
+				-- FF Provincial Tax Query 
+				SET FFProvTaX_Query = 'select psthstamount, ssorderlinequantity from ' || STGENTSchemaName || '.ssorderline sso, ' || STGENTSchemaName || '.sku sk where sso.skuid=sk.skuid and ssorderid=? and skunumber=?';
+				SET OutputLocalEnvironment.Variables.ProvTaxResult[] = PASSTHRU(FFProvTaX_Query,CAST(Environment.Variables.OrderNumber AS DECIMAL),CAST(refInSale1.arts:ItemID AS DECIMAL));
+				DECLARE psthstamount 		DECIMAL CAST(OutputLocalEnvironment.Variables.ProvTaxResult.PSTHSTAMOUNT AS DECIMAL) ;
+				DECLARE ssorderlinequantity DECIMAL CAST(OutputLocalEnvironment.Variables.ProvTaxResult.SSORDERLINEQUANTITY AS DECIMAL);
+				SET  ProvLineTotal = ProvLineTotal + psthstamount;
+				-- Explicitly divide by quantity as we need the unit tax amount in ARTS but FF tables only store the net amount
+				IF psthstamount > 0 THEN
+					SET refInSale1.arts:Tax[2].(XMLNSC.Attribute)TaxType = Environment.Variables.Provincial.TaxType;
+					SET refInSale1.arts:Tax[2].arts:Amount = ROUND(psthstamount/ssorderlinequantity,2);
+				END IF;
+			END IF;	
+			MOVE refInLneItm1 NEXTSIBLING REPEAT NAME;
+		END WHILE;
+		
+					
+		SET TransSeqNum_selectQuery = 'SELECT POS_TRANID FROM ' || STGENTSchemaName || '.SSORDER_CROSSREF WHERE SSORDERID = ?';
+		SET OutputLocalEnvironment.Variables.TranLinkResult[] = PASSTHRU(TransSeqNum_selectQuery, CAST(Environment.Variables.OrderNumber AS CHARACTER));
+		
+		-- Query to get the province Abbrevation for the order number
+		SET ProvinceCode_Query = 'SELECT PROVINCEABBREV FROM ' || STGENTSchemaName || '.provincestate ps where ps.provinceid in(
+        									SELECT COALESCE(ad.provinceid, ssc2.provinceid, ssc1.provinceid) provinceid 
+        									FROM ' || STGENTSchemaName || '.ssorder sso
+        									LEFT JOIN ' || STGENTSchemaName || '.sscustomer ssc1 ON ssc1.sscustomerid = sso.ssbilltocustomerid 
+        									LEFT JOIN ' || STGENTSchemaName || '.sscustomer ssc2 ON ssc2.sscustomerid = sso.ssshiptocustomerid
+        									LEFT JOIN ' || STGENTSchemaName || '.orgunitaddress ssa ON sso.pickupatorgunitid = ssa.organizationunitid
+        									LEFT JOIN ' || STGENTSchemaName || '.address ad ON ssa.addressid = ad.addressid
+        									WHERE sso.ssorderid = ?)';
+        SET OutputLocalEnvironment.Variables.ProvinceCode[] = PASSTHRU(ProvinceCode_Query, Environment.Variables.OrderNumber);	
+        DECLARE provinceAbbrev CHARACTER OutputLocalEnvironment.Variables.ProvinceCode.PROVINCEABBREV;
+        
+        -- Set the Tax type based on the province abbrevation
+		IF provinceAbbrev = 'NB' THEN 
+				SET TAXTYPE = 'HSTNBF';
+   			ELSEIF provinceAbbrev = 'NL' THEN 
+   				SET TAXTYPE = 'HSTNLF';
+   			ELSEIF provinceAbbrev = 'NS' THEN
+   				SET TAXTYPE = 'HSTNSF';
+   			ELSEIF provinceAbbrev = 'ON' THEN 
+   				SET TAXTYPE = 'HSTONF';
+  			ELSEIF provinceAbbrev = 'PE' THEN 
+  			 	SET TAXTYPE = 'HSTPEF';
+   			ELSE 
+   				SET TAXTYPE = 'GST';
+        	 END IF;
+		--Logging the SQL we are executing against the SSORDER_CROSSREF with the SSORDERID parameter
+		CALL core.log.InfoMessage(rEnv, schemaName || '.' || moduleName, 'The SSORDER_CROSSREF SQL IS : ' || TransSeqNum_selectQuery || ' ' || 'SSORDER_ID Is: ' || CAST(Environment.Variables.OrderNumber AS CHARACTER));
+	
+	--Logging the SQL we are executing against the province Abbrevation with the OrderNumber parameter
+		CALL core.log.InfoMessage(rEnv, schemaName || '.' || moduleName, 'The PROVINCE Abbrevation SQL IS : ' || ProvinceCode_Query || ' ' || 'PROVINCE Is: ' || provinceAbbrev);	
+		
+		WHILE LASTMOVE(refInLneItm) DO
+			DECLARE refInSale REFERENCE TO refInLneItm.arts:Sale;
+        	IF LASTMOVE(refInSale) THEN
+        		SET refInSale.arts:Tax.(XMLNSC.Attribute)TaxType = TAXTYPE;
+        		
+	        	--Assuming this transaction number is ePOS format and parsing it as such
+				IF EXISTS(OutputLocalEnvironment.Variables.TranLinkResult[])THEN
+					CREATE LASTCHILD OF refInSale AS refTrnLnk NAMESPACE arts NAME 'TransactionLink';
+					DECLARE refPosID REFERENCE TO OutputLocalEnvironment.Variables.TranLinkResult.POS_TRANID;
+					IF CONTAINS(refPosID,'*') THEN
+						SET refTrnLnk.arts:RetailStoreID = SUBSTRING(refPosID FROM 1 FOR 3);
+						SET refTrnLnk.arts:WorkstationID = SUBSTRING(refPosID FROM 5 FOR 2);
+						SET refTrnLnk.arts:SequenceNumber = SUBSTRING(refPosID FROM 17 FOR 6);
+						SET refTrnLnk.arts:EndDateTime = SUBSTRING(refPosID FROM 8 FOR 4)||'-'||SUBSTRING(refPosID FROM 12 FOR 2)||'-'||SUBSTRING(refPosID FROM 14 FOR 2)||'T00:00:00-00:00';
+					ELSE 	
+						SET refTrnLnk.arts:RetailStoreID = SUBSTRING(refPosID FROM 1 FOR 3);
+						SET refTrnLnk.arts:WorkstationID = SUBSTRING(refPosID FROM 4 FOR 2);
+						SET refTrnLnk.arts:SequenceNumber = SUBSTRING(refPosID FROM 14 FOR 6);
+						SET refTrnLnk.arts:EndDateTime = SUBSTRING(refPosID FROM 6 FOR 4)||'-'||SUBSTRING(refPosID FROM 10 FOR 2)||'-'||SUBSTRING(refPosID FROM 12 FOR 2)||'T00:00:00-00:00';
+					END IF;
+					-- EL-1685 For Enterprise Loyalty Proejct changes as this OperatorId is mandatory in that XSD - updated by mprasantha on 17th August 2017
+					SET refTrnLnk.arts:OperatorID=0;
+				END IF;
+			END IF;
+			MOVE refInLneItm NEXTSIBLING REPEAT NAME;
+			
+			-- Set the tax type for the last tax item, which contains the total federal tax amount
+			IF NOT LASTMOVE(refInLneItm) THEN
+				SET refInLneItm.arts:Tax.(XMLNSC.Attribute)TaxType = TAXTYPE;
+			END IF;
+		END WHILE;
+							
+		RETURN TRUE;
+		
+		END;
+		-- Creation of Prov Tax Logic Procedure 
+--		CREATE PROCEDURE getFFProvTaxAmount(IN SKU CHARACTER, IN SSOrderID CHARACTER) RETURNS CHARACTER
+--		BEGIN
+--			DECLARE FFProvTax_Query CHARACTER;
+--			DECLARE psthstamount CHARACTER;
+--			SET FFProvTax_Query = 'select psthstamount from ' || STGENTSchemaName || '.ssorderline sso, ' || STGENTSchemaName ||  '.sku sk where sso.skuid=sk.skuid and ssorderid=? and skunumber=? ';
+--			SET psthstamount = PASSTHRU(FFProvTax_Query, SSOrderID, SKU);
+--			RETURN psthstamount;
+--		END;
+END MODULE;
+/**************************************************************************************
+* Node Name:		FastFind_OrderCheck
+* Module Name:		mod_CheckTransLink_Required
+* Description:		Checking the Order Number Exists or not to make GC call.
+***************************************************************************************/
+CREATE FILTER MODULE mod_CheckTransLink_Required
+	CREATE FUNCTION Main() RETURNS BOOLEAN
+	BEGIN
+		RETURN LENGTH(Environment.Variables.OrderNumber) > 0;
+	END;
+
+END MODULE;
+/***************************************************************************************
+* Node Name:		StoreARTSXMLInEnvironment
+* Module Name:		mod_addARTSXMLToEnvironment
+* Description:		Storing the Ipnut message in Environment before making call of FF GC.
+****************************************************************************************/
+CREATE COMPUTE MODULE mod_addARTSXMLToEnvironment
+	CREATE FUNCTION Main() RETURNS BOOLEAN
+	BEGIN
+		
+		SET OutputRoot = InputRoot;
+        SET OutputRoot.Properties = InputRoot.Properties;
+        SET OutputRoot.MQMD = InputRoot.MQMD;
+        SET OutputRoot.MQRFH2 = InputRoot.MQRFH2; 
+		
+		DECLARE refEnv REFERENCE TO OutputRoot;
+		SET Environment.Variables.ARTSXML.Properties = InputRoot.Properties;
+		SET Environment.Variables.ARTSXML.MQMD = InputRoot.MQMD;
+		CREATE LASTCHILD OF Environment.Variables.ARTSXML AS refEnv DOMAIN 'XMLNSC';
+		SET refEnv = InputRoot.XMLNSC;
+		
+		RETURN TRUE;
+	END;
+END MODULE;
+/**************************************************************************************
+* Node Name:		ConsumerID_Check
+* Module Name:		ConsumerID_Check
+* Description:		Checking the ConsumerId to find the whether it is IONS or FF.
+***************************************************************************************/
+CREATE FILTER MODULE ConsumerID_Check
+	CREATE FUNCTION Main() RETURNS BOOLEAN
+	BEGIN
+		IF Environment.Variables.RegNumber = '61' THEN
+			RETURN TRUE;
+		ELSE
+			RETURN FALSE;
+		END IF;		
+	END;
+
+END MODULE;
+/**************************************************************************************
+* Node Name:		IONSTaxLogic
+* Module Name:		IONSTaxLogic
+* Description:		IONS Tax Logic for Fed Tax and Prov Tax.
+***************************************************************************************/
+
+CREATE COMPUTE MODULE IONSTaxLogic
+	CREATE FUNCTION Main() RETURNS BOOLEAN
+	BEGIN
+	--	 CALL CopyMessageHeaders();
+	--	 CALL CopyEntireMessage();
+		DECLARE SubDate CHARACTER Environment.Variables.IONS.submitdate;
+		SET SubDate = SUBSTRING(SubDate FROM 7 FOR 2) || '/' || SUBSTRING(SubDate FROM 5 FOR 2) || '/' || SUBSTRING(SubDate FROM 1 FOR 4);
+		DECLARE IONSTaxQuery,IONSAddsStateQuery CHARACTER;
+		SET IONSTaxQuery = 'SELECT DISTINCT taxC.TXS_CODE FROM ' || PMMTAXSchemaName || '.TXSCODEE taxC, ' 
+		|| PMMTAXSchemaName || '.TXSRATEE taxR, ' 
+		|| PMMTAXSchemaName || '.TXSATAEE taxA, ' 
+		|| PMMTAXSchemaName || '.TXSORGEE taxO, ' 
+		|| PMMTAXSchemaName || '.Orgmstee org 
+		WHERE taxC.txs_auth_tech_key = taxA.txs_auth_tech_key 
+		AND taxA.txs_area_tech_key = taxO.txs_area_tech_key 
+		AND taxR.txs_code_tech_key = taxc.txs_code_tech_key 
+		AND TRUNC(TO_DATE(?,''DD/MM/YYYY'')) 
+		BETWEEN taxr.txs_eff_from AND taxr.txs_eff_to AND taxO.org_lvl_child = org.org_lvl_child AND org.org_lvl_number = ? 
+		ORDER BY taxC.TXS_CODE asc;';
+		--postal code for Quniform 
+		SET IONSAddsStateQuery =  'select BAS_STATE from ' || PMMTAXSchemaName || '.orgmstee org, ' || PMMTAXSchemaName || '.orgdtlee orgd, ' || PMMTAXSchemaName || '.basadree bas where org.org_lvl_child=orgd.org_lvl_child and orgd.bas_add_key=bas.bas_add_key and org_lvl_number=?';
+		SET OutputLocalEnvironment.Variables.IONS.Address.State[] = PASSTHRU(IONSAddsStateQuery, Environment.Variables.IONS.StoreNo);
+		DECLARE InrefCustAds REFERENCE TO OutputLocalEnvironment.Variables.IONS.Address.State;
+		SET OutputLocalEnvironment.Variables.IONS.TAX.TAXTYPE[] = PASSTHRU(IONSTaxQuery, SubDate, Environment.Variables.IONS.StoreNo);
+		SET OutputRoot = InputRoot;	
+		DECLARE refInLneItm REFERENCE TO OutputRoot.XMLNSC.eai:Exchange.eai:Messages.eai:POSLog.arts:Transaction.arts:RetailTransaction.arts:LineItem[1];
+		-- Postal code State check 
+		IF TRIM(InrefCustAds.BAS_STATE) = 'Alberta' THEN 
+			SET OutputRoot.XMLNSC.eai:Exchange.eai:Messages.eai:POSLog.arts:Transaction.arts:RetailTransaction.arts:Customer.arts:Address.arts:State = 'AB';
+		ELSEIF TRIM(InrefCustAds.BAS_STATE) = 'Quebec' THEN
+			SET OutputRoot.XMLNSC.eai:Exchange.eai:Messages.eai:POSLog.arts:Transaction.arts:RetailTransaction.arts:Customer.arts:Address.arts:State = 'QC';
+		ELSEIF TRIM(InrefCustAds.BAS_STATE) = 'British Columbia' THEN
+			SET OutputRoot.XMLNSC.eai:Exchange.eai:Messages.eai:POSLog.arts:Transaction.arts:RetailTransaction.arts:Customer.arts:Address.arts:State = 'BC';
+		ELSEIF TRIM(InrefCustAds.BAS_STATE) = 'Ontario' THEN
+			SET OutputRoot.XMLNSC.eai:Exchange.eai:Messages.eai:POSLog.arts:Transaction.arts:RetailTransaction.arts:Customer.arts:Address.arts:State = 'ON';
+		ELSEIF TRIM(InrefCustAds.BAS_STATE) = 'Manitoba' THEN
+			SET OutputRoot.XMLNSC.eai:Exchange.eai:Messages.eai:POSLog.arts:Transaction.arts:RetailTransaction.arts:Customer.arts:Address.arts:State = 'MB';
+		ELSEIF TRIM(InrefCustAds.BAS_STATE) = 'Saskatchewan' THEN
+			SET OutputRoot.XMLNSC.eai:Exchange.eai:Messages.eai:POSLog.arts:Transaction.arts:RetailTransaction.arts:Customer.arts:Address.arts:State = 'SK';
+		ELSEIF TRIM(InrefCustAds.BAS_STATE) = 'Nova Scotia' THEN
+			SET OutputRoot.XMLNSC.eai:Exchange.eai:Messages.eai:POSLog.arts:Transaction.arts:RetailTransaction.arts:Customer.arts:Address.arts:State = 'NS';
+		ELSEIF TRIM(InrefCustAds.BAS_STATE) = 'New Brunswick' THEN
+			SET OutputRoot.XMLNSC.eai:Exchange.eai:Messages.eai:POSLog.arts:Transaction.arts:RetailTransaction.arts:Customer.arts:Address.arts:State = 'NB';
+		ELSEIF TRIM(InrefCustAds.BAS_STATE) = 'Newfoundland' THEN
+			SET OutputRoot.XMLNSC.eai:Exchange.eai:Messages.eai:POSLog.arts:Transaction.arts:RetailTransaction.arts:Customer.arts:Address.arts:State = 'NL';
+		ELSEIF TRIM(InrefCustAds.BAS_STATE) = 'Prince Edward Island' THEN
+			SET OutputRoot.XMLNSC.eai:Exchange.eai:Messages.eai:POSLog.arts:Transaction.arts:RetailTransaction.arts:Customer.arts:Address.arts:State = 'PE';
+		ELSEIF TRIM(InrefCustAds.BAS_STATE) = 'Northwest Territories' THEN
+			SET OutputRoot.XMLNSC.eai:Exchange.eai:Messages.eai:POSLog.arts:Transaction.arts:RetailTransaction.arts:Customer.arts:Address.arts:State = 'NT';
+		ELSEIF TRIM(InrefCustAds.BAS_STATE) = 'Yukon Territory' THEN
+			SET OutputRoot.XMLNSC.eai:Exchange.eai:Messages.eai:POSLog.arts:Transaction.arts:RetailTransaction.arts:Customer.arts:Address.arts:State = 'YT';
+		ELSEIF TRIM(InrefCustAds.BAS_STATE) = 'Nunavut' THEN
+			SET OutputRoot.XMLNSC.eai:Exchange.eai:Messages.eai:POSLog.arts:Transaction.arts:RetailTransaction.arts:Customer.arts:Address.arts:State = 'NU';
+		END IF;
+		
+		-- Assigning the TaxType to the LineItem/Sale/Tax and LineItem/Tax 
+		WHILE LASTMOVE(refInLneItm) DO
+			DECLARE refInSale REFERENCE TO refInLneItm.arts:Sale;
+			-- Checking the LineItem Sale
+        	IF LASTMOVE(refInSale) THEN
+        		IF EXISTS(refInSale.arts:Tax[]) THEN
+	        		IF FIELDVALUE(refInSale.arts:Tax.(XMLNSC.Attribute)TaxType) = 'GST' THEN
+	        			SET refInSale.arts:Tax[1].(XMLNSC.Attribute)TaxType = TRIM(OutputLocalEnvironment.Variables.IONS.TAX.TAXTYPE[1].TXS_CODE[1]);
+	        		ELSE 
+	        			SET refInSale.arts:Tax[1].(XMLNSC.Attribute)TaxType = TRIM(OutputLocalEnvironment.Variables.IONS.TAX.TAXTYPE[2].TXS_CODE[1]);	
+	        		END IF;	
+	        		-- To add the logic for default PST
+	        		IF FIELDVALUE(refInSale.arts:Tax[1].(XMLNSC.Attribute)TaxType)='GST' THEN
+	        			IF EXISTS(OutputLocalEnvironment.Variables.IONS.TAX.TAXTYPE[2].TXS_CODE[]) THEN  
+	        				SET refInSale.arts:Tax[2].(XMLNSC.Attribute)TaxType = TRIM(OutputLocalEnvironment.Variables.IONS.TAX.TAXTYPE[2].TXS_CODE[1]);
+	        			ELSE 
+	        				SET refInSale.arts:Tax[2].(XMLNSC.Attribute)TaxType = 'PST';
+	        			END IF;	
+	        		END IF;
+        		END IF;	
+        	END IF;
+        	MOVE refInLneItm NEXTSIBLING REPEAT NAME;
+		END WHILE;
+  --      WHILE LASTMOVE(refInLneItm) DO
+        	-- Checking the LineItem Tax
+        	DECLARE refInLneItmTax1 REFERENCE TO OutputRoot.XMLNSC.eai:Exchange.eai:Messages.eai:POSLog.arts:Transaction.arts:RetailTransaction.arts:LineItem[1];
+      --  	DECLARE refInLneItmTax2 REFERENCE TO OutputRoot.XMLNSC.eai:Exchange.eai:Messages.eai:POSLog.arts:Transaction.arts:RetailTransaction.arts:LineItem.arts:Tax[2];
+        --	DECLARE refInTax1  	 REFERENCE TO refInLneItm1.arts:Tax[1];
+		--	DECLARE refInTax2  	 REFERENCE TO refInLneItm1.arts:Tax[2];
+		--	IF LASTMOVE(refInTax1) THEN
+		WHILE LASTMOVE(refInLneItmTax1) DO
+			DECLARE refInTax REFERENCE TO refInLneItmTax1.arts:Tax;
+			-- Checking the LineItem Tax;
+			IF LASTMOVE(refInTax) THEN
+				IF refInLneItmTax1.arts:SequenceNumber = 0 THEN
+					SET refInTax.(XMLNSC.Attribute)TaxType = TRIM(OutputLocalEnvironment.Variables.IONS.TAX.TAXTYPE[1].TXS_CODE[1]);
+				ELSE
+					-- add default Tax for PST
+					IF EXISTS(OutputLocalEnvironment.Variables.IONS.TAX.TAXTYPE[2].TXS_CODE[]) THEN
+						SET refInTax.(XMLNSC.Attribute)TaxType = TRIM(OutputLocalEnvironment.Variables.IONS.TAX.TAXTYPE[2].TXS_CODE[1]);
+					ELSE
+						SET refInTax.(XMLNSC.Attribute)TaxType = 'PST';
+					END IF;		
+				END IF;
+			END IF;	
+			MOVE refInLneItmTax1 NEXTSIBLING REPEAT TYPE NAME;
+		END WHILE;
+        	--	SET  refInLneItmTax1.(XMLNSC.Attribute)TaxType = TRIM(OutputLocalEnvironment.Variables.IONS.TAX.TAXTYPE[1].TXS_CODE[1]);
+        --	END IF;
+		--	IF LASTMOVE(refInTax2) THEN
+			--	SET  refInLneItmTax2.(XMLNSC.Attribute)TaxType = TRIM(OutputLocalEnvironment.Variables.IONS.TAX.TAXTYPE[2].TXS_CODE[1]);
+        --	END IF;
+      --  	MOVE refInLneItm NEXTSIBLING REPEAT NAME;
+    --    END WHILE;					
+			-- Set the tax type for the last tax item, which contains the total federal tax amount
+--			IF NOT LASTMOVE(refInLneItm) THEN
+--				IF EXISTS(OutputLocalEnvironment.Variables.IONS.TAX.TAXTYPE[]) THEN
+--					SET refInLneItm.arts:Tax.(XMLNSC.Attribute)TaxType = OutputLocalEnvironment.Variables.IONS.TAX.TAXTYPE.TXS_CODE[2];
+--				ELSE 
+--					SET refInLneItm.arts:Tax.(XMLNSC.Attribute)TaxType = 'PST';
+--				END IF;	
+--			END IF;
+		
+		
+		RETURN TRUE;
+	END;
+END MODULE;	
+/**************************************************************************************
+* Node Name:		IonsWSCall_Compute
+* Module Name:		IonsWSCall_Compute
+* Description:		Checking the ConsumerId to find the whether it is IONS or FF.
+***************************************************************************************/
+-- Declare NameSpace Declaration
+DECLARE soapenv1 NAMESPACE 'http://schemas.xmlsoap.org/soap/envelope/';
+DECLARE ims     NAMESPACE 'http://www.marks.com/2014/01/services/IMS/';
+DECLARE ims1    NAMESPACE 'http://www.marks.com/2014/01/schemas/IMS';
+CREATE COMPUTE MODULE IonsWSCall_Compute
+	CREATE FUNCTION Main() RETURNS BOOLEAN
+	BEGIN
+		-- Coping to Environment
+		DECLARE refEnv REFERENCE TO OutputRoot;
+		SET Environment.Variables.ARTSXML.Properties 	= InputRoot.Properties;
+		SET Environment.Variables.ARTSXML.MQMD 			= InputRoot.MQMD;
+		CREATE LASTCHILD OF Environment.Variables.ARTSXML AS refEnv DOMAIN 'XMLNSC';
+		SET refEnv = InputRoot.XMLNSC;
+		-- SOAP Message Construction
+		DECLARE refXMLNSC,soapheader,soapbody REFERENCE TO OutputRoot;
+		SET OutputRoot.Properties = Environment.Properties;
+		SET OutputRoot.MQMD = Environment.MQMD;
+		SET OutputRoot.MQMD.Format = MQFMT_STRING;
+		SET OutputRoot.Properties.ReplyIdentifier = Environment.MQMD.MsgId;
+		CREATE LASTCHILD OF OutputRoot AS refXMLNSC DOMAIN 'XMLNSC';
+		SET refXMLNSC.soapenv1:Envelope.(XMLNSC.NamespaceDecl)xmlns:soapenv1 = soapenv1;
+		SET refXMLNSC.soapenv1:Envelope.(XMLNSC.NamespaceDecl)xmlns:ims = ims;
+		SET refXMLNSC.soapenv1:Envelope.(XMLNSC.NamespaceDecl)xmlns:ims1 = ims1;
+		DECLARE SOAPENV REFERENCE TO refXMLNSC.soapenv1:Envelope;
+		CREATE LASTCHILD OF SOAPENV AS soapheader NAMESPACE soapenv1 NAME 'Header';
+		CREATE LASTCHILD OF SOAPENV AS soapbody   NAMESPACE soapenv1 NAME 'Body';
+		SET soapbody.ims:chargeBusinessAccountRequest.ChargeAccount.ims1:CustomerAccountNumber = Environment.Variables.IONS.AccountNumber;
+		SET soapbody.ims:chargeBusinessAccountRequest.ChargeAccount.ims1:ChargeAmount 		   = Environment.Variables.IONS.bamount;
+		
+		
+		RETURN TRUE;
+	END;
+END MODULE;
+
+CREATE FUNCTION  getTimestampInMST( IN inDate TIMESTAMP)
+ RETURNS CHARACTER
+ LANGUAGE JAVA 
+ EXTERNAL NAME "trx.sales.etps.DateHelper.getTimestampInMST";
+ 
+ CREATE FUNCTION  getCurrentTimeZoneOffset()
+ RETURNS CHARACTER
+ LANGUAGE JAVA 
+ EXTERNAL NAME "trx.sales.etps.DateHelper.getCurrentTimeZoneOffset";
+ 
+ 
+

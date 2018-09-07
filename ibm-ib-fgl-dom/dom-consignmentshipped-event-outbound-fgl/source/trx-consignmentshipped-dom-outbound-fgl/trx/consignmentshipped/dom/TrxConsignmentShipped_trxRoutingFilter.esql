@@ -1,0 +1,27 @@
+--* File name : TrxConsignmentShipped_trxRilteroutingF.esql
+--* Purpose : To implement trx-ConsignmentShipped-dom flow.
+--* Authors : Sunil Dangwal
+--* Create Date : 22nd Aug 2016
+--* Version : 1.0
+--* Revision Date:
+--* @copyright MWW-FGLSPORTS 2015. All Rights Reserved.
+
+
+BROKER SCHEMA trx.consignmentshipped.dom
+
+
+CREATE FILTER MODULE TrxConsignmentShipped_trxRoutingFilter
+	CREATE FUNCTION Main() RETURNS BOOLEAN
+	BEGIN
+		
+		DECLARE fgl NAMESPACE 'http://www.fglsports.com/schema/hybris/order/v2';
+		
+		IF (Root.XMLNSC.fgl:OrderConsignmentShipped.fgl:Store.fgl:StoreId = '484') THEN
+			RETURN TRUE;
+		ELSE
+			RETURN FALSE;
+		END if;
+
+	END;
+
+END MODULE;

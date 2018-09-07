@@ -1,0 +1,376 @@
+
+
+BROKER SCHEMA com.marks.hyb.fastfind
+--DECLARE nsOrder NAMESPACE 'http://www.fgl.com/exchange/';
+--DECLARE nsOrder1 NAMESPACE 'http://www.fgl.com/ARTS';
+--DECLARE nsOrderSharedContainer NAMESPACE 'http://www.marks.com/OrderSharedContainer';
+
+DECLARE nsFFCreateOrder NAMESPACE 'http://www.marks.com/2014/01/services/FF/';
+DECLARE nsFFCreateOrder1 NAMESPACE 'http://www.marks.com/2014/01/schemas/ARTS';
+
+
+CREATE COMPUTE MODULE fastfind_order_creation_Req
+	CREATE FUNCTION Main() RETURNS BOOLEAN
+	BEGIN
+
+		DECLARE EnvRef REFERENCE TO Environment.Variables;
+		DECLARE refInArtsCustOrd REFERENCE TO InputRoot.XMLNSC.nsOrder:Exchange.nsOrder:Messages.nsOrder:ArtsCustomerOrders;
+		SET EnvRef.nsFFCreateOrder1:CustomerOrder.nsFFCreateOrder1:CustomerPurchaseOrderNumber = FIELDVALUE(refInArtsCustOrd.nsOrder1:SourceOrderKey);
+		SET EnvRef.nsFFCreateOrder1:CustomerOrder.nsFFCreateOrder1:FFVersionID = '2';
+		SET EnvRef.nsFFCreateOrder1:CustomerOrder.nsFFCreateOrder1:CustomerID = FIELDVALUE(refInArtsCustOrd.nsOrder1:Customer.nsOrder1:CustomerNumber);
+		SET EnvRef.nsFFCreateOrder1:CustomerOrder.nsFFCreateOrder1:CustomerOrderCreateDate = FIELDVALUE(refInArtsCustOrd.nsOrder1:CustomerOrderCreateDate);
+		SET EnvRef.nsFFCreateOrder1:CustomerOrder.nsFFCreateOrder1:CustomerOrderExpirationDate = FIELDVALUE(refInArtsCustOrd.nsOrder1:CustomerOrderExpiryDate);
+
+		SET EnvRef.nsFFCreateOrder1:CustomerOrder.nsFFCreateOrder1:CustomerOrderStatusCode = 'INT';
+		SET EnvRef.nsFFCreateOrder1:CustomerOrder.nsFFCreateOrder1:SpecialInstructions = FIELDVALUE(refInArtsCustOrd.nsOrder1:OrderCommentsText);
+
+		DECLARE RefToCustomerOrderLineItem REFERENCE TO refInArtsCustOrd.nsOrder1:CustomerOrderLineItems.nsOrder1:CustomerOrderLineItem[1];
+		DECLARE RefToItem REFERENCE TO refInArtsCustOrd.nsOrder1:Items.nsOrder1:ItemOrStockItem[1];
+		DECLARE RefCustOrdPrdGrps REFERENCE TO refInArtsCustOrd.nsOrder1:CustomerOrderProductGroups;
+
+		DECLARE GST_TAX_AMOUNT DECIMAL 0.00;
+		DECLARE PST_TAX_AMOUNT DECIMAL 0.00;
+		DECLARE GST_EXEMPT_FLAG CHARACTER '';
+		DECLARE PST_EXEMPT_FLAG CHARACTER '';
+		DECLARE TOTAL_RETAIL_PRICE_AMOUNT DECIMAL 0.00;
+		DECLARE I INTEGER 1;
+		
+		CALL core.log.Info(MessageFlowLabel||'Module name: fastfind_order_creation_Req - Starting to loop over customerOrderItem -'||'EXTERNAL_ORDER:' ||CAST(InputRoot.XMLNSC.nsOrder:Exchange.nsOrder:Messages.nsOrder:ArtsCustomerOrders.nsOrder1:CustomerOrderNumber AS CHARACTER));
+		DECLARE LINE_ITEM_INDEX INTEGER 1;
+		WHILE LASTMOVE(RefToCustomerOrderLineItem) DO
+			IF(FIELDVALUE(RefToItem.nsOrder1:ItemOrStockItemFlag) = 'StockItem') THEN
+			CALL core.log.Debug(MessageFlowLabel||'Module name: fastfind_order_creation_Req - Index :'||CAST(LINE_ITEM_INDEX AS CHARACTER)||' is a StockItem');
+			SET EnvRef.nsFFCreateOrder1:CustomerOrderProductLineItem[LINE_ITEM_INDEX].nsFFCreateOrder1:CustomerOrderLineItemSequenceNumber = FIELDVALUE(RefToCustomerOrderLineItem.nsOrder1:CustomerOrderSequenceNumber);
+			SET EnvRef.nsFFCreateOrder1:CustomerOrderProductLineItem[LINE_ITEM_INDEX].nsFFCreateOrder1:ItemNumber = FIELDVALUE(RefToItem.nsOrder1:StockItem.nsOrder1:ItemNumber);
+			SET EnvRef.nsFFCreateOrder1:CustomerOrderProductLineItem[LINE_ITEM_INDEX].nsFFCreateOrder1:ItemID = FIELDVALUE(RefToItem.nsOrder1:StockItem.nsOrder1:SourcePrdLvlChild);
+			SET EnvRef.nsFFCreateOrder1:CustomerOrderProductLineItem[LINE_ITEM_INDEX].nsFFCreateOrder1:StyleNumber = FIELDVALUE(RefToItem.nsOrder1:StockItem.nsOrder1:StyleNumber);
+			SET EnvRef.nsFFCreateOrder1:CustomerOrderProductLineItem[LINE_ITEM_INDEX].nsFFCreateOrder1:CategoryNumber = FIELDVALUE(RefToItem.nsOrder1:StockItem.nsOrder1:HierarchyLevelInformation);
+			SET EnvRef.nsFFCreateOrder1:CustomerOrderProductLineItem[LINE_ITEM_INDEX].nsFFCreateOrder1:Color = FIELDVALUE(RefToItem.nsOrder1:StockItem.nsOrder1:ColourCode);
+			SET EnvRef.nsFFCreateOrder1:CustomerOrderProductLineItem[LINE_ITEM_INDEX].nsFFCreateOrder1:Size = FIELDVALUE(RefToItem.nsOrder1:StockItem.nsOrder1:SizeFamily.nsOrder1:Sizes.nsOrder1:Size[1].nsOrder1:SizeCode);
+			--SET EnvRef.nsFFCreateOrder1:CustomerOrderProductLineItem[LINE_ITEM_INDEX].nsFFCreateOrder1:CustomerDisplayItemDescriptionText = FIELDVALUE(RefToItem.nsOrder1:StockItem.nsOrder1:ItemName);
+			SET EnvRef.nsFFCreateOrder1:CustomerOrderProductLineItem[LINE_ITEM_INDEX].nsFFCreateOrder1:ColorDescriptionLocale = FIELDVALUE(RefToItem.nsOrder1:StockItem.ColourCode);
+			SET EnvRef.nsFFCreateOrder1:CustomerOrderProductLineItem[LINE_ITEM_INDEX].nsFFCreateOrder1:CustomizationStepID = '0';
+			CALL core.log.Debug(MessageFlowLabel||'Module name: fastfind_order_creation_Req - create fast find order comments value is mapped from nsOrder1:CustomerOrderProductLineItem.nsOrder1:SpecialInstructions.nsOrder1:SpecialInstruction[1].SpecialInstructionsText. Value is: '||CAST(FIELDVALUE(RefToCustomerOrderLineItem.nsOrder1:CustomerOrderProductLineItem.nsOrder1:SpecialInstructions.nsOrder1:SpecialInstruction[1].SpecialInstructionsText) AS CHARACTER));
+			SET EnvRef.nsFFCreateOrder1:CustomerOrderProductLineItem[LINE_ITEM_INDEX].nsFFCreateOrder1:Comments = FIELDVALUE(RefToCustomerOrderLineItem.nsOrder1:CustomerOrderProductLineItem.nsOrder1:SpecialInstructions.nsOrder1:SpecialInstruction[1].SpecialInstructionsText);
+			SET EnvRef.nsFFCreateOrder1:CustomerOrderProductLineItem[LINE_ITEM_INDEX].nsFFCreateOrder1:OrderedItemCount = FIELDVALUE(RefToCustomerOrderLineItem.nsOrder1:CustomerOrderProductLineItem.nsOrder1:OrderedItemQuantity);
+			SET EnvRef.nsFFCreateOrder1:CustomerOrderProductLineItem[LINE_ITEM_INDEX].nsFFCreateOrder1:SaleUnitRetailPriceAmount = FIELDVALUE(RefToCustomerOrderLineItem.nsOrder1:CustomerOrderProductLineItem.nsOrder1:SaleUnitRetailPriceAmount);
+			SET EnvRef.nsFFCreateOrder1:CustomerOrderProductLineItem[LINE_ITEM_INDEX].nsFFCreateOrder1:ItemPriceFound = 'F';
+			SET EnvRef.nsFFCreateOrder1:CustomerOrderProductLineItem[LINE_ITEM_INDEX].nsFFCreateOrder1:OrderLineTotal = FIELDVALUE(RefToCustomerOrderLineItem.nsOrder1:CustomerOrderProductLineItem.nsOrder1:TotalRetailPriceAmount);
+			
+			-- Store TotalRetailPriceAmount for all the products
+			SET TOTAL_RETAIL_PRICE_AMOUNT = TOTAL_RETAIL_PRICE_AMOUNT + CAST(RefToCustomerOrderLineItem.nsOrder1:CustomerOrderProductLineItem.nsOrder1:TotalRetailPriceAmount AS DECIMAL);
+			
+			DECLARE RefToOrderLineTax REFERENCE TO RefToCustomerOrderLineItem.nsOrder1:CustomerOrderProductLineItem.nsOrder1:CustomerOrderProductTaxLineItems.nsOrder1:CustomerOrderProductTaxLineItem[1];
+			DECLARE ORDER_LINE_COUNT INTEGER;
+			SET ORDER_LINE_COUNT = CARDINALITY(RefToCustomerOrderLineItem.nsOrder1:CustomerOrderProductLineItem.nsOrder1:CustomerOrderProductTaxLineItems.nsOrder1:CustomerOrderProductTaxLineItem[]);
+			DECLARE TAX_INDEX INTEGER 1;
+			--0 = Regular ; 1 = Harmonized ; 2 = Split
+			DECLARE TAX_TYPE INTEGER 0;
+
+			IF (RefToOrderLineTax.nsOrder1:TaxType.nsOrder1:TaxTypeCode = 'GST') THEN
+				SET TAX_TYPE = 0;
+			ELSEIF (STARTSWITH(RefToOrderLineTax.nsOrder1:TaxType.nsOrder1:TaxTypeName, 'HST') AND (ENDSWITH(RefToOrderLineTax.nsOrder1:TaxType.nsOrder1:TaxTypeCode,'F') OR ENDSWITH(RefToOrderLineTax.nsOrder1:TaxType.nsOrder1:TaxTypeCode,'P')) ) THEN
+				SET TAX_TYPE = 2;
+			ELSE
+				SET TAX_TYPE = 1;
+			END IF;
+
+			DECLARE TAX_CODE_VAL CHARACTER '';
+			DECLARE HST_SPLIT_SUM DECIMAL 0.00;
+
+			WHILE (TAX_INDEX<=ORDER_LINE_COUNT) DO
+
+				CALL core.log.Debug('Module name: fastfind_order_creation_Req - Tax Item');
+
+				IF(RefToOrderLineTax.nsOrder1:TaxType.nsOrder1:TaxTypeName = 'GST') THEN
+				SET GST_TAX_AMOUNT = GST_TAX_AMOUNT + CAST( RefToOrderLineTax.nsOrder1:TaxAmount AS DECIMAL);
+				SET GST_EXEMPT_FLAG = RefToOrderLineTax.nsOrder1:TaxExemptionFlag;
+				SET TAX_CODE_VAL = 'GST';
+				END IF;
+
+				IF(TAX_TYPE = 0 AND (STARTSWITH(RefToOrderLineTax.nsOrder1:TaxType.nsOrder1:TaxTypeName, 'PST') OR RefToOrderLineTax.nsOrder1:TaxType.nsOrder1:TaxTypeName = 'QST')) THEN
+				SET PST_TAX_AMOUNT = PST_TAX_AMOUNT + CAST( RefToOrderLineTax.nsOrder1:TaxAmount AS DECIMAL);
+				SET PST_EXEMPT_FLAG = RefToOrderLineTax.nsOrder1:TaxExemptionFlag;
+				SET TAX_CODE_VAL = 'PHST';
+				END IF;
+				--IF split then sum taxes
+				IF (TAX_TYPE = 2) THEN
+					--SET HST_SPLIT_SUM = HST_SPLIT_SUM + CAST( RefToOrderLineTax.nsOrder1:TaxAmount AS DECIMAL);
+					IF (STARTSWITH(RefToOrderLineTax.nsOrder1:TaxType.nsOrder1:TaxTypeName, 'HST') AND ENDSWITH(RefToOrderLineTax.nsOrder1:TaxType.nsOrder1:TaxTypeCode,'F')) THEN
+						SET GST_TAX_AMOUNT = GST_TAX_AMOUNT + CAST( RefToOrderLineTax.nsOrder1:TaxAmount AS DECIMAL);
+						SET GST_EXEMPT_FLAG = RefToOrderLineTax.nsOrder1:TaxExemptionFlag;
+						SET TAX_CODE_VAL = 'GST';
+					ELSEIF (STARTSWITH(RefToOrderLineTax.nsOrder1:TaxType.nsOrder1:TaxTypeName, 'HST') AND ENDSWITH(RefToOrderLineTax.nsOrder1:TaxType.nsOrder1:TaxTypeCode,'P')) THEN
+						SET PST_TAX_AMOUNT = PST_TAX_AMOUNT + CAST( RefToOrderLineTax.nsOrder1:TaxAmount AS DECIMAL);
+						SET PST_EXEMPT_FLAG = RefToOrderLineTax.nsOrder1:TaxExemptionFlag;
+						SET TAX_CODE_VAL = 'PHST';
+					END IF;
+				END IF;
+				--IF Regular OR Harmonized
+				IF (TAX_TYPE <= 2 AND RefToOrderLineTax.nsOrder1:TaxType.nsOrder1:TaxTypeName <> 'PHST' ) THEN
+					SET EnvRef.nsFFCreateOrder1:CustomerOrderProductLineItem[LINE_ITEM_INDEX].nsFFCreateOrder1:OrderLineTaxes.nsFFCreateOrder1:OrderLineTaxAmount[TAX_INDEX].nsFFCreateOrder1:TaxCode = TAX_CODE_VAL;
+					SET EnvRef.nsFFCreateOrder1:CustomerOrderProductLineItem[LINE_ITEM_INDEX].nsFFCreateOrder1:OrderLineTaxes.nsFFCreateOrder1:OrderLineTaxAmount[TAX_INDEX].nsFFCreateOrder1:TaxUnitAmount = FIELDVALUE(RefToOrderLineTax.nsOrder1:TaxAmount);
+					SET EnvRef.nsFFCreateOrder1:CustomerOrderProductLineItem[LINE_ITEM_INDEX].nsFFCreateOrder1:OrderLineTaxes.nsFFCreateOrder1:OrderLineTaxAmount[TAX_INDEX].nsFFCreateOrder1:TaxTotalAmount = FIELDVALUE(RefToOrderLineTax.nsOrder1:TaxAmount);
+					SET EnvRef.nsFFCreateOrder1:CustomerOrderProductLineItem[LINE_ITEM_INDEX].nsFFCreateOrder1:OrderLineTaxes.nsFFCreateOrder1:OrderLineTaxAmount[TAX_INDEX].nsFFCreateOrder1:TaxExemptionFlag = FIELDVALUE(RefToOrderLineTax.nsOrder1:TaxExemptionFlag);
+				END IF;
+		
+				SET TAX_INDEX = TAX_INDEX + 1;
+				MOVE RefToOrderLineTax NEXTSIBLING;
+			END WHILE;
+			--If only GST OR HST then add PHST
+			IF (TAX_TYPE <= 1 AND ORDER_LINE_COUNT = 1) THEN
+				SET EnvRef.nsFFCreateOrder1:CustomerOrderProductLineItem[LINE_ITEM_INDEX].nsFFCreateOrder1:OrderLineTaxes.nsFFCreateOrder1:OrderLineTaxAmount[TAX_INDEX].nsFFCreateOrder1:TaxCode = 'PHST';
+				SET EnvRef.nsFFCreateOrder1:CustomerOrderProductLineItem[LINE_ITEM_INDEX].nsFFCreateOrder1:OrderLineTaxes.nsFFCreateOrder1:OrderLineTaxAmount[TAX_INDEX].nsFFCreateOrder1:TaxUnitAmount = 0;
+				SET EnvRef.nsFFCreateOrder1:CustomerOrderProductLineItem[LINE_ITEM_INDEX].nsFFCreateOrder1:OrderLineTaxes.nsFFCreateOrder1:OrderLineTaxAmount[TAX_INDEX].nsFFCreateOrder1:TaxTotalAmount = 0;
+				SET EnvRef.nsFFCreateOrder1:CustomerOrderProductLineItem[LINE_ITEM_INDEX].nsFFCreateOrder1:OrderLineTaxes.nsFFCreateOrder1:OrderLineTaxAmount[TAX_INDEX].nsFFCreateOrder1:TaxExemptionFlag = 'false';
+			END IF;
+
+	SET LINE_ITEM_INDEX = LINE_ITEM_INDEX + 1;
+
+END IF;
+
+IF(FIELDVALUE(RefToItem.nsOrder1:ItemOrStockItemFlag) = 'Item') THEN
+CALL core.log.Debug(MessageFlowLabel||'Module name: fastfind_order_creation_Req - ItemOrStockItemFlag =  Item');
+IF ( FIELDVALUE(RefToCustomerOrderLineItem.nsOrder1:CustomerOrderLineItemTypeCode) = 'Shipping Charges' ) THEN
+
+	SET EnvRef.SHIPPING_DETAILS.SHIPPING_CHARGES.SHIPPING_AMOUNT = FIELDVALUE(RefToCustomerOrderLineItem.nsOrder1:CustomerOrderChargeLineItem.nsOrder1:MiscellaneousFeeAmount);
+
+	DECLARE RefToOrderLineTax REFERENCE TO RefToCustomerOrderLineItem.nsOrder1:CustomerOrderChargeLineItem.nsOrder1:CustomerOrderChargeTaxLineItems.nsOrder1:CustomerOrderChargeTaxLineItem[1];
+	DECLARE ORDER_LINE_COUNT INTEGER;
+	SET ORDER_LINE_COUNT = CARDINALITY(RefToCustomerOrderLineItem.nsOrder1:CustomerOrderChargeLineItem.nsOrder1:CustomerOrderChargeTaxLineItems.nsOrder1:CustomerOrderChargeTaxLineItem[]);
+	DECLARE TAX_INDEX INTEGER 1;
+
+	DECLARE TAX_TYPE INTEGER 0;
+
+	SET EnvRef.SHIPPING_DETAILS.SHIPPING_CHARGES.SHIPPING_FEDERAL_TAX = 0.00;
+	SET EnvRef.SHIPPING_DETAILS.SHIPPING_CHARGES.SHIPPING_PROVINCIAL_TAX = 0.00;
+
+	IF (RefToOrderLineTax.nsOrder1:TaxTypeCode = 'GST') THEN
+		SET TAX_TYPE = 0;
+	ELSEIF (STARTSWITH(RefToOrderLineTax.nsOrder1:TaxTypeCode, 'HST') AND (ENDSWITH(RefToOrderLineTax.nsOrder1:TaxTypeCode,'F') OR ENDSWITH(RefToOrderLineTax.nsOrder1:TaxTypeCode,'P')) ) THEN
+		SET TAX_TYPE = 2;
+	ELSE
+		SET TAX_TYPE = 1;
+	END IF;
+
+	DECLARE HST_SPLIT_SUM DECIMAL 0.00;
+
+	WHILE (TAX_INDEX<=ORDER_LINE_COUNT) DO
+
+		IF(RefToOrderLineTax.nsOrder1:TaxTypeCode = 'GST' OR TAX_TYPE >= 1) THEN
+		SET EnvRef.SHIPPING_DETAILS.SHIPPING_CHARGES.SHIPPING_FEDERAL_TAX = CAST( RefToOrderLineTax.nsOrder1:TaxAmount AS DECIMAL);
+	END IF;
+
+	IF(TAX_TYPE = 0 AND (STARTSWITH(RefToOrderLineTax.nsOrder1:TaxTypeCode,'PST') OR RefToOrderLineTax.nsOrder1:TaxTypeCode = 'QST' )) THEN
+	SET EnvRef.SHIPPING_DETAILS.SHIPPING_CHARGES.SHIPPING_PROVINCIAL_TAX = CAST( RefToOrderLineTax.nsOrder1:TaxAmount AS DECIMAL);
+END IF;
+--IF split then sum taxes
+IF (TAX_TYPE = 2) THEN
+	SET HST_SPLIT_SUM = HST_SPLIT_SUM + CAST( RefToOrderLineTax.nsOrder1:TaxAmount AS DECIMAL);
+END IF;
+
+IF (TAX_TYPE = 2 AND TAX_INDEX = 2) THEN
+	SET EnvRef.SHIPPING_DETAILS.SHIPPING_CHARGES.SHIPPING_FEDERAL_TAX = CAST( HST_SPLIT_SUM AS DECIMAL);
+END IF;
+
+SET TAX_INDEX = TAX_INDEX + 1;
+MOVE RefToOrderLineTax NEXTSIBLING;
+END WHILE;
+END IF;
+END IF;
+
+MOVE RefToCustomerOrderLineItem NEXTSIBLING;
+MOVE RefToItem NEXTSIBLING;
+END WHILE;
+
+SET EnvRef.nsFFCreateOrder1:CustomerOrder.nsFFCreateOrder1:OrderSubTotal = CAST( FIELDVALUE(refInArtsCustOrd.nsOrder1:OrderSubtotalAmount) AS DECIMAL);
+SET EnvRef.nsFFCreateOrder1:CustomerOrder.nsFFCreateOrder1:OrderTotal = CAST( FIELDVALUE(refInArtsCustOrd.nsOrder1:OrderTotalAmount) AS DECIMAL);
+SET EnvRef.nsFFCreateOrder1:CustomerOrder.nsFFCreateOrder1:SourceCorrelationID = FIELDVALUE(refInArtsCustOrd.nsOrder1:SourceOrderKey);
+
+SET EnvRef.nsFFCreateOrder1:CustomerOrder.nsFFCreateOrder1:OrderTaxes.nsFFCreateOrder1:OrderTaxAmount[1].nsFFCreateOrder1:TaxCode = 'GST';
+SET EnvRef.nsFFCreateOrder1:CustomerOrder.nsFFCreateOrder1:OrderTaxes.nsFFCreateOrder1:OrderTaxAmount[1].nsFFCreateOrder1:TaxTotalAmount = GST_TAX_AMOUNT;
+SET EnvRef.nsFFCreateOrder1:CustomerOrder.nsFFCreateOrder1:OrderTaxes.nsFFCreateOrder1:OrderTaxAmount[1].nsFFCreateOrder1:TaxExemptionCode = GST_EXEMPT_FLAG;
+
+SET EnvRef.nsFFCreateOrder1:CustomerOrder.nsFFCreateOrder1:OrderTaxes.nsFFCreateOrder1:OrderTaxAmount[2].nsFFCreateOrder1:TaxCode = 'PST';
+SET EnvRef.nsFFCreateOrder1:CustomerOrder.nsFFCreateOrder1:OrderTaxes.nsFFCreateOrder1:OrderTaxAmount[2].nsFFCreateOrder1:TaxTotalAmount = PST_TAX_AMOUNT;
+SET EnvRef.nsFFCreateOrder1:CustomerOrder.nsFFCreateOrder1:OrderTaxes.nsFFCreateOrder1:OrderTaxAmount[2].nsFFCreateOrder1:TaxExemptionCode = PST_EXEMPT_FLAG;
+
+SET EnvRef.nsFFCreateOrder1:CustomerOrder.nsFFCreateOrder1:CustomerOrderLineItems.nsFFCreateOrder1:CustomerOrderProductLineItem[] = EnvRef.nsFFCreateOrder1:CustomerOrderProductLineItem[];
+
+SET EnvRef.nsFFCreateOrder1:CustomerOrder.nsFFCreateOrder1:Customer.nsFFCreateOrder1:LifecycleType = 'R';
+SET EnvRef.nsFFCreateOrder1:CustomerOrder.nsFFCreateOrder1:Customer.nsFFCreateOrder1:Party.nsFFCreateOrder1:PartyID = FIELDVALUE(refInArtsCustOrd.nsOrder1:Customer.nsOrder1:CustomerNumber);
+SET EnvRef.nsFFCreateOrder1:CustomerOrder.nsFFCreateOrder1:Customer.nsFFCreateOrder1:Party.nsFFCreateOrder1:PartyTypeCode = FIELDVALUE(refInArtsCustOrd.nsOrder1:Customer.nsOrder1:PersonOrOrganizationFlag);
+SET EnvRef.nsFFCreateOrder1:CustomerOrder.nsFFCreateOrder1:Customer.nsFFCreateOrder1:Party.nsFFCreateOrder1:LanguageID = FIELDVALUE(refInArtsCustOrd.nsOrder1:Customer.nsOrder1:Person.nsOrder1:LanguageCode);
+
+SET EnvRef.nsFFCreateOrder1:CustomerOrder.nsFFCreateOrder1:Customer.nsFFCreateOrder1:Party.nsFFCreateOrder1:Person.nsFFCreateOrder1:FirstName = FIELDVALUE(refInArtsCustOrd.nsOrder1:Customer.nsOrder1:Person.nsOrder1:FirstName);
+SET EnvRef.nsFFCreateOrder1:CustomerOrder.nsFFCreateOrder1:Customer.nsFFCreateOrder1:Party.nsFFCreateOrder1:Person.nsFFCreateOrder1:LastName = FIELDVALUE(refInArtsCustOrd.nsOrder1:Customer.nsOrder1:Person.nsOrder1:LastName);
+
+DECLARE RefToContactMethod REFERENCE TO refInArtsCustOrd.nsOrder1:Customer.nsOrder1:ContactMethods.nsOrder1:ContactMethod[1];
+DECLARE CONTACT_INDEX INTEGER 1;
+DECLARE RECIPIENT_INDEX INTEGER 1;
+WHILE LASTMOVE(RefToContactMethod) DO
+	IF (FIELDTYPE(RefToContactMethod.nsOrder1:RelatedParties) IS NULL OR RefToContactMethod.nsOrder1:RelatedParties.nsOrder1:Count = '0') THEN
+		IF( RefToContactMethod.nsOrder1:ContactPurposeTypeCode = 'Shipping' ) THEN
+		SET EnvRef.nsFFCreateOrder1:PartyContactMethod[CONTACT_INDEX].nsFFCreateOrder1:ContactPurposeTypeCode = UCASE(FIELDVALUE(RefToContactMethod.nsOrder1:ContactPurposeTypeCode));
+		SET EnvRef.nsFFCreateOrder1:PartyContactMethod[CONTACT_INDEX].nsFFCreateOrder1:ContactMethodType = UCASE(FIELDVALUE(RefToContactMethod.nsOrder1:ContactMethodTypeCode));
+		SET EnvRef.nsFFCreateOrder1:PartyContactMethod[CONTACT_INDEX].nsFFCreateOrder1:CompletePhoneNumber = FIELDVALUE(RefToContactMethod.nsOrder1:Telephone.nsOrder1:CompleteTelephoneNumberText);
+		SET EnvRef.nsFFCreateOrder1:PartyContactMethod[CONTACT_INDEX].nsFFCreateOrder1:EmailAddress = FIELDVALUE(RefToContactMethod.nsOrder1:EmailAddress);
+
+		IF( RefToContactMethod.nsOrder1:ContactMethodTypeCode = 'Address' ) THEN
+
+		SET EnvRef.nsFFCreateOrder1:PartyContactMethod[CONTACT_INDEX].nsFFCreateOrder1:Address.nsFFCreateOrder1:AddressLine1Text = FIELDVALUE(RefToContactMethod.nsOrder1:Address.nsOrder1:AddressLine1Text);
+		SET EnvRef.nsFFCreateOrder1:PartyContactMethod[CONTACT_INDEX].nsFFCreateOrder1:Address.nsFFCreateOrder1:AddressLine2Text = FIELDVALUE(RefToContactMethod.nsOrder1:Address.nsOrder1:AddressLine2Text);
+		SET EnvRef.nsFFCreateOrder1:PartyContactMethod[CONTACT_INDEX].nsFFCreateOrder1:Address.nsFFCreateOrder1:AddressLine3Text = FIELDVALUE(RefToContactMethod.nsOrder1:Address.nsOrder1:AddressLine3Text);
+		SET EnvRef.nsFFCreateOrder1:PartyContactMethod[CONTACT_INDEX].nsFFCreateOrder1:Address.nsFFCreateOrder1:CityName = FIELDVALUE(RefToContactMethod.nsOrder1:Address.nsOrder1:CityName);
+		SET EnvRef.nsFFCreateOrder1:PartyContactMethod[CONTACT_INDEX].nsFFCreateOrder1:Address.nsFFCreateOrder1:ProvinceStateCode= FIELDVALUE(RefToContactMethod.nsOrder1:Address.nsOrder1:ProvinceStateCode);
+		SET EnvRef.nsFFCreateOrder1:PartyContactMethod[CONTACT_INDEX].nsFFCreateOrder1:Address.nsFFCreateOrder1:ProvinceStateName= FIELDVALUE(RefToContactMethod.nsOrder1:Address.nsOrder1:ProvinceStateName);
+		SET EnvRef.nsFFCreateOrder1:PartyContactMethod[CONTACT_INDEX].nsFFCreateOrder1:Address.nsFFCreateOrder1:PostalCode = FIELDVALUE(RefToContactMethod.nsOrder1:Address.nsOrder1:PostalCode);
+		SET EnvRef.nsFFCreateOrder1:PartyContactMethod[CONTACT_INDEX].nsFFCreateOrder1:Address.nsFFCreateOrder1:Latitude = FIELDVALUE(RefToContactMethod.nsOrder1:Address.nsOrder1:GPSLatitudeNumber);
+		SET EnvRef.nsFFCreateOrder1:PartyContactMethod[CONTACT_INDEX].nsFFCreateOrder1:Address.nsFFCreateOrder1:Longitude = FIELDVALUE(RefToContactMethod.nsOrder1:Address.nsOrder1:GPSLongitudeNumber);
+
+
+		SET EnvRef.nsFFCreateOrder1:CustomerOrder.nsFFCreateOrder1:Customer.nsFFCreateOrder1:Site.nsFFCreateOrder1:Address.nsFFCreateOrder1:AddressLine1Text = FIELDVALUE(RefToContactMethod.nsOrder1:Address.nsOrder1:AddressLine1Text);
+		SET EnvRef.nsFFCreateOrder1:CustomerOrder.nsFFCreateOrder1:Customer.nsFFCreateOrder1:Site.nsFFCreateOrder1:Address.nsFFCreateOrder1:AddressLine2Text = FIELDVALUE(RefToContactMethod.nsOrder1:Address.nsOrder1:AddressLine2Text);
+		SET EnvRef.nsFFCreateOrder1:CustomerOrder.nsFFCreateOrder1:Customer.nsFFCreateOrder1:Site.nsFFCreateOrder1:Address.nsFFCreateOrder1:AddressLine3Text = FIELDVALUE(RefToContactMethod.nsOrder1:Address.nsOrder1:AddressLine3Text);
+		SET EnvRef.nsFFCreateOrder1:CustomerOrder.nsFFCreateOrder1:Customer.nsFFCreateOrder1:Site.nsFFCreateOrder1:Address.nsFFCreateOrder1:CityName = FIELDVALUE(RefToContactMethod.nsOrder1:Address.nsOrder1:CityName);
+		SET EnvRef.nsFFCreateOrder1:CustomerOrder.nsFFCreateOrder1:Customer.nsFFCreateOrder1:Site.nsFFCreateOrder1:Address.nsFFCreateOrder1:ProvinceStateCode= FIELDVALUE(RefToContactMethod.nsOrder1:Address.nsOrder1:ProvinceStateCode);
+		SET EnvRef.nsFFCreateOrder1:CustomerOrder.nsFFCreateOrder1:Customer.nsFFCreateOrder1:Site.nsFFCreateOrder1:Address.nsFFCreateOrder1:ProvinceStateName= FIELDVALUE(RefToContactMethod.nsOrder1:Address.nsOrder1:ProvinceStateName);
+		SET EnvRef.nsFFCreateOrder1:CustomerOrder.nsFFCreateOrder1:Customer.nsFFCreateOrder1:Site.nsFFCreateOrder1:Address.nsFFCreateOrder1:PostalCode = FIELDVALUE(RefToContactMethod.nsOrder1:Address.nsOrder1:PostalCode);
+		SET EnvRef.nsFFCreateOrder1:CustomerOrder.nsFFCreateOrder1:Customer.nsFFCreateOrder1:Site.nsFFCreateOrder1:Address.nsFFCreateOrder1:Latitude = FIELDVALUE(RefToContactMethod.nsOrder1:Address.nsOrder1:GPSLatitudeNumber);
+		SET EnvRef.nsFFCreateOrder1:CustomerOrder.nsFFCreateOrder1:Customer.nsFFCreateOrder1:Site.nsFFCreateOrder1:Address.nsFFCreateOrder1:Longitude = FIELDVALUE(RefToContactMethod.nsOrder1:Address.nsOrder1:GPSLongitudeNumber);
+	END IF;
+
+	SET CONTACT_INDEX = CONTACT_INDEX + 1;
+END IF;
+END IF;
+
+IF (RefToContactMethod.nsOrder1:RelatedParties.nsOrder1:Count = '1') THEN
+	IF( RefToContactMethod.nsOrder1:ContactPurposeTypeCode = 'Shipping' ) THEN
+	IF (RefToContactMethod.nsOrder1:ContactMethodTypeCode = 'Address') THEN
+		SET EnvRef.nsFFCreateOrder1:CustomerOrder.nsFFCreateOrder1:Recipient.nsFFCreateOrder1:Party.nsFFCreateOrder1:PartyID = '1';
+		SET EnvRef.nsFFCreateOrder1:CustomerOrder.nsFFCreateOrder1:Recipient.nsFFCreateOrder1:Party.nsFFCreateOrder1:PartyTypeCode = 'P';
+
+		SET EnvRef.nsFFCreateOrder1:CustomerOrder.nsFFCreateOrder1:Recipient.nsFFCreateOrder1:Party.nsFFCreateOrder1:Person.nsFFCreateOrder1:FirstName = FIELDVALUE(RefToContactMethod.nsOrder1:RelatedParties.nsOrder1:RelatedParty.nsOrder1:FirstName);
+		SET EnvRef.nsFFCreateOrder1:CustomerOrder.nsFFCreateOrder1:Recipient.nsFFCreateOrder1:Party.nsFFCreateOrder1:Person.nsFFCreateOrder1:LastName = FIELDVALUE(RefToContactMethod.nsOrder1:RelatedParties.nsOrder1:RelatedParty.nsOrder1:LastName);
+
+		SET EnvRef.nsFFCreateOrder1:CustomerOrder.nsFFCreateOrder1:Recipient.nsFFCreateOrder1:Party.nsFFCreateOrder1:PartyContactMethods.nsFFCreateOrder1:PartyContactMethod[RECIPIENT_INDEX].nsFFCreateOrder1:ContactPurposeTypeCode = 'Shipping';
+		SET EnvRef.nsFFCreateOrder1:CustomerOrder.nsFFCreateOrder1:Recipient.nsFFCreateOrder1:Party.nsFFCreateOrder1:PartyContactMethods.nsFFCreateOrder1:PartyContactMethod[RECIPIENT_INDEX].nsFFCreateOrder1:ContactMethodType = 'ADDRESS';
+
+		SET EnvRef.nsFFCreateOrder1:CustomerOrder.nsFFCreateOrder1:Recipient.nsFFCreateOrder1:Party.nsFFCreateOrder1:PartyContactMethods.nsFFCreateOrder1:PartyContactMethod[RECIPIENT_INDEX].nsFFCreateOrder1:Address.nsFFCreateOrder1:AddressLine1Text = FIELDVALUE(RefToContactMethod.nsOrder1:Address.nsOrder1:AddressLine1Text);
+		SET EnvRef.nsFFCreateOrder1:CustomerOrder.nsFFCreateOrder1:Recipient.nsFFCreateOrder1:Party.nsFFCreateOrder1:PartyContactMethods.nsFFCreateOrder1:PartyContactMethod[RECIPIENT_INDEX].nsFFCreateOrder1:Address.nsFFCreateOrder1:AddressLine2Text = FIELDVALUE(RefToContactMethod.nsOrder1:Address.nsOrder1:AddressLine2Text);
+		SET EnvRef.nsFFCreateOrder1:CustomerOrder.nsFFCreateOrder1:Recipient.nsFFCreateOrder1:Party.nsFFCreateOrder1:PartyContactMethods.nsFFCreateOrder1:PartyContactMethod[RECIPIENT_INDEX].nsFFCreateOrder1:Address.nsFFCreateOrder1:AddressLine3Text = FIELDVALUE(RefToContactMethod.nsOrder1:Address.nsOrder1:AddressLine3Text);
+		SET EnvRef.nsFFCreateOrder1:CustomerOrder.nsFFCreateOrder1:Recipient.nsFFCreateOrder1:Party.nsFFCreateOrder1:PartyContactMethods.nsFFCreateOrder1:PartyContactMethod[RECIPIENT_INDEX].nsFFCreateOrder1:Address.nsFFCreateOrder1:CityName = FIELDVALUE(RefToContactMethod.nsOrder1:Address.nsOrder1:CityName);
+		SET EnvRef.nsFFCreateOrder1:CustomerOrder.nsFFCreateOrder1:Recipient.nsFFCreateOrder1:Party.nsFFCreateOrder1:PartyContactMethods.nsFFCreateOrder1:PartyContactMethod[RECIPIENT_INDEX].nsFFCreateOrder1:Address.nsFFCreateOrder1:ProvinceStateCode= FIELDVALUE(RefToContactMethod.nsOrder1:Address.nsOrder1:ProvinceStateCode);
+		SET EnvRef.nsFFCreateOrder1:CustomerOrder.nsFFCreateOrder1:Recipient.nsFFCreateOrder1:Party.nsFFCreateOrder1:PartyContactMethods.nsFFCreateOrder1:PartyContactMethod[RECIPIENT_INDEX].nsFFCreateOrder1:Address.nsFFCreateOrder1:ProvinceStateName= FIELDVALUE(RefToContactMethod.nsOrder1:Address.nsOrder1:ProvinceStateName);
+		SET EnvRef.nsFFCreateOrder1:CustomerOrder.nsFFCreateOrder1:Recipient.nsFFCreateOrder1:Party.nsFFCreateOrder1:PartyContactMethods.nsFFCreateOrder1:PartyContactMethod[RECIPIENT_INDEX].nsFFCreateOrder1:Address.nsFFCreateOrder1:PostalCode = FIELDVALUE(RefToContactMethod.nsOrder1:Address.nsOrder1:PostalCode);
+		SET EnvRef.nsFFCreateOrder1:CustomerOrder.nsFFCreateOrder1:Recipient.nsFFCreateOrder1:Party.nsFFCreateOrder1:PartyContactMethods.nsFFCreateOrder1:PartyContactMethod[RECIPIENT_INDEX].nsFFCreateOrder1:Address.nsFFCreateOrder1:Latitude = FIELDVALUE(RefToContactMethod.nsOrder1:Address.nsOrder1:GPSLatitudeNumber);
+		SET EnvRef.nsFFCreateOrder1:CustomerOrder.nsFFCreateOrder1:Recipient.nsFFCreateOrder1:Party.nsFFCreateOrder1:PartyContactMethods.nsFFCreateOrder1:PartyContactMethod[RECIPIENT_INDEX].nsFFCreateOrder1:Address.nsFFCreateOrder1:Longitude = FIELDVALUE(RefToContactMethod.nsOrder1:Address.nsOrder1:GPSLongitudeNumber);
+		SET RECIPIENT_INDEX = RECIPIENT_INDEX + 1;
+	END IF;
+	IF (RefToContactMethod.nsOrder1:ContactMethodTypeCode = 'Email') THEN
+		SET EnvRef.nsFFCreateOrder1:CustomerOrder.nsFFCreateOrder1:Recipient.nsFFCreateOrder1:Party.nsFFCreateOrder1:PartyContactMethods.nsFFCreateOrder1:PartyContactMethod[RECIPIENT_INDEX].nsFFCreateOrder1:ContactPurposeTypeCode = 'Shipping';
+		SET EnvRef.nsFFCreateOrder1:CustomerOrder.nsFFCreateOrder1:Recipient.nsFFCreateOrder1:Party.nsFFCreateOrder1:PartyContactMethods.nsFFCreateOrder1:PartyContactMethod[RECIPIENT_INDEX].nsFFCreateOrder1:ContactMethodType = 'EMAIL';
+
+		SET EnvRef.nsFFCreateOrder1:CustomerOrder.nsFFCreateOrder1:Recipient.nsFFCreateOrder1:Party.nsFFCreateOrder1:PartyContactMethods.nsFFCreateOrder1:PartyContactMethod[RECIPIENT_INDEX].nsFFCreateOrder1:EmailAddress = FIELDVALUE(RefToContactMethod.nsOrder1:EmailAddress);
+		SET RECIPIENT_INDEX = RECIPIENT_INDEX + 1;
+	END IF;
+	IF (RefToContactMethod.nsOrder1:ContactMethodTypeCode = 'HomePhone') THEN
+		
+		SET EnvRef.nsFFCreateOrder1:CustomerOrder.nsFFCreateOrder1:Recipient.nsFFCreateOrder1:Party.nsFFCreateOrder1:PartyID = '1';
+		SET EnvRef.nsFFCreateOrder1:CustomerOrder.nsFFCreateOrder1:Recipient.nsFFCreateOrder1:Party.nsFFCreateOrder1:PartyTypeCode = 'P';
+		
+		SET EnvRef.nsFFCreateOrder1:CustomerOrder.nsFFCreateOrder1:Recipient.nsFFCreateOrder1:Party.nsFFCreateOrder1:Person.nsFFCreateOrder1:FirstName = FIELDVALUE(RefToContactMethod.nsOrder1:RelatedParties.nsOrder1:RelatedParty.nsOrder1:FirstName);
+		SET EnvRef.nsFFCreateOrder1:CustomerOrder.nsFFCreateOrder1:Recipient.nsFFCreateOrder1:Party.nsFFCreateOrder1:Person.nsFFCreateOrder1:LastName = FIELDVALUE(RefToContactMethod.nsOrder1:RelatedParties.nsOrder1:RelatedParty.nsOrder1:LastName);
+		
+		SET EnvRef.nsFFCreateOrder1:CustomerOrder.nsFFCreateOrder1:Recipient.nsFFCreateOrder1:Party.nsFFCreateOrder1:PartyContactMethods.nsFFCreateOrder1:PartyContactMethod[RECIPIENT_INDEX].nsFFCreateOrder1:ContactPurposeTypeCode = 'Shipping';
+		SET EnvRef.nsFFCreateOrder1:CustomerOrder.nsFFCreateOrder1:Recipient.nsFFCreateOrder1:Party.nsFFCreateOrder1:PartyContactMethods.nsFFCreateOrder1:PartyContactMethod[RECIPIENT_INDEX].nsFFCreateOrder1:ContactMethodType = 'HOMEPHONE';
+
+		SET EnvRef.nsFFCreateOrder1:CustomerOrder.nsFFCreateOrder1:Recipient.nsFFCreateOrder1:Party.nsFFCreateOrder1:PartyContactMethods.nsFFCreateOrder1:PartyContactMethod[RECIPIENT_INDEX].nsFFCreateOrder1:CompletePhoneNumber = FIELDVALUE(RefToContactMethod.nsOrder1:Telephone.nsOrder1:CompleteTelephoneNumberText);
+		SET RECIPIENT_INDEX = RECIPIENT_INDEX + 1;
+	END IF;
+
+END IF;
+
+END IF;
+
+MOVE RefToContactMethod NEXTSIBLING;
+END WHILE;
+
+SET EnvRef.nsFFCreateOrder1:CustomerOrder.nsFFCreateOrder1:Customer.nsFFCreateOrder1:Party.nsFFCreateOrder1:PartyContactMethods.nsFFCreateOrder1:PartyContactMethod[] = EnvRef.nsFFCreateOrder1:PartyContactMethod[];
+
+DECLARE CUST_ACCNT_COUNT INTEGER;
+SET CUST_ACCNT_COUNT = CARDINALITY(refInArtsCustOrd.nsOrder1:Customer.nsOrder1:KeyCustomers.nsOrder1:KeyCustomer[]);
+IF(CUST_ACCNT_COUNT = 0) THEN
+SET EnvRef.nsFFCreateOrder1:CustomerOrder.nsFFCreateOrder1:Customer.nsFFCreateOrder1:CustomerAccounts.nsFFCreateOrder1:CustomerAccount = NULL;
+END IF;
+DECLARE RefToCustomerAccount REFERENCE TO refInArtsCustOrd.nsOrder1:Customer.nsOrder1:KeyCustomers.nsOrder1:KeyCustomer[1];
+DECLARE ACCOUNT_INDEX INTEGER 1;
+WHILE LASTMOVE(RefToCustomerAccount) DO
+	SET EnvRef.nsFFCreateOrder1:CustomerOrder.nsFFCreateOrder1:Customer.nsFFCreateOrder1:CustomerAccounts.nsFFCreateOrder1:CustomerAccount[ACCOUNT_INDEX].CustomerAccountNumber = FIELDVALUE(RefToCustomerAccount.nsFFCreateOrder1:CustomerAccounts.nsFFCreateOrder1:CustomerAccount.nsFFCreateOrder1:CustomerAccountNumber);
+	---Finish remaining mapping
+	SET ACCOUNT_INDEX = ACCOUNT_INDEX + 1;
+	MOVE RefToCustomerAccount NEXTSIBLING;
+END WHILE;
+
+SET EnvRef.nsFFCreateOrder1:CustomerOrder.nsFFCreateOrder1:OrderFacilities.nsFFCreateOrder1:OrderFacility[I].nsFFCreateOrder1:OrderFacilityPurpose = 'Originating Store';
+SET EnvRef.nsFFCreateOrder1:CustomerOrder.nsFFCreateOrder1:OrderFacilities.nsFFCreateOrder1:OrderFacility[I].nsFFCreateOrder1:FacilityRetailStore.nsFFCreateOrder1:BusinessUnitNumber = Environment.Variables.storeAddressResultSet[1].STORENUMBER;
+SET EnvRef.nsFFCreateOrder1:CustomerOrder.nsFFCreateOrder1:OrderFacilities.nsFFCreateOrder1:OrderFacility[I].nsFFCreateOrder1:FacilityRetailStore.nsFFCreateOrder1:CompletePhoneNumber = Environment.Variables.storeAddressResultSet[1].AREACODE||'-'||Environment.Variables.storeAddressResultSet[1].PHONENUMBER;
+SET EnvRef.nsFFCreateOrder1:CustomerOrder.nsFFCreateOrder1:OrderFacilities.nsFFCreateOrder1:OrderFacility[I].nsFFCreateOrder1:FacilityRetailStore.nsFFCreateOrder1:FacilityBusinessUnitSite.nsFFCreateOrder1:Address.nsFFCreateOrder1:AddressLine1Text = Environment.Variables.storeAddressResultSet[1].ADDRESSLINE1;
+SET EnvRef.nsFFCreateOrder1:CustomerOrder.nsFFCreateOrder1:OrderFacilities.nsFFCreateOrder1:OrderFacility[I].nsFFCreateOrder1:FacilityRetailStore.nsFFCreateOrder1:FacilityBusinessUnitSite.nsFFCreateOrder1:Address.nsFFCreateOrder1:AddressLine2Text = Environment.Variables.storeAddressResultSet[1].ADDRESSLINE2;
+SET EnvRef.nsFFCreateOrder1:CustomerOrder.nsFFCreateOrder1:OrderFacilities.nsFFCreateOrder1:OrderFacility[I].nsFFCreateOrder1:FacilityRetailStore.nsFFCreateOrder1:FacilityBusinessUnitSite.nsFFCreateOrder1:Address.nsFFCreateOrder1:AddressLine3Text = Environment.Variables.storeAddressResultSet[1].ADDRESSLINE3;
+SET EnvRef.nsFFCreateOrder1:CustomerOrder.nsFFCreateOrder1:OrderFacilities.nsFFCreateOrder1:OrderFacility[I].nsFFCreateOrder1:FacilityRetailStore.nsFFCreateOrder1:FacilityBusinessUnitSite.nsFFCreateOrder1:Address.nsFFCreateOrder1:CityName = Environment.Variables.storeAddressResultSet[1].CITYNAME;
+SET EnvRef.nsFFCreateOrder1:CustomerOrder.nsFFCreateOrder1:OrderFacilities.nsFFCreateOrder1:OrderFacility[I].nsFFCreateOrder1:FacilityRetailStore.nsFFCreateOrder1:FacilityBusinessUnitSite.nsFFCreateOrder1:Address.nsFFCreateOrder1:ProvinceStateCode = Environment.Variables.storeAddressResultSet[1].PROVINCEID;
+SET EnvRef.nsFFCreateOrder1:CustomerOrder.nsFFCreateOrder1:OrderFacilities.nsFFCreateOrder1:OrderFacility[I].nsFFCreateOrder1:FacilityRetailStore.nsFFCreateOrder1:FacilityBusinessUnitSite.nsFFCreateOrder1:Address.nsFFCreateOrder1:ProvinceStateName = Environment.Variables.storeAddressResultSet[1].PROVINCEABBREV;
+SET EnvRef.nsFFCreateOrder1:CustomerOrder.nsFFCreateOrder1:OrderFacilities.nsFFCreateOrder1:OrderFacility[I].nsFFCreateOrder1:FacilityRetailStore.nsFFCreateOrder1:FacilityBusinessUnitSite.nsFFCreateOrder1:Address.nsFFCreateOrder1:PostalCode = Environment.Variables.storeAddressResultSet[1].POSTALCODE;
+SET EnvRef.nsFFCreateOrder1:CustomerOrder.nsFFCreateOrder1:OrderFacilities.nsFFCreateOrder1:OrderFacility[I].nsFFCreateOrder1:FacilityRetailStore.nsFFCreateOrder1:FacilityBusinessUnitSite.nsFFCreateOrder1:Address.nsFFCreateOrder1:CountryCode = Environment.Variables.storeAddressResultSet[1].COUNTRYID;
+SET EnvRef.nsFFCreateOrder1:CustomerOrder.nsFFCreateOrder1:OrderFacilities.nsFFCreateOrder1:OrderFacility[I].nsFFCreateOrder1:FacilityRetailStore.nsFFCreateOrder1:FacilityBusinessUnitSite.nsFFCreateOrder1:Address.nsFFCreateOrder1:Latitude = Environment.Variables.storeAddressResultSet[1].LATTITUDE;
+SET EnvRef.nsFFCreateOrder1:CustomerOrder.nsFFCreateOrder1:OrderFacilities.nsFFCreateOrder1:OrderFacility[I].nsFFCreateOrder1:FacilityRetailStore.nsFFCreateOrder1:FacilityBusinessUnitSite.nsFFCreateOrder1:Address.nsFFCreateOrder1:Longitude = Environment.Variables.storeAddressResultSet[1].LONGITUDE;
+SET EnvRef.nsFFCreateOrder1:CustomerOrder.nsFFCreateOrder1:OrderFacilities.nsFFCreateOrder1:OrderFacility[I].nsFFCreateOrder1:FacilityRetailStore.nsFFCreateOrder1:FacilityBusinessUnitSite.nsFFCreateOrder1:Address.nsFFCreateOrder1:SourceCorrelationID = Environment.Variables.storeAddressResultSet[1].STOREID;
+SET EnvRef.nsFFCreateOrder1:CustomerOrder.nsFFCreateOrder1:OrderFacilities.nsFFCreateOrder1:OrderFacility[I].nsFFCreateOrder1:FacilityRetailStore.nsFFCreateOrder1:FacilityBusinessUnitSite.nsFFCreateOrder1:Address.nsFFCreateOrder1:SourceCorrelationKeyFieldsDescription = 'orders';
+
+SET EnvRef.nsFFCreateOrder1:CustomerOrder.nsFFCreateOrder1:OrderFacilities.nsFFCreateOrder1:OrderFacility[I].nsFFCreateOrder1:FacilityRetailStore.nsFFCreateOrder1:SourceCorrelationID = Environment.Variables.storeAddressResultSet[1].STOREID;
+SET EnvRef.nsFFCreateOrder1:CustomerOrder.nsFFCreateOrder1:OrderFacilities.nsFFCreateOrder1:OrderFacility[I].nsFFCreateOrder1:FacilityRetailStore.nsFFCreateOrder1:SourceCorrelationKeyFieldsDescription = 'orders';
+
+IF (RefCustOrdPrdGrps.nsOrder1:Count > 0) THEN
+	SET I = I + 1;
+SET EnvRef.nsFFCreateOrder1:CustomerOrder.nsFFCreateOrder1:OrderFacilities.nsFFCreateOrder1:OrderFacility[I].nsFFCreateOrder1:OrderFacilityPurpose = 'Ship To Store';
+SET EnvRef.nsFFCreateOrder1:CustomerOrder.nsFFCreateOrder1:OrderFacilities.nsFFCreateOrder1:OrderFacility[I].nsFFCreateOrder1:FacilityRetailStore.nsFFCreateOrder1:BusinessUnitNumber = FIELDVALUE(RefCustOrdPrdGrps.nsOrder1:CustomerOrderProductGroup.nsOrder1:BusinessUnit.nsOrder1:BusinessUnitNumber);
+SET EnvRef.nsFFCreateOrder1:CustomerOrder.nsFFCreateOrder1:OrderFacilities.nsFFCreateOrder1:OrderFacility[I].nsFFCreateOrder1:FacilityRetailStore.nsFFCreateOrder1:CompletePhoneNumber = Environment.Variables.storeAddressResultSet[1].PHONENUMBER;
+SET EnvRef.nsFFCreateOrder1:CustomerOrder.nsFFCreateOrder1:OrderFacilities.nsFFCreateOrder1:OrderFacility[I].nsFFCreateOrder1:FacilityRetailStore.nsFFCreateOrder1:FacilityBusinessUnitSite.nsFFCreateOrder1:Address.nsFFCreateOrder1:AddressLine1Text = FIELDVALUE(RefCustOrdPrdGrps.nsOrder1:CustomerOrderProductGroup.nsOrder1:ShippingAddress.nsOrder1:AddressLine1Text);
+SET EnvRef.nsFFCreateOrder1:CustomerOrder.nsFFCreateOrder1:OrderFacilities.nsFFCreateOrder1:OrderFacility[I].nsFFCreateOrder1:FacilityRetailStore.nsFFCreateOrder1:FacilityBusinessUnitSite.nsFFCreateOrder1:Address.nsFFCreateOrder1:AddressLine2Text = FIELDVALUE(RefCustOrdPrdGrps.nsOrder1:CustomerOrderProductGroup.nsOrder1:ShippingAddress.nsOrder1:AddressLine2Text);
+SET EnvRef.nsFFCreateOrder1:CustomerOrder.nsFFCreateOrder1:OrderFacilities.nsFFCreateOrder1:OrderFacility[I].nsFFCreateOrder1:FacilityRetailStore.nsFFCreateOrder1:FacilityBusinessUnitSite.nsFFCreateOrder1:Address.nsFFCreateOrder1:AddressLine3Text = FIELDVALUE(RefCustOrdPrdGrps.nsOrder1:CustomerOrderProductGroup.nsOrder1:ShippingAddress.nsOrder1:AddressLine3Text);
+SET EnvRef.nsFFCreateOrder1:CustomerOrder.nsFFCreateOrder1:OrderFacilities.nsFFCreateOrder1:OrderFacility[I].nsFFCreateOrder1:FacilityRetailStore.nsFFCreateOrder1:FacilityBusinessUnitSite.nsFFCreateOrder1:Address.nsFFCreateOrder1:CityName = FIELDVALUE(RefCustOrdPrdGrps.nsOrder1:CustomerOrderProductGroup.nsOrder1:ShippingAddress.nsOrder1:CityName);
+SET EnvRef.nsFFCreateOrder1:CustomerOrder.nsFFCreateOrder1:OrderFacilities.nsFFCreateOrder1:OrderFacility[I].nsFFCreateOrder1:FacilityRetailStore.nsFFCreateOrder1:FacilityBusinessUnitSite.nsFFCreateOrder1:Address.nsFFCreateOrder1:ProvinceStateCode = FIELDVALUE(RefCustOrdPrdGrps.nsOrder1:CustomerOrderProductGroup.nsOrder1:ShippingAddress.nsOrder1:ProvinceStateCode);
+SET EnvRef.nsFFCreateOrder1:CustomerOrder.nsFFCreateOrder1:OrderFacilities.nsFFCreateOrder1:OrderFacility[I].nsFFCreateOrder1:FacilityRetailStore.nsFFCreateOrder1:FacilityBusinessUnitSite.nsFFCreateOrder1:Address.nsFFCreateOrder1:ProvinceStateName = FIELDVALUE(RefCustOrdPrdGrps.nsOrder1:CustomerOrderProductGroup.nsOrder1:ShippingAddress.nsOrder1:ProvinceStateName);
+SET EnvRef.nsFFCreateOrder1:CustomerOrder.nsFFCreateOrder1:OrderFacilities.nsFFCreateOrder1:OrderFacility[I].nsFFCreateOrder1:FacilityRetailStore.nsFFCreateOrder1:FacilityBusinessUnitSite.nsFFCreateOrder1:Address.nsFFCreateOrder1:PostalCode = FIELDVALUE(RefCustOrdPrdGrps.nsOrder1:CustomerOrderProductGroup.nsOrder1:ShippingAddress.nsOrder1:PostalCode);
+SET EnvRef.nsFFCreateOrder1:CustomerOrder.nsFFCreateOrder1:OrderFacilities.nsFFCreateOrder1:OrderFacility[I].nsFFCreateOrder1:FacilityRetailStore.nsFFCreateOrder1:FacilityBusinessUnitSite.nsFFCreateOrder1:Address.nsFFCreateOrder1:CountryCode = FIELDVALUE(RefCustOrdPrdGrps.nsOrder1:CustomerOrderProductGroup.nsOrder1:ShippingAddress.nsOrder1:CountryCode);
+SET EnvRef.nsFFCreateOrder1:CustomerOrder.nsFFCreateOrder1:OrderFacilities.nsFFCreateOrder1:OrderFacility[I].nsFFCreateOrder1:FacilityRetailStore.nsFFCreateOrder1:FacilityBusinessUnitSite.nsFFCreateOrder1:Address.nsFFCreateOrder1:Latitude = FIELDVALUE(RefCustOrdPrdGrps.nsOrder1:CustomerOrderProductGroup.nsOrder1:ShippingAddress.nsOrder1:GPSLatitudeNumber);
+SET EnvRef.nsFFCreateOrder1:CustomerOrder.nsFFCreateOrder1:OrderFacilities.nsFFCreateOrder1:OrderFacility[I].nsFFCreateOrder1:FacilityRetailStore.nsFFCreateOrder1:FacilityBusinessUnitSite.nsFFCreateOrder1:Address.nsFFCreateOrder1:Longitude = FIELDVALUE(RefCustOrdPrdGrps.nsOrder1:CustomerOrderProductGroup.nsOrder1:ShippingAddress.nsOrder1:GPSLongitudeNumber);
+SET EnvRef.nsFFCreateOrder1:CustomerOrder.nsFFCreateOrder1:OrderFacilities.nsFFCreateOrder1:OrderFacility[I].nsFFCreateOrder1:FacilityRetailStore.nsFFCreateOrder1:FacilityBusinessUnitSite.nsFFCreateOrder1:Address.nsFFCreateOrder1:SourceCorrelationID = FIELDVALUE(RefCustOrdPrdGrps.nsOrder1:CustomerOrderProductGroup.nsOrder1:BusinessUnit.nsOrder1:BusinessUnitId);
+SET EnvRef.nsFFCreateOrder1:CustomerOrder.nsFFCreateOrder1:OrderFacilities.nsFFCreateOrder1:OrderFacility[I].nsFFCreateOrder1:FacilityRetailStore.nsFFCreateOrder1:FacilityBusinessUnitSite.nsFFCreateOrder1:Address.nsFFCreateOrder1:SourceCorrelationKeyFieldsDescription = 'orders';
+
+SET EnvRef.nsFFCreateOrder1:CustomerOrder.nsFFCreateOrder1:OrderFacilities.nsFFCreateOrder1:OrderFacility[I].nsFFCreateOrder1:FacilityRetailStore.nsFFCreateOrder1:SourceCorrelationID = FIELDVALUE(RefCustOrdPrdGrps.nsOrder1:CustomerOrderProductGroup.nsOrder1:BusinessUnit.nsOrder1:BusinessUnitId);
+SET EnvRef.nsFFCreateOrder1:CustomerOrder.nsFFCreateOrder1:OrderFacilities.nsFFCreateOrder1:OrderFacility[I].nsFFCreateOrder1:FacilityRetailStore.nsFFCreateOrder1:SourceCorrelationKeyFieldsDescription = 'orders';
+
+DECLARE RefCustOrdPrdGrpsContMetds REFERENCE TO refInArtsCustOrd.nsOrder1:CustomerOrderProductGroups.nsOrder1:CustomerOrderProductGroup.nsOrder1:ContactMethods;
+
+IF(RefCustOrdPrdGrpsContMetds.nsOrder1:Count > 0) THEN
+	SET EnvRef.nsFFCreateOrder1:CustomerOrder.nsFFCreateOrder1:OrderFacilities.nsFFCreateOrder1:OrderFacility[I].nsFFCreateOrder1:FacilityRetailStore.nsFFCreateOrder1:CompletePhoneNumber = FIELDVALUE(RefCustOrdPrdGrpsContMetds.nsOrder1:ContactMethod.nsOrder1:Telephone.nsOrder1:CompleteTelephoneNumberText);
+END IF;
+	
+END IF;
+
+
+
+SET EnvRef.nsOrder:Exchange = InputRoot.XMLNSC.nsOrder:Exchange;
+SET OutputRoot.XMLNSC.nsFFCreateOrder:createOrderRequest.nsFFCreateOrder1:CustomerOrder = EnvRef.nsFFCreateOrder1:CustomerOrder;
+
+SET OutputLocalEnvironment.Variables.FFCreateOrd.Message = CAST(ASBITSTREAM( OutputRoot OPTIONS FolderBitStream) AS CHAR CCSID CAST(Environment.MQMD.CodedCharSetId AS INT) ENCODING CAST(Environment.MQMD.Encoding AS INT));
+CALL core.log.Debug(MessageFlowLabel||'Module name: fastfind_order_creation_Req - Created : '|| OutputLocalEnvironment.Variables.FFCreateOrd.Message);
+CALL core.log.info(MessageFlowLabel||'Module name: fastfind_order_creation_Req - Created for - '||'EXTERNAL_ORDER:' ||CAST(InputRoot.XMLNSC.nsOrder:Exchange.nsOrder:Messages.nsOrder:ArtsCustomerOrders.nsOrder1:CustomerOrderNumber AS CHARACTER));
+
+SET EnvRef.VirtualTenderSubtotalAmount = TOTAL_RETAIL_PRICE_AMOUNT + GST_TAX_AMOUNT + PST_TAX_AMOUNT;
+
+RETURN TRUE;
+END;
+END MODULE;

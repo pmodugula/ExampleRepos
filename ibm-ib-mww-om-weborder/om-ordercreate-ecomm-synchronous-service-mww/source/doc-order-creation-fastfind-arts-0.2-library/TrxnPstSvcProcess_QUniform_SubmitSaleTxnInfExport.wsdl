@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="UTF-8"?><wsdl:definitions name="submitSaleTxnInf" targetNamespace="http://com/marks/TxnPost/inf" xmlns:bons0="http://TrxnPstSvcLib/submitSaleTxnInf" xmlns:bons1="http://com/marks/TxnPost/bo" xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/" xmlns:tns="http://com/marks/TxnPost/inf" xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+  <wsdl:documentation>
+    <wsdl:appinfo source="WMQI_APPINFO">
+      <MRWSDLAppInfo imported="true">
+        <generatedXSD location="TrxnPstSvcProcess_QUniform_SubmitSaleTxnInfExport_InlineSchema1.xsd"/>
+        <generatedXSD location="TrxnPstSvcProcess_QUniform_SubmitSaleTxnInfExport_InlineSchema2.xsd"/>
+        <generatedXSD location="TrxnPstSvcProcess_QUniform_SubmitSaleTxnInfExport_InlineSchema3.xsd"/>
+        <binding hasEncoding="false" imported="true" name="SubmitSaleTxnInfExport_SubmitSaleTxnInfHttpBinding" originalBindingStyle="document"/>
+      </MRWSDLAppInfo>
+    </wsdl:appinfo>
+  </wsdl:documentation>
+    <wsdl:types>
+    <xsd:schema targetNamespace="http://com/marks/TxnPost/inf" xmlns:bons0="http://com/marks/TxnPost/inf" xmlns:tns="http://TrxnPstSvcLib/submitSaleTxnInf">
+<xsd:import namespace="http://com/marks/TxnPost/bo" schemaLocation="TrxnPstSvcProcess_QUniform_SubmitSaleTxnInfExport_InlineSchema2.xsd"/>
+<xsd:include schemaLocation="TrxnPstSvcProcess_QUniform_SubmitSaleTxnInfExport_InlineSchema1.xsd"/>
+    </xsd:schema>
+        <xs:schema attributeFormDefault="unqualified" elementFormDefault="unqualified" targetNamespace="http://com/marks/TxnPost/bo" xmlns:bons0="http://com/marks/TxnPost/bo" xmlns:bons01="http://TrxnPstSvcLib/bo" xmlns:xs="http://www.w3.org/2001/XMLSchema">
+<xs:import namespace="http://TrxnPstSvcLib/bo" schemaLocation="TrxnPstSvcProcess_QUniform_SubmitSaleTxnInfExport_InlineSchema3.xsd"/>
+<xsd:include schemaLocation="TrxnPstSvcProcess_QUniform_SubmitSaleTxnInfExport_InlineSchema2.xsd"/>
+    </xs:schema>
+        <xsd:schema attributeFormDefault="unqualified" elementFormDefault="unqualified" targetNamespace="http://TrxnPstSvcLib/bo">
+<xsd:include schemaLocation="TrxnPstSvcProcess_QUniform_SubmitSaleTxnInfExport_InlineSchema3.xsd"/>
+    </xsd:schema>
+    </wsdl:types>
+    <wsdl:message name="submitTxnRequestMsg">
+    <wsdl:part element="tns:submitTxn" name="submitTxnParameters"/>
+  </wsdl:message>
+    <wsdl:message name="submitTxnResponseMsg">
+    <wsdl:part element="tns:submitTxnResponse" name="submitTxnResult"/>
+  </wsdl:message>
+    <wsdl:message name="submitTxn_errorMsg">
+    <wsdl:part element="tns:string_element" name="error"/>
+  </wsdl:message>
+    <wsdl:portType name="SubmitSaleTxnInf">
+    <wsdl:operation name="submitTxn">
+      <wsdl:input message="tns:submitTxnRequestMsg" name="submitTxnRequest"/>
+      <wsdl:output message="tns:submitTxnResponseMsg" name="submitTxnResponse"/>
+            <wsdl:fault message="tns:submitTxn_errorMsg" name="error"/>
+        </wsdl:operation>
+  </wsdl:portType>
+    <wsdl:binding name="SubmitSaleTxnInfExport_SubmitSaleTxnInfHttpBinding" type="tns:SubmitSaleTxnInf">
+    <soap:binding style="document" transport="http://schemas.xmlsoap.org/soap/http"/>
+    <wsdl:operation name="submitTxn">
+      <soap:operation soapAction=""/>
+      <wsdl:input name="submitTxnRequest">
+        <soap:body use="literal"/>
+      </wsdl:input>
+      <wsdl:output name="submitTxnResponse">
+        <soap:body use="literal"/>
+      </wsdl:output>
+      <wsdl:fault name="error">
+        <soap:fault name="error" use="literal"/>
+      </wsdl:fault>
+    </wsdl:operation>
+  </wsdl:binding>
+    <wsdl:service name="SubmitSaleTxnInfExport_SubmitSaleTxnInfHttpService">
+    <wsdl:port binding="tns:SubmitSaleTxnInfExport_SubmitSaleTxnInfHttpBinding" name="SubmitSaleTxnInfExport_SubmitSaleTxnInfHttpPort">
+      <soap:address location="http://localhost:9080/TrxnPstSvcProcess_QUniformWeb/sca/SubmitSaleTxnInfExport"/>
+    </wsdl:port>
+  </wsdl:service>
+</wsdl:definitions>

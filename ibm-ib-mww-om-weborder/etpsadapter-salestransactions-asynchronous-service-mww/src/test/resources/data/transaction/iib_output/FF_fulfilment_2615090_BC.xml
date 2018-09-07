@@ -1,0 +1,94 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<eai:Exchange xmlns:arts="http://www.fgl.com/ARTS" xmlns:eai="http://www.fgl.com/exchange/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" MajorVersion="4" MinorVersion="0" FixVersion="0">
+    <eai:MessageRouting>
+        <eai:Guid>String</eai:Guid>
+        <eai:MessageId>String</eai:MessageId>
+        <eai:MessageType>RequestReply</eai:MessageType>
+        <eai:SubjectArea/>
+        <eai:SbuNumber>2</eai:SbuNumber>
+        <eai:SbuCode>MWW</eai:SbuCode>
+        <eai:SbuName>Marks Ltd.</eai:SbuName>
+        <eai:DataSourceCode>ETPS</eai:DataSourceCode>
+        <eai:DataSourceCodeName>Electronic Transaction Posting Service</eai:DataSourceCodeName>
+    </eai:MessageRouting>
+    <eai:Messages>
+        <eai:Count>0</eai:Count>
+        <eai:SourceSystems>
+            <eai:Count>0</eai:Count>
+            <eai:SourceSystem>
+                <eai:Index>0</eai:Index>
+                <eai:SbuNumber>2</eai:SbuNumber>
+                <eai:SbuCode>MWW</eai:SbuCode>
+                <eai:SbuName>Marks Ltd.</eai:SbuName>
+                <eai:MessageSourceCode>FF</eai:MessageSourceCode>
+                <eai:MessageSourceCodeName>FastFind</eai:MessageSourceCodeName>
+            </eai:SourceSystem>
+        </eai:SourceSystems>
+        <eai:POSLog>
+            <arts:Count>0</arts:Count>
+            <arts:DataSource>
+                <arts:SbuNumber>2</arts:SbuNumber>
+                <arts:SbuCode>MWW</arts:SbuCode>
+                <arts:SbuName>Marks Ltd.</arts:SbuName>
+                <arts:DataSourceCode>ETPS</arts:DataSourceCode>
+                <arts:DataSourceName>Electronic Transaction Posting Service</arts:DataSourceName>
+            </arts:DataSource>
+            <arts:Transaction TypeCode="Sale" MajorVersion="4">
+                <arts:RetailStoreID>999</arts:RetailStoreID>
+                <arts:TransactionID>9996120160517100000</arts:TransactionID>
+                <arts:WorkstationID>61</arts:WorkstationID>
+                <arts:SequenceNumber>100000</arts:SequenceNumber>
+                <arts:BeginDateTime>2016-05-17T01:39:15-07:00</arts:BeginDateTime>
+                <arts:EndDateTime>2016-05-17T01:39:15-07:00</arts:EndDateTime>
+                <arts:OperatorID>0</arts:OperatorID>
+                <arts:RetailTransaction>
+                    <arts:LineItem>
+                        <arts:SequenceNumber>1</arts:SequenceNumber>
+                        <arts:Sale>
+                            <arts:ItemID>400009421842</arts:ItemID>
+                            <arts:MerchandiseHierarchy ID="3F" Level="4"/>
+                            <arts:RegularSalesUnitPrice>14.88</arts:RegularSalesUnitPrice>
+                            <arts:ActualSalesUnitPrice>14.88</arts:ActualSalesUnitPrice>
+                            <arts:Quantity>1</arts:Quantity>
+                            <arts:Tax TaxType="GST">
+                                <arts:Amount>0.74</arts:Amount>
+                            </arts:Tax>
+                            <arts:Tax TaxType="PSTBC">
+                                <arts:Amount>1.04</arts:Amount>
+                            </arts:Tax>
+                            <arts:TransactionLink>
+                                <arts:RetailStoreID>780</arts:RetailStoreID>
+                                <arts:WorkstationID>11</arts:WorkstationID>
+                                <arts:SequenceNumber>100490</arts:SequenceNumber>
+                                <arts:EndDateTime>2016-05-17T00:00:00-00:00</arts:EndDateTime>
+                            </arts:TransactionLink>
+                        </arts:Sale>
+                    </arts:LineItem>
+                    <arts:LineItem>
+                        <arts:SequenceNumber>0</arts:SequenceNumber>
+                        <arts:Tax TypeCode="Sale" TaxType="PSTBC">
+                            <arts:Amount>1.04</arts:Amount>
+                        </arts:Tax>
+                    </arts:LineItem>
+                    <arts:LineItem>
+                        <arts:SequenceNumber>0</arts:SequenceNumber>
+                        <arts:Tender TenderType="GiftCard" SubTenderType="CAD">
+                            <arts:Amount>16.66</arts:Amount>
+                            <arts:GiftCard>
+                                <arts:CardNumber>9026150905</arts:CardNumber>
+                            </arts:GiftCard>
+                        </arts:Tender>
+                    </arts:LineItem>
+                    <arts:LineItem>
+                        <arts:SequenceNumber>1</arts:SequenceNumber>
+                        <arts:Tax TypeCode="Sale" TaxType="GST">
+                            <arts:Amount>0.74</arts:Amount>
+                        </arts:Tax>
+                    </arts:LineItem>
+                    <arts:Total TotalType="TransactionSubtotal">14.88</arts:Total>
+                    <arts:Total TotalType="TransactionGrossAmount">16.66</arts:Total>
+                </arts:RetailTransaction>
+            </arts:Transaction>
+        </eai:POSLog>
+    </eai:Messages>
+</eai:Exchange>

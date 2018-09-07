@@ -1,0 +1,68 @@
+{
+  "msgType": "transaction",
+  "transactionId": "5517820170112100037",
+  "transactionTypeCode": "SaleTransaction",
+  "majorVersion": 4,
+  "retailStoreId": "0551",
+  "workstationId": "78",
+  "sequenceNumber": "100037",
+  "beginDateTime": "2017-01-25T12:35:47-07:00",
+  "endDateTime": "2017-01-25T12:35:47-07:00",
+  "operatorId": "0",
+  "sourceSystem": "MC",
+  "retailTransaction": {
+    "productLineItems": [
+      {
+        "lineItemSeqNumber": "1",
+        "itemNumber": "410014591799",
+        "merchandiseHierarchyLevel": "4",
+        "merchandiseHierarchyId": "1A",
+        "regularSalesUnitPrice": 94.99,
+        "actualSalesPrice": 0,
+        "basePrice": 0,
+        "proratedPrice": 0,
+        "discountAmount": 0,
+        "quantity": 1,
+        "priceModifiers": [
+          {
+            "reason": {
+              "reasonCode": "ACCOUNT_DISCOUNT",
+              "reasonUniqueId": 4
+            },
+            "amount": 0,
+            "action": "Subtract",
+            "type": "DISCOUNT"
+          }
+        ],
+        "taxes": [
+          {
+            "type": "GST",
+            "taxAmountPerItem": 4.75000000000000000000
+          }
+        ]
+      }
+    ],
+    "taxes": [
+      {
+        "type": "GST",
+        "typeCode": "Sale",
+        "amount": 4.75000000000000000000
+      }
+    ],
+    "customerInformation": {
+      "businessCustomerFlag": "true"
+    },
+    "imagewearTransaction": {
+      "type": "NON_IONS",
+      "customerAccount": {
+        "number": "00221198",
+        "addressLine1": "2615 26th St NE",
+        "city": "CALGARY",
+        "provinceState": "AB",
+        "postalCode": "T1Y 1A4"
+      },
+      "taxAreaCode": "AB"
+    },
+    "transactionGrossAmount": 94.99000000000000000000
+  }
+}

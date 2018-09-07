@@ -1,0 +1,85 @@
+
+BROKER SCHEMA etc.giftcard.retek
+
+
+DECLARE RetekSchema EXTERNAL CHARACTER '';
+DECLARE UserName EXTERNAL CHARACTER '';
+DECLARE Password EXTERNAL CHARACTER '';
+
+CREATE COMPUTE MODULE mod_set_environment
+	CREATE FUNCTION Main() RETURNS BOOLEAN
+	BEGIN
+
+		SET OutputRoot = InputRoot;
+		-- Reference declaration
+		DECLARE refOut,refOutBody REFERENCE TO OutputRoot;
+		DECLARE refInpMsg REFERENCE TO InputRoot.DFDL.Input909.body;
+		-- Extract Givex Card number
+		DECLARE ExtrctGivxCrdNumb CHARACTER SUBSTRING(CAST(refInpMsg.GivexNumb AS CHARACTER )FROM 7 FOR 13);
+		DECLARE GivxCrdNumb INTEGER;
+		SET GivxCrdNumb = CAST(ExtrctGivxCrdNumb AS INTEGER);
+		DECLARE ChkDgt CHARACTER SUBSTRING(CAST(refInpMsg.GivexNumb AS CHARACTER) FROM 20);
+
+		SET Environment.Data.GivxCrdNumb = GivxCrdNumb;
+		SET Environment.Data.ChkDgt = ChkDgt;
+		RETURN TRUE;
+	END;
+END MODULE;
+
+CREATE DATABASE MODULE mod_retrieve_balance
+	CREATE FUNCTION Main() RETURNS BOOLEAN
+	BEGIN
+		CALL core.log.Debug(MessageFlowLabel||'Module name: mod_retrieve_balance - select start');
+		-- Retrieve Gift card information for the given Givex card number
+		SET Environment.Data.SelectResult.Row[] =
+		PASSTHRU('select * from '||RetekSchema||'.GIFTCARD where GIFTCARDNUMBER= ?'
+		VALUES (Environment.Data.GivxCrdNumb));
+		CALL core.log.Debug(MessageFlowLabel||'Module name: mod_retrieve_balance - select end');
+		RETURN TRUE;
+	END;
+END MODULE;
+
+CREATE COMPUTE MODULE mod_create_dataconnect_response
+	CREATE FUNCTION Main() RETURNS BOOLEAN
+	BEGIN
+		-- Copy message headers
+		SET OutputRoot.Properties = InputRoot.Properties;
+		-- Set Output parsing message model to Output_909
+		SET OutputRoot.Properties.MessageType = '{}:Output_909';
+		-- Reference declaration
+		DECLARE refOut,refOutBody REFERENCE TO OutputRoot;
+		DECLARE refInpMsg REFERENCE TO InputRoot.DFDL.Input909.body;
+		DECLARE refResult REFERENCE TO Environment.Data.SelectResult.Row[1];
+		--In case gift card not found then raise an exception
+		IF NOT LASTMOVE(refResult) THEN
+			THROW USER EXCEPTION MESSAGE 2999 VALUES('2:56:No card record');
+		END IF;
+
+		IF (refResult.GIFTCARDCHECKDIGIT <> CAST(Environment.Data.ChkDgt AS DECIMAL)) THEN
+			THROW USER EXCEPTION MESSAGE 2999 VALUES('3:14:Invalid card number');
+		END IF;
+
+		IF (refInpMsg.UserId <> UserName) THEN
+			THROW USER EXCEPTION MESSAGE 2999 VALUES('1:06:Error');
+		END IF;
+		-- Create the Dataconnect 909 - Balance enquiry response
+		-----------
+		-- Start
+		-----------
+		CREATE LASTCHILD OF OutputRoot AS refOut DOMAIN 'DFDL';
+		CREATE LASTCHILD OF refOut.Output909 AS refOutBody NAME 'body';
+		SET refOutBody.TransactionCode = refInpMsg.transCode;
+		SET refOutBody.Result = '0';
+		SET refOutBody.Msg = CAST(refResult.GIFTCARDVALUE AS CHARACTER);
+		DECLARE refExpDte REFERENCE TO refResult.GIFTCARDEXPIRYDATE;
+		IF (FIELDVALUE(refExpDte) IS NULL) THEN
+			SET refOutBody.CertExpDate = 'none';
+		ELSE
+			SET refOutBody.CertExpDate = SUBSTRING(CAST(refResult.GIFTCARDEXPIRYDATE AS CHARACTER) FROM 7 FOR 10);
+		END IF;
+		--------
+		--End
+		--------
+		RETURN TRUE;
+	END;
+END MODULE;

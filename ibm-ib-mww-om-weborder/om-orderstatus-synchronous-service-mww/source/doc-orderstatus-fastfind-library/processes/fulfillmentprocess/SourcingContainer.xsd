@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xsd:schema xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+	targetNamespace="http://MarkS2_lib/processes/fulfillmentprocess"
+	xmlns:bons0="http://MarkS2/Businessitems">
+	<xsd:import schemaLocation="../../businessitems/businessitems.xsd"
+		namespace="http://MarkS2/Businessitems">
+	</xsd:import>
+	<xsd:element name="SourcingContainer">
+	 <xsd:complexType>
+		<xsd:sequence>
+			<xsd:element minOccurs="0" name="sourcinglist"
+				type="bons0:Sourcing" maxOccurs="unbounded">
+			</xsd:element>
+		</xsd:sequence>
+	</xsd:complexType>
+	</xsd:element>
+</xsd:schema>

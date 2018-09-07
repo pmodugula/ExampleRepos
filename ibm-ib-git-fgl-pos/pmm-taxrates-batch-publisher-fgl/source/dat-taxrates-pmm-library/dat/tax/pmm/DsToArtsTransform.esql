@@ -1,0 +1,334 @@
+BROKER SCHEMA dat.tax.pmm
+/*
+* Authors : Piyush Vaishnav.
+* File Name: DsToArtsTransform.esql
+* Create Date: 22-Aug-2016
+* Version History:
+* Version        Module Name                      Revision Date  Revision Details
+* =============  ==========================       =============  ====================================================================================
+* 1.0 			 SetupCodeTranslation		  	22-Aug-2016 	 Inital Version
+* 1.0			DsToArtsTransform				22-Aug-2016 	 Inital Version
+* 1.0			DbLookup						22-Aug-2016 	 Inital Version
+*
+* FGL/MWW (C)2014,2015. All rights reserved.
+*/
+ -- Global NameSpace Declration.
+DECLARE eai NAMESPACE 'http://www.fgl.com/exchange/';
+DECLARE arts NAMESPACE 'http://www.fgl.com/ARTS';
+DECLARE xsi NAMESPACE 'http://www.w3.org/2001/XMLSchema-instance';
+--Added Datastage namespace declaration.
+DECLARE ds NAMESPACE 'http://www.fgl.com/SourceStagingTaxationRulesPmmFgl';
+
+DECLARE TAX_CODE_DESC CONSTANT CHARACTER 'TAX TYPE NAME';
+DECLARE TAX_CODE CONSTANT CHARACTER 'TAX TYPE CODE';
+DECLARE CMN_CODE_DSCRPT_TXT CONSTANT CHARACTER 'CMN_CODE_DSCRPT_TXT';
+
+CREATE COMPUTE MODULE SetupCodeTranslation
+	CREATE FUNCTION Main() RETURNS BOOLEAN
+	BEGIN
+		DECLARE rEnv REFERENCE TO Environment;
+		DECLARE SBU CHARACTER InputRoot.XMLNSC.ds:Exchange.ds:MessageRouting.ds:SBU_CD;
+		DECLARE DATA_SOURCE CHARACTER InputRoot.XMLNSC.ds:Exchange.ds:MessageRouting.ds:DATA_SOURCE_CD;
+		-- condition added by Piyush Vaishnav to tackle double call to common_InitCodeTranslation
+		IF rEnv.__InitCodeTranslation__ IS NULL AND rEnv.__InitCodeTranslation__ <> TRUE THEN
+			CALL common.common_TranslateCodeInit(rEnv);
+		END IF;
+		DECLARE rTaxCode REFERENCE TO InputRoot.XMLNSC.ds:Exchange.ds:Message.ds:Taxes.ds:TaxCode;
+		SET Environment.XMLNSC.*[] = InputRoot.XMLNSC.*[];--[InputRoot.XMLNSC.*:Exchange.ds:Message.ds:Taxes.ds:TaxCode;
+		--CALL common.common_TranslateCodeWithSuffix(rEnv,SBU,DATA_SOURCE,TAX_CODE_DESC,'',rTaxCode.ds:TXS_CODE);
+		CALL common.common_TranslateCodeWithSuffix(rEnv,SBU,DATA_SOURCE,TAX_CODE,'',rTaxCode.ds:TXS_CODE);
+		SET OutputRoot = InputRoot;
+		RETURN TRUE;
+	END;
+END MODULE;
+
+CREATE COMPUTE MODULE DsToArtsTransform
+	CREATE FUNCTION Main() RETURNS BOOLEAN
+	BEGIN
+	
+		-- copy message headers
+		SET OutputRoot.Properties = InputRoot.Properties;
+		SET OutputRoot.MQMD = InputRoot.MQMD;
+		-- Namespace Declaration
+		DECLARE eai NAMESPACE 'http://www.fgl.com/exchange/';
+		DECLARE arts NAMESPACE 'http://www.fgl.com/ARTS';
+		DECLARE xsi NAMESPACE 'http://www.w3.org/2001/XMLSchema-instance';
+		DECLARE ds NAMESPACE 'http://www.fgl.com/SourceStagingTaxationRulesPmmFgl';
+		-- Declaring References
+		DECLARE rOut, rOutExch, rOutMsgs, rOutSrcSys, rOutMsgRtng, rOutArtsTaxGroup, 
+				rOutTaxJurisdiction, rOutTaxRegions, rOutTaxRegion, rOutBsnsAssocs, rOutBsnsAssoc, rOutBsnsUnits, rOutBsnsUnit,
+				rOutTaxRateRules, rOutTaxRateRule REFERENCE TO OutputRoot;
+		DECLARE rInExch REFERENCE TO InputRoot.XMLNSC.ds:Exchange;
+		DECLARE rInMsgRtng REFERENCE TO rInExch.ds:MessageRouting;
+		DECLARE rInMsg REFERENCE TO rInExch.ds:Message;
+		DECLARE rInTaxes REFERENCE TO rInMsg.ds:Taxes;
+		DECLARE rInTaxArea REFERENCE TO rInTaxes.ds:TaxAreas.ds:Row[1];
+		DECLARE rInTaxAreaStoreDtl REFERENCE TO rInTaxArea.ds:StoreDetails.ds:Row[1];
+		DECLARE rInTaxRate REFERENCE TO rInTaxes.ds:TaxRates.ds:Row[1];
+		DECLARE rInTaxCode REFERENCE TO rInTaxes.ds:TaxCode;
+		DECLARE rEnv REFERENCE TO Environment;
+		
+		DECLARE SBU CHARACTER rInMsgRtng.ds:SBU_CD;
+		DECLARE DATA_SOURCE CHARACTER rInMsgRtng.ds:DATA_SOURCE_CD;
+		
+		-- Logging Module Start		
+		DECLARE schemaName CHARACTER 'dat.tax.pmm';
+		DECLARE moduleName CHARACTER 'DsToArtsTransform';
+		DECLARE count1, count2, count3 INTEGER 0;
+		CALL core.log.DebugMessage(rEnv, schemaName || '.' || moduleName,  ' [_MODULE - START]' );
+				
+		-- Constructing Header of the Output XML
+		CREATE LASTCHILD OF OutputRoot AS rOut DOMAIN 'XMLNSC';
+		CREATE LASTCHILD OF rOut AS rOutExch NAMESPACE eai NAME 'Exchange';
+		SET rOutExch.(XMLNSC.NamespaceDecl)xmlns:"eai" = eai;
+		SET rOutExch.(XMLNSC.NamespaceDecl)xmlns:"arts" = arts;
+		SET rOutExch.(XMLNSC.NamespaceDecl)xmlns:"xsi" = xsi;
+		SET rOutExch.(XMLNSC.Attribute)MajorVersion = 1;
+		SET rOutExch.(XMLNSC.Attribute)MinorVersion = 0;
+		SET rOutExch.(XMLNSC.Attribute)FixVersion = 1;
+		
+		-- Constructing Exchange/MessageRouting
+		CREATE LASTCHILD OF rOutExch AS rOutMsgRtng NAMESPACE eai NAME 'MessageRouting';
+		SET rOutMsgRtng.eai:Guid = rInMsgRtng.ds:Guid;
+		SET rOutMsgRtng.eai:MessageId = InputRoot.MQMD.MsgId;
+		SET rOutMsgRtng.eai:MessageType = 'PubSub';
+		SET rOutMsgRtng.eai:SubjectArea = rInMsgRtng.ds:SubjectArea;
+		SET rOutMsgRtng.eai:SbuNumber = rInMsgRtng.ds:SBU_NBR;
+		SET rOutMsgRtng.eai:SbuCode = rInMsgRtng.ds:SBU_CD;
+		SET rOutMsgRtng.eai:SbuName = rInMsgRtng.ds:SBU_NM;
+		SET rOutMsgRtng.eai:DataSourceCode = rInMsgRtng.ds:DATA_SOURCE_CD;
+		SET rOutMsgRtng.eai:DataSourceCodeName = rInMsgRtng.ds:DATA_SOURCE_NM;
+		SET rOutMsgRtng.eai:MessageIndex = rInMsgRtng.ds:MessageIndex;
+		SET rOutMsgRtng.eai:MessageCount = rInMsgRtng.ds:MessageCount;
+		SET rOutMsgRtng.eai:SubjectAreaRunName = rInMsgRtng.ds:SubjectAreaRunName;
+
+		-- Constructing Exchange/Messages				
+		CREATE LASTCHILD OF rOutExch AS rOutMsgs NAMESPACE eai NAME 'Messages';
+		SET rOutMsgs.eai:Count = 1;
+		-- Constructing Exhcnage/Messages/SourceSystems
+		CREATE LASTCHILD OF rOutMsgs AS rOutSrcSys NAMESPACE eai NAME 'SourceSystems';
+		SET rOutSrcSys.eai:Count = 1;
+		SET rOutSrcSys.eai:SourceSystem.eai:Index = 1;
+		SET rOutSrcSys.eai:SourceSystem.eai:SbuNumber = rInMsgRtng.ds:SBU_NBR;
+		SET rOutSrcSys.eai:SourceSystem.eai:SbuCode = rInMsgRtng.ds:SBU_CD;
+		SET rOutSrcSys.eai:SourceSystem.eai:SbuName = rInMsgRtng.ds:SBU_NM;
+		SET rOutSrcSys.eai:SourceSystem.eai:MessageSourceCode = rInMsgRtng.ds:MessageSourceCode;
+		SET rOutSrcSys.eai:SourceSystem.eai:MessageSourceCodeName = rInMsgRtng.ds:MessageSourceCodeName;
+
+		-- Constructing the payload (Exchange/Messages/ArtsTaxGroup)
+		CREATE LASTCHILD OF rOutMsgs AS rOutArtsTaxGroup NAMESPACE eai NAME 'ArtsTaxGroup';
+		CALL common.mapChangeActionFlagOrActionFromEtlToArts(rInTaxes.(XMLNSC.Attribute)Action) INTO rOutArtsTaxGroup.(XMLNSC.Attribute)Action;
+		SET rOutArtsTaxGroup.arts:Index=1;		-- mandatory
+		SET rOutArtsTaxGroup.arts:TaxGroupRuleCode = rInTaxes.ds:TaxCode.ds:TXS_CODE; -- mandatory
+		SET rOutArtsTaxGroup.arts:TaxGroupRuleName = rInTaxes.ds:TaxCode.ds:TXS_CODE_DESC; -- mandatory
+		SET rOutArtsTaxGroup.arts:TaxOnGrossAmountFlag = 'N';
+		SET rOutArtsTaxGroup.arts:TaxablePercent = '100.00';
+		SET rOutArtsTaxGroup.arts:CalculationMethodCode = '2';
+		--Map CalculationMethodDescription from SQL Query here
+		SET rOutArtsTaxGroup.arts:CalculationMethodDescriptionText = rEnv.__DbLookup_CalculationMethodDescText__;
+		SET rOutArtsTaxGroup.arts:RoundingDigitNumber = '0.01';
+		SET rOutArtsTaxGroup.arts:RoundingThresholdValueNumber = '5';
+		SET rOutArtsTaxGroup.arts:RoundingDirectionCode = 'UP';
+		
+		-- Map TaxType/TaxTypeCode and TaxType/TaxTypeName using Code Translation data
+		CALL common.common_TranslateCodeGet_Code(rEnv,SBU,DATA_SOURCE,TAX_CODE,rInTaxes.ds:TaxCode.ds:TXS_CODE) INTO rOutArtsTaxGroup.arts:TaxType.arts:TaxTypeCode;			 		
+		CALL common.common_TranslateCodeGet_Code_Description(rEnv,SBU,DATA_SOURCE,TAX_CODE,CMN_CODE_DSCRPT_TXT,rInTaxes.ds:TaxCode.ds:TXS_CODE) INTO rOutArtsTaxGroup.arts:TaxType.arts:TaxTypeName;
+			
+		-- Map ArtsTaxGroup/TaxJurisdiction
+		IF NOT common.common_valueIsNullOrBlank(rInTaxes.ds:TaxAuthority.ds:TXS_AUTH_CODE) THEN
+			CREATE LASTCHILD OF rOutArtsTaxGroup AS rOutTaxJurisdiction NAMESPACE arts NAME 'TaxJurisdiction'; 
+			SET rOutTaxJurisdiction.arts:TaxJurisdictionCode = rInTaxes.ds:TaxAuthority.ds:TXS_AUTH_CODE;
+			SET rOutTaxJurisdiction.arts:TaxJurisdictionName = rInTaxes.ds:TaxAuthority.ds:TXS_AUTH_DESC;
+			SET rOutTaxJurisdiction.arts:TaxAuthority.arts:TaxAuthorityCode = rInTaxes.ds:TaxAuthority.ds:TXS_AUTH_CODE;
+			SET rOutTaxJurisdiction.arts:TaxAuthority.arts:TaxAuthorityName = rInTaxes.ds:TaxAuthority.ds:TXS_AUTH_DESC;
+			
+			-- Map these from DB Lookup. 
+			IF NOT common.common_valueIsNullOrBlank(rEnv.__DbLookup_JurisdictionTypeCode__) THEN
+				SET rOutTaxJurisdiction.arts:TaxJurisdictionType.arts:TaxJurisdictionTypeCode = rEnv.__DbLookup_JurisdictionTypeCode__;
+				SET rOutTaxJurisdiction.arts:TaxJurisdictionType.arts:TaxJurisdictionTypeName = rEnv.__DbLookup_JurisdictionTypeName__;
+				SET rOutTaxJurisdiction.arts:TaxJurisdictionType.arts:TaxJurisdictionTypeDescriptionText = rEnv.__DbLookup_JurisdictionTypeDescText__;
+			END IF;	
+			
+			-- Map ArtsTaxGroup/TaxJurisdiction/TaxRegions
+			SET count1 = 0;
+			IF rInTaxArea.*[1] IS NOT NULL  THEN
+				CREATE LASTCHILD OF rOutTaxJurisdiction AS rOutTaxRegions NAMESPACE arts NAME 'TaxRegions';
+				WHILE LASTMOVE(rInTaxArea) DO
+					SET count1 = count1 + 1;
+					MOVE rInTaxAreaStoreDtl TO rInTaxArea.ds:StoreDetails.ds:Row[1];
+					CREATE LASTCHILD OF rOutTaxRegions AS rOutTaxRegion NAMESPACE arts NAME 'TaxRegion';
+					SET rOutTaxRegion.arts:Index = count1;
+					SET rOutTaxRegion.arts:TaxRegionCode = rInTaxArea.ds:TXS_AREA_CODE;
+					SET rOutTaxRegion.arts:TaxRegionName = rInTaxArea.ds:TXS_AREA_DESC;
+					CREATE LASTCHILD OF rOutTaxRegion AS rOutBsnsAssocs NAMESPACE arts NAME 'BusinessUnitAssociations';
+					SET count2 = 0;
+					WHILE LASTMOVE(rInTaxAreaStoreDtl) DO
+						SET count2 = count2 + 1;
+						CREATE LASTCHILD OF rOutBsnsAssocs AS rOutBsnsAssoc NAMESPACE arts NAME 'BusinessUnitAssociation';
+						SET rOutBsnsAssoc.arts:Index = count2;
+						-- Updated by Prasanth on 6th Dec 2016 for https://jira.fglsports.com/browse/FPOE-14455
+						--SET rOutBsnsAssoc.arts:EffectiveDateTime =  CAST(rInTaxAreaStoreDtl.ds:StoreAssociationStartDate AS CHARACTER FORMAT 'YYYY-MM-DD') || 'T00:00:00';
+						
+						IF NOT common.common_valueIsNullOrBlank(rInTaxAreaStoreDtl.ds:StoreAssociationStartDate) THEN
+							SET rOutBsnsAssoc.arts:EffectiveDateTime =  CAST(rInTaxAreaStoreDtl.ds:StoreAssociationStartDate AS CHARACTER FORMAT 'YYYY-MM-DD') || 'T00:00:00';
+						ELSE							
+							SET rOutBsnsAssoc.arts:EffectiveDateTime = SUBSTRING('1990-01-01 00:00:00' BEFORE ' ') || 'T00:00:00';
+						END IF;
+						
+						IF NOT common.common_valueIsNullOrBlank(rInTaxAreaStoreDtl.ds:StoreAssociationEndDate) THEN
+							SET rOutBsnsAssoc.arts:ExpirationDateTime =  CAST(rInTaxAreaStoreDtl.ds:StoreAssociationEndDate AS CHARACTER FORMAT 'YYYY-MM-DD') || 'T23:59:59';
+						ELSE							
+							SET rOutBsnsAssoc.arts:ExpirationDateTime.(XMLNSC.Attribute)xsi:nil = TRUE;
+						END IF;
+						CREATE LASTCHILD OF rOutBsnsAssoc AS rOutBsnsUnits NAMESPACE arts NAME 'BusinessUnits';
+						SET count3 = 0;
+						IF NOT common.common_valueIsNullOrBlank(rInTaxAreaStoreDtl.ds:ORG_LVL_NUMBER) THEN
+							CREATE LASTCHILD OF rOutBsnsUnits AS rOutBsnsUnit NAMESPACE arts NAME 'BusinessUnit';
+							SET count3 = count3 + 1;
+							SET rOutBsnsUnit.arts:Index = 1;
+							SET rOutBsnsUnit.arts:BusinessUnitNumber = rInTaxAreaStoreDtl.ds:ORG_LVL_NUMBER;
+							IF rInTaxAreaStoreDtl.ds:ORG_LVL_ID = 1 AND rInTaxAreaStoreDtl.ds:ORG_IS_STORE = 'F' THEN
+								SET rOutBsnsUnit.arts:BusinessUnitTypeCode = 'DC' ;
+							ELSEIF rInTaxAreaStoreDtl.ds:ORG_LVL_ID = 1 AND rInTaxAreaStoreDtl.ds:ORG_IS_STORE = 'T' THEN
+								SET rOutBsnsUnit.arts:BusinessUnitTypeCode = 'RS';
+							ELSE
+								SET rOutBsnsUnit.arts:BusinessUnitTypeCode.(XMLNSC.Attribute)xsi:nill = TRUE;
+							END IF;
+							SET rOutBsnsUnit.arts:BusinessUnitShortName = rInTaxAreaStoreDtl.ds:ORG_NAME_SHORT;
+							SET rOutBsnsUnit.arts:BusinessUnitName = rInTaxAreaStoreDtl.ds:ORG_NAME_FULL;
+						ELSE
+							THROW USER EXCEPTION MESSAGE 2951 VALUES('Invalid Message. ORG_LVL_NUMBER can not be NULL for a Tax Area Store Detail');						
+						END IF;
+						CREATE FIRSTCHILD OF rOutBsnsUnits NAMESPACE arts NAME 'Count' VALUE count3;
+						MOVE rInTaxAreaStoreDtl NEXTSIBLING REPEAT NAME;
+					END WHILE;
+					CREATE FIRSTCHILD OF rOutBsnsAssocs NAMESPACE arts NAME 'Count' VALUE count2;
+					MOVE rInTaxArea NEXTSIBLING REPEAT NAME;					
+				END WHILE;
+				CREATE FIRSTCHILD OF rOutTaxRegions NAMESPACE arts NAME 'Count' VALUE count1;
+			END IF;
+		END IF;
+		
+		-- Mapping TaxRateRules
+		CREATE LASTCHILD OF rOutArtsTaxGroup AS rOutTaxRateRules NAMESPACE arts NAME 'TaxRateRules';
+		SET rOutTaxRateRules.arts:Count = 1;
+		-- For FGL, 1 and only 1 Tax Rate Rule is sent by DS. 
+		CREATE LASTCHILD OF rOutTaxRateRules AS rOutTaxRateRule NAMESPACE arts NAME 'TaxRateRule';
+		SET rOutTaxRateRule.arts:Index = 1;
+		--SET rTrxDtls.transaction_process_date 		= COALESCE(CAST(endDateTime as CHAR FORMAT 'yyyy-MM-dd') || ' ' || '00:00:00.0','');
+		SET rOutTaxRateRule.arts:TaxRateEffectiveDateTime = SUBSTRING(rInTaxRate.ds:TXS_EFF_FROM BEFORE ' ') || 'T00:00:00';
+		SET rOutTaxRateRule.arts:TaxRateExpiryDateTime = SUBSTRING(rInTaxRate.ds:TXS_EFF_TO BEFORE ' ') || 'T23:59:59' ;
+		--SET rOutTaxRateRule.arts:TaxRateEffectiveDateTime = CAST(CAST(rInTaxRate.ds:TXS_EFF_FROM AS TIMESTAMP FORMAT 'YYYY-MM-DD HH:mm:ss') AS CHARACTER FORMAT 'YYYY-MM-DD') || 'T00:00:00';		
+		--SET rOutTaxRateRule.arts:TaxRateExpiryDateTime = CAST(CAST(rInTaxRate.ds:TXS_EFF_TO AS TIMESTAMP FORMAT 'YYYY-MM-DD HH:mm:ss') AS CHARACTER FORMAT 'YYYY-MM-DD') || 'T23:59:59';
+		IF NOT common.common_valueIsNullOrBlank(rInTaxRate.ds:TXS_AMT) THEN
+			SET rOutTaxRateRule.arts:TaxRateRuleAmount = rInTaxRate.ds:TXS_AMT;
+		END IF;
+		SET rOutTaxRateRule.arts:TaxRateRulePercent = rInTaxRate.ds:TXS_RATE;
+		SET rOutTaxRateRule.arts:MinimumTaxableAmount = rInTaxRate.ds:TXS_FROM_AMT;
+		SET rOutTaxRateRule.arts:MaximumTaxableAmount = rInTaxRate.ds:TXS_TO_AMT;
+		SET rOutTaxRateRule.arts:MinimumTaxableQuantity = rInTaxRate.ds:TXS_FROM_QT;
+		SET rOutTaxRateRule.arts:MaximumTaxableQuantity = rInTaxRate.ds:TXS_TO_QT;
+		SET rOutTaxRateRule.arts:TaxRateClass.arts:TaxRateClassCode = 'STANDARD';
+		SET rOutTaxRateRule.arts:TaxRateClass.arts:TaxRateClassName = 'STANDARD';
+		
+		-- Mapping TaxRateRule/TaxResultTypes
+		IF (rInTaxCode.ds:TXS_POS_EXEMPT = 'T' AND rInTaxCode.ds:TXS_POS_OVER = 'T') THEN
+			-- If both are TRUE then map two TaxRateResultType(s), 1 for 'POS_EXEMPTION' and 2 for 'POS OVERRIDE'
+			SET rOutTaxRateRule.arts:TaxResultTypes.arts:Count = 2;
+			SET rOutTaxRateRule.arts:TaxResultTypes.arts:TaxResultType[1].arts:Index = 1;
+			SET rOutTaxRateRule.arts:TaxResultTypes.arts:TaxResultType[1].arts:TaxResultTypeCode = 'POS EXEMPTION';
+			SET rOutTaxRateRule.arts:TaxResultTypes.arts:TaxResultType[1].arts:TaxResultTypeName = 'POS EXEMPTION';
+			SET rOutTaxRateRule.arts:TaxResultTypes.arts:TaxResultType[2].arts:Index = 2;
+			SET rOutTaxRateRule.arts:TaxResultTypes.arts:TaxResultType[2].arts:TaxResultTypeCode = 'POS OVERRIDE';
+			SET rOutTaxRateRule.arts:TaxResultTypes.arts:TaxResultType[2].arts:TaxResultTypeName = 'POS OVERRIDE';			
+		ELSEIF (rInTaxCode.ds:TXS_POS_EXEMPT = 'T' AND rInTaxCode.ds:TXS_POS_OVER = 'F') THEN
+			-- If TAX_POS_EXEMPT is TRUE but TXS_POS_OVER is FALSE then map only 1 TaxRateResultType for 'POS EXEMPTION'
+			SET rOutTaxRateRule.arts:TaxResultTypes.arts:Count = 1;
+			SET rOutTaxRateRule.arts:TaxResultTypes.arts:TaxResultType[1].arts:Index = 1;
+			SET rOutTaxRateRule.arts:TaxResultTypes.arts:TaxResultType[1].arts:TaxResultTypeCode = 'POS EXEMPTION';
+			SET rOutTaxRateRule.arts:TaxResultTypes.arts:TaxResultType[1].arts:TaxResultTypeName = 'POS EXEMPTION';
+		ELSEIF (rInTaxCode.ds:TXS_POS_EXEMPT = 'F' AND rInTaxCode.ds:TXS_POS_OVER = 'T') THEN
+			-- If TAX_POS_EXEMPT is TRUE but TXS_POS_OVER is FALSE then map only 1 TaxRateResultType for 'POS OVERRIDE'
+			SET rOutTaxRateRule.arts:TaxResultTypes.arts:Count = 1;
+			SET rOutTaxRateRule.arts:TaxResultTypes.arts:TaxResultType[1].arts:Index = 1;
+			SET rOutTaxRateRule.arts:TaxResultTypes.arts:TaxResultType[1].arts:TaxResultTypeCode = 'POS OVERRIDE';
+			SET rOutTaxRateRule.arts:TaxResultTypes.arts:TaxResultType[1].arts:TaxResultTypeName = 'POS OVERRIDE';
+		ELSE
+			-- Do Not Map			
+		END IF;
+			
+		-- Mapping TaxRates/TaxRate/TaxIntendedUsageCode
+		SET rOutTaxRateRule.arts:TaxIntendedUsage.arts:UsageCode = rInTaxRate.ds:TXS_RATE_TYPE;
+		SET rOutTaxRateRule.arts:TaxIntendedUsage.arts:IntendedUsageName = rInTaxRate.ds:TaxRateTypeName;
+		SET rOutTaxRateRule.arts:TaxIntendedUsage.arts:IntendedUsageDescription = rInTaxRate.ds:TaxRateTypeName;
+		-- Mapping TaxRates/TaxRate/SourceTaxRateRuleNumber
+		SET rOutTaxRateRule.arts:SourceTaxRateRuleNumber = rInTaxRate.ds:TXS_RATE_TECH_KEY;
+		
+		-- Writing success log. 
+		CALL core.log.InfoMessage(rEnv, schemaName || '.' || moduleName, ' Transformation completed successfully.');
+		-- Writing Module End Log.
+		CALL core.log.DebugMessage(rEnv, schemaName || '.' || moduleName,  ' [_MODULE - END]' );
+		RETURN TRUE;
+	END;
+END MODULE;
+
+
+CREATE DATABASE MODULE DbLookup
+	CREATE FUNCTION Main() RETURNS BOOLEAN
+	BEGIN
+	
+		-- Declaring References
+		DECLARE rEnv REfERENCE TO Environment;
+				
+		--Declare Variables
+		DECLARE selectQuery CHARACTER; 
+		DECLARE queryResult ROW;
+		DECLARE sbuNbr CHARACTER Root.XMLNSC.ds:Exchange.ds:MessageRouting.ds:SBU_NBR;
+		DECLARE taxTypeCode CHARACTER '';
+		DECLARE SBU CHARACTER Root.XMLNSC.ds:Exchange.ds:MessageRouting.ds:SBU_CD;
+		DECLARE DATA_SOURCE CHARACTER Root.XMLNSC.ds:Exchange.ds:MessageRouting.ds:DATA_SOURCE_CD;
+		
+		-- Logging Module Start		
+		DECLARE schemaName CHARACTER 'dat.tax.pmm';
+		DECLARE moduleName CHARACTER 'DbLookup';
+		CALL core.log.DebugMessage(rEnv, schemaName || '.' || moduleName,  ' [_MODULE - START]' );
+		
+		CALL common.common_TranslateCodeGet_Code(rEnv,SBU,DATA_SOURCE,TAX_CODE,Root.XMLNSC.ds:Exchange.ds:Message.ds:Taxes.ds:TaxCode.ds:TXS_CODE) INTO taxTypeCode;   
+		
+		 
+		--Queriying for Calculation Method Description Text field in Arts
+		SET selectQuery = 'SELECT CLCLTN_METHOD_DSCRPT_TXT ' || 
+		'FROM IIB.ARTS_TAX_CLCLTN_METHOD ' || 
+		'WHERE SBU_NBR = ? AND CLCLTN_METHOD_CD = 3';
+
+		SET queryResult =  PASSTHRU(selectQuery VALUES(sbuNbr));
+		
+		SET rEnv.__DbLookup_CalculationMethodDescText__ = CAST(queryResult.CLCLTN_METHOD_DSCRPT_TXT AS CHARACTER);
+		
+		-- Querying for Tax Jurisdiction Type Code, Name and Description Text.
+		SET queryResult = NULL;
+		
+		IF taxTypeCode = 'GST' THEN
+			SET selectQuery = 'SELECT JRSDC_TYPE_CD, JRSDC_TYPE_NM, JRSDC_TYPE_DSCRPT_TXT  ' || 
+			'FROM IIB.ARTS_TAX_JRSDC_TYPE ' ||
+			'WHERE SBU_CD = ''FGL'' AND JRSDC_TYPE_CD = ''COUNTRY'' AND SBU_NBR = ?';			
+		ELSEIF taxTypeCode IN ('PST', 'HST', 'QST') THEN
+			SET selectQuery = 'SELECT JRSDC_TYPE_CD, JRSDC_TYPE_NM, JRSDC_TYPE_DSCRPT_TXT  ' ||
+			'FROM IIB.ARTS_TAX_JRSDC_TYPE ' ||
+			'WHERE SBU_CD = ''FGL'' AND JRSDC_TYPE_CD = ''PROVINCE'' AND SBU_NBR = ?';			
+		ELSE
+			--DO Nothing as the field is optional in ARTS.
+		END IF;
+		
+		SET queryResult =  PASSTHRU(selectQuery VALUES(sbuNbr));
+		
+		SET rEnv.__DbLookup_JurisdictionTypeCode__ = CAST(queryResult.JRSDC_TYPE_CD AS CHARACTER);
+		SET rEnv.__DbLookup_JurisdictionTypeName__ = CAST(queryResult.JRSDC_TYPE_NM AS CHARACTER);
+		SET rEnv.__DbLookup_JurisdictionTypeDescText__ = CAST(queryResult.JRSDC_TYPE_DSCRPT_TXT AS CHARACTER);
+ 		
+ 		CALL core.log.InfoMessage(rEnv, schemaName || '.' || moduleName,  ' Database lookup done. ' );
+ 		CALL core.log.DebugMessage(rEnv, schemaName || '.' || moduleName,  ' [_MODULE - END]' );
+		RETURN TRUE;
+	END;
+END MODULE;
+

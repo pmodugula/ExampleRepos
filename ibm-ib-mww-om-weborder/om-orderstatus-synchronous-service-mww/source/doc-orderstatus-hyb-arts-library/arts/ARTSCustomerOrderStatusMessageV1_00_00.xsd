@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- edited with XMLSpy v2014 rel. 2 (http://www.altova.com) by Ron Matyjanka (FGL SPORTS LTD) -->
+<xs:schema xmlns:eai="http://www.fgl.com/exchange/" xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:vc="http://www.w3.org/2007/XMLSchema-versioning" xmlns:arts="http://www.fgl.com/ARTS" targetNamespace="http://www.fgl.com/exchange/" elementFormDefault="qualified" attributeFormDefault="unqualified" version="1.00" vc:minVersion="1.1">
+	<xs:include schemaLocation="Library/AttributeGroupsV1_00_00.xsd"/>
+	<xs:include schemaLocation="Library/DQResultsV1_00_00.xsd"/>
+	<xs:include schemaLocation="Library/SourceSystemsTypeV1_00_00.xsd"/>
+	<xs:import namespace="http://www.fgl.com/ARTS" schemaLocation="Library/ARTS_CustomerOrderStatusTypeV1_00_00.xsd"/>
+	<xs:include schemaLocation="Library/MessageRoutingTypeV1_00_00.xsd"/>
+	<xs:element name="Exchange">
+		<xs:complexType>
+			<xs:all>
+				<xs:element name="MessageRouting" type="eai:MessageRoutingType"/>
+				<xs:element name="MessageRoutingExtension" minOccurs="0"/>
+				<xs:element name="Messages">
+					<xs:complexType>
+						<xs:sequence>
+							<xs:element name="Count" type="xs:integer"/>
+							<xs:element name="SourceSystems" type="eai:SourceSystemsType"/>
+							<xs:element name="ArtsCustomerOrderStatuses" type="arts:CustomerOrderStatus" maxOccurs="unbounded"/>
+						</xs:sequence>
+					</xs:complexType>
+				</xs:element>
+				<xs:element name="DqResults" type="eai:DqResults" minOccurs="0"/>
+			</xs:all>
+			<xs:attributeGroup ref="eai:VersionAttributeGroup"/>
+		</xs:complexType>
+	</xs:element>
+</xs:schema>

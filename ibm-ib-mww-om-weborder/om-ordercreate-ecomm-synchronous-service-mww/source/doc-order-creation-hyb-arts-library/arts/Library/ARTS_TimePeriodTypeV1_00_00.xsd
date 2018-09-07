@@ -1,0 +1,83 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<!-- edited with XMLSpy v2014 rel. 2 (http://www.altova.com) by Ron Matyjanka (FGL SPORTS LTD) -->
+<!--
+ * ER/Studio Data Architect XE3 %s XML Schema Generation
+ * Company:		FGL Sports
+ * Project:		FGL Corporate Data Warehouse
+ * Author:		Warren Whale
+ * Version:		1.0
+ * Date Created:	2015-01-23
+-->
+<xs:schema xmlns:arts="http://www.fgl.com/ARTS" xmlns:xs="http://www.w3.org/2001/XMLSchema" targetNamespace="http://www.fgl.com/ARTS" elementFormDefault="qualified">
+	<xs:include schemaLocation="AttributeGroupsV1_00_00.xsd"/>
+	<xs:complexType name="ArtsTimePeriodType">
+		<xs:sequence>
+			<xs:element name="Index"/>
+			<xs:element name="DataSource" type="arts:DataSource"/>
+			<xs:element name="TimePeriods" nillable="true">
+				<xs:annotation>
+					<xs:documentation>A TimePeriod entity type designates and names a specific block of time for a specific day of the week. The block of times defined by a start time and a duration (along with athe unit of time used to specify the duration). For example, a TimePeriod entity type allows a retailer to define a "Happy Hour" period as Fridays from 5:00pm to 6:30pm</xs:documentation>
+				</xs:annotation>
+				<xs:complexType>
+					<xs:sequence>
+						<xs:element name="Count" type="xs:long"/>
+						<xs:element name="TimePeriod" minOccurs="0" maxOccurs="unbounded">
+							<xs:annotation>
+								<xs:documentation>This is a single instance so the name must be singular.</xs:documentation>
+							</xs:annotation>
+							<xs:complexType>
+								<xs:sequence>
+									<xs:element name="Index" type="xs:long"/>
+									<xs:element name="TimePeriodName">
+										<xs:annotation>
+											<xs:documentation>A human readable name for the time period</xs:documentation>
+										</xs:annotation>
+										<xs:complexType>
+											<xs:simpleContent>
+												<xs:extension base="xs:string">
+													<xs:attributeGroup ref="arts:ElementControlAttributeGroup"/>
+												</xs:extension>
+											</xs:simpleContent>
+										</xs:complexType>
+									</xs:element>
+									<xs:element name="TimePeriodLabelText">
+										<xs:annotation>
+											<xs:documentation>A human readable label associated to the time period</xs:documentation>
+										</xs:annotation>
+										<xs:complexType>
+											<xs:simpleContent>
+												<xs:extension base="xs:string">
+													<xs:attributeGroup ref="arts:ElementControlAttributeGroup"/>
+												</xs:extension>
+											</xs:simpleContent>
+										</xs:complexType>
+									</xs:element>
+									<xs:element name="EffectiveDate">
+										<xs:complexType>
+											<xs:simpleContent>
+												<xs:extension base="xs:date">
+													<xs:attributeGroup ref="arts:ElementControlAttributeGroup"/>
+												</xs:extension>
+											</xs:simpleContent>
+										</xs:complexType>
+									</xs:element>
+									<xs:element name="ExpiryDate">
+										<xs:complexType>
+											<xs:simpleContent>
+												<xs:extension base="xs:date">
+													<xs:attributeGroup ref="arts:ElementControlAttributeGroup"/>
+												</xs:extension>
+											</xs:simpleContent>
+										</xs:complexType>
+									</xs:element>
+								</xs:sequence>
+							</xs:complexType>
+						</xs:element>
+					</xs:sequence>
+					<xs:attributeGroup ref="arts:TypeControlAttributeGroup"/>
+				</xs:complexType>
+			</xs:element>
+		</xs:sequence>
+		<xs:attributeGroup ref="arts:ElementControlAttributeGroup"/>
+	</xs:complexType>
+</xs:schema>

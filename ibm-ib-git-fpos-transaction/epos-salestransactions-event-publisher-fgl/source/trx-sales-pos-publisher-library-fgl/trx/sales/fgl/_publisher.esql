@@ -1,0 +1,73 @@
+BROKER SCHEMA trx.sales.fgl
+/*
+ * File name: artsTransform.esql
+ * Purpose:   ESQL file for ARTS message transformation.
+ * Version:   Initial Version
+ * Authors:   Madanlal Tulsiram(tmadan)
+ * Create Date:  10 August 2016
+ * @copyright FGL 2016.  All rights reserved.
+ */
+-- Compute module for Arts Message transformation
+CREATE COMPUTE MODULE ArtsTransform
+CREATE FUNCTION Main() RETURNS BOOLEAN
+BEGIN
+		--Copying Properties and MQMD
+		SET OutputRoot.Properties = InputRoot.Properties;
+		SET OutputRoot.MQMD = InputRoot.MQMD;
+
+		-- Namespace Declaration
+		DECLARE eai NAMESPACE 'http://www.fgl.com/exchange/';
+		DECLARE arts NAMESPACE 'http://www.fgl.com/ARTS';
+		DECLARE xsi NAMESPACE 'http://www.w3.org/2001/XMLSchema-instance'; 
+
+		-- Declaring References to Input & Output
+	 	DECLARE RefOut, RefOutExch, RefOutMsgRtng, RefOutMsgs REFERENCE TO OutputRoot;	 		
+	 	DECLARE RefInExch REFERENCE TO InputRoot.XMLNSC.eai:Exchange;
+		DECLARE RefInMsgRtng REFERENCE TO RefInExch.eai:MessageRouting;
+		DECLARE RefInMsgs REFERENCE TO RefInExch.eai:Messages;
+		DECLARE RefEnv REFERENCE TO Environment;
+
+		-- Declaring Variables
+		DECLARE schemaName CHARACTER 'trx.sales.fgl';
+		DECLARE moduleName CHARACTER 'ArtsTransform';		
+		-- To log the Request Payload
+		SET RefEnv.Variables.Message = CAST(ASBITSTREAM(RefInExch OPTIONS FolderBitStream) AS CHAR CCSID CAST(InputRoot.MQMD.CodedCharSetId AS INT) ENCODING CAST(InputRoot.MQMD.Encoding AS INT));
+		CALL core.log.InfoMessage(RefEnv, schemaName || '.' || moduleName, RefEnv.Variables.Message);
+		-- Logging DebugMessage for the Module Start.
+		CALL core.log.InfoMessage(RefEnv, schemaName || '.' || moduleName, '[_MODULE - START]');
+
+		-- Constructing Header of the Output XML
+		CREATE LASTCHILD OF OutputRoot AS RefOut DOMAIN 'XMLNSC';
+		CREATE LASTCHILD OF RefOut AS RefOutExch NAMESPACE eai NAME 'Exchange';
+		SET RefOutExch.(XMLNSC.NamespaceDecl)xmlns:"eai" = eai;
+		SET RefOutExch.(XMLNSC.NamespaceDecl)xmlns:"arts" = arts;
+		SET RefOutExch.(XMLNSC.NamespaceDecl)xmlns:"xsi" = xsi;
+		SET RefOutExch.(XMLNSC.Attribute)MajorVersion = RefInExch.(XMLNSC.Attribute)MajorVersion;
+		SET RefOutExch.(XMLNSC.Attribute)MinorVersion = RefInExch.(XMLNSC.Attribute)MinorVersion;
+		SET RefOutExch.(XMLNSC.Attribute)FixVersion = RefInExch.(XMLNSC.Attribute)FixVersion;
+
+		CREATE LASTCHILD OF RefOutExch AS RefOutMsgRtng NAMESPACE eai NAME 'MessageRouting';
+		SET RefOutMsgRtng.eai:Guid = RefInMsgRtng.eai:Guid;
+		SET RefOutMsgRtng.eai:MessageId = InputRoot.MQMD.MsgId;
+		SET RefOutMsgRtng.eai:MessageType = 'PubSub';
+		SET RefOutMsgRtng.eai:SubjectArea = RefInMsgRtng.eai:SubjectArea;
+		SET RefOutMsgRtng.eai:SbuNumber = RefInMsgRtng.eai:SbuNumber;
+		SET RefOutMsgRtng.eai:SbuCode = RefInMsgRtng.eai:SbuCode;
+		SET RefOutMsgRtng.eai:SbuName = RefInMsgRtng.eai:SbuName;
+		SET RefOutMsgRtng.eai:DataSourceCode = RefInMsgRtng.eai:DataSourceCode;
+		SET RefOutMsgRtng.eai:DataSourceCodeName = RefInMsgRtng.eai:DataSourceCodeName;
+		SET RefOutMsgRtng.eai:MessageIndex = RefInMsgRtng.eai:MessageIndex;
+		SET RefOutMsgRtng.eai:MessageCount = RefInMsgRtng.eai:MessageCount;
+		SET RefOutMsgRtng.eai:SubjectAreaRunName = RefInMsgRtng.eai:SubjectAreaRunName;
+
+		CREATE LASTCHILD OF RefOutExch AS RefOutMsgs NAMESPACE eai NAME 'Messages';
+		SET RefOutMsgs = RefInMsgs;
+
+		-- Logging InfoMessage transformation complettion status.
+		CALL core.log.InfoMessage(RefEnv, schemaName || '.' || moduleName, 'Transformation completed successfully.');
+		-- Logging DebugMessage for the Module End.
+		CALL core.log.InfoMessage(RefEnv, schemaName || '.' || moduleName, '[_MODULE - END]');
+
+	RETURN TRUE;
+END;	
+END MODULE;

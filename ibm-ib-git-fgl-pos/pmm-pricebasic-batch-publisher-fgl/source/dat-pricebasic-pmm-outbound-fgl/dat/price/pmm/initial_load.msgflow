@@ -1,0 +1,117 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ecore:EPackage xmi:version="2.0"
+    xmlns:xmi="http://www.omg.org/XMI" xmlns:ComIbmCompute.msgnode="ComIbmCompute.msgnode" xmlns:ComIbmMQInput.msgnode="ComIbmMQInput.msgnode" xmlns:ComIbmMQOutput.msgnode="ComIbmMQOutput.msgnode" xmlns:core_message__postprocessor.subflow="core/message/_postprocessor.subflow" xmlns:core_message__preprocessor.subflow="core/message/_preprocessor.subflow" xmlns:dat_price_pmm_DsToArtsTransform.subflow="dat/price/pmm/DsToArtsTransform.subflow" xmlns:ecore="http://www.eclipse.org/emf/2002/Ecore" xmlns:eflow="http://www.ibm.com/wbi/2005/eflow"
+    xmlns:utility="http://www.ibm.com/wbi/2005/eflow_utility" nsURI="dat/price/pmm/initial_load.msgflow"
+    nsPrefix="dat_price_pmm_initial_load.msgflow">
+  <eClassifiers xmi:type="eflow:FCMComposite" name="FCMComposite_1">
+    <eSuperTypes href="http://www.ibm.com/wbi/2005/eflow#//FCMBlock"/>
+    <eStructuralFeatures xmi:type="ecore:EAttribute" xmi:id="Property.IIBInboundQueue" name="IIBInboundQueue" lowerBound="1" defaultValueLiteral="RECV.FGL.DTE.FPOS.INIT_PRICEBASIC_IN.DS.DV">
+      <eType xmi:type="ecore:EDataType" href="http://www.eclipse.org/emf/2002/Ecore#//EString"/>
+    </eStructuralFeatures>
+    <eStructuralFeatures xmi:type="ecore:EAttribute" xmi:id="Property.CoreAuditDataSource" name="CoreAuditDataSource" defaultValueLiteral="AUDDEV">
+      <eType xmi:type="ecore:EDataType" href="http://www.eclipse.org/emf/2002/Ecore#//EString"/>
+    </eStructuralFeatures>
+    <eStructuralFeatures xmi:type="ecore:EAttribute" xmi:id="Property.IIBOutboundQueue" name="IIBOutboundQueue" defaultValueLiteral="SEND.FGL.DTE.FPOS.INIT_PRICEBASIC_IN.IIB.DV">
+      <eType xmi:type="ecore:EDataType" href="http://www.eclipse.org/emf/2002/Ecore#//EString"/>
+    </eStructuralFeatures>
+    <eStructuralFeatures xmi:type="ecore:EAttribute" xmi:id="Property.PreProcessorAuditEnabled" name="PreProcessorAuditEnabled" lowerBound="1" defaultValueLiteral="false">
+      <eType xmi:type="ecore:EDataType" href="http://www.eclipse.org/emf/2002/Ecore#//EBoolean"/>
+    </eStructuralFeatures>
+    <eStructuralFeatures xmi:type="ecore:EAttribute" xmi:id="Property.PostProcessorAuditEnabled" name="PostProcessorAuditEnabled" lowerBound="1" defaultValueLiteral="false">
+      <eType xmi:type="ecore:EDataType" href="http://www.eclipse.org/emf/2002/Ecore#//EBoolean"/>
+    </eStructuralFeatures>
+    <eStructuralFeatures xmi:type="ecore:EAttribute" xmi:id="Property.CoreArtsMessageValidation" name="CoreArtsMessageValidation" lowerBound="1" defaultValueLiteral="true">
+      <eType xmi:type="ecore:EDataType" href="http://www.eclipse.org/emf/2002/Ecore#//EBoolean"/>
+    </eStructuralFeatures>
+    <eStructuralFeatures xmi:type="ecore:EAttribute" xmi:id="Property.CoreDatastageMessageValidation" name="CoreDatastageMessageValidation" lowerBound="1" defaultValueLiteral="true">
+      <eType xmi:type="ecore:EDataType" href="http://www.eclipse.org/emf/2002/Ecore#//EBoolean"/>
+    </eStructuralFeatures>
+    <eStructuralFeatures xmi:type="ecore:EAttribute" xmi:id="Property.IIBDataSource" name="IIBDataSource" defaultValueLiteral="FGLRPLDEV">
+      <eType xmi:type="ecore:EDataType" href="http://www.eclipse.org/emf/2002/Ecore#//EString"/>
+    </eStructuralFeatures>
+    <translation xmi:type="utility:TranslatableString" key="initial_load" bundleName="dat/price/pmm/initial_load" pluginId="dat-pricebasic-pmm-outbound-fgl"/>
+    <colorGraphic16 xmi:type="utility:GIFFileGraphic" resourceName="platform:/plugin/dat-pricebasic-pmm-outbound-fgl/icons/full/obj16/initial_load.gif"/>
+    <colorGraphic32 xmi:type="utility:GIFFileGraphic" resourceName="platform:/plugin/dat-pricebasic-pmm-outbound-fgl/icons/full/obj30/initial_load.gif"/>
+    <composition>
+      <nodes xmi:type="core_message__preprocessor.subflow:FCMComposite_1" xmi:id="FCMComposite_1_6" location="283,20">
+        <translation xmi:type="utility:ConstantString" string="CoreMessagePreProcessor"/>
+      </nodes>
+      <nodes xmi:type="ComIbmMQInput.msgnode:FCMComposite_1" xmi:id="FCMComposite_1_11" location="10,20" queueName="TEST.IN">
+        <translation xmi:type="utility:ConstantString" string="RECV.FGL.DTE.FPOS.INIT_PRICEBASIC_IN.DS"/>
+      </nodes>
+      <nodes xmi:type="ComIbmMQOutput.msgnode:FCMComposite_1" xmi:id="FCMComposite_1_1" location="720,101" queueName="SEND.MWW.PMM.INIT_PRICEBASIC_OUT.IBM_IB.DV">
+        <translation xmi:type="utility:ConstantString" string="SEND.FGL.DTE.FPOS.INIT_PRICEBASIC_IN.IIB"/>
+      </nodes>
+      <nodes xmi:type="core_message__postprocessor.subflow:FCMComposite_1" xmi:id="FCMComposite_1_2" location="993,20">
+        <translation xmi:type="utility:ConstantString" string="CoreMessagePostProcessor"/>
+      </nodes>
+      <nodes xmi:type="dat_price_pmm_DsToArtsTransform.subflow:FCMComposite_1" xmi:id="FCMComposite_1_3" location="577,101">
+        <translation xmi:type="utility:ConstantString" string="DsToArtsTransform"/>
+      </nodes>
+      <nodes xmi:type="ComIbmCompute.msgnode:FCMComposite_1" xmi:id="FCMComposite_1_4" location="462,101" computeExpression="esql://routine/dat.price.pmm#SetLogParams.Main" throwExceptionOnDatabaseError="false">
+        <translation xmi:type="utility:ConstantString" string="SetLogParams"/>
+      </nodes>
+      <connections xmi:type="eflow:FCMConnection" xmi:id="FCMConnection_9" targetNode="FCMComposite_1_6" sourceNode="FCMComposite_1_11" sourceTerminalName="OutTerminal.out" targetTerminalName="InTerminal.CatchInput"/>
+      <connections xmi:type="eflow:FCMConnection" xmi:id="FCMConnection_1" targetNode="FCMComposite_1_6" sourceNode="FCMComposite_1_11" sourceTerminalName="OutTerminal.failure" targetTerminalName="InTerminal.FailureInput"/>
+      <connections xmi:type="eflow:FCMConnection" xmi:id="FCMConnection_3" targetNode="FCMComposite_1_6" sourceNode="FCMComposite_1_11" sourceTerminalName="OutTerminal.catch" targetTerminalName="InTerminal.Input"/>
+      <connections xmi:type="eflow:FCMConnection" xmi:id="FCMConnection_8" targetNode="FCMComposite_1_2" sourceNode="FCMComposite_1_6" sourceTerminalName="OutTerminal.Output" targetTerminalName="InTerminal.Input"/>
+      <connections xmi:type="eflow:FCMConnection" xmi:id="FCMConnection_10" targetNode="FCMComposite_1_2" sourceNode="FCMComposite_1_6" sourceTerminalName="OutTerminal.FailureOutput" targetTerminalName="InTerminal.Input2"/>
+      <connections xmi:type="eflow:FCMConnection" xmi:id="FCMConnection_12" targetNode="FCMComposite_1_2" sourceNode="FCMComposite_1_1" sourceTerminalName="OutTerminal.out" targetTerminalName="InTerminal.Input1"/>
+      <connections xmi:type="eflow:FCMConnection" xmi:id="FCMConnection_4" targetNode="FCMComposite_1_1" sourceNode="FCMComposite_1_3" sourceTerminalName="OutTerminal.Output" targetTerminalName="InTerminal.in"/>
+      <connections xmi:type="eflow:FCMConnection" xmi:id="FCMConnection_5" targetNode="FCMComposite_1_4" sourceNode="FCMComposite_1_6" sourceTerminalName="OutTerminal.CatchOutput" targetTerminalName="InTerminal.in"/>
+      <connections xmi:type="eflow:FCMConnection" xmi:id="FCMConnection_6" targetNode="FCMComposite_1_3" sourceNode="FCMComposite_1_4" sourceTerminalName="OutTerminal.out" targetTerminalName="InTerminal.Input"/>
+      <connections xmi:type="eflow:FCMConnection" xmi:id="FCMConnection_2" targetNode="FCMComposite_1_2" sourceNode="FCMComposite_1_1" sourceTerminalName="OutTerminal.failure" targetTerminalName="InTerminal.Input"/>
+    </composition>
+    <propertyOrganizer>
+      <propertyDescriptor groupName="Group.Basic" propertyEditor="com.ibm.etools.mft.ibmnodes.editors.mq.MQQueueNameEditor" configurable="true" describedAttribute="Property.IIBInboundQueue">
+        <propertyName xmi:type="utility:TranslatableString" key="Property.IIBInboundQueue" bundleName="dat/price/pmm/initial_load" pluginId="dat-pricebasic-pmm-outbound-fgl"/>
+        <propertyDescriptor groupName="Group.Basic" configurable="true" describedAttribute="Property.CoreAuditDataSource">
+          <propertyName xmi:type="utility:TranslatableString" key="Property.CoreAuditDataSource" bundleName="core/audit/_audit" pluginId="core-audit-handler-library"/>
+          <propertyDescriptor groupName="Group.Basic" propertyEditor="com.ibm.etools.mft.ibmnodes.editors.mq.MQQueueNameEditor" configurable="true" describedAttribute="Property.IIBOutboundQueue">
+            <propertyName xmi:type="utility:TranslatableString" key="Property.IIBOutboundQueue" bundleName="dat/price/pmm/initial_load" pluginId="dat-pricebasic-pmm-outbound-fgl"/>
+            <propertyDescriptor groupName="Group.Basic" configurable="true" userDefined="true" describedAttribute="Property.PreProcessorAuditEnabled">
+              <propertyName xmi:type="utility:TranslatableString" key="Property.PreProcessorAuditEnabled" bundleName="dat/price/pmm/initial_load" pluginId="dat-pricebasic-pmm-outbound-fgl"/>
+              <propertyDescriptor groupName="Group.Basic" configurable="true" userDefined="true" describedAttribute="Property.PostProcessorAuditEnabled">
+                <propertyName xmi:type="utility:TranslatableString" key="Property.PostProcessorAuditEnabled" bundleName="dat/price/pmm/initial_load" pluginId="dat-pricebasic-pmm-outbound-fgl"/>
+                <propertyDescriptor groupName="Group.Basic" configurable="true" userDefined="true" describedAttribute="Property.CoreArtsMessageValidation">
+                  <propertyName xmi:type="utility:TranslatableString" key="Property.CoreArtsMessageValidation" bundleName="dat/price/pmm/ds_to_arts_transform" pluginId="dat-pricebasic-pmm-library"/>
+                  <propertyDescriptor groupName="Group.Basic" configurable="true" userDefined="true" describedAttribute="Property.CoreDatastageMessageValidation">
+                    <propertyName xmi:type="utility:TranslatableString" key="Property.CoreDatastageMessageValidation" bundleName="dat/price/pmm/ds_to_arts_transform" pluginId="dat-pricebasic-pmm-library"/>
+                    <propertyDescriptor groupName="Group.Basic" configurable="true" describedAttribute="Property.IIBDataSource">
+                      <propertyName xmi:type="utility:TranslatableString" key="Property.IIBDataSource" bundleName="common/translate_code_app_to_cmn" pluginId="common-library"/>
+                    </propertyDescriptor>
+                  </propertyDescriptor>
+                </propertyDescriptor>
+              </propertyDescriptor>
+            </propertyDescriptor>
+          </propertyDescriptor>
+        </propertyDescriptor>
+      </propertyDescriptor>
+    </propertyOrganizer>
+    <attributeLinks promotedAttribute="Property.IIBInboundQueue" overriddenNodes="FCMComposite_1_11">
+      <overriddenAttribute href="ComIbmMQInput.msgnode#Property.queueName"/>
+    </attributeLinks>
+    <attributeLinks promotedAttribute="Property.CoreAuditDataSource" overriddenNodes="FCMComposite_1_6">
+      <overriddenAttribute href="core/message/_preprocessor.subflow#Property.CoreAuditDataSource"/>
+    </attributeLinks>
+    <attributeLinks promotedAttribute="Property.IIBOutboundQueue" overriddenNodes="FCMComposite_1_1">
+      <overriddenAttribute href="ComIbmMQOutput.msgnode#Property.queueName"/>
+    </attributeLinks>
+    <attributeLinks promotedAttribute="Property.PreProcessorAuditEnabled" overriddenNodes="FCMComposite_1_6">
+      <overriddenAttribute href="core/message/_preprocessor.subflow#Property.CoreAuditEnabled"/>
+    </attributeLinks>
+    <attributeLinks promotedAttribute="Property.PostProcessorAuditEnabled" overriddenNodes="FCMComposite_1_2">
+      <overriddenAttribute href="core/message/_postprocessor.subflow#Property.CoreAuditEnabled"/>
+    </attributeLinks>
+    <attributeLinks promotedAttribute="Property.CoreArtsMessageValidation" overriddenNodes="FCMComposite_1_3">
+      <overriddenAttribute href="dat/price/pmm/DsToArtsTransform.subflow#Property.CoreArtsMessageValidation"/>
+    </attributeLinks>
+    <attributeLinks promotedAttribute="Property.CoreDatastageMessageValidation" overriddenNodes="FCMComposite_1_3">
+      <overriddenAttribute href="dat/price/pmm/DsToArtsTransform.subflow#Property.CoreDatastageMessageValidation"/>
+    </attributeLinks>
+    <attributeLinks promotedAttribute="Property.IIBDataSource" overriddenNodes="FCMComposite_1_3">
+      <overriddenAttribute href="dat/price/pmm/DsToArtsTransform.subflow#Property.IIBDataSource"/>
+    </attributeLinks>
+    <stickyBoard/>
+  </eClassifiers>
+</ecore:EPackage>

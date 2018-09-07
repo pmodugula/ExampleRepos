@@ -1,0 +1,121 @@
+<eai:Exchange xmlns:eai="http://www.fgl.com/exchange/" xmlns:arts="http://www.fgl.com/ARTS" MajorVersion="1" MinorVersion="4" FixVersion="0">
+	<eai:MessageRouting>
+		<eai:Guid>{96adb8c2-2fc1-4f2e-94bb-0ec4f60c4d2e}</eai:Guid>
+		<eai:MessageId>{96adb8c2-2fc1-4f2e-94bb-0ec4f60c4d2e}</eai:MessageId>
+		<eai:MessageType>PubSub</eai:MessageType>
+		<eai:SubjectArea>Retail Sales Transactions</eai:SubjectArea>
+		<eai:SbuNumber>2</eai:SbuNumber>
+		<eai:SbuCode>MWW</eai:SbuCode>
+		<eai:SbuName>Marks Ltd.</eai:SbuName>
+		<eai:DataSourceCode>MC</eai:DataSourceCode>
+		<eai:DataSourceCodeName>Marks Commercial</eai:DataSourceCodeName>
+	</eai:MessageRouting>
+	<eai:MessageRoutingExtension/>
+	<eai:Messages>
+		<eai:Count>1</eai:Count>
+		<eai:SourceSystems>
+			<eai:Count>1</eai:Count>
+			<eai:SourceSystem>
+				<eai:Index>1</eai:Index>
+				<eai:SbuNumber>2</eai:SbuNumber>
+				<eai:SbuCode>MWW</eai:SbuCode>
+				<eai:SbuName>Marks Ltd.</eai:SbuName>
+				<eai:MessageSourceCode>MC</eai:MessageSourceCode>
+				<eai:MessageSourceCodeName>Marks Commercial</eai:MessageSourceCodeName>
+			</eai:SourceSystem>
+		</eai:SourceSystems>
+		<eai:POSLog>
+			<arts:Count>1</arts:Count>
+			<arts:DataSource>
+				<arts:SbuNumber>2</arts:SbuNumber>
+				<arts:SbuCode>MWW</arts:SbuCode>
+				<arts:SbuName>Marks Ltd.</arts:SbuName>
+				<arts:DataSourceCode>MC</arts:DataSourceCode>
+				<arts:DataSourceName>Marks Commercial</arts:DataSourceName>
+			</arts:DataSource>
+			<arts:Transaction MajorVersion="4">
+				<arts:RetailStoreID>0552</arts:RetailStoreID>
+				<arts:TransactionID>5527820161223100099</arts:TransactionID>
+				<arts:WorkstationID>78</arts:WorkstationID>
+				<arts:SequenceNumber>100099</arts:SequenceNumber>
+				<arts:BeginDateTime>2016-12-23T22:56:47.882-07:00</arts:BeginDateTime>
+				<arts:EndDateTime>2016-12-23T22:56:47.882-07:00</arts:EndDateTime>
+				<arts:OperatorID>0</arts:OperatorID>
+				<arts:RetailTransaction>
+					<arts:LineItem>
+						<arts:SequenceNumber>1</arts:SequenceNumber>
+						<arts:Sale>
+							<arts:ItemID>410010644383</arts:ItemID>
+							<arts:MerchandiseHierarchy Level="4" ID="6C"/>
+							<arts:RegularSalesUnitPrice>24.99</arts:RegularSalesUnitPrice>
+							<arts:ActualSalesUnitPrice>0</arts:ActualSalesUnitPrice>
+							<arts:DiscountAmount>0</arts:DiscountAmount>
+							<arts:Quantity>5.00</arts:Quantity>
+							<arts:RetailPriceModifier>
+								<arts:SequenceNumber>3</arts:SequenceNumber>
+								<arts:Amount Action="Subtract">0</arts:Amount>
+								<arts:ReasonCode>ACCOUNT_DISCOUNT</arts:ReasonCode>
+							</arts:RetailPriceModifier>
+							<arts:Tax TaxType="GST" TypeCode="Sale">
+								<arts:Amount>6.25000000000000000000</arts:Amount>
+							</arts:Tax>
+							<arts:Tax TaxType="QST" TypeCode="Sale">
+								<arts:Amount>12.46000000000000000000</arts:Amount>
+							</arts:Tax>
+						</arts:Sale>
+					</arts:LineItem>
+					<arts:LineItem>
+						<arts:SequenceNumber>2</arts:SequenceNumber>
+						<arts:Tax TaxType="GST" TypeCode="Sale">
+							<arts:SequenceNumber>0</arts:SequenceNumber>
+							<arts:Amount>6.25000000000000000000</arts:Amount>
+						</arts:Tax>
+					</arts:LineItem>
+					<arts:LineItem>
+						<arts:SequenceNumber>3</arts:SequenceNumber>
+						<arts:Tax TaxType="QST" TypeCode="Sale">
+							<arts:SequenceNumber>1</arts:SequenceNumber>
+							<arts:Amount>12.46000000000000000000</arts:Amount>
+						</arts:Tax>
+					</arts:LineItem>
+					<arts:LineItem>
+						<arts:SequenceNumber>0</arts:SequenceNumber>
+						<arts:Tender TypeCode="Sale" TenderType="CustomerAccount" SubTenderType="CAD">
+							<arts:Amount>71.83</arts:Amount>
+						</arts:Tender>
+					</arts:LineItem>
+					<arts:LineItem>
+						<arts:SequenceNumber>1</arts:SequenceNumber>
+						<arts:Tender TypeCode="Sale" TenderType="CreditDebit" SubTenderType="MasterCard">
+							<arts:Amount>71.83</arts:Amount>
+							<arts:Authorization>
+								<arts:AuthorizationCode>843424</arts:AuthorizationCode>
+							</arts:Authorization>
+							<arts:CreditDebit>
+								<arts:PrimaryAccountNumber>NTE5MTIzKioqKioqMDM3Mw==</arts:PrimaryAccountNumber>
+								<arts:ExpirationDate>2020-03</arts:ExpirationDate>
+							</arts:CreditDebit>
+						</arts:Tender>
+					</arts:LineItem>
+					<arts:Total TypeCode="Sale" TotalType="TransactionGrossAmount">124.95000000000000000000</arts:Total>
+					<arts:Total TypeCode="Sale" TotalType="TransactionSubTotal">143.66</arts:Total>
+					<arts:Customer>
+						<arts:CustomerName>
+							<arts:Name TypeCode="FirstName"/>
+							<arts:Name TypeCode="LastName"/>
+						</arts:CustomerName>
+						<arts:Address>
+							<arts:AddressLine>5 PLACE-VILL-MARIE BUREAU 1700 ATTN:ACCOUNTS PAYABLE</arts:AddressLine>
+							<arts:City>MONTREAL</arts:City>
+							<arts:PostalCode>H3B 0B3</arts:PostalCode>
+							<arts:Country>CAN</arts:Country>
+							<arts:FullAddress>5 PLACE-VILL-MARIE BUREAU 1700 ATTN:ACCOUNTS PAYABLE.MONTREAL, QC, H3B 0B3.CAN</arts:FullAddress>
+							<arts:State>QC</arts:State>
+						</arts:Address>
+						<arts:AccountNumber>00208888</arts:AccountNumber>
+					</arts:Customer>
+				</arts:RetailTransaction>
+			</arts:Transaction>
+		</eai:POSLog>
+	</eai:Messages>
+</eai:Exchange>

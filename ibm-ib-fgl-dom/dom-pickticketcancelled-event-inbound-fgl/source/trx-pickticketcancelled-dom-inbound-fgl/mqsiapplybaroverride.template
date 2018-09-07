@@ -1,0 +1,8 @@
+trx.pickticketcancelled.dom.TicketCancelled#IIBInBoundQueue=RECV.${ORDER_IN}
+trx.pickticketcancelled.dom.TicketCancelled#DOMInBoundQueue=SEND.${ORDER_OUT}
+trx.pickticketcancelled.dom.TicketCancelled#CoreAuditDataSource=AUD${ENVN}${INST}
+trx.pickticketcancelled.dom.TicketCancelled#CoreAuditEnabled=FALSE
+trx.pickticketcancelled.dom.TicketCancelled#CoreMessageValidation1=FALSE
+trx.pickticketcancelled.dom.TicketCancelled#CoreMessageValidation2=FALSE
+trx.pickticketcancelled.dom.TicketCancelled#CoreAuditDetailEnabled=FALSE
+trx.pickticketcancelled.dom.TicketCancelled#additionalInstances=${EXTRATHREADS}

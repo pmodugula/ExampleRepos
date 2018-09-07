@@ -1,0 +1,29 @@
+
+
+Importing file: C:\Users\vnarasimha\Desktop\ws-IMS\soap-ims\IMSSOAP.wsdl
+
+The WSDL import will proceed with bindings IMSSOAP.
+Creating wsdl schema document for file:///C:/Users/vnarasimha/Desktop/ws-IMS/soap-ims/IMSSOAP.wsdl.
+Parsing wsdl binding {http://www.marks.com/2014/01/services/IMS/}IMSSOAP.
+Parsing wsdl binding input getBusinessAccountInformation.
+Parsing wsdl binding output getBusinessAccountInformation.
+Parsing wsdl binding input getBusinessAccountPricing.
+Parsing wsdl binding output getBusinessAccountPricing.
+Parsing wsdl binding input chargeBusinessAccount.
+Parsing wsdl binding output chargeBusinessAccount.
+Processing doc style for operation getBusinessAccountInformation.
+Processing doc style for operation getBusinessAccountPricing.
+Processing doc style for operation chargeBusinessAccount.
+Populating WSDL schema IMSSOAP.xsd.
+Creating file IMSSOAP.xsd in the workspace.
+Creating file IMSSOAP_InlineSchema1.xsd in the workspace.
+Creating file /trx-sales-etpsadapter-library/arts-ims.xsd in the workspace.
+Copying source WSDL IMSSOAP.wsdl to IMSSOAP.wsdl.
+
+Elapsed time processing this message definition file: 1.546 seconds
+Number of warnings for this message definition file: 0
+
+
+Number of files processed: 1
+
+

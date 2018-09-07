@@ -1,0 +1,10 @@
+etc.giftcard.retek.service#TCPIPProfileConnection=TCPIPProfileRetek
+etc.giftcard.retek.service#TCPIPProfileTimeout=60
+etc.giftcard.retek.service#CoreMessageType=DFDL
+etc.giftcard.retek.service#CoreAuditDataSource=AUD${ENVN}${INST}
+etc.giftcard.retek.service#RetekDataSource=POS${ENVN}${INST}
+etc.giftcard.retek.service#RetekSchema=${RSCHEMA}
+etc.giftcard.retek.service#UserName=${UserName}
+etc.giftcard.retek.service#Password=${Password}
+etc.giftcard.retek.service#PreProcessorAuditEnabled=False
+etc.giftcard.retek.service#PostProcessorAuditEnabled=False

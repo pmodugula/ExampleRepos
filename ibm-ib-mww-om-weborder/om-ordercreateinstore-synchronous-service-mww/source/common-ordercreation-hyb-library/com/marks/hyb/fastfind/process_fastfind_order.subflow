@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ecore:EPackage xmi:version="2.0" xmlns:xmi="http://www.omg.org/XMI" xmlns:ComIbmCompute.msgnode="ComIbmCompute.msgnode" xmlns:ComIbmRESTRequest.msgnode="ComIbmRESTRequest.msgnode" xmlns:ComIbmSOAPEnvelope.msgnode="ComIbmSOAPEnvelope.msgnode" xmlns:ComIbmSOAPExtract.msgnode="ComIbmSOAPExtract.msgnode" xmlns:ComIbmSOAPRequest.msgnode="ComIbmSOAPRequest.msgnode" xmlns:ComIbmThrow.msgnode="ComIbmThrow.msgnode" xmlns:com_marks_hyb_fastfind_logging_exception_instore.subflow="com/marks/hyb/fastfind/logging_exception_instore.subflow"
+    xmlns:ecore="http://www.eclipse.org/emf/2002/Ecore" xmlns:eflow="http://www.ibm.com/wbi/2005/eflow" xmlns:utility="http://www.ibm.com/wbi/2005/eflow_utility" nsURI="com/marks/hyb/fastfind/process_fastfind_order.subflow" nsPrefix="com_marks_hyb_fastfind_process_fastfind_order.subflow">
+  <eClassifiers xmi:type="eflow:FCMComposite" name="FCMComposite_1" useDefaults="true" udpSupport="true">
+    <eSuperTypes href="http://www.ibm.com/wbi/2005/eflow#//FCMBlock"/>
+    <eStructuralFeatures xmi:type="ecore:EAttribute" xmi:id="Property.WSGFFEndpoint" name="WSGFFEndpoint" defaultValueLiteral="http://mwsgesb101.mww.lan:1242/WSG/MARKS/SOAP_FF">
+      <eType xmi:type="ecore:EDataType" href="http://www.eclipse.org/emf/2002/Ecore#//EString"/>
+    </eStructuralFeatures>
+    <eStructuralFeatures xmi:type="ecore:EAttribute" xmi:id="Property.WSGFFEndpoint.internal_npcompiler" name="WSGFFEndpoint.internal_npcompiler">
+      <eType xmi:type="ecore:EDataType" href="http://www.eclipse.org/emf/2002/Ecore#//EString"/>
+    </eStructuralFeatures>
+    <translation xmi:type="utility:TranslatableString" key="process_fastfind_order" bundleName="com/marks/hyb/fastfind/process_fastfind_order" pluginId="common-ordercreation-hyb-library"/>
+    <colorGraphic16 xmi:type="utility:GIFFileGraphic" resourceName="platform:/plugin/common-ordercreation-hyb-library/icons/full/obj16/process_fastfind_order.gif"/>
+    <colorGraphic32 xmi:type="utility:GIFFileGraphic" resourceName="platform:/plugin/common-ordercreation-hyb-library/icons/full/obj30/process_fastfind_order.gif"/>
+    <composition>
+      <nodes xmi:type="eflow:FCMSink" xmi:id="OutTerminal.Output" location="536,178">
+        <translation xmi:type="utility:TranslatableString" key="OutTerminal.Output" bundleName="com/marks/hyb/fastfind/process_fastfind_order" pluginId="common-ordercreation-hyb-library"/>
+      </nodes>
+      <nodes xmi:type="ComIbmSOAPRequest.msgnode:FCMComposite_1" xmi:id="FCMComposite_1_1" location="271,99" wsdlFileName="FastfindSOAP_OrderProcessingWebServiceV0_00_00.wsdl" selectedPortType="FFSOAP" selectedBinding="FFSOAPSOAP" selectedOperation="processOrder" selectedPort="FFSOAPSOAP" targetNamespace="http://www.marks.com/2014/01/services/FF/" useHTTPTransport="true" webServiceURL="http://10.100.10.70:1242/WSG/MARKS/SOAP_FF" sslProtocol="TLS" parserXmlnscBuildTreeUsingXMLSchema="false" validateMaster="none">
+        <translation xmi:type="utility:ConstantString" string="Porcess_FastFind_Order_SOAP_Request"/>
+      </nodes>
+      <nodes xmi:type="eflow:FCMSource" xmi:id="InTerminal.Input" location="10,20">
+        <translation xmi:type="utility:TranslatableString" key="InTerminal.Input" bundleName="com/marks/hyb/fastfind/process_fastfind_order" pluginId="common-ordercreation-hyb-library"/>
+      </nodes>
+      <nodes xmi:type="ComIbmThrow.msgnode:FCMComposite_1" xmi:id="FCMComposite_1_4" location="699,99" messageNumber="6002" messageText="FAILURE_PROCESS_ORDER_SERVICE">
+        <translation xmi:type="utility:ConstantString" string="errorPostingFFOrder"/>
+      </nodes>
+      <nodes xmi:type="ComIbmThrow.msgnode:FCMComposite_1" xmi:id="FCMComposite_1_5" location="284,21" messageNumber="6001" messageText="FAILURE_PROCESS_ORDER_MESSAGE">
+        <translation xmi:type="utility:ConstantString" string="MessageErrorProcesOrder"/>
+      </nodes>
+      <nodes xmi:type="ComIbmCompute.msgnode:FCMComposite_1" xmi:id="FCMComposite_1_6" location="93,20" computeExpression="esql://routine/com.marks.hyb.fastfind#process_fastfind_order_Compute.Main" computeMode="destinationAndMessage">
+        <translation xmi:type="utility:ConstantString" string="CreateProcssOrder_Request"/>
+      </nodes>
+      <nodes xmi:type="com_marks_hyb_fastfind_logging_exception_instore.subflow:FCMComposite_1" xmi:id="FCMComposite_1_3" location="549,99">
+        <translation xmi:type="utility:ConstantString" string="logging_exception_instore"/>
+      </nodes>
+      <nodes xmi:type="ComIbmRESTRequest.msgnode:FCMComposite_1" xmi:id="FCMComposite_1_2" location="53,123" definitionType="swagger_20" acceptCompressedResponses="true">
+        <translation xmi:type="utility:ConstantString" string="REST Request"/>
+      </nodes>
+      <nodes xmi:type="ComIbmSOAPEnvelope.msgnode:FCMComposite_1" xmi:id="FCMComposite_1_7" location="172,105">
+        <translation xmi:type="utility:ConstantString" string="SOAP Envelope"/>
+      </nodes>
+      <nodes xmi:type="ComIbmSOAPExtract.msgnode:FCMComposite_1" xmi:id="FCMComposite_1_8" location="284,186">
+        <translation xmi:type="utility:ConstantString" string="SOAP Extract"/>
+      </nodes>
+      <connections xmi:type="eflow:FCMConnection" xmi:id="FCMConnection_1" targetNode="OutTerminal.Output" sourceNode="FCMComposite_1_1" sourceTerminalName="OutTerminal.out" targetTerminalName="InTerminal.in"/>
+      <connections xmi:type="eflow:FCMConnection" xmi:id="FCMConnection_8" targetNode="FCMComposite_1_6" sourceNode="InTerminal.Input" sourceTerminalName="OutTerminal.out" targetTerminalName="InTerminal.in"/>
+      <connections xmi:type="eflow:FCMConnection" xmi:id="FCMConnection_3" targetNode="FCMComposite_1_5" sourceNode="FCMComposite_1_6" sourceTerminalName="OutTerminal.failure" targetTerminalName="InTerminal.in"/>
+      <connections xmi:type="eflow:FCMConnection" xmi:id="FCMConnection_2" targetNode="FCMComposite_1_1" sourceNode="FCMComposite_1_6" sourceTerminalName="OutTerminal.out" targetTerminalName="InTerminal.in"/>
+      <connections xmi:type="eflow:FCMConnection" xmi:id="FCMConnection_4" targetNode="FCMComposite_1_3" sourceNode="FCMComposite_1_1" sourceTerminalName="OutTerminal.failure" targetTerminalName="InTerminal.Input"/>
+      <connections xmi:type="eflow:FCMConnection" xmi:id="FCMConnection_5" targetNode="FCMComposite_1_3" sourceNode="FCMComposite_1_1" sourceTerminalName="OutTerminal.fault" targetTerminalName="InTerminal.Input"/>
+      <connections xmi:type="eflow:FCMConnection" xmi:id="FCMConnection_6" targetNode="FCMComposite_1_4" sourceNode="FCMComposite_1_3" sourceTerminalName="OutTerminal.Output" targetTerminalName="InTerminal.in"/>
+    </composition>
+    <propertyOrganizer>
+      <propertyDescriptor groupName="Group.ServiceEndpoints" propertyEditor="com.ibm.etools.mft.ibmnodes.editors.soap.http.SOAP_Over_HTTP_WebServicesURLPropertyEditor" compiler="com.ibm.etools.mft.ibmnodes.compilers.GenericSOAPCompiler" configurable="true" describedAttribute="Property.WSGFFEndpoint">
+        <propertyName xmi:type="utility:TranslatableString" key="Property.WSGFFEndpoint" bundleName="trx/order/hyb/fastfind/process_fastfind_order" pluginId="trx-ordercreation-hyb-inbound-mww"/>
+        <propertyDescriptor groupName="Group.InternalRuntimeGroup" readOnly="true" hidden="true" describedAttribute="Property.WSGFFEndpoint.internal_npcompiler">
+          <propertyName xmi:type="utility:TranslatableString" key="Property.WSGFFEndpoint.internal_npcompiler" bundleName="com/marks/hyb/fastfind/process_fastfind_order" pluginId="common-ordercreation-hyb-library"/>
+        </propertyDescriptor>
+      </propertyDescriptor>
+    </propertyOrganizer>
+    <attributeLinks promotedAttribute="Property.WSGFFEndpoint" overriddenNodes="FCMComposite_1_1">
+      <overriddenAttribute href="ComIbmSOAPRequest.msgnode#Property.webServiceURL"/>
+    </attributeLinks>
+    <stickyBoard/>
+  </eClassifiers>
+</ecore:EPackage>

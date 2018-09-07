@@ -1,0 +1,7 @@
+trx.consignmentpaid.dom.inbound#IIBInboundQueue=RECV.${CONSIGNPAID_IN}
+trx.consignmentpaid.dom.inbound#DOMInboundQueue=SEND.${DOM_CONSIGNPAID_OUT}
+trx.consignmentpaid.dom.inbound#SCDestinationqueue=FGL.${emsEnvQ}.BW.SC.SALESTRANSACTION.Q
+trx.consignmentpaid.dom.inbound#ATMODestinationqueue=FGL.${emsEnvQ}.BW.ATMO.SALESTRANSACTION.Q
+trx.consignmentpaid.dom.inbound#CoreAuditDataSource=AUD${ENVN}${INST}
+trx.consignmentpaid.dom.inbound#CoreAuditEnabled=FALSE
+trx.consignmentpaid.dom.inboundr#additionalInstances=${EXTRATHREADS}

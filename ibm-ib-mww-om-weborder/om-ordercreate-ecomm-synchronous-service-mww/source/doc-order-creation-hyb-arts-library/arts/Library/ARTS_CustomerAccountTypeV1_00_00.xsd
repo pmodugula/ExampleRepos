@@ -1,0 +1,225 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<!-- edited with XMLSpy v2014 rel. 2 (http://www.altova.com) by Ron Matyjanka (FGL SPORTS LTD) -->
+<!--
+ * ER/Studio Data Architect XE3 %s XML Schema Generation
+ * Company:		FGL Sports
+ * Project:		FGL Corporate Data Warehouse
+ * Author:		Warren Whale
+ * Version:		1.0
+ * Date Created:	2015-01-23
+-->
+<xs:schema xmlns:arts="http://www.fgl.com/ARTS" xmlns:xs="http://www.w3.org/2001/XMLSchema" targetNamespace="http://www.fgl.com/ARTS" elementFormDefault="qualified">
+	<xs:include schemaLocation="AttributeGroupsV1_00_00.xsd"/>
+	<xs:complexType name="ArtsCustomerAccountType">
+		<xs:annotation>
+			<xs:documentation>A charge account or other accounting relationship a customer has with the store or enterprise.  An account exists to allow the store to record a series of transactions with the same customer and keep an ongoing record of monies owed by the customer and monies due to the customer.
+
+CustomerAccount is subtyped into a number of different kinds of accounts such as loyalty account, installment account, etc.  Each has additional attributes required to describe the reponsibilities and obligations associated with each account type.</xs:documentation>
+		</xs:annotation>
+		<xs:sequence>
+			<xs:element name="Index" type="xs:long"/>
+			<xs:element name="DataSource" type="arts:DataSource"/>
+			<xs:element name="CustomerAccountNumber" nillable="true">
+				<xs:annotation>
+					<xs:documentation>A business defined identifier for a Customer Account</xs:documentation>
+				</xs:annotation>
+				<xs:complexType>
+					<xs:simpleContent>
+						<xs:extension base="xs:string">
+							<xs:attributeGroup ref="arts:ElementControlAttributeGroup"/>
+						</xs:extension>
+					</xs:simpleContent>
+				</xs:complexType>
+			</xs:element>
+			<xs:element name="CustomerAccountName">
+				<xs:annotation>
+					<xs:documentation>Short description for the Customer Account.</xs:documentation>
+				</xs:annotation>
+				<xs:complexType>
+					<xs:simpleContent>
+						<xs:extension base="xs:string">
+							<xs:attributeGroup ref="arts:ElementControlAttributeGroup"/>
+						</xs:extension>
+					</xs:simpleContent>
+				</xs:complexType>
+			</xs:element>
+			<xs:element name="CustomerAccountTypeCode">
+				<xs:annotation>
+					<xs:documentation>Determines what kind of customer account this is. Examples include a trade account, a school account, a not-for-profit, regular customer, etc.
+
+LOYALTY - customer loyalty account for tracking
+                        points earned/redeemed
+TRADE  - customer business credit account
+
+CONSUMER_CHG - customer individual consumer credit extended by retailer
+
+INSTALLMENT - credit account set up for one time purchase
+
+LAYAWAY - cash time payment account (not credit)
+
+RENTAL - customer rental for videos, equipment
+</xs:documentation>
+				</xs:annotation>
+				<xs:complexType>
+					<xs:simpleContent>
+						<xs:extension base="xs:string">
+							<xs:attributeGroup ref="arts:ElementControlAttributeGroup"/>
+						</xs:extension>
+					</xs:simpleContent>
+				</xs:complexType>
+			</xs:element>
+			<xs:element name="CustomerAccountEffectiveDateTime">
+				<xs:annotation>
+					<xs:documentation>The date and time this CustomerAccount instance is ready for use by a customer.</xs:documentation>
+				</xs:annotation>
+				<xs:complexType>
+					<xs:simpleContent>
+						<xs:extension base="xs:dateTime">
+							<xs:attributeGroup ref="arts:ElementControlAttributeGroup"/>
+						</xs:extension>
+					</xs:simpleContent>
+				</xs:complexType>
+			</xs:element>
+			<xs:element name="CustomerAccountExpirationDateTime">
+				<xs:annotation>
+					<xs:documentation>The date and time this CustomerAccount instance may no longer be used by a customer</xs:documentation>
+				</xs:annotation>
+				<xs:complexType>
+					<xs:simpleContent>
+						<xs:extension base="xs:dateTime">
+							<xs:attributeGroup ref="arts:ElementControlAttributeGroup"/>
+						</xs:extension>
+					</xs:simpleContent>
+				</xs:complexType>
+			</xs:element>
+			<xs:element name="StatusCode">
+				<xs:annotation>
+					<xs:documentation>The current status of this CustomerAccount instance.  Note that this status is different from CreditStatusCode which designates the availability of credit to a customer using this account.
+
+This StatusCode refers to the current state of the entity instance
+
+Valid values are
+A ACTIVE
+I INACTIVE
+Note that the account maintenance process has to synchronize CreditStatusCode values and StatusCode values.</xs:documentation>
+				</xs:annotation>
+				<xs:complexType>
+					<xs:simpleContent>
+						<xs:extension base="xs:string">
+							<xs:attributeGroup ref="arts:ElementControlAttributeGroup"/>
+						</xs:extension>
+					</xs:simpleContent>
+				</xs:complexType>
+			</xs:element>
+			<xs:element name="BalanceAmount">
+				<xs:annotation>
+					<xs:documentation>The current debit or credit balance in a customer's account that reflects the amount owed or due to a customer based on cumulative PaymentOnAccountLineItems (which record payments which credit the account reducing the amount owed) and CustomerAccountTenderLineItems (which record customer use of credit to purchas products and services increasing the amount owed).  As modeled here BalanceAmount always reflects the current balance.
+
+Note that accrued interest is NOT reflected in this amoun.  Accrued interest is modeled as a separate and distinct attribute to facilate tracking different income streams.
+
+Also note that for layaway accounts, customer payments represent a liability to the retailer which are CREDITS until the goods are taken and the sale is consumated.</xs:documentation>
+				</xs:annotation>
+				<xs:complexType>
+					<xs:simpleContent>
+						<xs:extension base="xs:decimal">
+							<xs:attributeGroup ref="arts:ElementControlAttributeGroup"/>
+						</xs:extension>
+					</xs:simpleContent>
+				</xs:complexType>
+			</xs:element>
+			<xs:element name="CreditLimitAmount">
+				<xs:annotation>
+					<xs:documentation>A limit on the total value of credit to be extended to this CustomerAccount.</xs:documentation>
+				</xs:annotation>
+				<xs:complexType>
+					<xs:simpleContent>
+						<xs:extension base="xs:decimal">
+							<xs:attributeGroup ref="arts:ElementControlAttributeGroup"/>
+						</xs:extension>
+					</xs:simpleContent>
+				</xs:complexType>
+			</xs:element>
+			<xs:element name="CreditStatusCode">
+				<xs:annotation>
+					<xs:documentation>A distinct type of status code that indicates the current credit state of the CustomerAccount.  SAMPLE vales include:
+
+GOOD - Customer is current and may charge purchases
+
+SUSPENDED - customer account is behind and customer may not charge purchase to this account until it is paid off.  This is a temporary state.
+
+CLOSED - customer has outstanding balance deemed a poor risk and the account is closed so it cannot be used
+
+These are samples only, retailers may define their own codes.</xs:documentation>
+				</xs:annotation>
+				<xs:complexType>
+					<xs:simpleContent>
+						<xs:extension base="xs:string">
+							<xs:attributeGroup ref="arts:ElementControlAttributeGroup"/>
+						</xs:extension>
+					</xs:simpleContent>
+				</xs:complexType>
+			</xs:element>
+			<xs:element name="AssociatedBusinessUnitNumber" minOccurs="0">
+				<xs:annotation>
+					<xs:documentation>The Customer's Store Number associated with this Customer (Business Account Number).</xs:documentation>
+				</xs:annotation>
+				<xs:complexType>
+					<xs:simpleContent>
+						<xs:extension base="xs:string">
+							<xs:attributeGroup ref="arts:ElementControlAttributeGroup"/>
+						</xs:extension>
+					</xs:simpleContent>
+				</xs:complexType>
+			</xs:element>
+			<xs:element name="QuebecProcessingFlag">
+				<xs:annotation>
+					<xs:documentation>Quebec Processing Flag; Indicator if the Customer Account is considered to be a Quebec account that may require special consideration.</xs:documentation>
+				</xs:annotation>
+				<xs:complexType>
+					<xs:simpleContent>
+						<xs:extension base="xs:string">
+							<xs:attributeGroup ref="arts:ElementControlAttributeGroup"/>
+						</xs:extension>
+					</xs:simpleContent>
+				</xs:complexType>
+			</xs:element>
+			<xs:element name="NationalCustomerFlag">
+				<xs:annotation>
+					<xs:documentation>Indicator whether this Customer Account is considered as (or belonging to) a National Customer.</xs:documentation>
+				</xs:annotation>
+				<xs:complexType>
+					<xs:simpleContent>
+						<xs:extension base="xs:string">
+							<xs:attributeGroup ref="arts:ElementControlAttributeGroup"/>
+						</xs:extension>
+					</xs:simpleContent>
+				</xs:complexType>
+			</xs:element>
+			<xs:element name="PoRequiredFlag">
+				<xs:annotation>
+					<xs:documentation>Indicator if a PO Voucher Number is required in order to create/submit any Customer Purchase Orders for a particular Customer Account.</xs:documentation>
+				</xs:annotation>
+				<xs:complexType>
+					<xs:simpleContent>
+						<xs:extension base="xs:string">
+							<xs:attributeGroup ref="arts:ElementControlAttributeGroup"/>
+						</xs:extension>
+					</xs:simpleContent>
+				</xs:complexType>
+			</xs:element>
+			<xs:element name="GovernmentProcessingFlag">
+				<xs:annotation>
+					<xs:documentation>Government Processing Flag; Indicator if the Customer Account is considered to be a Government account that may require special consideration.</xs:documentation>
+				</xs:annotation>
+				<xs:complexType>
+					<xs:simpleContent>
+						<xs:extension base="xs:string">
+							<xs:attributeGroup ref="arts:ElementControlAttributeGroup"/>
+						</xs:extension>
+					</xs:simpleContent>
+				</xs:complexType>
+			</xs:element>
+		</xs:sequence>
+		<xs:attributeGroup ref="arts:TypeControlAttributeGroup"/>
+	</xs:complexType>
+</xs:schema>

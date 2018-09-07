@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xsd:schema xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+	targetNamespace="http://www.marks.com/SharedContainer"
+	xmlns="http://www.marks.com/SharedContainer">
+	<xsd:element name="SharedContainer">
+		<xsd:complexType>
+			<xsd:sequence>
+				<xsd:element name="EXTERNAL_ORDER_STATUS" type="xsd:string" />
+				<xsd:element name="EXTERNAL_ORDER_NUMBER" type="xsd:string" />
+				<xsd:element name="FF_ORDER_NUMBER" type="xsd:string" />
+				<xsd:element name="FF_ORDER_STATUS" type="xsd:string" />
+				<xsd:element name="FF_SHIPPING_NUMBER" type="xsd:string" />
+				<xsd:element name="ORDER_CREATE_DATE" type="xsd:dateTime" />
+				<xsd:element name="ORDER_EXPIRY_DATE" type="xsd:dateTime" />
+				<xsd:element minOccurs="0" ref="PRODUCT" maxOccurs="unbounded"/>
+			</xsd:sequence>
+		</xsd:complexType>
+	</xsd:element>
+
+	<xsd:element name="PRODUCT">
+		<xsd:complexType>
+			<xsd:sequence>
+				<xsd:element name="SEQUENCENUMBER" type="xsd:string" minOccurs="0" />
+				<xsd:element name="SKUID" type="xsd:string" minOccurs="0" />
+				<xsd:element name="SKU" type="xsd:string" minOccurs="0" />
+				<xsd:element name="STATUS" type="xsd:string" minOccurs="0" />
+			</xsd:sequence>
+		</xsd:complexType>
+	</xsd:element>
+
+</xsd:schema>

@@ -1,0 +1,11 @@
+trx.inventoryaction.pmm.TrxInventoryAction#IIBInboundQueue=RECV.${REQ_IN}
+trx.inventoryaction.pmm.TrxInventoryAction#IIBReserveQueue=SEND.${RESERVE_IN}
+trx.inventoryaction.pmm.TrxInventoryAction#IIBTransferQueue=SEND.${TRANSFER_IN}
+trx.inventoryaction.pmm.TrxInventoryAction#IIBCancelQueue=SEND.${CANCEL_IN}
+trx.inventoryaction.pmm.TrxInventoryAction#IIBUnknownQueue=SEND.${UNKNOWN_IN}
+trx.inventoryaction.pmm.TrxInventoryAction#CoreAuditDataSource=AUD${ENVN}${INST}
+trx.inventoryaction.pmm.TrxInventoryAction#FGLPMMDatasource=FGLPMM${ENVN}
+trx.inventoryaction.pmm.TrxInventoryAction#CoreAuditDetailEnabled=FALSE
+trx.inventoryaction.pmm.TrxInventoryAction#CoreAuditEnabled=FALSE
+trx.inventoryaction.pmm.TrxInventoryAction#CoreMessageValidation=FALSE
+trx.inventoryaction.pmm.TrxInventoryAction#additionalInstances=${EXTRATHREADS}

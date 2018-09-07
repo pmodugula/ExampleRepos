@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<dependencies>
+        <core>2.2.2</core>
+        <build>development</build>
+		<message-schemas>development</message-schemas>
+        <folders>
+                <folder type="core">common-library</folder>
+                <folder type="core">common-library-java</folder>
+                <folder type="core">core-audit-handler-library</folder>
+                <folder type="core">core-audit-handler-library-java</folder>
+                <folder type="core">core-log-handler-library</folder>
+                <folder type="core">core-message-processor-library</folder>
+                <folder type="core">core-cache-library</folder>
+                <folder type="core">core-cache-library-java</folder>
+                <!-- Comment: Build Dependencies -->
+                <folder type="build">build</folder>
+                <folder type="build">deployment</folder>
+                <folder type="build">resources</folder>
+				<folder type="message-schemas">message-schemas</folder>
+        </folders>
+        <schemas>
+		  	<xsd>
+				<source>xsd/sourcestaging/SourceStagingProductPmmFglMessageV1_00_00.xsd</source>
+				<target>dat-product-pmm-library</target>
+				<dependencies>
+					<dependency>xsd/sourcestaging/Library/SourceStagingMessageRoutingV1_00_00.xsd</dependency>
+					<dependency>xsd/sourcestaging/Library/SourceStagingAttributeGroupsV1_00_00.xsd</dependency>
+				</dependencies>
+			</xsd>
+			<xsd>
+				<source>xsd/arts/ARTSItemMessageV1_02_00.xsd</source>
+				<target>dat-product-pmm-library</target>
+				<dependencies>
+					<dependency>xsd/arts/Library/AttributeGroupsV1_00_00.xsd</dependency>
+					<dependency>xsd/arts/Library/DQResultsV1_00_00.xsd</dependency>
+					<dependency>xsd/arts/Library/SourceSystemsTypeV1_00_00.xsd</dependency>
+					<dependency>xsd/arts/Library/MessageRoutingTypeV1_00_00.xsd</dependency>
+					<dependency>xsd/arts/Library/ARTS_ItemTypeV1_02_00.xsd</dependency>
+					<dependency>xsd/arts/Library/ARTS_ColorTypeV1_01_00.xsd</dependency>
+					<dependency>xsd/arts/Library/ARTS_StyleTypeV1_03_00.xsd</dependency>
+					<dependency>xsd/arts/Library/ARTS_MerchandiseHierarchyTypeV1_02_00.xsd</dependency>	
+					<dependency>xsd/arts/Library/ARTS_UpcTypeV1_02_00.xsd</dependency>				
+					<dependency>xsd/arts/Library/ARTS_SizeTypeV1_02_00.xsd</dependency>
+					<dependency>xsd/arts/Library/ARTS_AliasTypeV1_01_00.xsd</dependency>
+					<dependency>xsd/arts/Library/ARTS_VendorSubsetTypeV2_03_00.xsd</dependency>
+					<dependency>xsd/arts/Library/RequestReplyMessageControlTypeV1_00_00.xsd</dependency>
+					<dependency>xsd/lib/MessageTestingV1_00_00.xsd</dependency>				
+				</dependencies>
+			</xsd>
+        </schemas>
+</dependencies>

@@ -1,0 +1,4 @@
+trx.sales.aw.SetTimeoutRequest#PollingDoneTime=03:00:00
+trx.sales.aw.CreatePollingDoneFlagOnAW#PollDoneInputQueue=RECV.${POLL_IN}
+trx.sales.aw.CreatePollingDoneFlagOnAW#PollDoneFailureQueue=SEND.${POLL_FAIL}
+trx.sales.aw.CreatePollingDoneFlagOnAW#additionalInstances=${EXTRATHREADS}

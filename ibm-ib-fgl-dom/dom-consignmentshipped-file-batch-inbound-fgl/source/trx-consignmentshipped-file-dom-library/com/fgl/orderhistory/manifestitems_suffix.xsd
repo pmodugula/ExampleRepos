@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="UTF-8"?><xsd:schema xmlns:csv="http://www.ibm.com/dfdl/CommaSeparatedFormat" xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0/" xmlns:ibmDfdlExtn="http://www.ibm.com/dfdl/extensions" xmlns:ibmSchExtn="http://www.ibm.com/schema/extensions" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+
+
+    <xsd:import namespace="http://www.ibm.com/dfdl/CommaSeparatedFormat" schemaLocation="../../../IBMdefined/CommaSeparatedFormat.xsd"/>
+    <xsd:annotation>
+		<xsd:appinfo source="http://www.ogf.org/dfdl/">
+			<dfdl:format documentFinalTerminatorCanBeMissing="yes" encoding="US-ASCII" escapeSchemeRef="csv:CSVEscapeScheme" ref="csv:CommaSeparatedFormat"/>
+		</xsd:appinfo>
+	</xsd:annotation>
+
+<xsd:element dfdl:emptyValueDelimiterPolicy="none" dfdl:initiator="" dfdl:terminator="" ibmSchExtn:docRoot="true" name="manifestitems_suffix">
+		<xsd:complexType>
+			<xsd:sequence dfdl:separator="">
+				<xsd:element dfdl:occursCountKind="implicit" dfdl:terminator="%CR;%LF;" maxOccurs="unbounded" name="record">
+					<xsd:complexType>
+						<xsd:sequence dfdl:separatorSuppressionPolicy="trailingEmpty">
+							<xsd:element ibmDfdlExtn:sampleValue="" name="OrderId" type="xsd:string"/>
+							<xsd:element ibmDfdlExtn:sampleValue="" name="OrderItemId" type="xsd:string"/>
+							<xsd:element ibmDfdlExtn:sampleValue="" name="MATNR_ArticleNumber" type="xsd:string"/>
+							<xsd:element ibmDfdlExtn:sampleValue="" name="Quantity" type="xsd:string"/>
+							<xsd:element ibmDfdlExtn:sampleValue="" name="KeyedWeightByUnit" type="xsd:string"/>
+							<xsd:element ibmDfdlExtn:sampleValue="" name="ItemPretaxAmount" type="xsd:string"/>
+							<xsd:element ibmDfdlExtn:sampleValue="" name="ItemGSTAmount" type="xsd:string"/>
+							<xsd:element ibmDfdlExtn:sampleValue="" name="ItemPSTAmount" type="xsd:string"/>
+							<xsd:element ibmDfdlExtn:sampleValue="" name="ItemHSTAmount" type="xsd:string"/>
+							<xsd:element ibmDfdlExtn:sampleValue="" name="BaseAmount" type="xsd:string"/>
+							<xsd:element ibmDfdlExtn:sampleValue="" name="CalculatedweightInGrams" type="xsd:string"/>
+							<xsd:element ibmDfdlExtn:sampleValue="" name="Lengthincm" type="xsd:string"/>
+							<xsd:element ibmDfdlExtn:sampleValue="" name="Widthincm" type="xsd:string"/>
+							<xsd:element ibmDfdlExtn:sampleValue="" name="Heightincm" type="xsd:string"/>
+							<xsd:element ibmDfdlExtn:sampleValue="" name="ItemVoidInd" type="xsd:string"/>
+							<xsd:element ibmDfdlExtn:sampleValue="" name="DescriptionCostCentre" type="xsd:string"/>
+							<xsd:element ibmDfdlExtn:sampleValue="" name="BarCodeId" type="xsd:string"/>
+							<xsd:element ibmDfdlExtn:sampleValue="" name="CustomersClientId" type="xsd:string"/>
+							<xsd:element ibmDfdlExtn:sampleValue="" name="ContactFirstName" type="xsd:string"/>
+							<xsd:element ibmDfdlExtn:sampleValue="" name="ContactLastName" type="xsd:string"/>
+							<xsd:element ibmDfdlExtn:sampleValue="" name="ContactTitle" type="xsd:string"/>
+							<xsd:element ibmDfdlExtn:sampleValue="" name="CompanyName" type="xsd:string"/>
+							<xsd:element ibmDfdlExtn:sampleValue="" name="AdditionalAddress" type="xsd:string"/>
+							<xsd:element ibmDfdlExtn:sampleValue="" name="AddressLine1" type="xsd:string"/>
+							<xsd:element ibmDfdlExtn:sampleValue="" name="AddressLine2" type="xsd:string"/>
+							<xsd:element ibmDfdlExtn:sampleValue="" name="City" type="xsd:string"/>
+							<xsd:element ibmDfdlExtn:sampleValue="" name="BLAND_ProvinceStateKey" type="xsd:string"/>
+							<xsd:element ibmDfdlExtn:sampleValue="" name="PostalZipCode" type="xsd:string"/>
+							<xsd:element ibmDfdlExtn:sampleValue="" name="ContactPhoneNumber" type="xsd:string"/>
+							<xsd:element ibmDfdlExtn:sampleValue="" name="EmailAddress" type="xsd:string"/>
+							<xsd:element ibmDfdlExtn:sampleValue="" name="ImportedOrderID" type="xsd:string"/>
+							<xsd:element ibmDfdlExtn:sampleValue="" name="DateTime" type="xsd:string"/>
+							<xsd:element ibmDfdlExtn:sampleValue="" name="Description" type="xsd:string"/>
+							<xsd:element ibmDfdlExtn:sampleValue="" name="Signature" type="xsd:string"/>
+							<xsd:element ibmDfdlExtn:sampleValue="" name="NotificationMethod" type="xsd:string"/>
+							<xsd:element ibmDfdlExtn:sampleValue="" name="ItemRef2" type="xsd:string"/>
+							<xsd:element ibmDfdlExtn:sampleValue="" name="EMail2" type="xsd:string"/>
+							<xsd:element ibmDfdlExtn:sampleValue="" name="ReturnItemId" type="xsd:string"/>
+                        </xsd:sequence>
+					</xsd:complexType>
+				</xsd:element>				
+			</xsd:sequence>
+		</xsd:complexType>
+	</xsd:element>
+
+
+</xsd:schema>

@@ -1,0 +1,11 @@
+BROKER SCHEMA etc.giftcard.retek
+
+CREATE FUNCTION  getTimestampInMST( IN inDate TIMESTAMP)
+ RETURNS CHARACTER
+ LANGUAGE JAVA 
+ EXTERNAL NAME "etc.giftcard.retek.DateHelper.getTimestampInMST";
+ 
+ CREATE FUNCTION  getCurrentTimeZoneOffset()
+ RETURNS CHARACTER
+ LANGUAGE JAVA 
+ EXTERNAL NAME "etc.giftcard.retek.DateHelper.getCurrentTimeZoneOffset";

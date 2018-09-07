@@ -1,0 +1,9 @@
+dat.exchangerate.pmm.initial_load#IIBInboundQueue=RECV.${EXCRATES_INIT_IN_DS}
+dat.exchangerate.pmm.initial_load#IIBOutboundQueue=SEND.${EXCRATES_INIT_IN_IB}
+dat.exchangerate.pmm.initial_load#IIBDataSource=FGLRPL${ENVN}${INST}
+dat.exchangerate.pmm.initial_load#CoreAuditDataSource=AUD${ENVN}${INST}
+dat.exchangerate.pmm.initial_load#additionalInstances=${EXTRATHREADS}
+dat.exchangerate.pmm.initial_load#PreProcessorAuditEnabled=False
+dat.exchangerate.pmm.initial_load#PostProcessorAuditEnabled=False
+dat.exchangerate.pmm.initial_load#CoreDatastageMessageValidation=${DS_VALIDATION}
+dat.exchangerate.pmm.initial_load#CoreArtsMessageValidation=${ARTS_VALIDATION}

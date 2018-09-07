@@ -1,0 +1,76 @@
+BROKER SCHEMA trx.sales.xbr
+
+-- Perform lookup of value in Global Cache or find it from CT tables then add it to cache
+-- codeType - 'type' of code needed defined in INT_CODE_TYPE. Used for map key and SQL query
+-- codeId - the value we are looking up
+-- defaultValue - the default value which will be returned if a value is not found in the cache OR the database
+-- rInEnv - reference to environment
+CREATE PROCEDURE CodeTranslationLookup(IN sbu CHARACTER, IN dsCode CHARACTER, IN codeType CHARACTER,IN codeId CHARACTER,IN defaultValue CHARACTER,IN rInEnv REFERENCE) RETURNS CHARACTER
+BEGIN
+	
+	DECLARE codeValue CHARACTER;
+	DECLARE mapName CHARACTER;
+	DECLARE mapKey CHARACTER;
+	
+	-- map name should be sbu (ie. FGL) and data source code (i.e. XBR) specific
+	SET mapName = dsCode || '-' || sbu; 
+	
+	-- use a combination of the code and type as the key for the map, as the code is not guarenteed to be unique for different types in the tables
+	SET mapKey = codeId || '-' || codeType;
+	
+	-- result back from adding to the map
+	DECLARE addMapResult  BOOLEAN; 
+	
+	-- for logging
+	DECLARE schemaName CHARACTER 'trx.sales.xbr';
+	DECLARE moduleName CHARACTER '_cacheUtil';
+	
+	-- try getting the value from the map
+	SET codeValue = getValue(mapName,mapKey);
+  	IF (TRIM(codeValue) IS NULL OR TRIM(codeValue) ='' ) THEN
+		
+		-- load from DB if the code was not found - use the code and the type as the input parameters to the SQL
+		DECLARE codeTranslationQuery CHARACTER;
+		SET codeTranslationQuery = 'SELECT CMN.CMN_CODE_CD,XREF.CODE_VALUE_CD FROM INT_XREF_CODE_CMN XREF JOIN INT_CMN_CODE CMN ON XREF.CMN_CODE_ID = CMN.CMN_CODE_ID JOIN INT_CODE_TYPE TYP ON XREF.CODE_TYPE_ID = TYP.CODE_TYPE_ID WHERE XREF.SBU_CD =? AND XREF.DATA_SOURCE_CD=? AND XREF.EFCTV_TMS <= SYSDATE AND XREF.EXPIRY_TMS IS NULL AND CMN.CMN_CODE_CD=? AND TYP.CODE_TYPE_CD=?';
+		CALL core.log.DebugMessage(rInEnv, schemaName || '.' || moduleName, 'CodeTranslationLookup - mapName:' || mapName ||  ' mapKey:' ||  mapKey || ' not found in cache executing SQL ' || codeTranslationQuery || '[' || sbu || ',' ||  dsCode || ',' || codeId || ',' || codeType || ']'); 
+		SET rInEnv.ResultSet[] = PASSTHRU(codeTranslationQuery,sbu,dsCode,codeId,codeType);
+		SET codeValue = rInEnv.ResultSet.CODE_VALUE_CD;
+		
+		-- if we can't find the code value use the default
+		IF (codeValue IS NULL OR codeValue='') THEN
+			CALL core.log.DebugMessage(rInEnv, schemaName || '.' || moduleName, 'CodeTranslationLookup - cannot find codeValue using default ' || defaultValue); 
+			SET codeValue = defaultValue;
+		ELSE
+			
+			CALL core.log.DebugMessage(rInEnv, schemaName || '.' || moduleName, 'CodeTranslationLookup - using value ' || codeValue || ' found in database now adding to cache'); 
+				 
+			-- add to cache so we can use it next time
+			SET addMapResult = addUpdateKey(mapName,mapKey,codeValue);
+		
+			-- problem adding to the cache
+			IF (addMapResult IS FALSE) THEN
+				CALL core.log.DebugMessage(rInEnv, schemaName || '.' || moduleName, 'CodeTranslationLookup - could not add mapName:' || mapName ||  ' mapKey:' ||  mapKey || ' to the cache ' || codeTranslationQuery); 
+			END IF;	
+				
+		END IF;
+		
+  	ELSE
+  		CALL core.log.DebugMessage(rInEnv, schemaName || '.' || moduleName, 'CodeTranslationLookup - mapName:' || mapName ||  ' mapKey:' ||  mapKey || ' found in cache as ' || codeValue); 
+		
+  	END IF;
+	
+	RETURN codeValue;
+	
+	
+END;
+
+
+CREATE 	 PROCEDURE getValue (IN chrMapName CHARACTER, IN chrKey CHARACTER)
+RETURNS CHARACTER
+LANGUAGE JAVA
+EXTERNAL NAME "com.fgl.eai.CacheUtil.getValue";
+
+CREATE 	 PROCEDURE addUpdateKey (IN chrMapName CHARACTER, IN chrKey CHARACTER,IN chrValue CHARACTER)
+RETURNS BOOLEAN
+LANGUAGE JAVA
+EXTERNAL NAME "com.fgl.eai.CacheUtil.addUpdateKey";

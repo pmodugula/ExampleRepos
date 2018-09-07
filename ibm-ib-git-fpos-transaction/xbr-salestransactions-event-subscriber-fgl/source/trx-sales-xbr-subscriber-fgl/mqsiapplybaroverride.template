@@ -1,0 +1,7 @@
+trx.sales.xbr.subscriber#IIBInboundQueue=RECV.${SUBSCRIBER_IN}
+trx.sales.xbr.subscriber#IIBOutboundQueue=SEND.${SUBSCRIBER_OUT}
+trx.sales.xbr.subscriber#CoreAuditDataSource=FGLRPL${ENVN}${INST}
+trx.sales.xbr.subscriber#PreProcessorAuditEnabled=False
+trx.sales.xbr.subscriber#PostProcessorAuditEnabled=False
+trx.sales.xbr.subscriber#additionalInstances=${EXTRATHREADS}
+trx.sales.xbr.subscriber#IIBDataSource=FGLRPL${ENVN}${INST}

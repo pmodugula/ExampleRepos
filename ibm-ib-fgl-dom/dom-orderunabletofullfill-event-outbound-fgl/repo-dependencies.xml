@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<dependencies>
+	<core>2.2.1</core>
+	<message-schemas>development</message-schemas>
+	<build>development</build>
+	<cygmin64>1.0.1</cygmin64>
+	<folders>
+		<folder type="cygmin64">cygmin64</folder>
+		<folder type="build">build</folder>
+		<folder type="build">deployment</folder>
+		<folder type="build">resources</folder>
+		<folder type="core">common-library</folder>
+		<folder type="core">common-library-java</folder>
+		<folder type="core">core-cache-library</folder>
+		<folder type="core">core-audit-handler-library</folder>
+		<folder type="core">core-audit-handler-library-java</folder>
+		<folder type="core">core-log-handler-library</folder>
+		<folder type="core">core-message-processor-library</folder>
+		<folder type="core">core-testing-handler-library</folder>
+				<!-- XSD Schema Dependencies -->
+		<folder type="message-schemas">message-schemas</folder>
+		<!-- Comment: Build Dependencies -->
+	</folders>
+</dependencies>

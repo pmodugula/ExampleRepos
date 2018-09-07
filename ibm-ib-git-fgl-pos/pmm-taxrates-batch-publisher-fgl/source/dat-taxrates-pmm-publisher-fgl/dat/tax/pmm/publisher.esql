@@ -1,0 +1,47 @@
+BROKER SCHEMA dat.tax.pmm
+
+
+/*
+* Authors : Piyush.
+* File Name: publisher.esql
+* Create Date: 22-Aug-2016
+* Version History:
+* Version        Module Name                             Revision Date   Revision Details
+* =============  ==========================              =============   ======================
+* 1.0 			BuildRFH2 	          					22-Aug-2016 	 Inital Version
+* FGL/MWW (C)2014,2015. All rights reserved.
+*/
+
+DECLARE IIBPublication EXTERNAL CHARACTER '';
+
+CREATE COMPUTE MODULE BuildRFH2
+	CREATE FUNCTION Main() RETURNS BOOLEAN
+	BEGIN		
+		SET OutputRoot = InputRoot;
+		IF NOT EXISTS(InputRoot.MQMD[]) THEN
+			CREATE NEXTSIBLING OF OutputRoot.Properties DOMAIN 'MQMD';
+		END IF;
+		IF 0 = CARDINALITY(InputRoot.MQRFH2[]) THEN
+			SET OutputRoot.MQMD.Format = MQFMT_RF_HEADER_2;
+			CREATE NEXTSIBLING OF OutputRoot.MQMD DOMAIN('MQRFH2');
+		END IF;		
+		SET OutputRoot.MQRFH2.(MQRFH2.Field)Version = MQRFH_VERSION_2;
+		SET OutputRoot.MQRFH2.(MQRFH2.Field)Encoding = InputRoot.MQMD.Encoding;
+		SET OutputRoot.MQRFH2.(MQRFH2.Field)CodedCharSetId = InputRoot.MQMD.CodedCharSetId;
+--		SET OutputRoot.MQRFH2.(MQRFH2.Field)Format = InputRoot.MQMD.Format;
+ 		SET OutputRoot.MQRFH2.(MQRFH2.Field)Format = 'MQSTR';
+		SET OutputRoot.MQRFH2.psc.Command = 'Publish';
+		SET OutputRoot.MQRFH2.psc.Topic = IIBPublication;		
+		RETURN TRUE;
+	END;
+END MODULE;
+
+CREATE COMPUTE MODULE AuditNoMatch
+	CREATE FUNCTION Main() RETURNS BOOLEAN
+	BEGIN
+		CALL core.audit.AuditState(Environment, 'DROP');
+		CALL core.audit.AuditStateComment(Environment, 'Publication node propagated out of terminal ''NoMatch''');
+		SET OutputRoot = InputRoot;
+		RETURN TRUE;
+	END;
+END MODULE;

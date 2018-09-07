@@ -1,0 +1,13 @@
+trx.consignmentpaid.wms.inbound#IIBInboundQueue=RECV.${WM_CONSIGNPAID_IN}
+trx.consignmentpaid.wms.inbound#WMSCaldcInboundQueue=SEND.${CALDC_DOM_CONSIGNPAID_IN}
+trx.consignmentpaid.wms.inbound#WMSMisdcInboundQueue=SEND.${MISDC_DOM_CONSIGNPAID_IN}
+trx.consignmentpaid.wms.inbound#IIBDataSource=INT${ENVN}${INST}
+trx.consignmentpaid.wms.inbound#WCDCDataSource=${WMCDC}
+trx.consignmentpaid.wms.inbound#WMDCDataSource=${WMMDC}
+trx.consignmentpaid.wms.inbound#CALDCSchemaName=${WMSMSN_CALDC}
+trx.consignmentpaid.wms.inbound#MISDCSchemaName=${WMSMSN_MISDC}
+trx.consignmentpaid.wms.inbound#CoreAuditDataSource=AUD${ENVN}${INST}
+trx.consignmentpaid.wms.inbound#PreProcessorAuditEnabled=FALSE
+trx.consignmentpaid.wms.inbound#PostProcessorAuditEnabled=FALSE
+trx.consignmentpaid.wms.inbound#additionalInstances=${EXTRATHREADS}
+trx.consignmentpaid.wms.inbound#DOMOutboundBackupQueue=${WM_CONSIGNPAID_IN_BACKUP}

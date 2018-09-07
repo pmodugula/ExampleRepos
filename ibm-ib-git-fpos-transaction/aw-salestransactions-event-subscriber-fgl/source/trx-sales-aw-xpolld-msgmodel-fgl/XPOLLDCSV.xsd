@@ -1,0 +1,203 @@
+<?xml version="1.0" encoding="UTF-8"?><xsd:schema xmlns:csv="http://www.ibm.com/dfdl/CommaSeparatedFormat" xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0/" xmlns:ibmDfdlExtn="http://www.ibm.com/dfdl/extensions" xmlns:ibmSchExtn="http://www.ibm.com/schema/extensions" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+
+
+    <xsd:import namespace="http://www.ibm.com/dfdl/CommaSeparatedFormat" schemaLocation="IBMdefined/CommaSeparatedFormat.xsd"/>
+    <xsd:annotation>
+		<xsd:appinfo source="http://www.ogf.org/dfdl/">
+			<dfdl:format documentFinalTerminatorCanBeMissing="yes" encoding="{$dfdl:encoding}" escapeSchemeRef="csv:CSVEscapeScheme" ref="csv:CommaSeparatedFormat"/>
+		</xsd:appinfo>
+	</xsd:annotation>
+
+	<xsd:element ibmSchExtn:docRoot="true" name="XPOLLDCSVS">
+	<xsd:complexType>
+	<xsd:sequence dfdl:separator="">
+	<xsd:element ibmSchExtn:docRoot="true" maxOccurs="unbounded" name="XPOLLDCSV">
+		<xsd:complexType>
+			<xsd:sequence dfdl:separator="">
+                				                                <xsd:element dfdl:terminator="%CR;%LF;%WSP*;" name="Header">
+					<xsd:complexType>
+						<xsd:sequence dfdl:separator="">
+							<xsd:element default="H" dfdl:emptyValueDelimiterPolicy="terminator" dfdl:terminator="%HT;" ibmDfdlExtn:sampleValue="H" name="RecordType" type="xsd:string"/>
+							<xsd:element dfdl:emptyValueDelimiterPolicy="terminator" dfdl:nilValueDelimiterPolicy="terminator" dfdl:terminator="%HT;" dfdl:textNumberPattern="#0" name="StoreNbr" type="xsd:integer"/>
+                            <xsd:element dfdl:emptyValueDelimiterPolicy="terminator" dfdl:terminator="%HT;" dfdl:textNumberPattern="#0" name="RegisterNbr" type="xsd:integer"/>
+                            <xsd:element dfdl:emptyValueDelimiterPolicy="terminator" dfdl:nilValueDelimiterPolicy="terminator" dfdl:terminator="%HT;" name="EntryDateTime" type="xsd:string"/>
+                            <xsd:element dfdl:emptyValueDelimiterPolicy="terminator" dfdl:nilValueDelimiterPolicy="terminator" dfdl:terminator="%HT;" minOccurs="0" name="TransactionSeries" type="xsd:string"/>
+                            <xsd:element dfdl:emptyValueDelimiterPolicy="terminator" dfdl:nilValueDelimiterPolicy="terminator" dfdl:terminator="%HT;" dfdl:textNumberPattern="#0" minOccurs="0" name="TransactionNbr" type="xsd:integer"/>
+							<xsd:element dfdl:emptyValueDelimiterPolicy="terminator" dfdl:nilValueDelimiterPolicy="terminator" dfdl:terminator="%HT;" dfdl:textNumberPattern="#0" minOccurs="0" name="CashierNbr" type="xsd:string"/>
+                            							 <xsd:element dfdl:emptyValueDelimiterPolicy="terminator" dfdl:nilValueDelimiterPolicy="terminator" dfdl:terminator="%HT;" dfdl:textNumberPattern="#0" minOccurs="0" name="TransactionCategory" type="xsd:integer"/>
+                            <xsd:element dfdl:emptyValueDelimiterPolicy="terminator" dfdl:nilValueDelimiterPolicy="terminator" dfdl:terminator="%HT;" minOccurs="0" name="BankDepositDeclarationFlg" type="xsd:string"/>							
+                                                    <xsd:element dfdl:emptyValueDelimiterPolicy="terminator" dfdl:nilValueDelimiterPolicy="terminator" dfdl:terminator="%HT;" dfdl:textNumberPattern="#0" minOccurs="0" name="StoreNbrForTaxJurisdictionLkp" type="xsd:string"/>
+                            <xsd:element dfdl:emptyValueDelimiterPolicy="terminator" dfdl:nilValueDelimiterPolicy="terminator" dfdl:terminator="%HT;" minOccurs="0" name="SendTaxExceptionForTaxJurisdiction" type="xsd:string"/>
+                            <xsd:element dfdl:emptyValueDelimiterPolicy="terminator" dfdl:nilValueDelimiterPolicy="terminator" dfdl:terminator="%HT;" dfdl:textNumberPattern="#0" minOccurs="0" name="TransactionVoidFlag" type="xsd:integer"/>
+                            <xsd:element dfdl:emptyValueDelimiterPolicy="terminator" dfdl:nilValueDelimiterPolicy="terminator" dfdl:terminator="%HT;" dfdl:textNumberPattern="#0.###" minOccurs="0" name="Unused1" type="xsd:decimal"/>
+                            <xsd:element dfdl:emptyValueDelimiterPolicy="terminator" dfdl:nilValueDelimiterPolicy="terminator" dfdl:terminator="%HT;" dfdl:textNumberPattern="#0" minOccurs="0" name="Unused2" type="xsd:integer"/>
+                            <xsd:element dfdl:emptyValueDelimiterPolicy="terminator" dfdl:nilValueDelimiterPolicy="terminator" dfdl:terminator="%HT;" dfdl:textNumberPattern="#0" minOccurs="0" name="PurchasingEmployeeNbr" type="xsd:string"/>
+                            <xsd:element dfdl:emptyValueDelimiterPolicy="terminator" dfdl:nilValueDelimiterPolicy="terminator" dfdl:terminator="%HT;" dfdl:textNumberPattern="#0" minOccurs="0" name="CloseoutFlg" type="xsd:integer"/>
+                            <xsd:element dfdl:emptyValueDelimiterPolicy="terminator" dfdl:nilValueDelimiterPolicy="terminator" dfdl:terminator="%HT;" minOccurs="0" name="TransactionRemark" type="xsd:string"/>
+                            <xsd:element dfdl:emptyValueDelimiterPolicy="terminator" dfdl:nilValueDelimiterPolicy="terminator" dfdl:terminator="%HT;" minOccurs="0" name="TaxOverrideFlg" type="xsd:string"/>
+                                                                            </xsd:sequence>
+					</xsd:complexType>
+				</xsd:element>				
+                                                                                                                                <xsd:element dfdl:terminator="%CR;%LF;%WSP*;" maxOccurs="unbounded" minOccurs="0" name="Line">
+          <xsd:complexType>
+            <xsd:sequence dfdl:separator="">
+              <xsd:element default="L" dfdl:emptyValueDelimiterPolicy="terminator" dfdl:nilValueDelimiterPolicy="terminator" dfdl:terminator="%HT;" name="RecordType" type="xsd:string"/>
+              <xsd:element dfdl:emptyValueDelimiterPolicy="terminator" dfdl:nilValueDelimiterPolicy="terminator" dfdl:terminator="%HT;" dfdl:textNumberPattern="#0" name="LineId" type="xsd:integer"/>
+              <xsd:element dfdl:emptyValueDelimiterPolicy="terminator" dfdl:nilValueDelimiterPolicy="terminator" dfdl:terminator="%HT;" dfdl:textNumberPattern="#0" minOccurs="0" name="LineObject" type="xsd:string"/>
+              <xsd:element dfdl:emptyValueDelimiterPolicy="terminator" dfdl:nilValueDelimiterPolicy="terminator" dfdl:terminator="%HT;" dfdl:textNumberPattern="#0" minOccurs="0" name="LineAction" type="xsd:string"/>
+              <xsd:element dfdl:emptyValueDelimiterPolicy="terminator" dfdl:nilValueDelimiterPolicy="terminator" dfdl:terminator="%HT;" minOccurs="0" name="ReferenceNbr" type="xsd:string"/>
+              <xsd:element dfdl:emptyValueDelimiterPolicy="terminator" dfdl:nilValueDelimiterPolicy="terminator" dfdl:terminator="%HT;" dfdl:textNumberPattern="#0.###" minOccurs="0" name="LineAmount" type="xsd:decimal"/>
+              <xsd:element dfdl:emptyValueDelimiterPolicy="terminator" dfdl:nilValueDelimiterPolicy="terminator" dfdl:terminator="%HT;" dfdl:textNumberPattern="#0" minOccurs="0" name="Unused1" type="xsd:integer"/>
+              <xsd:element dfdl:emptyValueDelimiterPolicy="terminator" dfdl:nilValueDelimiterPolicy="terminator" dfdl:terminator="%HT;" dfdl:textNumberPattern="#0" minOccurs="0" name="LineAmountDivider" type="xsd:integer"/>
+              <xsd:element dfdl:terminator="%HT;" dfdl:textNumberPattern="#0" minOccurs="0" name="Unused2" type="xsd:integer"/>
+              <xsd:element dfdl:emptyValueDelimiterPolicy="terminator" dfdl:nilValueDelimiterPolicy="terminator" dfdl:terminator="%HT;" dfdl:textNumberPattern="#0" minOccurs="0" name="VoidingReversalFlg" type="xsd:integer"/>
+              <xsd:element dfdl:emptyValueDelimiterPolicy="terminator" dfdl:nilValueDelimiterPolicy="terminator" dfdl:terminator="%HT;" dfdl:textNumberPattern="#0.###" minOccurs="0" name="LineAmountDeduction" type="xsd:decimal"/>
+              <xsd:element dfdl:emptyValueDelimiterPolicy="terminator" dfdl:nilValueDelimiterPolicy="terminator" dfdl:terminator="%HT;" dfdl:textNumberPattern="#0.###" minOccurs="0" name="LineAmountMultiplicationFactor" type="xsd:decimal"/>
+              <xsd:element dfdl:emptyValueDelimiterPolicy="terminator" dfdl:nilValueDelimiterPolicy="terminator" dfdl:terminator="%HT;" minOccurs="0" name="LineVoidFlg" type="xsd:string"/>
+              <xsd:element dfdl:emptyValueDelimiterPolicy="terminator" dfdl:nilValueDelimiterPolicy="terminator" dfdl:terminator="%HT;" dfdl:textNumberPattern="#0" minOccurs="0" name="AttachmentQty" type="xsd:integer"/>
+              <xsd:element dfdl:emptyValueDelimiterPolicy="terminator" dfdl:nilValueDelimiterPolicy="terminator" dfdl:terminator="%HT;" dfdl:textNumberPattern="#0" minOccurs="0" name="LineObjectAdjustment" type="xsd:integer"/>
+              <xsd:element dfdl:emptyValueDelimiterPolicy="terminator" dfdl:nilValueDelimiterPolicy="terminator" dfdl:terminator="%HT;" minOccurs="0" name="LkpPosCode" type="xsd:string"/>
+            </xsd:sequence>
+          </xsd:complexType>
+        </xsd:element>
+                                                                <xsd:element dfdl:terminator="%CR;%LF;%WSP*;" maxOccurs="unbounded" minOccurs="0" name="Customer">
+          <xsd:complexType>
+            <xsd:sequence dfdl:separator="">
+              <xsd:element default="C" dfdl:emptyValueDelimiterPolicy="terminator" dfdl:nilValueDelimiterPolicy="terminator" dfdl:terminator="%HT;" name="RecordType" type="xsd:string"/>
+              <xsd:element dfdl:emptyValueDelimiterPolicy="terminator" dfdl:nilValueDelimiterPolicy="terminator" dfdl:terminator="%HT;" dfdl:textNumberPattern="#0" name="LineId" type="xsd:integer"/>
+              <xsd:element dfdl:emptyValueDelimiterPolicy="terminator" dfdl:nilValueDelimiterPolicy="terminator" dfdl:terminator="%HT;" minOccurs="0" name="CustomerRole" type="xsd:string"/>
+              <xsd:element dfdl:emptyValueDelimiterPolicy="terminator" dfdl:nilValueDelimiterPolicy="terminator" dfdl:terminator="%HT;" minOccurs="0" name="Title" type="xsd:string"/>
+              <xsd:element dfdl:emptyValueDelimiterPolicy="terminator" dfdl:nilValueDelimiterPolicy="terminator" dfdl:terminator="%HT;" minOccurs="0" name="FirstName" type="xsd:string"/>
+              <xsd:element dfdl:emptyValueDelimiterPolicy="terminator" dfdl:nilValueDelimiterPolicy="terminator" dfdl:terminator="%HT;" minOccurs="0" name="LastName" type="xsd:string"/>
+              <xsd:element dfdl:emptyValueDelimiterPolicy="terminator" dfdl:nilValueDelimiterPolicy="terminator" dfdl:terminator="%HT;" maxOccurs="2" minOccurs="0" name="Address" type="xsd:string"/>
+              <xsd:element dfdl:emptyValueDelimiterPolicy="terminator" dfdl:nilValueDelimiterPolicy="terminator" dfdl:terminator="%HT;" minOccurs="0" name="City" type="xsd:string"/>
+              <xsd:element dfdl:emptyValueDelimiterPolicy="terminator" dfdl:nilValueDelimiterPolicy="terminator" dfdl:terminator="%HT;" minOccurs="0" name="State" type="xsd:string"/>
+              <xsd:element dfdl:emptyValueDelimiterPolicy="terminator" dfdl:nilValueDelimiterPolicy="terminator" dfdl:terminator="%HT;" minOccurs="0" name="Country" type="xsd:string"/>
+              <xsd:element dfdl:emptyValueDelimiterPolicy="terminator" dfdl:nilValueDelimiterPolicy="terminator" dfdl:terminator="%HT;" minOccurs="0" name="PostalCode" type="xsd:string"/>
+              <xsd:element dfdl:emptyValueDelimiterPolicy="terminator" dfdl:nilValueDelimiterPolicy="terminator" dfdl:terminator="%HT;" dfdl:textNumberPattern="#0" maxOccurs="2" minOccurs="0" name="TelephoneNbr" type="xsd:string"/>
+              <xsd:element dfdl:emptyValueDelimiterPolicy="terminator" dfdl:nilValueDelimiterPolicy="terminator" dfdl:terminator="%HT;" dfdl:textNumberPattern="#0" minOccurs="0" name="CustomerNbr" type="xsd:integer"/>
+                                          <xsd:element dfdl:emptyValueDelimiterPolicy="terminator" dfdl:nilValueDelimiterPolicy="terminator" dfdl:terminator="%HT;" minOccurs="0" name="County" type="xsd:string"/>
+                            <xsd:element dfdl:emptyValueDelimiterPolicy="terminator" dfdl:nilValueDelimiterPolicy="terminator" dfdl:terminator="%HT;" minOccurs="0" name="PosTaxJurisdictionCode" type="xsd:string"/>
+              <xsd:element dfdl:emptyValueDelimiterPolicy="terminator" dfdl:nilValueDelimiterPolicy="terminator" dfdl:terminator="%HT;" minOccurs="0" name="FaxNbr" type="xsd:string"/>
+              <xsd:element dfdl:emptyValueDelimiterPolicy="terminator" dfdl:nilValueDelimiterPolicy="terminator" dfdl:terminator="%HT;" minOccurs="0" name="EmailAddress" type="xsd:string"/>
+            </xsd:sequence>
+          </xsd:complexType>
+        </xsd:element>
+                                                                                <xsd:element dfdl:terminator="%CR;%LF;%WSP*;" maxOccurs="unbounded" minOccurs="0" name="Email">
+          <xsd:complexType>
+            <xsd:sequence dfdl:separator="">
+              <xsd:element default="E" dfdl:emptyValueDelimiterPolicy="terminator" dfdl:nilValueDelimiterPolicy="terminator" dfdl:terminator="%HT;" name="RecordType" type="xsd:string"/>
+              <xsd:element dfdl:emptyValueDelimiterPolicy="terminator" dfdl:nilValueDelimiterPolicy="terminator" dfdl:terminator="%HT;" dfdl:textNumberPattern="#0" name="LineId" type="xsd:integer"/>
+              <xsd:element dfdl:emptyValueDelimiterPolicy="terminator" dfdl:nilValueDelimiterPolicy="terminator" dfdl:terminator="%HT;" dfdl:textNumberPattern="#0" minOccurs="0" name="CustomerRole" type="xsd:string"/>
+              <xsd:element dfdl:emptyValueDelimiterPolicy="terminator" dfdl:nilValueDelimiterPolicy="terminator" dfdl:terminator="%HT;" dfdl:textNumberPattern="#0" minOccurs="0" name="CustomerInfoType" type="xsd:string"/>
+              <xsd:element dfdl:emptyValueDelimiterPolicy="terminator" dfdl:nilValueDelimiterPolicy="terminator" dfdl:terminator="%HT;" minOccurs="0" name="CustomerInfo" type="xsd:string"/>
+            </xsd:sequence>
+          </xsd:complexType>
+        </xsd:element>
+                                                                <xsd:element dfdl:terminator="%CR;%LF;%WSP*;" maxOccurs="unbounded" minOccurs="0" name="Merchandise">
+          <xsd:complexType>
+            <xsd:sequence dfdl:separator="">
+              <xsd:element default="M" dfdl:emptyValueDelimiterPolicy="terminator" dfdl:nilValueDelimiterPolicy="terminator" dfdl:terminator="%HT;" name="RecordType" type="xsd:string"/>
+              <xsd:element dfdl:emptyValueDelimiterPolicy="terminator" dfdl:nilValueDelimiterPolicy="terminator" dfdl:terminator="%HT;" dfdl:textNumberPattern="#0" name="LineId" type="xsd:integer"/>
+              <xsd:element dfdl:emptyValueDelimiterPolicy="terminator" dfdl:nilValueDelimiterPolicy="terminator" dfdl:terminator="%HT;" dfdl:textNumberPattern="#0" minOccurs="0" name="MerchandiseCategory" type="xsd:integer"/>
+              <xsd:element dfdl:emptyValueDelimiterPolicy="terminator" dfdl:nilValueDelimiterPolicy="terminator" dfdl:terminator="%HT;" dfdl:textNumberPattern="#0" minOccurs="0" name="Unused1" type="xsd:integer"/>
+              <xsd:element dfdl:emptyValueDelimiterPolicy="terminator" dfdl:nilValueDelimiterPolicy="terminator" dfdl:terminator="%HT;" dfdl:textNumberPattern="#0" minOccurs="0" name="UPC" type="xsd:long"/>
+              <xsd:element dfdl:emptyValueDelimiterPolicy="terminator" dfdl:nilValueDelimiterPolicy="initiator" dfdl:terminator="%HT;" dfdl:textNumberPattern="#0.###" minOccurs="0" name="Units" type="xsd:decimal"/>
+              <xsd:element dfdl:emptyValueDelimiterPolicy="terminator" dfdl:nilValueDelimiterPolicy="terminator" dfdl:terminator="%HT;" dfdl:textNumberPattern="#0" minOccurs="0" name="UnitsMultiplicationFactor" type="xsd:integer"/>
+              <xsd:element dfdl:emptyValueDelimiterPolicy="terminator" dfdl:nilValueDelimiterPolicy="terminator" dfdl:terminator="%HT;" dfdl:textNumberPattern="#0" minOccurs="0" name="SalesPerson1" type="xsd:string"/>
+                                          <xsd:element dfdl:emptyValueDelimiterPolicy="terminator" dfdl:nilValueDelimiterPolicy="terminator" dfdl:terminator="%HT;" minOccurs="0" name="SalesPerson2" type="xsd:string"/>
+                            <xsd:element dfdl:emptyValueDelimiterPolicy="terminator" dfdl:nilValueDelimiterPolicy="terminator" dfdl:terminator="%HT;" minOccurs="0" name="PriceOverrideFlg" type="xsd:string"/>
+              <xsd:element dfdl:emptyValueDelimiterPolicy="terminator" dfdl:nilValueDelimiterPolicy="terminator" dfdl:terminator="%HT;" minOccurs="0" name="UpcMissingInPosIPLUFileFlg" type="xsd:string"/>
+              <xsd:element dfdl:emptyValueDelimiterPolicy="terminator" dfdl:nilValueDelimiterPolicy="terminator" dfdl:terminator="%HT;" dfdl:textNumberPattern="#0" minOccurs="0" name="PosDeptOrClass" type="xsd:long"/>
+              <xsd:element dfdl:emptyValueDelimiterPolicy="terminator" dfdl:nilValueDelimiterPolicy="terminator" dfdl:terminator="%HT;" dfdl:textNumberPattern="#0" minOccurs="0" name="PosNoHitDeptClass" type="xsd:long"/>
+              <xsd:element dfdl:emptyValueDelimiterPolicy="terminator" dfdl:nilValueDelimiterPolicy="terminator" dfdl:terminator="%HT;" dfdl:textNumberPattern="#0.###" maxOccurs="2" minOccurs="0" name="Unused" type="xsd:decimal"/>
+              <xsd:element dfdl:emptyValueDelimiterPolicy="terminator" dfdl:nilValueDelimiterPolicy="terminator" dfdl:terminator="%HT;" minOccurs="0" name="PosItemIdentifier" type="xsd:string"/>
+              <xsd:element dfdl:emptyValueDelimiterPolicy="terminator" dfdl:nilValueDelimiterPolicy="terminator" dfdl:terminator="%HT;" dfdl:textNumberPattern="#0" minOccurs="0" name="ScannedFlg" type="xsd:integer"/>
+              <xsd:element dfdl:emptyValueDelimiterPolicy="terminator" dfdl:nilValueDelimiterPolicy="terminator" dfdl:terminator="%HT;" dfdl:textNumberPattern="#0" minOccurs="0" name="OriginatingStoreNbr" type="xsd:string"/>
+                                                                </xsd:sequence>
+          </xsd:complexType>
+        </xsd:element>
+                                                                                                                <xsd:element dfdl:terminator="%CR;%LF;%WSP*;" maxOccurs="unbounded" minOccurs="0" name="LineNote">
+          <xsd:complexType>
+            <xsd:sequence dfdl:separator="">
+              <xsd:element default="N" dfdl:emptyValueDelimiterPolicy="terminator" dfdl:nilValueDelimiterPolicy="terminator" dfdl:terminator="%HT;" name="RecordType" type="xsd:string"/>
+              <xsd:element dfdl:emptyValueDelimiterPolicy="terminator" dfdl:nilValueDelimiterPolicy="terminator" dfdl:terminator="%HT;" dfdl:textNumberPattern="#0" name="LineId" type="xsd:integer"/>
+              <xsd:element dfdl:emptyValueDelimiterPolicy="terminator" dfdl:nilValueDelimiterPolicy="terminator" dfdl:terminator="%HT;" dfdl:textNumberPattern="#0" name="LineNoteType" type="xsd:integer"/>
+              <xsd:element dfdl:emptyValueDelimiterPolicy="terminator" dfdl:initiator="" dfdl:nilValueDelimiterPolicy="terminator" dfdl:terminator="%HT;" minOccurs="0" name="LineNote" type="xsd:string"/>
+            </xsd:sequence>
+          </xsd:complexType>
+        </xsd:element>
+                                                                <xsd:element dfdl:terminator="%CR;%LF;%WSP*;" maxOccurs="unbounded" minOccurs="0" name="Discount">
+          <xsd:complexType>
+            <xsd:sequence dfdl:separator="">
+              <xsd:element dfdl:emptyValueDelimiterPolicy="terminator" dfdl:nilValueDelimiterPolicy="terminator" dfdl:terminator="%HT;" name="RecordType" type="xsd:string"/>
+              <xsd:element dfdl:emptyValueDelimiterPolicy="terminator" dfdl:nilValueDelimiterPolicy="terminator" dfdl:terminator="%HT;" dfdl:textNumberPattern="#0" name="LineId" type="xsd:integer"/>
+              <xsd:element dfdl:emptyValueDelimiterPolicy="terminator" dfdl:nilValueDelimiterPolicy="terminator" dfdl:terminator="%HT;" minOccurs="0" name="LineIdAdjustment" type="xsd:string"/>
+              <xsd:element dfdl:emptyValueDelimiterPolicy="terminator" dfdl:nilValueDelimiterPolicy="terminator" dfdl:terminator="%HT;" dfdl:textNumberPattern="#0" maxOccurs="2" minOccurs="0" name="Unused" type="xsd:integer"/>
+              <xsd:element dfdl:emptyValueDelimiterPolicy="terminator" dfdl:nilValueDelimiterPolicy="terminator" dfdl:terminator="%HT;" minOccurs="0" name="PosDiscountSerialNbr" type="xsd:string"/>
+              <xsd:element dfdl:emptyValueDelimiterPolicy="terminator" dfdl:nilValueDelimiterPolicy="terminator" dfdl:terminator="%HT;" dfdl:textNumberPattern="#0.###" minOccurs="0" name="DiscountAmount" type="xsd:decimal"/>
+              <xsd:element dfdl:emptyValueDelimiterPolicy="terminator" dfdl:nilValueDelimiterPolicy="terminator" dfdl:terminator="%HT;" minOccurs="0" name="DiscountAmountMultiplicationFactor" type="xsd:string"/>
+              <xsd:element dfdl:emptyValueDelimiterPolicy="terminator" dfdl:nilValueDelimiterPolicy="terminator" dfdl:terminator="%HT;" dfdl:textNumberPattern="#0" minOccurs="0" name="Unused1" type="xsd:integer"/>
+              <xsd:element dfdl:emptyValueDelimiterPolicy="terminator" dfdl:nilValueDelimiterPolicy="terminator" dfdl:terminator="%HT;" dfdl:textNumberPattern="#0" minOccurs="0" name="AppliedByLineId" type="xsd:integer"/>
+              <xsd:element dfdl:emptyValueDelimiterPolicy="terminator" dfdl:nilValueDelimiterPolicy="terminator" dfdl:terminator="%HT;" dfdl:textNumberPattern="#0.###" minOccurs="0" name="DiscountAmountDeduction" type="xsd:decimal"/>
+            </xsd:sequence>
+          </xsd:complexType>
+        </xsd:element>
+                                                                                                                                                                                                                                                                                                                            <xsd:element dfdl:terminator="%CR;%LF;%WSP*;" maxOccurs="unbounded" minOccurs="0" name="Return">
+          <xsd:complexType>
+            <xsd:sequence dfdl:separator="">
+              <xsd:element dfdl:emptyValueDelimiterPolicy="terminator" dfdl:nilValueDelimiterPolicy="terminator" dfdl:terminator="%HT;" name="RecordType" type="xsd:string"/>
+              <xsd:element dfdl:emptyValueDelimiterPolicy="terminator" dfdl:nilValueDelimiterPolicy="terminator" dfdl:terminator="%HT;" dfdl:textNumberPattern="#0" name="LineId" type="xsd:integer"/>
+              <xsd:element dfdl:emptyValueDelimiterPolicy="terminator" dfdl:nilValueDelimiterPolicy="terminator" dfdl:terminator="%HT;" name="ReturnReasonMessage" type="xsd:string"/>
+              <xsd:element dfdl:emptyValueDelimiterPolicy="terminator" dfdl:nilValueDelimiterPolicy="terminator" dfdl:terminator="%HT;" dfdl:textNumberPattern="#0" name="ReturnReasonCode" type="xsd:integer"/>
+              <xsd:element dfdl:emptyValueDelimiterPolicy="terminator" dfdl:nilValueDelimiterPolicy="terminator" dfdl:terminator="%HT;" dfdl:textNumberPattern="#0" name="MerchandiseDispositionCode" type="xsd:integer"/>
+              <xsd:element dfdl:emptyValueDelimiterPolicy="terminator" dfdl:nilValueDelimiterPolicy="terminator" dfdl:terminator="%HT;" name="ViaWarehouseFlg" type="xsd:string"/>
+              <xsd:element dfdl:emptyValueDelimiterPolicy="terminator" dfdl:nilValueDelimiterPolicy="terminator" dfdl:terminator="%HT;" name="ReturnFromStoreNbr" type="xsd:string"/>
+              <xsd:element dfdl:emptyValueDelimiterPolicy="terminator" dfdl:nilValueDelimiterPolicy="terminator" dfdl:terminator="%HT;" name="ReturnFromRegisterNbr" type="xsd:string"/>
+              <xsd:element dfdl:emptyValueDelimiterPolicy="terminator" dfdl:nilValueDelimiterPolicy="terminator" dfdl:terminator="%HT;" name="ReturnFromDate" type="xsd:string"/>
+              <xsd:element dfdl:emptyValueDelimiterPolicy="terminator" dfdl:nilValueDelimiterPolicy="terminator" dfdl:terminator="%HT;" name="ReturnFromTransactionNbr" type="xsd:string"/>
+              <xsd:element dfdl:emptyValueDelimiterPolicy="terminator" dfdl:nilValueDelimiterPolicy="terminator" dfdl:terminator="%HT;" maxOccurs="2" name="OriginalSalesPerson" type="xsd:string"/>
+            </xsd:sequence>
+          </xsd:complexType>
+        </xsd:element>
+                                                                <xsd:element dfdl:terminator="%CR;%LF;%WSP*;" maxOccurs="unbounded" minOccurs="0" name="Tax">
+          <xsd:complexType>
+            <xsd:sequence dfdl:separator="">
+              <xsd:element dfdl:emptyValueDelimiterPolicy="terminator" dfdl:nilValueDelimiterPolicy="terminator" dfdl:terminator="%HT;" name="RecordType" type="xsd:string"/>
+              <xsd:element dfdl:emptyValueDelimiterPolicy="terminator" dfdl:nilValueDelimiterPolicy="terminator" dfdl:terminator="%HT;" dfdl:textNumberPattern="#0" name="LineId" type="xsd:integer"/>
+              <xsd:element dfdl:emptyValueDelimiterPolicy="terminator" dfdl:nilValueDelimiterPolicy="terminator" dfdl:terminator="%HT;" name="ExceptionTaxJurisdiction" type="xsd:string"/>
+              <xsd:element dfdl:emptyValueDelimiterPolicy="terminator" dfdl:nilValueDelimiterPolicy="terminator" dfdl:terminator="%HT;" dfdl:textNumberPattern="#0" name="TaxCategory" type="xsd:integer"/>
+              <xsd:element dfdl:emptyValueDelimiterPolicy="terminator" dfdl:nilValueDelimiterPolicy="terminator" dfdl:terminator="%HT;" dfdl:textNumberPattern="#0" name="Taxable" type="xsd:string"/>
+              <xsd:element dfdl:emptyValueDelimiterPolicy="terminator" dfdl:nilValueDelimiterPolicy="terminator" dfdl:terminator="%HT;" name="TaxExemptNbr" type="xsd:string"/>
+              <xsd:element dfdl:emptyValueDelimiterPolicy="terminator" dfdl:nilValueDelimiterPolicy="terminator" dfdl:terminator="%HT;" dfdl:textNumberPattern="#0" name="TaxLevel" type="xsd:integer"/>
+            </xsd:sequence>
+          </xsd:complexType>
+        </xsd:element>
+                                                                                                                                                                <xsd:element dfdl:terminator="%CR;%LF;%WSP*;" maxOccurs="unbounded" minOccurs="0" name="Authorization">
+          <xsd:complexType>
+            <xsd:sequence dfdl:separator="">
+              <xsd:element default="A" dfdl:emptyValueDelimiterPolicy="terminator" dfdl:nilValueDelimiterPolicy="terminator" dfdl:terminator="%HT;" name="RecordType" type="xsd:string"/>
+              <xsd:element dfdl:emptyValueDelimiterPolicy="terminator" dfdl:nilValueDelimiterPolicy="terminator" dfdl:terminator="%HT;" dfdl:textNumberPattern="#0" name="LineId" type="xsd:integer"/>
+              <xsd:element dfdl:emptyValueDelimiterPolicy="terminator" dfdl:nilValueDelimiterPolicy="terminator" dfdl:terminator="%HT;" minOccurs="0" name="AuthorizationNbr" type="xsd:string"/>
+              <xsd:element dfdl:emptyValueDelimiterPolicy="terminator" dfdl:nilValueDelimiterPolicy="terminator" dfdl:terminator="%HT;" dfdl:textNumberPattern="#0" minOccurs="0" name="ExpiryDateFromPos" type="xsd:string"/>
+              <xsd:element dfdl:emptyValueDelimiterPolicy="terminator" dfdl:nilValueDelimiterPolicy="terminator" dfdl:terminator="%HT;" dfdl:textNumberPattern="#0" minOccurs="0" name="SwipeIndicator" type="xsd:string"/>
+              <xsd:element dfdl:emptyValueDelimiterPolicy="terminator" dfdl:nilValueDelimiterPolicy="terminator" dfdl:terminator="%HT;" minOccurs="0" name="ApprovalMessage" type="xsd:string"/>
+              <xsd:element dfdl:emptyValueDelimiterPolicy="terminator" dfdl:nilValueDelimiterPolicy="terminator" dfdl:terminator="%HT;" minOccurs="0" name="LicenseNbr" type="xsd:string"/>
+              <xsd:element dfdl:emptyValueDelimiterPolicy="terminator" dfdl:nilValueDelimiterPolicy="terminator" dfdl:terminator="%HT;" dfdl:textNumberPattern="#0" minOccurs="0" name="OtherIdType" type="xsd:integer"/>
+              <xsd:element dfdl:emptyValueDelimiterPolicy="terminator" dfdl:nilValueDelimiterPolicy="terminator" dfdl:terminator="%HT;" minOccurs="0" name="OtherId" type="xsd:string"/>
+              <xsd:element dfdl:emptyValueDelimiterPolicy="terminator" dfdl:nilValueDelimiterPolicy="terminator" dfdl:terminator="%HT;" minOccurs="0" name="CustomerSignatureObtained" type="xsd:string"/>
+              <xsd:element dfdl:emptyValueDelimiterPolicy="terminator" dfdl:nilValueDelimiterPolicy="terminator" dfdl:terminator="%HT;" minOccurs="0" name="CardType" type="xsd:string"/>
+              <xsd:element dfdl:emptyValueDelimiterPolicy="terminator" dfdl:nilValueDelimiterPolicy="terminator" dfdl:terminator="%HT;" minOccurs="0" name="DeferredBillingDate" type="xsd:string"/>
+              <xsd:element dfdl:emptyValueDelimiterPolicy="terminator" dfdl:nilValueDelimiterPolicy="terminator" dfdl:terminator="%HT;" dfdl:textNumberPattern="#0" minOccurs="0" name="DeferredBillingPlan" type="xsd:integer"/>
+              <xsd:element dfdl:emptyValueDelimiterPolicy="terminator" dfdl:nilValueDelimiterPolicy="terminator" dfdl:terminator="%HT;" name="PosStateCode" type="xsd:string"/>
+                                                                </xsd:sequence>
+          </xsd:complexType>
+        </xsd:element>
+                                                    </xsd:sequence>
+		</xsd:complexType>
+	</xsd:element>
+
+</xsd:sequence>
+</xsd:complexType>
+</xsd:element>
+</xsd:schema>

@@ -1,0 +1,269 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ecore:EPackage xmi:version="2.0"
+    xmlns:xmi="http://www.omg.org/XMI" xmlns:ComIbmCompute.msgnode="ComIbmCompute.msgnode" xmlns:ComIbmMQInput.msgnode="ComIbmMQInput.msgnode" xmlns:ComIbmMQOutput.msgnode="ComIbmMQOutput.msgnode" xmlns:core_message__postprocessor.subflow="core/message/_postprocessor.subflow" xmlns:core_message__preprocessor.subflow="core/message/_preprocessor.subflow" xmlns:ecore="http://www.eclipse.org/emf/2002/Ecore" xmlns:eflow="http://www.ibm.com/wbi/2005/eflow" xmlns:testing_Testing_ReplyTo.subflow="testing/Testing_ReplyTo.subflow"
+    xmlns:trx_sales_etps_IonsBAPaymentsWSCallFilter.subflow="trx/sales/etps/IonsBAPaymentsWSCallFilter.subflow" xmlns:trx_sales_etps_IonsWSCall.subflow="trx/sales/etps/IonsWSCall.subflow" xmlns:trx_sales_etps_IonsWSCallFilter.subflow="trx/sales/etps/IonsWSCallFilter.subflow" xmlns:trx_sales_etps_RedeemGCFilter.subflow="trx/sales/etps/RedeemGCFilter.subflow" xmlns:trx_sales_etps__LegacyTPS_To_eTPS.subflow="trx/sales/etps/_LegacyTPS_To_eTPS.subflow" xmlns:trx_sales_etps_virtual_giftcard_redeem.subflow="trx/sales/etps/virtual_giftcard_redeem.subflow"
+    xmlns:utility="http://www.ibm.com/wbi/2005/eflow_utility" nsURI="trx/sales/etps/LegacyTPS_To_eTPS.msgflow"
+    nsPrefix="trx_sales_etps_LegacyTPS_To_eTPS.msgflow">
+  <eClassifiers xmi:type="eflow:FCMComposite" name="FCMComposite_1">
+    <eSuperTypes href="http://www.ibm.com/wbi/2005/eflow#//FCMBlock"/>
+    <eStructuralFeatures xmi:type="ecore:EAttribute" xmi:id="Property.IIBInboundQueue" name="IIBInboundQueue" lowerBound="1" defaultValueLiteral="RECV.MWW.ETPSADAPTER.SALES_IN.IBM_IB.DV">
+      <eType xmi:type="ecore:EDataType" href="http://www.eclipse.org/emf/2002/Ecore#//EString"/>
+    </eStructuralFeatures>
+    <eStructuralFeatures xmi:type="ecore:EAttribute" xmi:id="Property.IIBOutboundQueue" name="IIBOutboundQueue" defaultValueLiteral="SEND.MWW.ETPSADAPTER.SALES_OUT.IBM_IB.DV">
+      <eType xmi:type="ecore:EDataType" href="http://www.eclipse.org/emf/2002/Ecore#//EString"/>
+    </eStructuralFeatures>
+    <eStructuralFeatures xmi:type="ecore:EAttribute" xmi:id="Property.IIBOutboundETPSQueue" name="IIBOutboundETPSQueue" defaultValueLiteral="RECV.MWW.ETPS.SALES_IN.IBM_IB.DV">
+      <eType xmi:type="ecore:EDataType" href="http://www.eclipse.org/emf/2002/Ecore#//EString"/>
+    </eStructuralFeatures>
+    <eStructuralFeatures xmi:type="ecore:EAttribute" xmi:id="Property.CoreAuditDataSource" name="CoreAuditDataSource" defaultValueLiteral="AUDDEV">
+      <eType xmi:type="ecore:EDataType" href="http://www.eclipse.org/emf/2002/Ecore#//EString"/>
+    </eStructuralFeatures>
+    <eStructuralFeatures xmi:type="ecore:EAttribute" xmi:id="Property.PreProcessorAuditEnabled" name="PreProcessorAuditEnabled" lowerBound="1" defaultValueLiteral="false">
+      <eType xmi:type="ecore:EDataType" href="http://www.eclipse.org/emf/2002/Ecore#//EBoolean"/>
+    </eStructuralFeatures>
+    <eStructuralFeatures xmi:type="ecore:EAttribute" xmi:id="Property.PostProcessorAuditEnabled" name="PostProcessorAuditEnabled" lowerBound="1" defaultValueLiteral="false">
+      <eType xmi:type="ecore:EDataType" href="http://www.eclipse.org/emf/2002/Ecore#//EBoolean"/>
+    </eStructuralFeatures>
+    <eStructuralFeatures xmi:type="ecore:EAttribute" xmi:id="Property.STGCATSchemaName" name="STGCATSchemaName" lowerBound="1" defaultValueLiteral="INT_PMM_RPL">
+      <eType xmi:type="ecore:EDataType" href="http://www.eclipse.org/emf/2002/Ecore#//EString"/>
+    </eStructuralFeatures>
+    <eStructuralFeatures xmi:type="ecore:EAttribute" xmi:id="Property.STGENTSchemaName" name="STGENTSchemaName" lowerBound="1" defaultValueLiteral="ENTERPRISE">
+      <eType xmi:type="ecore:EDataType" href="http://www.eclipse.org/emf/2002/Ecore#//EString"/>
+    </eStructuralFeatures>
+    <eStructuralFeatures xmi:type="ecore:EAttribute" xmi:id="Property.STGSEQSchemaName" name="STGSEQSchemaName" lowerBound="1" defaultValueLiteral="INT_PROCESS_CONTROL">
+      <eType xmi:type="ecore:EDataType" href="http://www.eclipse.org/emf/2002/Ecore#//EString"/>
+    </eStructuralFeatures>
+    <eStructuralFeatures xmi:type="ecore:EAttribute" xmi:id="Property.ENTDataSource" name="ENTDataSource" defaultValueLiteral="ENTDEV">
+      <eType xmi:type="ecore:EDataType" href="http://www.eclipse.org/emf/2002/Ecore#//EString"/>
+    </eStructuralFeatures>
+    <eStructuralFeatures xmi:type="ecore:EAttribute" xmi:id="Property.STGDataSource" name="STGDataSource" defaultValueLiteral="STGDEV">
+      <eType xmi:type="ecore:EDataType" href="http://www.eclipse.org/emf/2002/Ecore#//EString"/>
+    </eStructuralFeatures>
+    <eStructuralFeatures xmi:type="ecore:EAttribute" xmi:id="Property.WSGGivexEndpoint" name="WSGGivexEndpoint" lowerBound="1" defaultValueLiteral="127.0.0.1:6789">
+      <eType xmi:type="ecore:EDataType" href="http://www.eclipse.org/emf/2002/Ecore#//EString"/>
+    </eStructuralFeatures>
+    <eStructuralFeatures xmi:type="ecore:EAttribute" xmi:id="Property.GiftCardRedemptionServiceEnabled" name="GiftCardRedemptionServiceEnabled" lowerBound="1" defaultValueLiteral="false">
+      <eType xmi:type="ecore:EDataType" href="http://www.eclipse.org/emf/2002/Ecore#//EBoolean"/>
+    </eStructuralFeatures>
+    <eStructuralFeatures xmi:type="ecore:EAttribute" xmi:id="Property.PASSWORD" name="PASSWORD" lowerBound="1" defaultValueLiteral="0415">
+      <eType xmi:type="ecore:EDataType" href="http://www.eclipse.org/emf/2002/Ecore#//EString"/>
+    </eStructuralFeatures>
+    <eStructuralFeatures xmi:type="ecore:EAttribute" xmi:id="Property.USERID" name="USERID" lowerBound="1" defaultValueLiteral="15041">
+      <eType xmi:type="ecore:EDataType" href="http://www.eclipse.org/emf/2002/Ecore#//EString"/>
+    </eStructuralFeatures>
+    <eStructuralFeatures xmi:type="ecore:EAttribute" xmi:id="Property.WebserviceURL" name="WebserviceURL" defaultValueLiteral="http://mwsgesb201.mww.lan:1240/WSG/MARKS/SOAP_IMS">
+      <eType xmi:type="ecore:EDataType" href="http://www.eclipse.org/emf/2002/Ecore#//EString"/>
+    </eStructuralFeatures>
+    <eStructuralFeatures xmi:type="ecore:EAttribute" xmi:id="Property.WebserviceURL.internal_npcompiler" name="WebserviceURL.internal_npcompiler">
+      <eType xmi:type="ecore:EDataType" href="http://www.eclipse.org/emf/2002/Ecore#//EString"/>
+    </eStructuralFeatures>
+    <eStructuralFeatures xmi:type="ecore:EAttribute" xmi:id="Property.PMMDataSource" name="PMMDataSource" defaultValueLiteral="PMMDEV">
+      <eType xmi:type="ecore:EDataType" href="http://www.eclipse.org/emf/2002/Ecore#//EString"/>
+    </eStructuralFeatures>
+    <eStructuralFeatures xmi:type="ecore:EAttribute" xmi:id="Property.PMMTAXSchemaName" name="PMMTAXSchemaName" lowerBound="1" defaultValueLiteral="PMM">
+      <eType xmi:type="ecore:EDataType" href="http://www.eclipse.org/emf/2002/Ecore#//EString"/>
+    </eStructuralFeatures>
+    <eStructuralFeatures xmi:type="ecore:EAttribute" xmi:id="Property.IonsWSCallServiceEnabled" name="IonsWSCallServiceEnabled" lowerBound="1" defaultValueLiteral="true">
+      <eType xmi:type="ecore:EDataType" href="http://www.eclipse.org/emf/2002/Ecore#//EBoolean"/>
+    </eStructuralFeatures>
+    <translation xmi:type="utility:TranslatableString" key="LegacyTPS_To_eTPS" bundleName="trx/sales/etps/LegacyTPS_To_eTPS" pluginId="trx-sales-etpsadapter"/>
+    <colorGraphic16 xmi:type="utility:GIFFileGraphic" resourceName="platform:/plugin/trx-sales-etpsadapter/icons/full/obj16/LegacyTPS_To_eTPS.gif"/>
+    <colorGraphic32 xmi:type="utility:GIFFileGraphic" resourceName="platform:/plugin/trx-sales-etpsadapter/icons/full/obj30/LegacyTPS_To_eTPS.gif"/>
+    <composition>
+      <nodes xmi:type="ComIbmMQInput.msgnode:FCMComposite_1" xmi:id="FCMComposite_1_1" location="10,20" queueName="TEST.IN" messageDomainProperty="XMLNSC">
+        <translation xmi:type="utility:ConstantString" string="RECV.MWW.ETPSADAPTER.SALES_IN"/>
+      </nodes>
+      <nodes xmi:type="core_message__preprocessor.subflow:FCMComposite_1" xmi:id="FCMComposite_1_2" location="233,20">
+        <translation xmi:type="utility:ConstantString" string="CoreMessagePreProcessor"/>
+      </nodes>
+      <nodes xmi:type="core_message__postprocessor.subflow:FCMComposite_1" xmi:id="FCMComposite_1_3" location="1876,20">
+        <translation xmi:type="utility:ConstantString" string="CoreMessagePostProcessor"/>
+      </nodes>
+      <nodes xmi:type="ComIbmMQOutput.msgnode:FCMComposite_1" xmi:id="FCMComposite_1_6" location="1387,178" transactionMode="yes">
+        <translation xmi:type="utility:ConstantString" string="MWW.ETPS.SALES_IN"/>
+      </nodes>
+      <nodes xmi:type="testing_Testing_ReplyTo.subflow:FCMComposite_1" xmi:id="FCMComposite_1_5" location="1070,178">
+        <translation xmi:type="utility:ConstantString" string="Testing_ReplyTo"/>
+      </nodes>
+      <nodes xmi:type="trx_sales_etps__LegacyTPS_To_eTPS.subflow:FCMComposite_1" xmi:id="FCMComposite_1_4" location="534,99">
+        <translation xmi:type="utility:ConstantString" string="_LegacyTPS_To_eTPS"/>
+      </nodes>
+      <nodes xmi:type="ComIbmCompute.msgnode:FCMComposite_1" xmi:id="FCMComposite_1_7" location="1534,178" computeExpression="esql://routine/trx.sales.etps#LegacyTPS_SuccessConfirmation_Construction.Main">
+        <translation xmi:type="utility:ConstantString" string="SuccessConstruction"/>
+      </nodes>
+      <nodes xmi:type="ComIbmCompute.msgnode:FCMComposite_1" xmi:id="FCMComposite_1_8" location="401,20" computeExpression="esql://routine/trx.sales.etps#LegacyTPS_FailureConfirmation_Construction.Main">
+        <translation xmi:type="utility:ConstantString" string="FailureConstruction"/>
+      </nodes>
+      <nodes xmi:type="ComIbmMQOutput.msgnode:FCMComposite_1" xmi:id="FCMComposite_1_9" location="1673,20" queueName="SEND.MWW.ETPSADAPTER.SALES_OUT.IBM_IB.DV" transactionMode="no">
+        <translation xmi:type="utility:ConstantString" string="MWW.ETPSADAPTER.SALES_OUT"/>
+      </nodes>
+      <nodes xmi:type="ComIbmCompute.msgnode:FCMComposite_1" xmi:id="FCMComposite_1_10" location="419,99" computeExpression="esql://routine/trx.sales.etps#LegacyTPS_To_eTPS_Compute.Main">
+        <translation xmi:type="utility:ConstantString" string="CopyMQMD"/>
+      </nodes>
+      <nodes xmi:type="trx_sales_etps_virtual_giftcard_redeem.subflow:FCMComposite_1" xmi:id="FCMComposite_1_11" location="809,99">
+        <translation xmi:type="utility:ConstantString" string="virtual_giftcard_redeem"/>
+      </nodes>
+      <nodes xmi:type="trx_sales_etps_RedeemGCFilter.subflow:FCMComposite_1" xmi:id="FCMComposite_1_12" location="680,99">
+        <translation xmi:type="utility:ConstantString" string="RedeemGCFilter"/>
+      </nodes>
+      <nodes xmi:type="ComIbmCompute.msgnode:FCMComposite_1" xmi:id="FCMComposite_1_13" location="1190,178" computeExpression="esql://routine/trx.sales.etps#LegacyTPS_ARTSXMLResponse_Construction.Main">
+        <translation xmi:type="utility:ConstantString" string="SetOutputRootFromEnvironment"/>
+      </nodes>
+      <nodes xmi:type="trx_sales_etps_IonsWSCall.subflow:FCMComposite_1" xmi:id="FCMComposite_1_14" location="976,257">
+        <translation xmi:type="utility:ConstantString" string="IonsWSCall"/>
+      </nodes>
+      <nodes xmi:type="trx_sales_etps_IonsWSCallFilter.subflow:FCMComposite_1" xmi:id="FCMComposite_1_15" location="680,257">
+        <translation xmi:type="utility:ConstantString" string="IonsWSCallFilter"/>
+      </nodes>
+      <nodes xmi:type="trx_sales_etps_IonsBAPaymentsWSCallFilter.subflow:FCMComposite_1" xmi:id="FCMComposite_1_16" location="798,257">
+        <translation xmi:type="utility:ConstantString" string="IonsBAPaymentsWSCallFilter"/>
+      </nodes>
+      <connections xmi:type="eflow:FCMConnection" xmi:id="FCMConnection_2" targetNode="FCMComposite_1_2" sourceNode="FCMComposite_1_1" sourceTerminalName="OutTerminal.out" targetTerminalName="InTerminal.CatchInput"/>
+      <connections xmi:type="eflow:FCMConnection" xmi:id="FCMConnection_1" targetNode="FCMComposite_1_2" sourceNode="FCMComposite_1_1" sourceTerminalName="OutTerminal.catch" targetTerminalName="InTerminal.Input"/>
+      <connections xmi:type="eflow:FCMConnection" xmi:id="FCMConnection_3" targetNode="FCMComposite_1_2" sourceNode="FCMComposite_1_1" sourceTerminalName="OutTerminal.failure" targetTerminalName="InTerminal.FailureInput"/>
+      <connections xmi:type="eflow:FCMConnection" xmi:id="FCMConnection_8" targetNode="FCMComposite_1_8" sourceNode="FCMComposite_1_2" sourceTerminalName="OutTerminal.FailureOutput" targetTerminalName="InTerminal.in"/>
+      <connections xmi:type="eflow:FCMConnection" xmi:id="FCMConnection_10" targetNode="FCMComposite_1_8" sourceNode="FCMComposite_1_2" sourceTerminalName="OutTerminal.Output" targetTerminalName="InTerminal.in"/>
+      <connections xmi:type="eflow:FCMConnection" xmi:id="FCMConnection_11" targetNode="FCMComposite_1_7" sourceNode="FCMComposite_1_6" sourceTerminalName="OutTerminal.out" targetTerminalName="InTerminal.in"/>
+      <connections xmi:type="eflow:FCMConnection" xmi:id="FCMConnection_13" targetNode="FCMComposite_1_3" sourceNode="FCMComposite_1_9" sourceTerminalName="OutTerminal.out" targetTerminalName="InTerminal.Input1"/>
+      <connections xmi:type="eflow:FCMConnection" xmi:id="FCMConnection_14" targetNode="FCMComposite_1_9" sourceNode="FCMComposite_1_8" sourceTerminalName="OutTerminal.out" targetTerminalName="InTerminal.in"/>
+      <connections xmi:type="eflow:FCMConnection" xmi:id="FCMConnection_4" targetNode="FCMComposite_1_10" sourceNode="FCMComposite_1_2" sourceTerminalName="OutTerminal.CatchOutput" targetTerminalName="InTerminal.in"/>
+      <connections xmi:type="eflow:FCMConnection" xmi:id="FCMConnection_12" targetNode="FCMComposite_1_9" sourceNode="FCMComposite_1_7" sourceTerminalName="OutTerminal.out" targetTerminalName="InTerminal.in"/>
+      <connections xmi:type="eflow:FCMConnection" xmi:id="FCMConnection_6" targetNode="FCMComposite_1_4" sourceNode="FCMComposite_1_10" sourceTerminalName="OutTerminal.out" targetTerminalName="InTerminal.Input"/>
+      <connections xmi:type="eflow:FCMConnection" xmi:id="FCMConnection_9" targetNode="FCMComposite_1_5" sourceNode="FCMComposite_1_11" sourceTerminalName="OutTerminal.Output" targetTerminalName="InTerminal.Input"/>
+      <connections xmi:type="eflow:FCMConnection" xmi:id="FCMConnection_7" targetNode="FCMComposite_1_12" sourceNode="FCMComposite_1_4" sourceTerminalName="OutTerminal.Output" targetTerminalName="InTerminal.Input"/>
+      <connections xmi:type="eflow:FCMConnection" xmi:id="FCMConnection_15" targetNode="FCMComposite_1_11" sourceNode="FCMComposite_1_12" sourceTerminalName="OutTerminal.Output" targetTerminalName="InTerminal.Input"/>
+      <connections xmi:type="eflow:FCMConnection" xmi:id="FCMConnection_16" targetNode="FCMComposite_1_5" sourceNode="FCMComposite_1_12" sourceTerminalName="OutTerminal.Output1" targetTerminalName="InTerminal.Input"/>
+      <connections xmi:type="eflow:FCMConnection" xmi:id="FCMConnection_5" targetNode="FCMComposite_1_13" sourceNode="FCMComposite_1_5" sourceTerminalName="OutTerminal.Output" targetTerminalName="InTerminal.in"/>
+      <connections xmi:type="eflow:FCMConnection" xmi:id="FCMConnection_17" targetNode="FCMComposite_1_6" sourceNode="FCMComposite_1_13" sourceTerminalName="OutTerminal.out" targetTerminalName="InTerminal.in"/>
+      <connections xmi:type="eflow:FCMConnection" xmi:id="FCMConnection_19" targetNode="FCMComposite_1_5" sourceNode="FCMComposite_1_14" sourceTerminalName="OutTerminal.Output" targetTerminalName="InTerminal.Input"/>
+      <connections xmi:type="eflow:FCMConnection" xmi:id="FCMConnection_18" targetNode="FCMComposite_1_15" sourceNode="FCMComposite_1_4" sourceTerminalName="OutTerminal.Output1" targetTerminalName="InTerminal.Input"/>
+      <connections xmi:type="eflow:FCMConnection" xmi:id="FCMConnection_21" targetNode="FCMComposite_1_5" sourceNode="FCMComposite_1_15" sourceTerminalName="OutTerminal.Output1" targetTerminalName="InTerminal.Input"/>
+      <connections xmi:type="eflow:FCMConnection" xmi:id="FCMConnection_20" targetNode="FCMComposite_1_16" sourceNode="FCMComposite_1_15" sourceTerminalName="OutTerminal.Output" targetTerminalName="InTerminal.Input"/>
+      <connections xmi:type="eflow:FCMConnection" xmi:id="FCMConnection_22" targetNode="FCMComposite_1_14" sourceNode="FCMComposite_1_16" sourceTerminalName="OutTerminal.Output" targetTerminalName="InTerminal.Input"/>
+      <connections xmi:type="eflow:FCMConnection" xmi:id="FCMConnection_23" targetNode="FCMComposite_1_5" sourceNode="FCMComposite_1_16" sourceTerminalName="OutTerminal.Output1" targetTerminalName="InTerminal.Input"/>
+    </composition>
+    <propertyOrganizer>
+      <propertyDescriptor groupName="Group.Basic" propertyEditor="com.ibm.etools.mft.ibmnodes.editors.mq.MQQueueNameEditor" configurable="true" describedAttribute="Property.IIBInboundQueue">
+        <propertyName xmi:type="utility:TranslatableString" key="Property.IIBInboundQueue" bundleName="trx/sales/etps/LegacyTPS_To_eTPS" pluginId="trx-sales-etpsadapter"/>
+        <propertyDescriptor groupName="Group.Basic" propertyEditor="com.ibm.etools.mft.ibmnodes.editors.mq.MQQueueNameEditor" configurable="true" describedAttribute="Property.IIBOutboundQueue">
+          <propertyName xmi:type="utility:TranslatableString" key="Property.IIBOutboundQueue" bundleName="trx/sales/etps/LegacyTPS_To_eTPS" pluginId="trx-sales-etpsadapter"/>
+          <propertyDescriptor groupName="Group.Basic" propertyEditor="com.ibm.etools.mft.ibmnodes.editors.mq.MQQueueNameEditor" configurable="true" describedAttribute="Property.IIBOutboundETPSQueue">
+            <propertyName xmi:type="utility:TranslatableString" key="Property.IIBOutboundETPSQueue" bundleName="trx/sales/etps/LegacyTPS_To_eTPS" pluginId="trx-sales-etpsadapter"/>
+            <propertyDescriptor groupName="Group.Basic" configurable="true" describedAttribute="Property.CoreAuditDataSource">
+              <propertyName xmi:type="utility:TranslatableString" key="Property.CoreAuditDataSource" bundleName="core/audit/_audit" pluginId="core-audit-handler-library"/>
+              <propertyDescriptor groupName="Group.Basic" configurable="true" userDefined="true" describedAttribute="Property.PreProcessorAuditEnabled">
+                <propertyName xmi:type="utility:TranslatableString" key="Property.PreProcessorAuditEnabled" bundleName="trx/sales/etps/LegacyTPS_To_eTPS" pluginId="trx-sales-etpsadapter"/>
+                <propertyDescriptor groupName="Group.Basic" configurable="true" userDefined="true" describedAttribute="Property.PostProcessorAuditEnabled">
+                  <propertyName xmi:type="utility:TranslatableString" key="Property.PostProcessorAuditEnabled" bundleName="trx/sales/etps/LegacyTPS_To_eTPS" pluginId="trx-sales-etpsadapter"/>
+                  <propertyDescriptor groupName="Group.Basic" configurable="true" userDefined="true" describedAttribute="Property.STGCATSchemaName">
+                    <propertyName xmi:type="utility:TranslatableString" key="Property.STGCATSchemaName" bundleName="trx/sales/etps/_LegacyTPS_To_eTPS" pluginId="trx-sales-etpsadapter-library"/>
+                    <propertyDescriptor groupName="Group.Basic" configurable="true" userDefined="true" describedAttribute="Property.STGENTSchemaName">
+                      <propertyName xmi:type="utility:TranslatableString" key="Property.STGENTSchemaName" bundleName="trx/sales/etps/_LegacyTPS_To_eTPS" pluginId="trx-sales-etpsadapter-library"/>
+                      <propertyDescriptor groupName="Group.Basic" configurable="true" userDefined="true" describedAttribute="Property.STGSEQSchemaName">
+                        <propertyName xmi:type="utility:TranslatableString" key="Property.STGSEQSchemaName" bundleName="trx/sales/etps/_LegacyTPS_To_eTPS" pluginId="trx-sales-etpsadapter-library"/>
+                        <propertyDescriptor groupName="Group.Basic" configurable="true" describedAttribute="Property.ENTDataSource">
+                          <propertyName xmi:type="utility:TranslatableString" key="Property.ENTDataSource" bundleName="trx/sales/etps/_LegacyTPS_To_eTPS" pluginId="trx-sales-etpsadapter-library"/>
+                          <propertyDescriptor groupName="Group.Basic" configurable="true" describedAttribute="Property.STGDataSource">
+                            <propertyName xmi:type="utility:TranslatableString" key="Property.STGDataSource" bundleName="trx/sales/etps/_LegacyTPS_To_eTPS" pluginId="trx-sales-etpsadapter-library"/>
+                            <propertyDescriptor groupName="Group.Basic" propertyEditor="com.ibm.etools.mft.ibmnodes.editors.tcpip.TCPIPConnectionPropertyEditor" configurable="true" describedAttribute="Property.WSGGivexEndpoint">
+                              <propertyName xmi:type="utility:TranslatableString" key="Property.WSGGivexEndpoint" bundleName="com/marks/hyb/fastfind/virtual_giftcard_creation" pluginId="common-orderceation-hyb-library"/>
+                              <propertyDescriptor groupName="Group.Basic" configurable="true" userDefined="true" describedAttribute="Property.GiftCardRedemptionServiceEnabled">
+                                <propertyName xmi:type="utility:TranslatableString" key="Property.GiftCardRedemptionServiceEnabled" bundleName="trx/sales/etps/RedeemGCFilter" pluginId="trx-sales-etpsadapter-library"/>
+                                <propertyDescriptor groupName="Group.Basic" configurable="true" userDefined="true" describedAttribute="Property.PASSWORD">
+                                  <propertyName xmi:type="utility:TranslatableString" key="Property.PASSWORD" bundleName="trx/sales/etps/virtual_giftcard_redeem" pluginId="trx-sales-etpsadapter-library"/>
+                                  <propertyDescriptor groupName="Group.Basic" configurable="true" userDefined="true" describedAttribute="Property.USERID">
+                                    <propertyName xmi:type="utility:TranslatableString" key="Property.USERID" bundleName="trx/sales/etps/virtual_giftcard_redeem" pluginId="trx-sales-etpsadapter-library"/>
+                                    <propertyDescriptor groupName="Group.Basic" propertyEditor="com.ibm.etools.mft.ibmnodes.editors.soap.http.SOAP_Over_HTTP_WebServicesURLPropertyEditor" compiler="com.ibm.etools.mft.ibmnodes.compilers.GenericSOAPCompiler" configurable="true" describedAttribute="Property.WebserviceURL">
+                                      <propertyName xmi:type="utility:TranslatableString" key="Property.WebserviceURL" bundleName="trx/sales/etps/LegacyTPS_To_eTPS" pluginId="trx-sales-etpsadapter"/>
+                                      <propertyDescriptor groupName="Group.InternalRuntimeGroup" readOnly="true" hidden="true" userDefined="true" describedAttribute="Property.WebserviceURL.internal_npcompiler">
+                                        <propertyName xmi:type="utility:TranslatableString" key="Property.WebserviceURL.internal_npcompiler" bundleName="trx/sales/etps/LegacyTPS_To_eTPS" pluginId="trx-sales-etpsadapter"/>
+                                        <propertyDescriptor groupName="Group.Basic" configurable="true" describedAttribute="Property.PMMDataSource">
+                                          <propertyName xmi:type="utility:TranslatableString" key="Property.PMMDataSource" bundleName="trx/sales/etps/_LegacyTPS_To_eTPS" pluginId="trx-sales-etpsadapter-library"/>
+                                          <propertyDescriptor groupName="Group.Basic" configurable="true" userDefined="true" describedAttribute="Property.PMMTAXSchemaName">
+                                            <propertyName xmi:type="utility:TranslatableString" key="Property.PMMTAXSchemaName" bundleName="trx/sales/etps/_LegacyTPS_To_eTPS" pluginId="trx-sales-etpsadapter-library"/>
+                                            <propertyDescriptor groupName="Group.Basic" configurable="true" userDefined="true" describedAttribute="Property.IonsWSCallServiceEnabled">
+                                              <propertyName xmi:type="utility:TranslatableString" key="Property.IonsWSCallServiceEnabled" bundleName="trx/sales/etps/IonsWSCallFilter" pluginId="trx-sales-etpsadapter-library"/>
+                                            </propertyDescriptor>
+                                          </propertyDescriptor>
+                                        </propertyDescriptor>
+                                      </propertyDescriptor>
+                                    </propertyDescriptor>
+                                  </propertyDescriptor>
+                                </propertyDescriptor>
+                              </propertyDescriptor>
+                            </propertyDescriptor>
+                          </propertyDescriptor>
+                        </propertyDescriptor>
+                      </propertyDescriptor>
+                    </propertyDescriptor>
+                  </propertyDescriptor>
+                </propertyDescriptor>
+              </propertyDescriptor>
+            </propertyDescriptor>
+          </propertyDescriptor>
+        </propertyDescriptor>
+      </propertyDescriptor>
+    </propertyOrganizer>
+    <attributeLinks promotedAttribute="Property.IIBInboundQueue" overriddenNodes="FCMComposite_1_1">
+      <overriddenAttribute href="ComIbmMQInput.msgnode#Property.queueName"/>
+    </attributeLinks>
+    <attributeLinks promotedAttribute="Property.IIBOutboundQueue" overriddenNodes="FCMComposite_1_9">
+      <overriddenAttribute href="ComIbmMQOutput.msgnode#Property.queueName"/>
+    </attributeLinks>
+    <attributeLinks promotedAttribute="Property.IIBOutboundETPSQueue" overriddenNodes="FCMComposite_1_6">
+      <overriddenAttribute href="ComIbmMQOutput.msgnode#Property.queueName"/>
+    </attributeLinks>
+    <attributeLinks promotedAttribute="Property.CoreAuditDataSource" overriddenNodes="FCMComposite_1_2">
+      <overriddenAttribute href="core/message/_preprocessor.subflow#Property.CoreAuditDataSource"/>
+    </attributeLinks>
+    <attributeLinks promotedAttribute="Property.CoreAuditDataSource" overriddenNodes="FCMComposite_1_3">
+      <overriddenAttribute href="core/message/_postprocessor.subflow#Property.CoreAuditDataSource"/>
+    </attributeLinks>
+    <attributeLinks promotedAttribute="Property.PreProcessorAuditEnabled" overriddenNodes="FCMComposite_1_2">
+      <overriddenAttribute href="core/message/_preprocessor.subflow#Property.CoreAuditEnabled"/>
+    </attributeLinks>
+    <attributeLinks promotedAttribute="Property.PostProcessorAuditEnabled" overriddenNodes="FCMComposite_1_3">
+      <overriddenAttribute href="core/message/_postprocessor.subflow#Property.CoreAuditEnabled"/>
+    </attributeLinks>
+    <attributeLinks promotedAttribute="Property.STGCATSchemaName" overriddenNodes="FCMComposite_1_4">
+      <overriddenAttribute href="trx/sales/etps/_LegacyTPS_To_eTPS.subflow#Property.STGCATSchemaName"/>
+    </attributeLinks>
+    <attributeLinks promotedAttribute="Property.STGENTSchemaName" overriddenNodes="FCMComposite_1_4">
+      <overriddenAttribute href="trx/sales/etps/_LegacyTPS_To_eTPS.subflow#Property.STGENTSchemaName"/>
+    </attributeLinks>
+    <attributeLinks promotedAttribute="Property.STGSEQSchemaName" overriddenNodes="FCMComposite_1_4">
+      <overriddenAttribute href="trx/sales/etps/_LegacyTPS_To_eTPS.subflow#Property.STGSEQSchemaName"/>
+    </attributeLinks>
+    <attributeLinks promotedAttribute="Property.ENTDataSource" overriddenNodes="FCMComposite_1_4">
+      <overriddenAttribute href="trx/sales/etps/_LegacyTPS_To_eTPS.subflow#Property.ENTDataSource"/>
+    </attributeLinks>
+    <attributeLinks promotedAttribute="Property.STGDataSource" overriddenNodes="FCMComposite_1_4">
+      <overriddenAttribute href="trx/sales/etps/_LegacyTPS_To_eTPS.subflow#Property.STGDataSource"/>
+    </attributeLinks>
+    <attributeLinks promotedAttribute="Property.WSGGivexEndpoint" overriddenNodes="FCMComposite_1_11">
+      <overriddenAttribute href="trx/sales/etps/virtual_giftcard_redeem.subflow#Property.WSGGivexEndpoint"/>
+    </attributeLinks>
+    <attributeLinks promotedAttribute="Property.GiftCardRedemptionServiceEnabled" overriddenNodes="FCMComposite_1_12">
+      <overriddenAttribute href="trx/sales/etps/RedeemGCFilter.subflow#Property.GiftCardRedemptionServiceEnabled"/>
+    </attributeLinks>
+    <attributeLinks promotedAttribute="Property.PASSWORD" overriddenNodes="FCMComposite_1_11">
+      <overriddenAttribute href="trx/sales/etps/virtual_giftcard_redeem.subflow#Property.PASSWORD"/>
+    </attributeLinks>
+    <attributeLinks promotedAttribute="Property.USERID" overriddenNodes="FCMComposite_1_11">
+      <overriddenAttribute href="trx/sales/etps/virtual_giftcard_redeem.subflow#Property.USERID"/>
+    </attributeLinks>
+    <attributeLinks promotedAttribute="Property.WebserviceURL" overriddenNodes="FCMComposite_1_14">
+      <overriddenAttribute href="trx/sales/etps/IonsWSCall.subflow#Property.webServiceURL"/>
+    </attributeLinks>
+    <attributeLinks promotedAttribute="Property.PMMDataSource" overriddenNodes="FCMComposite_1_4">
+      <overriddenAttribute href="trx/sales/etps/_LegacyTPS_To_eTPS.subflow#Property.PMMDataSource"/>
+    </attributeLinks>
+    <attributeLinks promotedAttribute="Property.PMMTAXSchemaName" overriddenNodes="FCMComposite_1_4">
+      <overriddenAttribute href="trx/sales/etps/_LegacyTPS_To_eTPS.subflow#Property.PMMTAXSchemaName"/>
+    </attributeLinks>
+    <attributeLinks promotedAttribute="Property.IonsWSCallServiceEnabled" overriddenNodes="FCMComposite_1_15">
+      <overriddenAttribute href="trx/sales/etps/IonsWSCallFilter.subflow#Property.IonsWSCallServiceEnabled"/>
+    </attributeLinks>
+    <stickyBoard/>
+  </eClassifiers>
+</ecore:EPackage>

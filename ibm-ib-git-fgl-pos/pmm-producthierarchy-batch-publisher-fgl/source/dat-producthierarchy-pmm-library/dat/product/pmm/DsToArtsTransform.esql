@@ -1,0 +1,118 @@
+BROKER SCHEMA dat.product.pmm
+
+/*
+* Authors : Rajeev Sinha, Piyush Vaishnav
+* File Name: DsToArtsTransform.esql
+* Create Date: 22-June-16
+* Version History:
+* Version           		Module Name    			  Date 						Revision Details
+* =============    ========================== 		=============     =======================================
+* 1.0               	DsToArtsTransform 	 		22-June-16 					Inital Version
+* 
+* 
+* FGL/MWW 2016. All rights reserved.
+*/
+
+
+CREATE COMPUTE MODULE DsToArtsTransform
+	CREATE FUNCTION Main() RETURNS BOOLEAN
+	BEGIN
+		-- copy message headers
+		SET OutputRoot.Properties = InputRoot.Properties;
+		SET OutputRoot.MQMD = InputRoot.MQMD;
+		-- Namespace Declaration
+		DECLARE eai NAMESPACE 'http://www.fgl.com/exchange/';
+		DECLARE arts NAMESPACE 'http://www.fgl.com/ARTS';
+		DECLARE xsi NAMESPACE 'http://www.w3.org/2001/XMLSchema-instance';
+		DECLARE ds NAMESPACE 'http://www.fgl.com/SourceStagingProductHierarchyPmmFgl';
+		-- Declaring References
+		DECLARE rOut,rExch,rOutMsgs,rSrcSys,rMsgRtng,rArtsMrchdiseHrchy,rMrchdiseHierarchylvls,rMrchdiseHierarchylvl REFERENCE TO OutputRoot;
+		DECLARE rInExch REFERENCE TO InputRoot.XMLNSC.ds:Exchange;
+		DECLARE rInMsgRtng REFERENCE TO rInExch.ds:MessageRouting;
+		DECLARE rInMsg REFERENCE TO rInExch.ds:Message;
+		DECLARE rInPrd REFERENCE TO rInMsg.ds:ProductHierarchy;
+		DECLARE rInrPrdHrchy REFERENCE to InputRoot;
+		
+		-- Logging Module Start
+		DECLARE rEnv REFERENCE TO Environment;
+		DECLARE schemaName CHARACTER 'dat.product.pmm';
+		DECLARE moduleName CHARACTER 'DsToArtsTransform';
+		CALL core.log.DebugMessage(rEnv, schemaName || '.' || moduleName,  ' [_MODULE - START]' );
+				
+		-- Constructing Header of the Output XML
+		CREATE LASTCHILD OF OutputRoot AS rOut DOMAIN 'XMLNSC';
+		CREATE LASTCHILD OF rOut AS rExch NAMESPACE eai NAME 'Exchange';
+		SET rExch.(XMLNSC.NamespaceDecl)xmlns:"eai" = eai;
+		SET rExch.(XMLNSC.NamespaceDecl)xmlns:"arts" = arts;
+		SET rExch.(XMLNSC.NamespaceDecl)xmlns:"xsi" = xsi;
+		SET rExch.(XMLNSC.Attribute)MajorVersion = 1;
+		SET rExch.(XMLNSC.Attribute)MinorVersion = 1;
+		SET rExch.(XMLNSC.Attribute)FixVersion = 0;
+		
+		-- Constructing Exchange/MessageRouting
+		CREATE LASTCHILD OF rExch AS rMsgRtng NAMESPACE eai NAME 'MessageRouting';
+		SET rMsgRtng.eai:Guid = rInMsgRtng.ds:Guid;
+		SET rMsgRtng.eai:MessageId = InputRoot.MQMD.MsgId;
+		SET rMsgRtng.eai:MessageType = 'PubSub';
+		SET rMsgRtng.eai:SubjectArea = rInMsgRtng.ds:SubjectArea;
+		SET rMsgRtng.eai:SbuNumber = rInMsgRtng.ds:SBU_NBR;
+		SET rMsgRtng.eai:SbuCode = rInMsgRtng.ds:SBU_CD;
+		SET rMsgRtng.eai:SbuName = rInMsgRtng.ds:SBU_NM;
+		SET rMsgRtng.eai:DataSourceCode = rInMsgRtng.ds:DATA_SOURCE_CD;
+		SET rMsgRtng.eai:DataSourceCodeName = rInMsgRtng.ds:DATA_SOURCE_NM;
+		SET rMsgRtng.eai:MessageIndex = rInMsgRtng.ds:MessageIndex;
+		SET rMsgRtng.eai:MessageCount = rInMsgRtng.ds:MessageCount;
+		SET rMsgRtng.eai:SubjectAreaRunName = rInMsgRtng.ds:SubjectAreaRunName;
+
+		-- Constructing Exchange/Messages				
+		CREATE LASTCHILD OF rExch AS rOutMsgs NAMESPACE eai NAME 'Messages';
+		SET rOutMsgs.eai:Count = 1;
+		CREATE LASTCHILD OF rOutMsgs AS rSrcSys NAMESPACE eai NAME 'SourceSystems';
+		SET rSrcSys.eai:Count = 1;
+		SET rSrcSys.eai:SourceSystem.eai:Index = 1;
+		SET rSrcSys.eai:SourceSystem.eai:SbuNumber = rInMsgRtng.ds:SBU_NBR;
+		SET rSrcSys.eai:SourceSystem.eai:SbuCode = rInMsgRtng.ds:SBU_CD;
+		SET rSrcSys.eai:SourceSystem.eai:SbuName = rInMsgRtng.ds:SBU_NM;
+		SET rSrcSys.eai:SourceSystem.eai:MessageSourceCode = rInMsgRtng.ds:MessageSourceCode;
+		SET rSrcSys.eai:SourceSystem.eai:MessageSourceCodeName = rInMsgRtng.ds:MessageSourceCodeName;
+
+		-- Constructing the payload (Exchange/Messages/ArtsMerchandiseHierarchy)
+		CREATE LASTCHILD OF rOutMsgs AS rArtsMrchdiseHrchy NAMESPACE eai NAME 'ArtsMerchandiseHierarchy';
+		CALL common.mapChangeActionFlagOrActionFromEtlToArts(rInPrd.(XMLNSC.Attribute)Action) INTO rArtsMrchdiseHrchy.(XMLNSC.Attribute)Action;
+		SET rArtsMrchdiseHrchy.arts:Index=1;            
+
+		CREATE LASTCHILD OF rArtsMrchdiseHrchy AS rMrchdiseHierarchylvls NAMESPACE arts NAME 'MerchandiseHierarchyLevels';
+		SET rMrchdiseHierarchylvls.arts:Count =1;
+		SET rMrchdiseHierarchylvls.arts:MerchandiseHierarchyFunctionName = rInPrd.ds:ProductHierarchyFunctionName;
+
+		DECLARE Index INTEGER 1;
+		MOVE rInrPrdHrchy TO rInPrd.ds:Row[1];
+		WHILE LASTMOVE(rInrPrdHrchy) DO
+			CREATE LASTCHILD OF rMrchdiseHierarchylvls AS rMrchdiseHierarchylvl NAMESPACE arts NAME 'MerchandiseHierarchyLevel';
+			SET rMrchdiseHierarchylvl.arts:Index=Index;
+			SET rMrchdiseHierarchylvl.arts:MerchandiseHierarchyGroupNumber = FIELDVALUE(rInrPrdHrchy.ds:PRD_LVL_NUMBER);
+			IF rInrPrdHrchy.ds:PRD_LVL_ID=6 THEN
+				SET rMrchdiseHierarchylvl.arts:ParentMerchandiseHierarchyLevelNumber.(XMLNSC.Attribute)xsi:nil='true';
+				SET rMrchdiseHierarchylvl.arts:ParentMerchandiseHierarchyGroupNumber.(XMLNSC.Attribute)xsi:nil='true';
+			ELSE
+				SET rMrchdiseHierarchylvl.arts:ParentMerchandiseHierarchyLevelNumber = FIELDVALUE(rInrPrdHrchy.ds:ProductHierarchyParentLevel);
+				SET rMrchdiseHierarchylvl.arts:ParentMerchandiseHierarchyGroupNumber =FIELDVALUE(rInrPrdHrchy.ds:ProductHierarchyParentNumber);
+			END IF;						
+			SET rMrchdiseHierarchylvl.arts:MerchandiseHierarchyGroupName = FIELDVALUE(rInrPrdHrchy.ds:PRD_NAME_FULL);
+			SET rMrchdiseHierarchylvl.arts:MerchandiseHierarchyLevelNumber = FIELDVALUE(rInrPrdHrchy.ds:PRD_LVL_ID);
+			SET rMrchdiseHierarchylvl.arts:MerchandiseHierarchyLevelCode = FIELDVALUE(rInrPrdHrchy.ds:PRD_LVL_ID);
+			SET rMrchdiseHierarchylvl.arts:MerchandiseHierarchyLevelName = FIELDVALUE(rInrPrdHrchy.ds:PRD_LVL_NAME);
+			MOVE rInrPrdHrchy NEXTSIBLING REPEAT NAME;
+			SET Index = Index + 1;
+		END WHILE;
+		
+		-- Writing success log. 
+		CALL core.log.InfoMessage(rEnv, schemaName || '.' || moduleName, ' Transformation completed successfully.');
+		-- Writing Module End Log. 
+		CALL core.log.DebugMessage(rEnv, schemaName || '.' || moduleName, ' [_MODULE - END]');
+		
+		RETURN TRUE;
+	END;
+
+END MODULE;
+

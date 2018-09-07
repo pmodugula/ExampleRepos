@@ -1,0 +1,149 @@
+<eai:Exchange xmlns:arts="http://www.fgl.com/ARTS" xmlns:eai="http://www.fgl.com/exchange/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" MajorVersion="2" MinorVersion="0" FixVersion="0" xsi:schemaLocation="http://www.fgl.com/exchange/ file:///C:/Users/plam/Documents/GIT-REPO/IIB/xsd/arts/ARTSTransactionMessageV2_00_00.xsd">
+	<eai:MessageRouting>
+		<eai:Guid>37984B5264DA008CE0530A6702465199</eai:Guid>
+		<eai:MessageId/>
+		<eai:MessageType>PubSub</eai:MessageType>
+		<eai:SubjectArea>Normal Retail Sales Transactions</eai:SubjectArea>
+		<eai:SbuNumber>3</eai:SbuNumber>
+		<eai:SbuCode>FGL</eai:SbuCode>
+		<eai:SbuName>FGL Sports Ltd.</eai:SbuName>
+		<eai:DataSourceCode>POE</eai:DataSourceCode>
+		<eai:DataSourceCodeName>POE POS FGL</eai:DataSourceCodeName>
+		<eai:MessageIndex>1</eai:MessageIndex>
+		<eai:MessageCount>1</eai:MessageCount>
+		<eai:SubjectAreaRunName>salestransactions-335-20160407-123147</eai:SubjectAreaRunName>
+	</eai:MessageRouting>
+	<eai:Messages>
+		<eai:Count>1</eai:Count>
+		<eai:SourceSystems>
+			<eai:Count>1</eai:Count>
+			<eai:SourceSystem>
+				<eai:Index>1</eai:Index>
+				<eai:SbuNumber>3</eai:SbuNumber>
+				<eai:SbuCode>FGL</eai:SbuCode>
+				<eai:SbuName>FGL Sports Ltd.</eai:SbuName>
+				<eai:MessageSourceCode>CSS</eai:MessageSourceCode>
+				<eai:MessageSourceCodeName>Central Sales Server</eai:MessageSourceCodeName>
+			</eai:SourceSystem>
+		</eai:SourceSystems>
+		<eai:POSLog>
+			<arts:Count>1</arts:Count>
+			<arts:Transaction TypeCode="SaleTransaction">
+				<arts:BusinessUnit>
+					<arts:BusinessUnitNumber>335</arts:BusinessUnitNumber>
+					<arts:BusinessUnitTypeCode>RS</arts:BusinessUnitTypeCode>
+					<arts:BusinessUnitShortName>SC335</arts:BusinessUnitShortName>
+					<arts:BusinessUnitName>SC KELOWNA </arts:BusinessUnitName>
+				</arts:BusinessUnit>
+				<arts:WorkstationID>1</arts:WorkstationID>
+				<arts:SequenceNumber>8980</arts:SequenceNumber>
+				<arts:BeginDateTime>2016-04-07T13:21:47Z</arts:BeginDateTime>
+				<arts:EndDateTime>2016-04-07T13:21:47Z</arts:EndDateTime>
+				<arts:OperatorID FirstName="Jane" MiddleName="" LastName="Doe" OperatorName="Jane Doe">15888</arts:OperatorID>
+				<arts:RetailTransaction>
+					<arts:LineItemCount>7</arts:LineItemCount>
+					<arts:CustomerCount>1</arts:CustomerCount>
+					<arts:AssociateCount>0</arts:AssociateCount>
+					<arts:LineItem VoidFlag="false">
+						<arts:Index>1</arts:Index>
+						<arts:SequenceNumber>1</arts:SequenceNumber>
+						<arts:Sale ItemType="Stock" TaxableFlag="true">
+							<arts:TaxCount>2</arts:TaxCount>
+							<arts:RetailPriceModifierCount>0</arts:RetailPriceModifierCount>
+							<arts:Item>
+								<arts:ItemNumber>331968478</arts:ItemNumber>
+								<arts:ItemName>NEW BALANCE W680 V3 D BLK/PNK 99 13</arts:ItemName>
+								<arts:UPCNumber>889516771440</arts:UPCNumber>
+							</arts:Item>
+							<arts:MerchandiseHierarchy Level="4" ID="8001"/>
+							<arts:RegularSalesUnitPrice>109.99</arts:RegularSalesUnitPrice>
+							<arts:ActualSalesUnitPrice>109.99</arts:ActualSalesUnitPrice>
+							<arts:DiscountAmount>0</arts:DiscountAmount>
+							<arts:Quantity>1.0</arts:Quantity>
+							<arts:Associate>
+								<arts:AssociateID>6666</arts:AssociateID>
+							</arts:Associate>
+							<arts:Tax TaxType="GST" TypeCode="Sale" SourceSystemTaxExemptionFlag="false">
+								<arts:Index>1</arts:Index>
+								<arts:Amount>5.50</arts:Amount>
+							</arts:Tax>
+							<arts:Tax TaxType="BCPST" TypeCode="Sale" SourceSystemTaxExemptionFlag="false">
+								<arts:Index>2</arts:Index>
+								<arts:Amount>7.70</arts:Amount>
+							</arts:Tax>
+						</arts:Sale>
+						<arts:LineItemSubtypeCode>Sale</arts:LineItemSubtypeCode>
+					</arts:LineItem>
+					<arts:LineItem VoidFlag="false">
+						<arts:Index>2</arts:Index>
+						<arts:SequenceNumber>2</arts:SequenceNumber>
+						<arts:SaleOfGiftCard>
+							<arts:CardNumber>60603917102911</arts:CardNumber>
+							<arts:DateSold>2016-04-07</arts:DateSold>
+							<arts:DateActivated>2016-04-07</arts:DateActivated>
+							<arts:InitialBalance>100.00</arts:InitialBalance>
+							<arts:Authorization>
+								<arts:AuthorizationCode>361916</arts:AuthorizationCode>
+							</arts:Authorization>
+						</arts:SaleOfGiftCard>
+						<arts:LineItemSubtypeCode>SaleOfGiftCard</arts:LineItemSubtypeCode>
+					</arts:LineItem>
+					<arts:LineItem>
+						<arts:Index>3</arts:Index>
+						<arts:SequenceNumber>3</arts:SequenceNumber>
+						<arts:Tax TaxType="GST" TypeCode="Sale">
+							<arts:Index>1</arts:Index>
+							<arts:Amount>5.50</arts:Amount>
+						</arts:Tax>
+						<arts:LineItemSubtypeCode>Tax</arts:LineItemSubtypeCode>
+					</arts:LineItem>
+					<arts:LineItem>
+						<arts:Index>4</arts:Index>
+						<arts:SequenceNumber>4</arts:SequenceNumber>
+						<arts:Tax TaxType="BCPST" TypeCode="Sale">
+							<arts:Index>1</arts:Index>
+							<arts:Amount>7.70</arts:Amount>
+						</arts:Tax>
+						<arts:LineItemSubtypeCode>Tax</arts:LineItemSubtypeCode>
+					</arts:LineItem>
+					<arts:LineItem>
+						<arts:Index>5</arts:Index>
+						<arts:SequenceNumber>5</arts:SequenceNumber>
+						<arts:Tender TenderType="Cash" SubTenderType="CAD" TypeCode="Sale">
+							<arts:Amount>240.00</arts:Amount>
+						</arts:Tender>
+						<arts:LineItemSubtypeCode>Tender</arts:LineItemSubtypeCode>
+					</arts:LineItem>
+					<arts:LineItem>
+						<arts:Index>6</arts:Index>
+						<arts:SequenceNumber>6</arts:SequenceNumber>
+						<arts:Tender TenderType="PennyRounding" TypeCode="Sale">
+							<arts:Amount>0.01</arts:Amount>
+						</arts:Tender>
+						<arts:LineItemSubtypeCode>Tender</arts:LineItemSubtypeCode>
+					</arts:LineItem>
+					<arts:LineItem>
+						<arts:Index>7</arts:Index>
+						<arts:SequenceNumber>7</arts:SequenceNumber>
+						<arts:Tender TenderType="Cash" SubTenderType="CAD" TypeCode="Refund">
+							<arts:Amount>16.80</arts:Amount>
+						</arts:Tender>
+						<arts:LineItemSubtypeCode>Tender</arts:LineItemSubtypeCode>
+					</arts:LineItem>
+					<arts:Total TotalType="TransactionGrossAmount">223.19</arts:Total>
+					<arts:Total TotalType="TransactionSubtotal">209.99</arts:Total>
+					<arts:Customer>
+						<arts:Index>1</arts:Index>
+						<arts:AddressCount>1</arts:AddressCount>
+						<arts:TelephoneCount>0</arts:TelephoneCount>
+						<arts:Address>
+							<arts:Index>1</arts:Index>
+							<arts:PostalCode>V1Y 6H2</arts:PostalCode>
+						</arts:Address>
+					</arts:Customer>
+				</arts:RetailTransaction>
+				<arts:TransactionSubtypeCode>RetailTransaction</arts:TransactionSubtypeCode>
+			</arts:Transaction>
+		</eai:POSLog>
+	</eai:Messages>
+</eai:Exchange>

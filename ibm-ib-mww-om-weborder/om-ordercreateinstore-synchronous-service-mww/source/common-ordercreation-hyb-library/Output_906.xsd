@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?><xsd:schema xmlns:csv="http://www.ibm.com/dfdl/CommaSeparatedFormat" xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0/" xmlns:ibmDfdlExtn="http://www.ibm.com/dfdl/extensions" xmlns:ibmSchExtn="http://www.ibm.com/schema/extensions" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+
+
+    <xsd:import namespace="http://www.ibm.com/dfdl/CommaSeparatedFormat" schemaLocation="IBMdefined/CommaSeparatedFormat.xsd"/>
+    <xsd:annotation>
+		<xsd:appinfo source="http://www.ogf.org/dfdl/">
+			<dfdl:format documentFinalTerminatorCanBeMissing="yes" encoding="{$dfdl:encoding}" escapeSchemeRef="csv:CSVEscapeScheme" ref="csv:CommaSeparatedFormat"/>
+		</xsd:appinfo>
+	</xsd:annotation>
+
+
+	<xsd:element ibmSchExtn:docRoot="true" name="Output906">
+		<xsd:complexType>
+			<xsd:sequence dfdl:separator="">
+				<xsd:element dfdl:occursCountKind="implicit" dfdl:terminator="%CR;%LF;%WSP*;" maxOccurs="unbounded" name="body">
+					<xsd:complexType>
+						<xsd:sequence dfdl:initiator="%STX;" dfdl:separator="%FS;" dfdl:separatorSuppressionPolicy="trailingEmpty" dfdl:terminator="">
+							<xsd:element default="906" ibmDfdlExtn:sampleValue="906" minOccurs="0" name="GivexMsgIdFormat" type="xsd:string"/>
+							<xsd:element ibmDfdlExtn:sampleValue="" name="TransactionCode" type="xsd:string"/>
+							<xsd:element ibmDfdlExtn:sampleValue="0" name="Result" type="xsd:string"/>
+                            						<xsd:element dfdl:fillByte="" dfdl:textNumberPattern="#0.###" ibmDfdlExtn:sampleValue="" name="Msg" nillable="false" type="xsd:string"/>
+                                                                                    <xsd:element default="" dfdl:textNumberPattern="#0.###" ibmDfdlExtn:sampleValue="" name="CertBal" nillable="false" type="xsd:string"/>
+                            <xsd:element default="none" ibmDfdlExtn:sampleValue="" name="CertExpDate" type="xsd:string"/>
+                                                                                                            <xsd:element default="" ibmDfdlExtn:sampleValue="" name="RecptMsg" type="xsd:string"/>
+                                                                                    <xsd:element default="" dfdl:textNumberPattern="#0" ibmDfdlExtn:sampleValue="" name="ISOSer" type="xsd:string"/>
+                                                                                                                                        </xsd:sequence>
+					</xsd:complexType>
+				</xsd:element>				
+                			            </xsd:sequence>
+		</xsd:complexType>
+	</xsd:element>
+
+
+</xsd:schema>

@@ -1,0 +1,11 @@
+trx.sales.aw.inbound#IIBInboundQueue=RECV.${INBOUND_IN}
+trx.sales.aw.inbound#IIBInboundFailureQueue=${INBOUND_FAILURE_QUEUE}
+trx.sales.aw.inbound#CoreAuditDataSource=FGLRPL${ENVN}${INST}
+trx.sales.aw.inbound#PreProcessorAuditEnabled=False
+trx.sales.aw.inbound#PostProcessorAuditEnabled=False
+trx.sales.aw.inbound#AWStagingDirectoryPath=${AW_STG_DIR_PATH}
+trx.sales.aw.inbound#AWDirectoryNamePrefix=${AW_DIR_PREFIX}
+trx.sales.aw.inbound#AWTargetDirectoryPath=${AW_TGT_DIR_PATH}
+trx.sales.aw.inbound#XpolldFileNamePrefix=${XPOLLD_FILE_NAME_PREFIX}
+trx.sales.aw.inbound#XpolldFileExtension=${XPOLLD_FILE_EXTENSION}
+trx.sales.aw.inbound#additionalInstances=${EXTRATHREADS}

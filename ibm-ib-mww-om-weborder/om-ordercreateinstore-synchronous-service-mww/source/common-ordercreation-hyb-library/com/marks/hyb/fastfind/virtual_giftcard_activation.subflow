@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ecore:EPackage xmi:version="2.0"
+    xmlns:xmi="http://www.omg.org/XMI" xmlns:ComIbmCompute.msgnode="ComIbmCompute.msgnode" xmlns:ComIbmFilter.msgnode="ComIbmFilter.msgnode" xmlns:ComIbmTCPIPClientOutput.msgnode="ComIbmTCPIPClientOutput.msgnode" xmlns:ComIbmTCPIPClientReceive.msgnode="ComIbmTCPIPClientReceive.msgnode" xmlns:ComIbmThrow.msgnode="ComIbmThrow.msgnode" xmlns:com_marks_hyb_fastfind_logging_exception_instore.subflow="com/marks/hyb/fastfind/logging_exception_instore.subflow" xmlns:ecore="http://www.eclipse.org/emf/2002/Ecore"
+    xmlns:eflow="http://www.ibm.com/wbi/2005/eflow" xmlns:utility="http://www.ibm.com/wbi/2005/eflow_utility" nsURI="com/marks/hyb/fastfind/virtual_giftcard_activation.subflow"
+    nsPrefix="com_marks_hyb_fastfind_virtual_giftcard_activation.subflow">
+  <eClassifiers xmi:type="eflow:FCMComposite" name="FCMComposite_1" useDefaults="true" udpSupport="true">
+    <eSuperTypes href="http://www.ibm.com/wbi/2005/eflow#//FCMBlock"/>
+    <eStructuralFeatures xmi:type="ecore:EAttribute" xmi:id="Property.WSGGivexEndpoint" name="WSGGivexEndpoint" lowerBound="1" defaultValueLiteral="10.103.1.162:6789">
+      <eType xmi:type="ecore:EDataType" href="http://www.eclipse.org/emf/2002/Ecore#//EString"/>
+    </eStructuralFeatures>
+    <translation xmi:type="utility:TranslatableString" key="virtual_giftcard_activation" bundleName="com/marks/hyb/fastfind/virtual_giftcard_activation" pluginId="common-orderceation-hyb-library"/>
+    <colorGraphic16 xmi:type="utility:GIFFileGraphic" resourceName="platform:/plugin/common-orderceation-hyb-library/icons/full/obj16/virtual_giftcard_activation.gif"/>
+    <colorGraphic32 xmi:type="utility:GIFFileGraphic" resourceName="platform:/plugin/common-orderceation-hyb-library/icons/full/obj30/virtual_giftcard_activation.gif"/>
+    <composition>
+      <nodes xmi:type="eflow:FCMSink" xmi:id="OutTerminal.Output" location="797,271">
+        <translation xmi:type="utility:TranslatableString" key="OutTerminal.Output" bundleName="com/marks/hyb/fastfind/virtual_giftcard_activation" pluginId="common-orderceation-hyb-library"/>
+      </nodes>
+      <nodes xmi:type="eflow:FCMSource" xmi:id="InTerminal.Input" location="10,20">
+        <translation xmi:type="utility:TranslatableString" key="InTerminal.Input" bundleName="com/marks/hyb/fastfind/virtual_giftcard_activation" pluginId="common-orderceation-hyb-library"/>
+      </nodes>
+      <nodes xmi:type="ComIbmTCPIPClientOutput.msgnode:FCMComposite_1" xmi:id="FCMComposite_1_1" location="235,101" connectionDetails="10.100.10.194:6789" timeoutSendingData="30" modifyInputStream="reserveThenRelease">
+        <translation xmi:type="utility:ConstantString" string="TCPIP Client Output"/>
+      </nodes>
+      <nodes xmi:type="ComIbmTCPIPClientReceive.msgnode:FCMComposite_1" xmi:id="FCMComposite_1_2" location="388,182" connectionDetails="mwwlxesb202:6789" timeoutWaitingForData="5" hostnameLocation="$LocalEnvironment/WrittenDestination/TCPIP/Output/ConnectionDetails/Hostname" portLocation="$LocalEnvironment/WrittenDestination/TCPIP/Output/ConnectionDetails/Port" idLocation="$LocalEnvironment/WrittenDestination/TCPIP/Output/ConnectionDetails/Id" replyIdLocation="$LocalEnvironment/WrittenDestination/TCPIP/Output/ConnectionDetails/ReplyId"
+          timeoutLocation="$Environment/Timeout" messageDomainProperty="DFDL" messageTypeProperty="{}:Output906" recordDetection="delimited" customDelimiter="03">
+        <translation xmi:type="utility:ConstantString" string="TCPIP Client Receive"/>
+      </nodes>
+      <nodes xmi:type="ComIbmCompute.msgnode:FCMComposite_1" xmi:id="FCMComposite_1_3" location="93,20" computeExpression="esql://routine/com.marks.hyb.fastfind#virtual_giftcard_activation_Req.Main" computeMode="destinationAndMessage">
+        <translation xmi:type="utility:ConstantString" string="CreateGC_Request"/>
+      </nodes>
+      <nodes xmi:type="ComIbmThrow.msgnode:FCMComposite_1" xmi:id="FCMComposite_1_4" location="700,92" messageNumber="7002" messageText="FAILURE_ACTIVATION_GIFTCARD_SERVICE">
+        <translation xmi:type="utility:ConstantString" string="GiftCardactivationError"/>
+      </nodes>
+      <nodes xmi:type="ComIbmFilter.msgnode:FCMComposite_1" xmi:id="FCMComposite_1_5" location="537,182" filterExpression="esql://routine/com.marks.hyb.fastfind#virtual_giftcard_activation_GiftCardCreationSuccess_.Main">
+        <translation xmi:type="utility:ConstantString" string="GiftCardActivationSuccess?"/>
+      </nodes>
+      <nodes xmi:type="ComIbmThrow.msgnode:FCMComposite_1" xmi:id="FCMComposite_1_6" location="834,178" messageNumber="7002" messageText="FAILURE_ACTIVATION_GIFTCARD_SERVICE">
+        <translation xmi:type="utility:ConstantString" string="GiftCardAlreadyExists"/>
+      </nodes>
+      <nodes xmi:type="ComIbmThrow.msgnode:FCMComposite_1" xmi:id="FCMComposite_1_7" location="542,344" messageNumber="7003" messageText="FAILURE_ACTIVATE_GIFTCARD_SERVICE_UNAVAILABLE">
+        <translation xmi:type="utility:ConstantString" string="TimeOutCreateGiftCard"/>
+      </nodes>
+      <nodes xmi:type="ComIbmThrow.msgnode:FCMComposite_1" xmi:id="FCMComposite_1_8" location="230,20" messageNumber="7001" messageText="FAILURE_ACTIVATION_GIFTCARD_MESSAGE">
+        <translation xmi:type="utility:ConstantString" string="DBErrorActivateGiftCard"/>
+      </nodes>
+      <nodes xmi:type="com_marks_hyb_fastfind_logging_exception_instore.subflow:FCMComposite_1" xmi:id="FCMComposite_1_9" location="460,94">
+        <translation xmi:type="utility:ConstantString" string="logging_exception_instore"/>
+      </nodes>
+      <nodes xmi:type="com_marks_hyb_fastfind_logging_exception_instore.subflow:FCMComposite_1" xmi:id="FCMComposite_1_11" location="693,177">
+        <translation xmi:type="utility:ConstantString" string="logging_exception_instore1"/>
+      </nodes>
+      <connections xmi:type="eflow:FCMConnection" xmi:id="FCMConnection_4" targetNode="FCMComposite_1_3" sourceNode="InTerminal.Input" sourceTerminalName="OutTerminal.out" targetTerminalName="InTerminal.in"/>
+      <connections xmi:type="eflow:FCMConnection" xmi:id="FCMConnection_7" targetNode="FCMComposite_1_2" sourceNode="FCMComposite_1_1" sourceTerminalName="OutTerminal.out" targetTerminalName="InTerminal.in"/>
+      <connections xmi:type="eflow:FCMConnection" xmi:id="FCMConnection_1" targetNode="FCMComposite_1_1" sourceNode="FCMComposite_1_3" sourceTerminalName="OutTerminal.out" targetTerminalName="InTerminal.in"/>
+      <connections xmi:type="eflow:FCMConnection" xmi:id="FCMConnection_3" targetNode="FCMComposite_1_5" sourceNode="FCMComposite_1_2" sourceTerminalName="OutTerminal.out" targetTerminalName="InTerminal.in"/>
+      <connections xmi:type="eflow:FCMConnection" xmi:id="FCMConnection_5" targetNode="OutTerminal.Output" sourceNode="FCMComposite_1_5" sourceTerminalName="OutTerminal.true" targetTerminalName="InTerminal.in"/>
+      <connections xmi:type="eflow:FCMConnection" xmi:id="FCMConnection_11" targetNode="FCMComposite_1_7" sourceNode="FCMComposite_1_2" sourceTerminalName="OutTerminal.timeout" targetTerminalName="InTerminal.in"/>
+      <connections xmi:type="eflow:FCMConnection" xmi:id="FCMConnection_12" targetNode="FCMComposite_1_8" sourceNode="FCMComposite_1_3" sourceTerminalName="OutTerminal.failure" targetTerminalName="InTerminal.in"/>
+      <connections xmi:type="eflow:FCMConnection" xmi:id="FCMConnection_2" targetNode="FCMComposite_1_9" sourceNode="FCMComposite_1_1" sourceTerminalName="OutTerminal.failure" targetTerminalName="InTerminal.Input"/>
+      <connections xmi:type="eflow:FCMConnection" xmi:id="FCMConnection_6" targetNode="FCMComposite_1_9" sourceNode="FCMComposite_1_2" sourceTerminalName="OutTerminal.failure" targetTerminalName="InTerminal.Input"/>
+      <connections xmi:type="eflow:FCMConnection" xmi:id="FCMConnection_8" targetNode="FCMComposite_1_4" sourceNode="FCMComposite_1_9" sourceTerminalName="OutTerminal.Output" targetTerminalName="InTerminal.in"/>
+      <connections xmi:type="eflow:FCMConnection" xmi:id="FCMConnection_9" targetNode="FCMComposite_1_11" sourceNode="FCMComposite_1_5" sourceTerminalName="OutTerminal.failure" targetTerminalName="InTerminal.Input"/>
+      <connections xmi:type="eflow:FCMConnection" xmi:id="FCMConnection_10" targetNode="FCMComposite_1_11" sourceNode="FCMComposite_1_5" sourceTerminalName="OutTerminal.unknown" targetTerminalName="InTerminal.Input"/>
+      <connections xmi:type="eflow:FCMConnection" xmi:id="FCMConnection_13" targetNode="FCMComposite_1_11" sourceNode="FCMComposite_1_5" sourceTerminalName="OutTerminal.false" targetTerminalName="InTerminal.Input"/>
+      <connections xmi:type="eflow:FCMConnection" xmi:id="FCMConnection_14" targetNode="FCMComposite_1_6" sourceNode="FCMComposite_1_11" sourceTerminalName="OutTerminal.Output" targetTerminalName="InTerminal.in"/>
+    </composition>
+    <propertyOrganizer>
+      <propertyDescriptor groupName="Group.ServiceEndpoints" propertyEditor="com.ibm.etools.mft.ibmnodes.editors.tcpip.TCPIPConnectionPropertyEditor" configurable="true" describedAttribute="Property.WSGGivexEndpoint">
+        <propertyName xmi:type="utility:TranslatableString" key="Property.WSGGivexEndpoint" bundleName="com/marks/hyb/fastfind/virtual_giftcard_creation" pluginId="common-orderceation-hyb-library"/>
+      </propertyDescriptor>
+    </propertyOrganizer>
+    <attributeLinks promotedAttribute="Property.WSGGivexEndpoint" overriddenNodes="FCMComposite_1_1">
+      <overriddenAttribute href="ComIbmTCPIPClientOutput.msgnode#Property.connectionDetails"/>
+    </attributeLinks>
+    <attributeLinks promotedAttribute="Property.WSGGivexEndpoint" overriddenNodes="FCMComposite_1_2">
+      <overriddenAttribute href="ComIbmTCPIPClientReceive.msgnode#Property.connectionDetails"/>
+    </attributeLinks>
+    <stickyBoard/>
+  </eClassifiers>
+</ecore:EPackage>

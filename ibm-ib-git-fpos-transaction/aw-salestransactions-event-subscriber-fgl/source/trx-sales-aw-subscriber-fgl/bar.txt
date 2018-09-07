@@ -1,0 +1,3 @@
+common-library-java
+core-audit-handler-library-java
+trx-sales-aw-subscriber-library-fgl-java

@@ -1,0 +1,10 @@
+trx.consignmentshipped.dom.TrxConsignmentShipped#IIBInBoundQueue=RECV.${CONSIGN_IN}
+trx.consignmentshipped.dom.TrxConsignmentShipped#SCDestinationQueue=FGL.${emsEnvQ}.HYBRIS.SC.CONSIGN.SHIPPED.Q
+trx.consignmentshipped.dom.TrxConsignmentShipped#ATMODestinationQueue=FGL.${emsEnvQ}.HYBRIS.ATMO.CONSIGN.SHIPPED.Q
+trx.consignmentshipped.dom.TrxConsignmentShipped#CoreAuditDataSource=AUD${ENVN}${INST}
+trx.consignmentshipped.dom.TrxConsignmentShipped#CoreMessageValidation1=${VALIDATE_MSG_IN}
+trx.consignmentshipped.dom.TrxConsignmentShipped#CoreMessageValidation2=${VALIDATE_MSG_OUT}
+trx.consignmentshipped.dom.TrxConsignmentShipped#CoreAuditEnabled=FALSE
+trx.consignmentshipped.dom.TrxConsignmentShipped#CoreAuditDetailEnabled=FALSE
+trx.consignmentshipped.dom.TrxConsignmentShipped#additionalInstances=${EXTRATHREADS}
+trx.consignmentshipped.dom.TrxConsignmentShipped#DOMOutboundBackupQueue=${CONSIGN_IN_BACKOUT}

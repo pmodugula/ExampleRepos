@@ -1,0 +1,1554 @@
+<?xml version="1.0" encoding="UTF-8"?><!-- edited with XMLSpy v2015 rel. 3 sp1 (x64) (http://www.altova.com) by Suni Mathews (FGL Sports, Ltd.) --><xs:schema elementFormDefault="qualified" targetNamespace="http://www.fglsports.com/schema/hybris/order/v1" xmlns:fgl="http://www.fglsports.com/schema/hybris/order/v1" xmlns:xs="http://www.w3.org/2001/XMLSchema">
+	<xs:element name="OrderPlacement">
+		<xs:annotation>
+			<xs:documentation>Order Placement Message content outbound</xs:documentation>
+		</xs:annotation>
+		<xs:complexType>
+			<xs:complexContent>
+				<xs:extension base="fgl:OrderType"/>
+			</xs:complexContent>
+		</xs:complexType>
+	</xs:element>
+	<xs:element name="OrderCancellation">
+		<xs:annotation>
+			<xs:documentation>Order Cancellation Message content outbound</xs:documentation>
+		</xs:annotation>
+		<xs:complexType>
+			<xs:complexContent>
+				<xs:extension base="fgl:MessageType">
+					<xs:sequence>
+						<xs:element maxOccurs="1" minOccurs="1" name="Code" nillable="false" type="fgl:CodeType">
+							<xs:annotation>
+								<xs:documentation>A unique system assigned identifier for CustomerOrder.</xs:documentation>
+							</xs:annotation>
+						</xs:element>
+						<xs:element maxOccurs="1" minOccurs="1" name="OriginationStoreId" type="xs:int"/>
+						<xs:element maxOccurs="1" minOccurs="1" name="Status" type="fgl:OrderStatusType"/>
+						<xs:element maxOccurs="1" minOccurs="0" name="Error" type="fgl:ErrorType"/>
+						<xs:element maxOccurs="1" minOccurs="1" name="CustomerId">
+							<xs:simpleType>
+								<xs:restriction base="xs:string">
+									<xs:minLength value="1"/>
+								</xs:restriction>
+							</xs:simpleType>
+						</xs:element>
+						<xs:element maxOccurs="1" minOccurs="1" name="Cancelled" type="xs:dateTime">
+							<xs:annotation>
+								<xs:documentation>Date/Time when order is canncelled </xs:documentation>
+							</xs:annotation>
+						</xs:element>
+						<xs:element maxOccurs="1" minOccurs="1" name="CancellationReason" nillable="false" type="fgl:CancellationReasonEnum"/>
+						<xs:element name="CancelRequestOperatorID" type="xs:string">
+							<xs:annotation>
+								<xs:documentation>The system or user identifier  that initiated the CancelRequest</xs:documentation>
+							</xs:annotation>
+						</xs:element>
+					</xs:sequence>
+				</xs:extension>
+			</xs:complexContent>
+		</xs:complexType>
+	</xs:element>
+	<xs:element name="OrderReturnRequested">
+		<xs:annotation>
+			<xs:documentation>Order Return Requested Message content outbound</xs:documentation>
+		</xs:annotation>
+		<xs:complexType>
+			<xs:complexContent>
+				<xs:extension base="fgl:MessageType">
+					<xs:sequence>
+						<xs:element maxOccurs="1" minOccurs="1" name="Code" nillable="false" type="fgl:CodeType"/>
+						<xs:element maxOccurs="1" minOccurs="1" name="ReturnRequested" nillable="false" type="xs:dateTime"/>
+						<xs:element maxOccurs="1" minOccurs="1" name="RMA" nillable="false" type="xs:string"/>
+						<xs:element maxOccurs="1" minOccurs="0" name="OriginRMA" nillable="false" type="xs:string"/>
+						<xs:element maxOccurs="1" minOccurs="1" name="ReturnEntries" nillable="false">
+							<xs:complexType>
+								<xs:sequence>
+									<xs:element maxOccurs="unbounded" minOccurs="1" name="ReturnEntry" nillable="false" type="fgl:ReturnConsignmentEntryType"/>
+								</xs:sequence>
+							</xs:complexType>
+						</xs:element>
+					</xs:sequence>
+				</xs:extension>
+			</xs:complexContent>
+		</xs:complexType>
+	</xs:element>
+	<xs:element name="ReturnRequestCancelled">
+		<xs:annotation>
+			<xs:documentation>Return Request Cancellation Message content outbound</xs:documentation>
+		</xs:annotation>
+		<xs:complexType>
+			<xs:complexContent>
+				<xs:extension base="fgl:MessageType">
+					<xs:sequence>
+						<xs:element maxOccurs="1" minOccurs="1" name="OriginReturnRequestCode" nillable="false" type="fgl:CodeType"/>
+						<xs:element maxOccurs="1" minOccurs="1" name="OriginRMA" nillable="false" type="xs:string"/>
+						<xs:element maxOccurs="1" minOccurs="1" name="CancellationReason" nillable="false" type="fgl:ReturnRequestCancellationReasonEnum"/>
+						<xs:element maxOccurs="1" minOccurs="1" name="CancelRequested" nillable="false" type="xs:dateTime"/>
+					</xs:sequence>
+				</xs:extension>
+			</xs:complexContent>
+		</xs:complexType>
+	</xs:element>
+	<xs:element name="OrderReturnReceived">
+		<xs:annotation>
+			<xs:documentation>Order Return Received Message content inbound from WMS</xs:documentation>
+		</xs:annotation>
+		<xs:complexType>
+			<xs:complexContent>
+				<xs:extension base="fgl:MessageType">
+					<xs:sequence>
+						<xs:element maxOccurs="1" minOccurs="1" name="Code" nillable="false" type="fgl:CodeType"/>
+						<xs:element maxOccurs="1" minOccurs="1" name="ReturnReceived" nillable="false" type="xs:dateTime"/>
+						<xs:element maxOccurs="1" minOccurs="1" name="RMA" nillable="false" type="xs:string"/>
+						<xs:element maxOccurs="1" minOccurs="1" name="ReceivedEntries" nillable="false">
+							<xs:complexType>
+								<xs:sequence>
+									<xs:element maxOccurs="unbounded" minOccurs="1" name="ReceivedEntry" nillable="false" type="fgl:ReceivedReturnConsignmentEntryType"/>
+								</xs:sequence>
+							</xs:complexType>
+						</xs:element>
+					</xs:sequence>
+				</xs:extension>
+			</xs:complexContent>
+		</xs:complexType>
+	</xs:element>
+	<xs:element name="OrderConsignmentPacked">
+		<xs:annotation>
+			<xs:documentation>Order Consignment Packed Message content inbound</xs:documentation>
+		</xs:annotation>
+		<xs:complexType>
+			<xs:complexContent>
+				<xs:extension base="fgl:MessageType">
+					<xs:sequence>
+						<xs:element name="Code" type="fgl:CodeType">
+							<xs:annotation>
+								<xs:documentation>A unique system assigned identifier for CustomerOrder.</xs:documentation>
+							</xs:annotation>
+						</xs:element>
+						<xs:element maxOccurs="1" minOccurs="0" name="Error" type="fgl:ErrorType"/>
+						<xs:element name="Store" nillable="false" type="fgl:StoreType">
+							<xs:annotation>
+								<xs:documentation>Holds the information on the Store associated to the Order i.e. 484 , ATM-E-COMM</xs:documentation>
+							</xs:annotation>
+						</xs:element>
+						<xs:element name="OrderShipment" type="fgl:OrderShipmentPackedType"/>
+					</xs:sequence>
+				</xs:extension>
+			</xs:complexContent>
+		</xs:complexType>
+	</xs:element>
+	<xs:element name="OrderConsignmentShipped">
+		<xs:annotation>
+			<xs:documentation>Order Consignment Shipped Message content inbound</xs:documentation>
+		</xs:annotation>
+		<xs:complexType>
+			<xs:complexContent>
+				<xs:extension base="fgl:MessageType">
+					<xs:sequence>
+						<xs:element maxOccurs="1" minOccurs="1" name="Code" nillable="false" type="fgl:CodeType">
+							<xs:annotation>
+								<xs:documentation>A unique system assigned identifier for CustomerOrder.</xs:documentation>
+							</xs:annotation>
+						</xs:element>
+						<xs:element maxOccurs="1" minOccurs="0" name="Error" type="fgl:ErrorType"/>
+						<xs:element name="Store" nillable="false" type="fgl:StoreType">
+							<xs:annotation>
+								<xs:documentation>Holds the information on the Store associated to the Order i.e. 484 , ATM-E-COMM</xs:documentation>
+							</xs:annotation>
+						</xs:element>
+						<xs:element name="OrderShipment" type="fgl:OrderShipmentShippedType"/>
+					</xs:sequence>
+				</xs:extension>
+			</xs:complexContent>
+		</xs:complexType>
+	</xs:element>
+	<xs:element name="OrderConsignmentPaid">
+		<xs:annotation>
+			<xs:documentation>Order Consignment Paid Message content outbound</xs:documentation>
+		</xs:annotation>
+		<xs:complexType>
+			<xs:complexContent>
+				<xs:extension base="fgl:MessageType">
+					<xs:sequence>
+						<xs:element maxOccurs="1" minOccurs="1" name="Code" nillable="false" type="fgl:CodeType">
+							<xs:annotation>
+								<xs:documentation>A unique system assigned identifier for CustomerOrder.</xs:documentation>
+							</xs:annotation>
+						</xs:element>
+						<xs:element name="Paid" type="xs:dateTime"/>
+						<xs:element maxOccurs="1" minOccurs="1" name="OrderCreationDate" type="xs:dateTime"/>
+						<xs:element maxOccurs="1" minOccurs="0" name="Error" type="fgl:ErrorType"/>
+						<xs:element maxOccurs="1" minOccurs="1" name="Consignment" type="fgl:ConsignmentType"/>
+						<xs:element maxOccurs="1" minOccurs="1" name="TransactionNumber" type="xs:string"/>
+						<xs:element name="TaxAmounts">
+							<xs:complexType>
+								<xs:sequence>
+									<xs:element maxOccurs="unbounded" minOccurs="0" name="TaxAmount" type="fgl:TaxType"/>
+								</xs:sequence>
+							</xs:complexType>
+						</xs:element>
+						<xs:element maxOccurs="1" minOccurs="1" name="TotalTaxValue" nillable="false" type="xs:double"/>
+						<xs:element maxOccurs="1" minOccurs="1" name="DeliveryCost" nillable="false" type="xs:double"/>
+						<xs:element maxOccurs="1" minOccurs="1" name="Subtotal" nillable="false" type="xs:double"/>
+						<xs:element maxOccurs="1" minOccurs="1" name="SubTotalWithDiscount" nillable="true" type="xs:double"/>
+						<xs:element maxOccurs="1" minOccurs="1" name="Total" nillable="false" type="xs:double"/>
+						<xs:element maxOccurs="1" minOccurs="1" name="TotalGiftWrap" nillable="false" type="xs:double"/>
+						<xs:element maxOccurs="1" minOccurs="1" name="OrderedQty" nillable="true" type="xs:long"/>
+						<xs:element name="Tenders">
+							<xs:complexType>
+								<xs:sequence>
+									<xs:element maxOccurs="unbounded" minOccurs="1" name="Tender" type="fgl:TenderType"/>
+								</xs:sequence>
+							</xs:complexType>
+						</xs:element>
+						<xs:element name="Vouchers">
+							<xs:complexType>
+								<xs:sequence>
+									<xs:element maxOccurs="unbounded" minOccurs="0" name="Codes" nillable="false" type="xs:string"/>
+								</xs:sequence>
+							</xs:complexType>
+						</xs:element>
+						<xs:element maxOccurs="1" minOccurs="1" name="PaymentAddress" nillable="false" type="fgl:PaymentAddressType"/>
+						<xs:element maxOccurs="1" minOccurs="0" name="OrderDiscount" nillable="false" type="fgl:PriceType"/>
+					</xs:sequence>
+				</xs:extension>
+			</xs:complexContent>
+		</xs:complexType>
+	</xs:element>
+	<xs:element name="OrderUnableToFulfill">
+		<xs:annotation>
+			<xs:documentation> Order Unable to Fulfil Request inbound </xs:documentation>
+		</xs:annotation>
+		<xs:complexType>
+			<xs:complexContent>
+				<xs:extension base="fgl:MessageType">
+					<xs:sequence>
+						<xs:element name="CustomerOrderNumber" type="xs:string">
+							<xs:annotation>
+								<xs:documentation>A unique system assigned identifier for CustomerOrder.</xs:documentation>
+							</xs:annotation>
+						</xs:element>
+						<xs:element name="OrderLineEntries">
+							<xs:complexType>
+								<xs:sequence>
+									<xs:element maxOccurs="unbounded" name="OrderLineEntry">
+										<xs:complexType>
+											<xs:sequence>
+												<xs:element name="CustomerOrderSequenceNumber" type="xs:int">
+													<xs:annotation>
+														<xs:documentation>A unique system assigned identifier for the LineItem within the confines of the CustomerOrder.</xs:documentation>
+													</xs:annotation>
+												</xs:element>
+												<xs:element name="CancelledQuantity" type="xs:int">
+													<xs:annotation>
+														<xs:documentation>Number of Items Cancelled</xs:documentation>
+													</xs:annotation>
+												</xs:element>
+												<xs:element name="ItemNumber" type="xs:string">
+													<xs:annotation>
+														<xs:documentation>Business identifier for Item/SKU</xs:documentation>
+													</xs:annotation>
+												</xs:element>
+											</xs:sequence>
+										</xs:complexType>
+									</xs:element>
+								</xs:sequence>
+							</xs:complexType>
+						</xs:element>
+					</xs:sequence>
+				</xs:extension>
+			</xs:complexContent>
+		</xs:complexType>
+	</xs:element>
+	<xs:element name="OrderGiftCardConsignmentPaid">
+		<xs:annotation>
+			<xs:documentation>Order Gift Certificate Consignment Paid Message content outbound</xs:documentation>
+		</xs:annotation>
+		<xs:complexType>
+			<xs:complexContent>
+				<xs:extension base="fgl:MessageType">
+					<xs:sequence>
+						<xs:element maxOccurs="1" minOccurs="1" name="PaymentAddress" nillable="false" type="fgl:PaymentAddressType"/>
+						<xs:element maxOccurs="1" minOccurs="1" name="Code" nillable="false" type="fgl:CodeType"/>
+						<xs:element maxOccurs="1" minOccurs="1" name="Paid" type="xs:dateTime"/>
+						<xs:element maxOccurs="1" minOccurs="1" name="OrderCreationDate" type="xs:dateTime"/>
+						<xs:element maxOccurs="1" minOccurs="0" name="Error" type="fgl:ErrorType"/>
+						<xs:element maxOccurs="1" minOccurs="1" name="GiftCardConsignment" type="fgl:GiftCardConsignmentType"/>
+						<xs:element maxOccurs="1" minOccurs="1" name="TransactionNumber" type="xs:string"/>
+						<xs:element maxOccurs="1" minOccurs="1" name="Total" nillable="false" type="xs:double"/>
+						<xs:element name="Tenders">
+							<xs:complexType>
+								<xs:sequence>
+									<xs:element maxOccurs="unbounded" minOccurs="1" name="Tender" type="fgl:TenderType"/>
+								</xs:sequence>
+							</xs:complexType>
+						</xs:element>
+					</xs:sequence>
+				</xs:extension>
+			</xs:complexContent>
+		</xs:complexType>
+	</xs:element>
+	<xs:element name="DayEndTotalsReported">
+		<xs:annotation>
+			<xs:documentation>Transactions for totals for business day outbound message</xs:documentation>
+		</xs:annotation>
+		<xs:complexType>
+			<xs:complexContent>
+				<xs:extension base="fgl:MessageType">
+					<xs:sequence>
+						<xs:element maxOccurs="1" minOccurs="1" name="Store" nillable="false" type="fgl:StoreType"/>
+						<xs:element maxOccurs="1" minOccurs="1" name="ReportCreationDate" nillable="false" type="xs:dateTime"/>
+						<xs:element maxOccurs="1" minOccurs="1" name="ReportDataDate" nillable="false" type="xs:dateTime"/>
+						<xs:element maxOccurs="1" minOccurs="1" name="DayEndTotalsEntries" nillable="false">
+							<xs:complexType>
+								<xs:sequence>
+									<xs:element maxOccurs="unbounded" minOccurs="0" name="DayEndTotalsEntry" type="fgl:DayEndTotalsType"/>
+								</xs:sequence>
+							</xs:complexType>
+						</xs:element>
+					</xs:sequence>
+				</xs:extension>
+			</xs:complexContent>
+		</xs:complexType>
+	</xs:element>
+	<xs:element name="OrderReimbursementPerformed">
+		<xs:annotation>
+			<xs:documentation>Order ReimbursementPerformed (when customer is not satisfied with what he\she purchased we offered some money back to fix this) Message content outbound</xs:documentation>
+		</xs:annotation>
+		<xs:complexType>
+			<xs:complexContent>
+				<xs:extension base="fgl:BaseOrderType">
+					<xs:sequence>
+						<xs:element maxOccurs="1" minOccurs="1" name="Performed" nillable="false" type="xs:dateTime"/>
+						<xs:element maxOccurs="1" minOccurs="1" name="PaymentAddress" nillable="false" type="fgl:PaymentAddressType"/>
+						<xs:element maxOccurs="1" minOccurs="1" name="ReimbursementRequest" nillable="false" type="fgl:ReimbursementRequestType"/>
+						<xs:element maxOccurs="1" minOccurs="0" name="GiftCards" nillable="false">
+							<xs:complexType>
+								<xs:sequence>
+									<xs:element maxOccurs="unbounded" minOccurs="0" name="GiftCard" nillable="false" type="fgl:GiftCardType"/>
+								</xs:sequence>
+							</xs:complexType>
+						</xs:element>
+					</xs:sequence>
+				</xs:extension>
+			</xs:complexContent>
+		</xs:complexType>
+	</xs:element>
+	<xs:element name="OrderReturnRequestRefunded">
+		<xs:annotation>
+			<xs:documentation>Order Return Request Refunded Message content outbound</xs:documentation>
+		</xs:annotation>
+		<xs:complexType>
+			<xs:complexContent>
+				<xs:extension base="fgl:MessageType">
+					<xs:sequence>
+						<xs:element maxOccurs="1" minOccurs="1" name="Code" nillable="false" type="fgl:CodeType"/>
+						<xs:element maxOccurs="1" minOccurs="1" name="ReturnRequestRefunded" nillable="false" type="xs:dateTime"/>
+						<xs:element maxOccurs="1" minOccurs="1" name="OrderSold" nillable="false" type="xs:dateTime"/>
+						<xs:element maxOccurs="1" minOccurs="1" name="RMA" nillable="false" type="xs:string"/>
+						<xs:element maxOccurs="1" minOccurs="1" name="PaymentAddress" nillable="false" type="fgl:PaymentAddressType"/>
+						<xs:element maxOccurs="1" minOccurs="1" name="TotalRefunded" nillable="false" type="xs:double"/>
+						<xs:element maxOccurs="1" minOccurs="1" name="Subtotal" nillable="false" type="xs:double"/>
+						<xs:element maxOccurs="1" minOccurs="1" name="SubTotalWithDiscount" nillable="true" type="xs:double"/>
+						<xs:element maxOccurs="1" minOccurs="1" name="TotalEstimatedRefund" nillable="false" type="xs:double"/>
+						<xs:element maxOccurs="1" minOccurs="1" name="TotalNonMerchReimbursement" nillable="false" type="xs:double"/>
+						<xs:element name="CashOverShort" type="xs:double"/>
+						<xs:element maxOccurs="1" minOccurs="1" name="RefundConsignments" nillable="false">
+							<xs:complexType>
+								<xs:sequence>
+									<xs:element maxOccurs="unbounded" minOccurs="1" name="RefundConsignment" nillable="false" type="fgl:ReturnRequestRefundConsignmentType"/>
+								</xs:sequence>
+							</xs:complexType>
+						</xs:element>
+						<xs:element maxOccurs="1" minOccurs="1" name="OrderBeforeReturn" nillable="false" type="fgl:OrderType"/>
+						<xs:element maxOccurs="1" minOccurs="0" name="GiftCards" nillable="false">
+							<xs:complexType>
+								<xs:sequence>
+									<xs:element maxOccurs="unbounded" minOccurs="0" name="GiftCard" nillable="false" type="fgl:GiftCardType"/>
+								</xs:sequence>
+							</xs:complexType>
+						</xs:element>
+					</xs:sequence>
+				</xs:extension>
+			</xs:complexContent>
+		</xs:complexType>
+	</xs:element>
+	<!--Other subtypes-->
+	<xs:simpleType name="ReturnRequestCancellationReasonEnum">
+		<xs:restriction base="xs:string">
+			<xs:enumeration value="MANUAL_CANCEL"/>
+			<xs:enumeration value="CORRECTION_CANCEL"/>
+		</xs:restriction>
+	</xs:simpleType>
+	<xs:simpleType name="CancellationReasonEnum">
+		<xs:restriction base="xs:string">
+			<xs:enumeration value="OUT_OF_STOCK"/>
+			<xs:enumeration value="FRAUD"/>
+			<xs:enumeration value="CUSTOMER_REQUEST"/>
+		</xs:restriction>
+	</xs:simpleType>
+	<xs:simpleType name="BannerEnum">
+		<xs:annotation>
+			<xs:documentation>Banner identifier enum</xs:documentation>
+		</xs:annotation>
+		<xs:restriction base="xs:string">
+			<xs:enumeration value="SPORTCHEK"/>
+			<xs:enumeration value="ATMOSPHERE"/>
+		</xs:restriction>
+	</xs:simpleType>
+	<xs:complexType name="BaseOrderType">
+		<xs:annotation>
+			<xs:documentation>Base Order type</xs:documentation>
+		</xs:annotation>
+		<xs:complexContent>
+			<xs:extension base="fgl:MessageType">
+				<xs:sequence>
+					<xs:element maxOccurs="1" minOccurs="1" name="Code" nillable="false" type="fgl:CodeType">
+						<xs:annotation>
+							<xs:documentation>A unique system assigned identifier for CustomerOrder.</xs:documentation>
+						</xs:annotation>
+					</xs:element>
+					<xs:element maxOccurs="1" minOccurs="1" name="TotalItems" type="xs:int">
+						<xs:annotation>
+							<xs:documentation>Total count of  items in order</xs:documentation>
+						</xs:annotation>
+					</xs:element>
+					<xs:element maxOccurs="1" minOccurs="1" name="TotalUnitCount" type="xs:int">
+						<xs:annotation>
+							<xs:documentation>Total units of items in order</xs:documentation>
+						</xs:annotation>
+					</xs:element>
+					<xs:element maxOccurs="1" minOccurs="1" name="OriginationStoreId" type="xs:int"/>
+					<xs:element maxOccurs="1" minOccurs="1" name="Status" type="fgl:OrderStatusType"/>
+					<xs:element maxOccurs="1" minOccurs="0" name="Error" type="fgl:ErrorType"/>
+					<xs:element maxOccurs="1" minOccurs="1" name="CustomerId">
+						<xs:simpleType>
+							<xs:restriction base="xs:string">
+								<xs:minLength value="1"/>
+							</xs:restriction>
+						</xs:simpleType>
+					</xs:element>
+					<xs:element name="Tenders">
+						<xs:complexType>
+							<xs:sequence>
+								<xs:element maxOccurs="unbounded" minOccurs="0" name="Tender" type="fgl:TenderType"/>
+							</xs:sequence>
+						</xs:complexType>
+					</xs:element>
+					<xs:element name="Consignments">
+						<xs:complexType>
+							<xs:sequence>
+								<xs:element maxOccurs="unbounded" minOccurs="0" name="Consignment" type="fgl:ConsignmentType"/>
+							</xs:sequence>
+						</xs:complexType>
+					</xs:element>
+					<xs:element name="Entries">
+						<xs:complexType>
+							<xs:sequence>
+								<xs:element maxOccurs="unbounded" minOccurs="0" name="Entry" type="fgl:OrderEntryType"/>
+							</xs:sequence>
+						</xs:complexType>
+					</xs:element>
+					<xs:element minOccurs="0" name="GiftCardConsignments">
+						<xs:complexType>
+							<xs:sequence>
+								<xs:element maxOccurs="unbounded" minOccurs="1" name="GiftCardConsignment" type="fgl:GiftCardConsignmentType"/>
+							</xs:sequence>
+						</xs:complexType>
+					</xs:element>
+				</xs:sequence>
+			</xs:extension>
+		</xs:complexContent>
+	</xs:complexType>
+	<xs:complexType name="OrderType">
+		<xs:annotation>
+			<xs:documentation>Order type</xs:documentation>
+		</xs:annotation>
+		<xs:complexContent>
+			<xs:extension base="fgl:BaseOrderType">
+				<xs:sequence>
+					<xs:element maxOccurs="1" minOccurs="1" name="Net" type="xs:boolean"/>
+					<xs:element name="Created" type="xs:dateTime">
+						<xs:annotation>
+							<xs:documentation>The date/time when an order was created </xs:documentation>
+						</xs:annotation>
+					</xs:element>
+					<xs:element maxOccurs="1" minOccurs="1" name="Locale" type="xs:language"/>
+					<!--Discounts-->
+					<xs:element name="BrowserIp">
+						<xs:simpleType>
+							<xs:restriction base="xs:string">
+								<xs:minLength value="7"/>
+								<xs:maxLength value="15"/>
+							</xs:restriction>
+						</xs:simpleType>
+					</xs:element>
+					<xs:element maxOccurs="1" minOccurs="1" name="ProductDiscount" type="fgl:PriceType"/>
+					<xs:element maxOccurs="1" minOccurs="1" name="OrderDiscount" type="fgl:PriceType"/>
+					<xs:element maxOccurs="1" minOccurs="1" name="TotalDiscount" type="fgl:PriceType"/>
+					<!--Promotions-->
+					<xs:element maxOccurs="1" minOccurs="0" name="AppliedOrderPromotions">
+						<xs:complexType>
+							<xs:sequence>
+								<xs:element maxOccurs="unbounded" minOccurs="0" name="AppliedOrderPromotion" type="fgl:PromotionType"/>
+							</xs:sequence>
+						</xs:complexType>
+					</xs:element>
+					<xs:element maxOccurs="1" minOccurs="0" name="AppliedProductPromotions">
+						<xs:complexType>
+							<xs:sequence>
+								<xs:element maxOccurs="unbounded" minOccurs="0" name="AppliedProductPromotion" type="fgl:PromotionType"/>
+							</xs:sequence>
+						</xs:complexType>
+					</xs:element>
+					<xs:element maxOccurs="1" minOccurs="1" name="TotalPrice" type="fgl:PriceType"/>
+					<xs:element maxOccurs="1" minOccurs="1" name="SubTotal" type="fgl:PriceType"/>
+					<xs:element maxOccurs="1" minOccurs="1" name="TotalGiftWrap" type="fgl:PriceType"/>
+					<xs:element maxOccurs="1" minOccurs="1" name="DeliveryCost" type="fgl:PriceType"/>
+					<xs:element maxOccurs="1" minOccurs="1" name="TotalTax" type="fgl:PriceType"/>
+					<xs:element maxOccurs="1" minOccurs="0" name="TaxAmounts" nillable="false">
+						<xs:complexType>
+							<xs:sequence>
+								<xs:element maxOccurs="unbounded" minOccurs="0" name="TaxAmount" type="fgl:TaxType"/>
+							</xs:sequence>
+						</xs:complexType>
+					</xs:element>
+					<xs:element maxOccurs="1" minOccurs="1" name="PaymentAddress" type="fgl:PaymentAddressType"/>
+				</xs:sequence>
+			</xs:extension>
+		</xs:complexContent>
+	</xs:complexType>
+	<xs:complexType name="FulfillmentConsignmentType">
+		<xs:complexContent>
+			<xs:extension base="fgl:DeliveryAwareConsignmentType">
+				<xs:sequence/>
+			</xs:extension>
+		</xs:complexContent>
+	</xs:complexType>
+	<xs:complexType abstract="true" name="MessageType">
+		<xs:annotation>
+			<xs:documentation>Generic message</xs:documentation>
+		</xs:annotation>
+		<xs:attribute name="BannerName" type="fgl:BannerEnum">
+			<xs:annotation>
+				<xs:documentation>Represent the banner for which the message is issued and intended to : SPORTCHEK, ATMOSPHERE...</xs:documentation>
+			</xs:annotation>
+		</xs:attribute>
+		<xs:attribute name="messageID" type="xs:string"/>
+	</xs:complexType>
+	<xs:complexType name="DayEndTotalsType">
+		<xs:annotation>
+			<xs:documentation>Day end totals type to hold information about transactions for the business day for
+                supported tenders.
+            </xs:documentation>
+		</xs:annotation>
+		<xs:sequence>
+			<xs:element maxOccurs="1" minOccurs="1" name="ActualTotal" nillable="false" type="xs:double"/>
+			<xs:element maxOccurs="1" minOccurs="1" name="ExpectedTotal" nillable="false" type="xs:double"/>
+			<xs:element maxOccurs="1" minOccurs="1" name="Type" nillable="false" type="fgl:DayEndTotalsVariationType"/>
+			<xs:element maxOccurs="1" minOccurs="1" name="TenderType" nillable="false" type="fgl:TenderVariationType"/>
+			<xs:element maxOccurs="1" minOccurs="0" name="CreditCardTypeCode" nillable="false">
+				<xs:simpleType>
+					<xs:restriction base="xs:string">
+						<xs:minLength value="1"/>
+						<xs:maxLength value="4"/>
+					</xs:restriction>
+				</xs:simpleType>
+			</xs:element>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:simpleType name="DayEndTotalsVariationType">
+		<xs:restriction base="xs:string">
+			<xs:enumeration value="INCOME"/>
+			<xs:enumeration value="RETURN"/>
+		</xs:restriction>
+	</xs:simpleType>
+	<xs:complexType name="OrderEntryType">
+		<xs:annotation>
+			<xs:documentation>Order entry type to hold information about purchased products.</xs:documentation>
+		</xs:annotation>
+		<xs:sequence>
+			<xs:element name="EntryNumber" type="xs:long"/>
+			<xs:element name="OrderedItemQuantity" type="xs:long">
+				<xs:annotation>
+					<xs:documentation>The number of Items being ordered.</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="BasePrice" type="fgl:PriceType"/>
+			<xs:element name="TotalPrice" type="fgl:PriceType"/>
+			<xs:element name="Product" type="fgl:ProductType"/>
+			<xs:element name="Unit" type="fgl:UnitType"/>
+			<xs:element name="DiscountValues">
+				<xs:complexType>
+					<xs:sequence>
+						<xs:element maxOccurs="unbounded" minOccurs="0" name="DiscountValue" type="fgl:DiscountValueType"/>
+					</xs:sequence>
+				</xs:complexType>
+			</xs:element>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:complexType name="ErrorType">
+		<xs:annotation>
+			<xs:documentation>Represents error</xs:documentation>
+		</xs:annotation>
+		<xs:sequence>
+			<xs:element maxOccurs="1" minOccurs="1" name="ErrorCode" nillable="false" type="xs:string"/>
+			<xs:element maxOccurs="1" minOccurs="1" name="Locale" type="xs:language"/>
+			<xs:element maxOccurs="1" minOccurs="0" name="ErrorMessage" type="xs:string"/>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:complexType name="PriceType">
+		<xs:annotation>
+			<xs:documentation>Represents price of OrderEntry</xs:documentation>
+		</xs:annotation>
+		<xs:sequence>
+			<xs:element minOccurs="1" name="CurrencyIso" nillable="false" type="fgl:CurrencyIsoType"/>
+			<xs:element minOccurs="1" name="Value" nillable="false" type="xs:double"/>
+			<xs:element minOccurs="1" name="PriceType" nillable="false" type="xs:string"/>
+			<xs:element minOccurs="1" name="FormattedValue" nillable="false" type="xs:string"/>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:complexType name="UnitType">
+		<xs:annotation>
+			<xs:documentation>Represents product unit</xs:documentation>
+		</xs:annotation>
+		<xs:sequence>
+			<xs:element maxOccurs="1" minOccurs="1" name="Code" nillable="false" type="fgl:CodeType"/>
+			<xs:element minOccurs="1" name="Name" nillable="false" type="xs:string"/>
+			<xs:element minOccurs="1" name="Conversion" nillable="false" type="xs:double"/>
+			<xs:element minOccurs="1" name="UnitType" nillable="false" type="xs:string"/>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:complexType name="ChannelType">
+		<xs:annotation>
+			<xs:documentation>Represents selling channel</xs:documentation>
+		</xs:annotation>
+		<xs:sequence>
+			<xs:element maxOccurs="1" minOccurs="1" name="Store" nillable="false" type="fgl:StoreType"/>
+			<xs:element default="SITE" maxOccurs="1" minOccurs="1" name="Type" nillable="false" type="xs:string"/>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:complexType name="DeliveryModeType">
+		<xs:annotation>
+			<xs:documentation>Represents order's delivery mode</xs:documentation>
+		</xs:annotation>
+		<xs:sequence>
+			<xs:element maxOccurs="1" minOccurs="1" name="Code" nillable="false" type="fgl:CodeType"/>
+			<xs:element maxOccurs="1" minOccurs="0" name="Name" type="xs:string"/>
+			<xs:element minOccurs="1" name="Active" nillable="false" type="xs:boolean"/>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:complexType name="ProductType">
+		<xs:annotation>
+			<xs:documentation>Represents SKU of OrderEntry</xs:documentation>
+		</xs:annotation>
+		<xs:sequence>
+			<xs:element maxOccurs="1" minOccurs="1" name="Code" nillable="false" type="fgl:CodeType">
+				<xs:annotation>
+					<xs:documentation>Business Identifier for Item or SKU i.e. Itemnumber</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element minOccurs="0" name="PmmColorCode" nillable="false" type="xs:string"/>
+			<xs:element minOccurs="0" name="PmmColorDescription" nillable="false" type="xs:string"/>
+			<xs:element minOccurs="0" name="PmmSize" nillable="false" type="xs:double"/>
+			<xs:element minOccurs="0" name="PmmSizeDescription" nillable="false" type="xs:string"/>
+			<xs:element minOccurs="0" name="BaseProduct" nillable="false" type="fgl:BaseProductType"/>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:complexType name="BaseProductType">
+		<xs:annotation>
+			<xs:documentation>Represents Product of OrderEntry</xs:documentation>
+		</xs:annotation>
+		<xs:sequence>
+			<xs:element maxOccurs="1" minOccurs="1" name="Code" nillable="false" type="fgl:CodeType"/>
+			<xs:element maxOccurs="1" minOccurs="1" name="ExtId" nillable="false" type="xs:string"/>
+			<xs:element maxOccurs="1" minOccurs="1" name="FulfillerId" nillable="false" type="xs:string"/>
+			<xs:element maxOccurs="1" minOccurs="1" name="FulfillerName" nillable="false" type="xs:string"/>
+			<xs:element maxOccurs="1" minOccurs="1" name="Name" nillable="false" type="xs:string"/>
+			<xs:element maxOccurs="1" minOccurs="1" name="PkString" nillable="false" type="xs:string"/>
+			<xs:element maxOccurs="1" minOccurs="1" name="ProductBrand" nillable="false" type="xs:string"/>
+			<xs:element maxOccurs="1" minOccurs="1" name="Catalog" nillable="false" type="xs:string"/>
+			<xs:element maxOccurs="1" minOccurs="1" name="Comparable" nillable="false" type="xs:boolean"/>
+			<xs:element maxOccurs="1" minOccurs="1" name="ApprovalStatus" nillable="false">
+				<xs:simpleType>
+					<xs:restriction base="xs:string">
+						<xs:enumeration value="CHECK"/>
+						<xs:enumeration value="APPROVED"/>
+						<xs:enumeration value="UNAPPROVED"/>
+					</xs:restriction>
+				</xs:simpleType>
+			</xs:element>
+			<xs:element maxOccurs="1" minOccurs="1" name="GiftWrappable" nillable="false" type="xs:boolean"/>
+			<xs:element maxOccurs="1" minOccurs="1" name="SuitableForShipToStore" nillable="false" type="xs:boolean"/>
+			<xs:element maxOccurs="1" minOccurs="1" name="DateOfTheAvailability" nillable="true" type="xs:dateTime"/>
+			<xs:element maxOccurs="1" minOccurs="1" name="CreationTime" nillable="false" type="xs:dateTime"/>
+			<xs:element maxOccurs="1" minOccurs="1" name="ModificationTime" nillable="false" type="xs:dateTime"/>
+			<xs:element name="LocalizedNames">
+				<xs:complexType>
+					<xs:sequence>
+						<xs:element maxOccurs="unbounded" minOccurs="1" name="LocalizedName" type="fgl:LocalizedValueType"/>
+					</xs:sequence>
+				</xs:complexType>
+			</xs:element>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:complexType name="LocalizedValueType">
+		<xs:annotation>
+			<xs:documentation>Represents Localized value</xs:documentation>
+		</xs:annotation>
+		<xs:sequence>
+			<xs:element maxOccurs="1" minOccurs="1" name="Locale" nillable="false" type="xs:string"/>
+			<xs:element maxOccurs="1" minOccurs="1" name="Value" nillable="false" type="xs:string"/>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:complexType name="TaxType">
+		<xs:annotation>
+			<xs:documentation>Represents Option of OrderEntry Product</xs:documentation>
+		</xs:annotation>
+		<xs:sequence>
+			<xs:element maxOccurs="1" minOccurs="1" name="Code" nillable="false" type="xs:string"/>
+			<xs:element minOccurs="1" name="Value" nillable="false" type="xs:double"/>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:complexType name="PromotionType">
+		<xs:annotation>
+			<xs:documentation>Represents Promotion applied to Order on different levels</xs:documentation>
+		</xs:annotation>
+		<xs:sequence>
+			<xs:element maxOccurs="1" minOccurs="1" name="PromotionData">
+				<xs:complexType>
+					<xs:sequence>
+						<xs:element maxOccurs="1" minOccurs="1" name="Code" nillable="false">
+							<xs:simpleType>
+								<xs:restriction base="xs:string">
+									<xs:minLength value="1"/>
+									<xs:maxLength value="255"/>
+								</xs:restriction>
+							</xs:simpleType>
+						</xs:element>
+						<xs:element maxOccurs="1" minOccurs="1" name="PromotionType" nillable="false" type="xs:string"/>
+						<xs:element maxOccurs="1" minOccurs="0" name="Description" nillable="false" type="xs:string"/>
+						<xs:element maxOccurs="1" minOccurs="1" name="EndDate" nillable="false" type="xs:dateTime"/>
+					</xs:sequence>
+				</xs:complexType>
+			</xs:element>
+			<xs:element minOccurs="0" name="ConsumedEntries">
+				<xs:complexType>
+					<xs:sequence>
+						<xs:element maxOccurs="unbounded" minOccurs="0" name="PromotionConsumedOrderEntry" type="fgl:PromotionConsumedOrderEntryType"/>
+					</xs:sequence>
+				</xs:complexType>
+			</xs:element>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:complexType name="ConsignmentType">
+		<xs:annotation>
+			<xs:documentation>Represents Consignment of Order</xs:documentation>
+		</xs:annotation>
+		<xs:complexContent>
+			<xs:extension base="fgl:DeliveryAwareConsignmentType">
+				<xs:sequence>
+					<xs:element name="ShipmentKey" nillable="true" type="xs:string">
+						<xs:annotation>
+							<xs:documentation>Unique identifier for a shipment </xs:documentation>
+						</xs:annotation>
+					</xs:element>
+					<xs:element name="FulfilmentBusinessUnitNumber" nillable="true" type="xs:string">
+						<xs:annotation>
+							<xs:documentation>The BusinesUnit  Number  i..e. FGL Store or DC number used to fulfill the Shipment</xs:documentation>
+						</xs:annotation>
+					</xs:element>
+					<xs:element name="ConsignmentsEntries">
+						<xs:complexType>
+							<xs:sequence>
+								<xs:element maxOccurs="unbounded" minOccurs="1" name="ConsignmentEntry" nillable="false" type="fgl:ConsignmentEntryType"/>
+							</xs:sequence>
+						</xs:complexType>
+					</xs:element>
+					<xs:element name="TaxAmounts">
+						<xs:complexType>
+							<xs:sequence>
+								<xs:element maxOccurs="unbounded" minOccurs="0" name="TaxAmount" type="fgl:TaxType"/>
+							</xs:sequence>
+						</xs:complexType>
+					</xs:element>
+					<xs:element name="TaxAdjustment" nillable="true" type="xs:double"/>
+					<xs:element maxOccurs="1" minOccurs="1" name="DeliveryInStore" nillable="false" type="xs:boolean"/>
+					<xs:element maxOccurs="1" minOccurs="1" name="TotalTaxValue" nillable="false" type="xs:double"/>
+					<xs:element maxOccurs="1" minOccurs="1" name="DeliveryCost" nillable="false" type="xs:double"/>
+					<xs:element maxOccurs="1" minOccurs="1" name="TotalDeliveryCostReimbursement" nillable="false" type="xs:double"/>
+					<xs:element maxOccurs="1" minOccurs="1" name="TotalProductReimbursement" nillable="false" type="xs:double"/>
+					<xs:element maxOccurs="1" minOccurs="1" name="Subtotal" nillable="false" type="xs:double"/>
+					<xs:element maxOccurs="1" minOccurs="1" name="Total" nillable="false" type="xs:double"/>
+					<xs:element maxOccurs="1" minOccurs="0" name="MerchandiseTotal" type="xs:double"/>
+					<xs:element maxOccurs="1" minOccurs="1" name="TotalGiftWrap" nillable="false" type="xs:double"/>
+					<xs:element maxOccurs="1" minOccurs="1" name="Channel" type="fgl:ChannelType"/>
+					<xs:element maxOccurs="1" minOccurs="1" name="ShippingAddress" nillable="false" type="fgl:CanadaPostAwareShippingAddressType"/>
+					<xs:element maxOccurs="1" minOccurs="1" name="PlanShipVia" nillable="true" type="xs:string"/>
+					<xs:element maxOccurs="1" minOccurs="1" name="TotalUnitCount" type="xs:int"/>
+					<xs:element maxOccurs="1" minOccurs="0" name="RecipientAddress" type="fgl:ShippingAddressType"/>
+					<xs:element default="false" maxOccurs="1" minOccurs="1" name="ShipToOutlet" type="xs:boolean"/>
+					<xs:element name="DeliveryExtraOptions" nillable="true">
+						<xs:complexType>
+							<xs:sequence>
+								<xs:element maxOccurs="unbounded" minOccurs="0" name="DeliveryExtraOption" type="fgl:DeliveryExtraOptionType"/>
+							</xs:sequence>
+						</xs:complexType>
+					</xs:element>
+				</xs:sequence>
+			</xs:extension>
+		</xs:complexContent>
+	</xs:complexType>
+	<xs:complexType name="BaseConsignmentType">
+		<xs:annotation>
+			<xs:documentation>Represents Base Consignment of Order</xs:documentation>
+		</xs:annotation>
+		<xs:sequence>
+			<xs:element maxOccurs="1" minOccurs="1" name="Code" nillable="false" type="fgl:CodeType">
+				<xs:annotation>
+					<xs:documentation>Code or  identifier for Consignemnt within a CuistomerOrder</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element maxOccurs="1" minOccurs="1" name="Status" type="fgl:ConsignmentStatusType"/>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:complexType name="DeliveryAwareConsignmentType">
+		<xs:annotation>
+			<xs:documentation>Represents Base Consignment of Order which aware about deliver mode consignment will be delivered</xs:documentation>
+		</xs:annotation>
+		<xs:complexContent>
+			<xs:extension base="fgl:BaseConsignmentType">
+				<xs:sequence>
+					<xs:element maxOccurs="1" minOccurs="1" name="DeliveryMode" type="fgl:DeliveryModeType"/>
+				</xs:sequence>
+			</xs:extension>
+		</xs:complexContent>
+	</xs:complexType>
+	<xs:complexType name="StoreType">
+		<xs:annotation>
+			<xs:documentation>Represents Store</xs:documentation>
+		</xs:annotation>
+		<xs:sequence>
+			<xs:element maxOccurs="1" minOccurs="1" name="StoreId" nillable="false" type="xs:string"/>
+			<xs:element maxOccurs="1" minOccurs="1" name="Name" nillable="false" type="xs:string"/>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:complexType name="GiftCardConsignmentType">
+		<xs:annotation>
+			<xs:documentation>Represents Gift Card Consignment of Order</xs:documentation>
+		</xs:annotation>
+		<xs:sequence>
+			<xs:element maxOccurs="1" minOccurs="1" name="Code" nillable="false" type="fgl:CodeType"/>
+			<xs:element maxOccurs="1" minOccurs="1" name="Recipient" nillable="false" type="fgl:GiftCardCertificateRecipientType"/>
+			<xs:element maxOccurs="1" minOccurs="1" name="Status" type="fgl:ConsignmentStatusType"/>
+			<xs:element maxOccurs="1" minOccurs="1" name="Entries">
+				<xs:complexType>
+					<xs:sequence>
+						<xs:element maxOccurs="unbounded" minOccurs="1" name="Entry" type="fgl:GiftCardConsignmentEntryType"/>
+					</xs:sequence>
+				</xs:complexType>
+			</xs:element>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:complexType name="GiftCardConsignmentEntryType">
+		<xs:annotation>
+			<xs:documentation>Represents Gift Card Entry of Gift Card Consignment</xs:documentation>
+		</xs:annotation>
+		<xs:sequence>
+			<xs:element maxOccurs="1" minOccurs="1" name="GiftCard" nillable="false" type="fgl:GiftCardType"/>
+			<xs:element maxOccurs="1" minOccurs="1" name="Quantity" nillable="false" type="xs:long"/>
+			<xs:element maxOccurs="1" minOccurs="1" name="Total" nillable="false" type="xs:double"/>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:complexType name="GiftCardType">
+		<xs:annotation>
+			<xs:documentation>Represents Gift Card</xs:documentation>
+		</xs:annotation>
+		<xs:sequence>
+			<xs:element maxOccurs="1" minOccurs="1" name="Code" nillable="false" type="fgl:CodeType"/>
+			<xs:element maxOccurs="1" minOccurs="1" name="Amount" nillable="false" type="xs:double"/>
+			<xs:element maxOccurs="1" minOccurs="0" name="From" nillable="false" type="xs:string"/>
+			<xs:element maxOccurs="1" minOccurs="0" name="To" nillable="false" type="xs:string"/>
+			<xs:element maxOccurs="1" minOccurs="0" name="RecipientEmail" nillable="false" type="xs:string"/>
+			<xs:element maxOccurs="1" minOccurs="0" name="Message" nillable="false" type="xs:string"/>
+			<xs:element maxOccurs="1" minOccurs="0" name="GiftCertificateNumbers" nillable="false">
+				<xs:complexType>
+					<xs:sequence>
+						<xs:element maxOccurs="unbounded" minOccurs="0" name="GiftCertificateNumber" type="fgl:GiftCertNumberType"/>
+					</xs:sequence>
+				</xs:complexType>
+			</xs:element>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:complexType name="GiftCertNumberType">
+		<xs:annotation>
+			<xs:documentation>Represents Gift Card Certificate Numbers</xs:documentation>
+		</xs:annotation>
+		<xs:sequence>
+			<xs:element maxOccurs="1" minOccurs="0" name="OrderAddressId" nillable="false" type="xs:int"/>
+			<xs:element maxOccurs="1" minOccurs="1" name="GivexNumber" nillable="false" type="xs:string"/>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:complexType name="BaseGiftCardRecipientType">
+		<xs:annotation>
+			<xs:documentation>Base recipient for giftcards</xs:documentation>
+		</xs:annotation>
+	</xs:complexType>
+	<xs:complexType name="GiftCardCertificateRecipientType">
+		<xs:annotation>
+			<xs:documentation>Represents Base Consignment of Order which aware about deliver mode consignment will be delivered</xs:documentation>
+		</xs:annotation>
+		<xs:complexContent>
+			<xs:extension base="fgl:BaseGiftCardRecipientType">
+				<xs:sequence>
+					<xs:element maxOccurs="1" minOccurs="1" name="RecipientEmail" nillable="false" type="xs:string"/>
+				</xs:sequence>
+			</xs:extension>
+		</xs:complexContent>
+	</xs:complexType>
+	<xs:complexType name="CountryType">
+		<xs:annotation>
+			<xs:documentation>Represents Consignment of Order</xs:documentation>
+		</xs:annotation>
+		<xs:sequence>
+			<xs:element maxOccurs="1" minOccurs="1" name="Isocode" nillable="false" type="xs:string"/>
+			<xs:element maxOccurs="1" minOccurs="1" name="Name" nillable="false" type="xs:string"/>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:complexType name="PromotionConsumedOrderEntryType">
+		<xs:annotation>
+			<xs:documentation>Represents consumed order entry by promotion</xs:documentation>
+		</xs:annotation>
+		<xs:sequence>
+			<xs:element maxOccurs="1" minOccurs="1" name="AdjustedUnitPrice" nillable="false" type="xs:double"/>
+			<xs:element maxOccurs="1" minOccurs="1" name="OrderEntryNumber" nillable="false" type="xs:long"/>
+			<xs:element maxOccurs="1" minOccurs="1" name="Quantity" nillable="false" type="xs:long"/>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:complexType name="ConsignmentEntryType">
+		<xs:annotation>
+			<xs:documentation>Represents ConsignmentEntry of Consignment of Order</xs:documentation>
+		</xs:annotation>
+		<xs:complexContent>
+			<xs:extension base="fgl:BaseConsignmentEntryType">
+				<xs:sequence>
+					<xs:element maxOccurs="1" minOccurs="1" name="ShippedQuantity" nillable="false" type="xs:long"/>
+					<xs:element maxOccurs="1" minOccurs="1" name="DiscountedUnitPrice" nillable="false" type="xs:double"/>
+					<xs:element name="DiscountValues">
+						<xs:complexType>
+							<xs:sequence>
+								<xs:element maxOccurs="unbounded" minOccurs="0" name="DiscountValue" type="fgl:DiscountValueType"/>
+							</xs:sequence>
+						</xs:complexType>
+					</xs:element>
+					<xs:element name="GiftWraps">
+						<xs:complexType>
+							<xs:sequence>
+								<xs:element maxOccurs="unbounded" minOccurs="0" name="GiftWrap" type="fgl:GiftWrapType"/>
+							</xs:sequence>
+						</xs:complexType>
+					</xs:element>
+					<xs:element maxOccurs="1" minOccurs="1" name="TotalDiscount" nillable="false" type="xs:double"/>
+					<xs:element maxOccurs="1" minOccurs="1" name="TotalOrderDiscount" nillable="false" type="xs:double"/>
+					<xs:element maxOccurs="1" minOccurs="1" name="TotalProductDiscount" nillable="false" type="xs:double"/>
+					<xs:element maxOccurs="1" minOccurs="1" name="TotalMerchantReimbursement" nillable="false" type="xs:double"/>
+				</xs:sequence>
+			</xs:extension>
+		</xs:complexContent>
+	</xs:complexType>
+	<xs:complexType name="ReturnConsignmentEntryType">
+		<xs:annotation>
+			<xs:documentation>Represents ReturnConsignmentEntryType of Consignment of Order</xs:documentation>
+		</xs:annotation>
+		<xs:complexContent>
+			<xs:extension base="fgl:BaseReturnConsignmentEntryType">
+				<xs:sequence>
+					<xs:element maxOccurs="1" minOccurs="1" name="Id" nillable="false" type="xs:string"/>
+					<xs:element maxOccurs="1" minOccurs="1" name="Sellable" nillable="false" type="xs:boolean"/>
+					<xs:element maxOccurs="1" minOccurs="1" name="CartEntryNumber" nillable="false" type="xs:long"/>
+					<xs:element maxOccurs="1" minOccurs="1" name="ReturnReason" nillable="false" type="xs:string"/>
+					<xs:element maxOccurs="1" minOccurs="1" name="ReturnCondition" nillable="false" type="xs:string"/>
+				</xs:sequence>
+			</xs:extension>
+		</xs:complexContent>
+	</xs:complexType>
+	<xs:complexType name="BaseReturnConsignmentEntryType">
+		<xs:annotation>
+			<xs:documentation>Represents BaseReturnConsignmentEntryType of Consignment of Order</xs:documentation>
+		</xs:annotation>
+		<xs:sequence>
+			<xs:element maxOccurs="1" minOccurs="1" name="ProductCode" nillable="false" type="xs:string"/>
+			<xs:element maxOccurs="1" minOccurs="1" name="VariantCode" nillable="false" type="xs:string"/>
+			<xs:element minOccurs="1" name="PmmColorCode" nillable="false" type="xs:string"/>
+			<xs:element minOccurs="1" name="PmmSize" nillable="false" type="xs:double"/>
+			<xs:element maxOccurs="1" minOccurs="1" name="ReturnQuantity" nillable="false" type="xs:long"/>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:complexType name="ReceivedReturnConsignmentEntryType">
+		<xs:annotation>
+			<xs:documentation>Represents ReceivedReturnConsignmentEntryType of Consignment of Order</xs:documentation>
+		</xs:annotation>
+		<xs:complexContent>
+			<xs:extension base="fgl:BaseReturnConsignmentEntryType">
+				<xs:sequence>
+					<xs:element maxOccurs="1" minOccurs="1" name="ReceivedQuantity" nillable="false" type="xs:long"/>
+				</xs:sequence>
+			</xs:extension>
+		</xs:complexContent>
+	</xs:complexType>
+	<xs:complexType name="BaseConsignmentEntryType">
+		<xs:annotation>
+			<xs:documentation>Represents BaseConsignmentEntry of Consignment of Order</xs:documentation>
+		</xs:annotation>
+		<xs:sequence>
+			<xs:element maxOccurs="1" minOccurs="1" name="Id" nillable="false" type="xs:string"/>
+			<xs:element name="CustomerOrderSequenceNumber" nillable="true" type="xs:integer">
+				<xs:annotation>
+					<xs:documentation>A unique system assigned identifier for the LineItem within the confines of the CustomerOrder.</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element maxOccurs="1" minOccurs="1" name="ProductCode" nillable="false" type="fgl:CodeType">
+				<xs:annotation>
+					<xs:documentation>Identifier for an Item or SKU </xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element maxOccurs="1" minOccurs="1" name="VariantCode" nillable="false" type="xs:string"/>
+			<xs:element minOccurs="1" name="PmmColorCode" nillable="false" type="xs:string"/>
+			<xs:element minOccurs="1" name="PmmColorDescription" nillable="false" type="xs:string"/>
+			<xs:element minOccurs="1" name="PmmSize" nillable="false" type="xs:double"/>
+			<xs:element minOccurs="1" name="PmmSizeDescription" nillable="false" type="xs:string"/>
+			<xs:element minOccurs="1" name="BasePrice" nillable="false" type="fgl:PriceType"/>
+			<xs:element maxOccurs="1" minOccurs="1" name="Subtotal" nillable="false" type="xs:double"/>
+			<xs:element maxOccurs="1" minOccurs="1" name="Total" nillable="false" type="xs:double"/>
+			<xs:element maxOccurs="1" minOccurs="1" name="Quantity" nillable="false" type="xs:long"/>
+			<xs:element maxOccurs="1" minOccurs="1" name="CartEntryNumber" nillable="false" type="xs:long"/>
+			<xs:element maxOccurs="1" minOccurs="1" name="ConsignmentEntryStatus" type="fgl:ConsignmentEntryStatusType"/>
+			<xs:element maxOccurs="1" minOccurs="0" name="UpcCode" nillable="false" type="xs:string"/>
+			<xs:element maxOccurs="1" minOccurs="1" name="BaseProductName" nillable="false" type="xs:string"/>
+			<xs:element maxOccurs="1" minOccurs="0" name="TaxExemptions" nillable="false">
+				<xs:complexType>
+					<xs:sequence>
+						<xs:element maxOccurs="unbounded" minOccurs="1" name="TaxExempt" nillable="false">
+							<xs:simpleType>
+								<xs:restriction base="xs:string">
+									<xs:enumeration value="PST"/>
+									<xs:enumeration value="GST"/>
+									<xs:enumeration value="HST"/>
+								</xs:restriction>
+							</xs:simpleType>
+						</xs:element>
+					</xs:sequence>
+				</xs:complexType>
+			</xs:element>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:complexType name="GiftWrapType">
+		<xs:annotation>
+			<xs:documentation>Represents GiftWrap of ConsignmentEntry of Consignment of Order</xs:documentation>
+		</xs:annotation>
+		<xs:sequence>
+			<xs:element maxOccurs="1" minOccurs="0" name="From" nillable="false" type="xs:string"/>
+			<xs:element maxOccurs="1" minOccurs="0" name="To" nillable="false" type="xs:string"/>
+			<xs:element maxOccurs="1" minOccurs="0" name="Message" nillable="false" type="xs:string"/>
+			<xs:element maxOccurs="1" minOccurs="1" name="Price" nillable="false" type="xs:double"/>
+			<xs:element maxOccurs="1" minOccurs="1" name="Type" nillable="false">
+				<xs:simpleType>
+					<xs:restriction base="xs:string">
+						<xs:enumeration value="BASE_GIFT_WRAP"/>
+						<xs:enumeration value="GREETING_CARD"/>
+					</xs:restriction>
+				</xs:simpleType>
+			</xs:element>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:complexType abstract="true" name="AddressType">
+		<xs:annotation>
+			<xs:documentation>Represents AddressType</xs:documentation>
+		</xs:annotation>
+		<xs:sequence>
+			<xs:element maxOccurs="1" minOccurs="1" name="Id" nillable="false" type="xs:string"/>
+			<xs:element maxOccurs="1" minOccurs="1" name="FirstName" nillable="false" type="xs:string"/>
+			<xs:element maxOccurs="1" minOccurs="1" name="LastName" nillable="false" type="xs:string"/>
+			<xs:element maxOccurs="1" minOccurs="1" name="Line1" nillable="false" type="xs:string"/>
+			<xs:element maxOccurs="1" minOccurs="0" name="Line2" nillable="false" type="xs:string"/>
+			<xs:element maxOccurs="1" minOccurs="0" name="Town" nillable="false" type="xs:string"/>
+			<xs:element maxOccurs="1" minOccurs="0" name="PostalCode" nillable="false" type="xs:string"/>
+			<xs:element maxOccurs="1" minOccurs="0" name="Phone" nillable="false" type="xs:string"/>
+			<xs:element maxOccurs="1" minOccurs="0" name="Email" nillable="false" type="xs:string"/>
+			<xs:element maxOccurs="1" minOccurs="1" name="ShippingAddress" nillable="false" type="xs:boolean"/>
+			<xs:element maxOccurs="1" minOccurs="1" name="BillingAddress" nillable="false" type="xs:boolean"/>
+			<xs:element maxOccurs="1" minOccurs="1" name="SendNews" nillable="false" type="xs:boolean"/>
+			<xs:element maxOccurs="1" minOccurs="0" name="Province" nillable="false" type="xs:string"/>
+			<!-- absent on api -->
+			<xs:element maxOccurs="1" minOccurs="1" name="DefaultShippingAddress" nillable="false" type="xs:boolean"/>
+			<!-- absent on api -->
+			<xs:element maxOccurs="1" minOccurs="1" name="DefaultBillingAddress" nillable="false" type="xs:boolean"/>
+			<xs:element maxOccurs="1" minOccurs="1" name="Country" nillable="false" type="fgl:CountryType"/>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:complexType name="ShippingAddressType" xml:base="fgl:AddressType">
+		<xs:annotation>
+			<xs:documentation>Represents Shipping Address of Consignment</xs:documentation>
+		</xs:annotation>
+		<xs:complexContent>
+			<xs:extension base="fgl:AddressType"/>
+		</xs:complexContent>
+	</xs:complexType>
+	<xs:complexType name="CanadaPostAwareShippingAddressType" xml:base="fgl:ShippingAddressType">
+		<xs:annotation>
+			<xs:documentation>Represents Shipping Address with CanadaPost outlet of Consignment</xs:documentation>
+		</xs:annotation>
+		<xs:complexContent>
+			<xs:extension base="fgl:ShippingAddressType">
+				<xs:sequence>
+					<xs:element maxOccurs="1" minOccurs="0" name="CanadaPostOutletCode" nillable="false" type="xs:string"/>
+				</xs:sequence>
+			</xs:extension>
+		</xs:complexContent>
+	</xs:complexType>
+	<xs:complexType name="PaymentAddressType" xml:base="fgl:AddressType">
+		<xs:annotation>
+			<xs:documentation>Represents PaymentAddressType of Order</xs:documentation>
+		</xs:annotation>
+		<xs:complexContent>
+			<xs:extension base="fgl:AddressType"/>
+		</xs:complexContent>
+	</xs:complexType>
+	<xs:complexType name="TenderType">
+		<xs:annotation>
+			<xs:documentation>Represents Tender of Order</xs:documentation>
+		</xs:annotation>
+		<xs:sequence>
+			<xs:element maxOccurs="1" minOccurs="0" name="Id" nillable="false" type="xs:string"/>
+			<xs:element maxOccurs="1" minOccurs="0" name="ParentId" nillable="false" type="xs:string"/>
+			<xs:element maxOccurs="1" minOccurs="1" name="OrderNumber" nillable="false" type="xs:string"/>
+			<xs:element maxOccurs="1" minOccurs="1" name="StoreNumber" nillable="false" type="xs:string"/>
+			<xs:element maxOccurs="1" minOccurs="1" name="Amount" nillable="false" type="xs:double"/>
+			<xs:element name="ResponseCodes">
+				<xs:complexType>
+					<xs:sequence>
+						<xs:element maxOccurs="unbounded" minOccurs="1" name="ResponseCode" nillable="false" type="xs:int"/>
+					</xs:sequence>
+				</xs:complexType>
+			</xs:element>
+			<xs:element maxOccurs="1" minOccurs="1" name="PassFail" nillable="false">
+				<xs:simpleType>
+					<xs:restriction base="xs:string">
+						<xs:enumeration value="P"/>
+						<xs:enumeration value="F"/>
+					</xs:restriction>
+				</xs:simpleType>
+			</xs:element>
+			<xs:element maxOccurs="1" minOccurs="0" name="ResponseMessage" nillable="false" type="xs:string"/>
+			<xs:element maxOccurs="1" minOccurs="1" name="PaymentStatus" nillable="false" type="xs:string"/>
+			<xs:element maxOccurs="1" minOccurs="1" name="TenderType" nillable="false" type="fgl:TenderVariationType"/>
+			<xs:element maxOccurs="1" minOccurs="0" name="CreditCardDetails">
+				<xs:complexType>
+					<xs:sequence>
+						<xs:element maxOccurs="1" minOccurs="0" name="CardExpiryDate" nillable="false" type="xs:string"/>
+						<xs:element maxOccurs="1" minOccurs="0" name="CardReferenceNumber" nillable="false" type="xs:string"/>
+						<xs:element maxOccurs="1" minOccurs="0" name="Token" nillable="false" type="xs:string"/>
+						<xs:element maxOccurs="1" minOccurs="0" name="FinancingFlag" nillable="false" type="xs:string"/>
+						<xs:element maxOccurs="1" minOccurs="0" name="FinancingPlanID" nillable="false" type="xs:string"/>
+						<xs:element maxOccurs="1" minOccurs="0" name="RecurringFlag" nillable="false" type="xs:string"/>
+						<xs:element maxOccurs="1" minOccurs="0" name="StreetAddress" nillable="false" type="xs:string"/>
+						<xs:element maxOccurs="1" minOccurs="0" name="StreetAddress2" nillable="false" type="xs:string"/>
+						<xs:element maxOccurs="1" minOccurs="0" name="Province" nillable="false" type="xs:string"/>
+						<xs:element maxOccurs="1" minOccurs="0" name="PostalCode" nillable="false" type="xs:string"/>
+						<xs:element maxOccurs="1" minOccurs="0" name="AccountNumber" nillable="false" type="xs:string"/>
+						<xs:element maxOccurs="1" minOccurs="0" name="IsoResponseCode" nillable="false" type="xs:string"/>
+						<xs:element maxOccurs="1" minOccurs="0" name="MonerisResponseCode" nillable="false" type="xs:string"/>
+						<xs:element maxOccurs="1" minOccurs="0" name="AuthorizationNbr" nillable="false" type="xs:string"/>
+						<xs:element maxOccurs="1" minOccurs="0" name="SequenceNbr" nillable="false" type="xs:string"/>
+						<xs:element maxOccurs="1" minOccurs="0" name="MonerisTerminalId" nillable="false" type="xs:string"/>
+						<xs:element maxOccurs="1" minOccurs="0" name="EntryMode" nillable="false" type="xs:string"/>
+						<xs:element maxOccurs="1" minOccurs="0" name="LocalTransactionDate" nillable="false" type="xs:string"/>
+						<xs:element maxOccurs="1" minOccurs="0" name="LocalTransactionTime" nillable="false" type="xs:string"/>
+						<xs:element maxOccurs="1" minOccurs="0" name="LoyaltyRedemptionAmount" nillable="false" type="xs:string"/>
+						<xs:element maxOccurs="1" minOccurs="0" name="SaveCardResult" nillable="false" type="xs:string"/>
+						<xs:element maxOccurs="1" minOccurs="0" name="LoyaltyCardNumber" nillable="false" type="xs:string"/>
+						<xs:element maxOccurs="1" minOccurs="0" name="EliteIndicator" nillable="false" type="xs:string"/>
+						<xs:element maxOccurs="1" minOccurs="0" name="SecurityIndicator" nillable="false" type="xs:string"/>
+						<xs:element maxOccurs="1" minOccurs="0" name="AvsResult" nillable="false" type="xs:string"/>
+						<xs:element maxOccurs="1" minOccurs="0" name="CvvResult" nillable="false" type="xs:string"/>
+						<xs:element maxOccurs="1" minOccurs="0" name="CurrentBalanceCTMOTC" nillable="false" type="xs:string"/>
+						<xs:element maxOccurs="1" minOccurs="0" name="CreditCardTypeCode" nillable="false" type="xs:string"/>
+						<xs:element maxOccurs="1" minOccurs="0" name="CreditCardType" nillable="false" type="xs:string"/>
+					</xs:sequence>
+				</xs:complexType>
+			</xs:element>
+			<xs:element maxOccurs="1" minOccurs="0" name="GiftCardDetails">
+				<xs:complexType>
+					<xs:sequence>
+						<xs:element maxOccurs="1" minOccurs="0" name="AccountNumber" nillable="false" type="xs:string"/>
+						<xs:element maxOccurs="1" minOccurs="0" name="CardExpiryDate" nillable="false" type="xs:string"/>
+						<xs:element maxOccurs="1" minOccurs="0" name="AuthorizationNbr" nillable="false" type="xs:string"/>
+						<xs:element maxOccurs="1" minOccurs="0" name="RemainingBalance" nillable="false" type="xs:string"/>
+					</xs:sequence>
+				</xs:complexType>
+			</xs:element>
+			<xs:element maxOccurs="1" minOccurs="0" name="PayPalDetails">
+				<xs:complexType>
+					<xs:sequence>
+						<xs:element maxOccurs="1" minOccurs="0" name="PayPalTransactionId" nillable="false" type="xs:string"/>
+						<xs:element maxOccurs="1" minOccurs="0" name="PaymentType" nillable="false" type="xs:string"/>
+						<xs:element maxOccurs="1" minOccurs="0" name="PaymentDate" nillable="false" type="xs:string"/>
+						<xs:element maxOccurs="1" minOccurs="0" name="GrossAmount" nillable="false" type="xs:string"/>
+						<xs:element maxOccurs="1" minOccurs="0" name="FeeAmount" nillable="false" type="xs:string"/>
+						<xs:element maxOccurs="1" minOccurs="0" name="SettleAmount" nillable="false" type="xs:string"/>
+						<xs:element maxOccurs="1" minOccurs="0" name="TaxAmount" nillable="false" type="xs:string"/>
+						<xs:element maxOccurs="1" minOccurs="0" name="ExchangeRate" nillable="false" type="xs:string"/>
+						<xs:element maxOccurs="1" minOccurs="0" name="PaymentStatus" nillable="false" type="xs:string"/>
+						<xs:element maxOccurs="1" minOccurs="0" name="PendingReason" nillable="false" type="xs:string"/>
+						<xs:element maxOccurs="1" minOccurs="0" name="ErrorShortMessage" nillable="false" type="xs:string"/>
+						<xs:element maxOccurs="1" minOccurs="0" name="ErrorLongMessage" nillable="false" type="xs:string"/>
+						<xs:element maxOccurs="1" minOccurs="0" name="ErrorCode" nillable="false" type="xs:string"/>
+						<xs:element maxOccurs="1" minOccurs="0" name="ErrorSeverityCode" nillable="false" type="xs:string"/>
+						<xs:element maxOccurs="1" minOccurs="0" name="ErrorParameters" nillable="false" type="xs:string"/>
+						<xs:element maxOccurs="1" minOccurs="0" name="Email" nillable="false" type="xs:string"/>
+					</xs:sequence>
+				</xs:complexType>
+			</xs:element>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:complexType name="StatusType">
+		<xs:annotation>
+			<xs:documentation>Represents Status type</xs:documentation>
+		</xs:annotation>
+		<xs:sequence>
+			<xs:element maxOccurs="1" minOccurs="1" name="Code" nillable="false" type="fgl:CodeType"/>
+			<xs:element minOccurs="1" name="CodeLowerCase" nillable="false" type="xs:string"/>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:simpleType name="TenderVariationType">
+		<xs:restriction base="xs:string">
+			<xs:enumeration value="CREDIT"/>
+			<xs:enumeration value="GIFT"/>
+			<xs:enumeration value="PAYPAL"/>
+		</xs:restriction>
+	</xs:simpleType>
+	<xs:complexType name="OrderStatusType">
+		<xs:annotation>
+			<xs:documentation>Represents Status of Order</xs:documentation>
+		</xs:annotation>
+		<xs:complexContent>
+			<xs:extension base="fgl:StatusType"/>
+		</xs:complexContent>
+	</xs:complexType>
+	<xs:complexType name="ConsignmentStatusType">
+		<xs:annotation>
+			<xs:documentation>Represents ConsignmentStatus of Consignment</xs:documentation>
+		</xs:annotation>
+		<xs:complexContent>
+			<xs:extension base="fgl:StatusType"/>
+		</xs:complexContent>
+	</xs:complexType>
+	<xs:complexType name="ConsignmentEntryStatusType">
+		<xs:annotation>
+			<xs:documentation>Represents ConsignmentEntryStatus of Consignment</xs:documentation>
+		</xs:annotation>
+		<xs:complexContent>
+			<xs:extension base="fgl:StatusType"/>
+		</xs:complexContent>
+	</xs:complexType>
+	<xs:complexType name="DiscountValueType">
+		<xs:annotation>
+			<xs:documentation>Represents DiscountValue</xs:documentation>
+		</xs:annotation>
+		<xs:sequence>
+			<xs:element maxOccurs="1" minOccurs="1" name="Code" nillable="false" type="fgl:CodeType"/>
+			<xs:element maxOccurs="1" minOccurs="1" name="CurrencyIso" nillable="false" type="fgl:CurrencyIsoType"/>
+			<xs:element maxOccurs="1" minOccurs="1" name="AppliedValue" nillable="false" type="xs:double"/>
+			<xs:element maxOccurs="1" minOccurs="1" name="Value" nillable="false" type="xs:double"/>
+			<xs:element maxOccurs="1" minOccurs="1" name="Absolute" nillable="false" type="xs:boolean"/>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:complexType name="DeliveryExtraOptionType">
+		<xs:annotation>
+			<xs:documentation>Represents Delivery Extra Option</xs:documentation>
+		</xs:annotation>
+		<xs:complexContent>
+			<xs:extension base="fgl:StatusType"/>
+		</xs:complexContent>
+	</xs:complexType>
+	<xs:simpleType name="CurrencyIsoType" xml:base="xs:string">
+		<xs:annotation>
+			<xs:documentation>Represents CurrencyIso</xs:documentation>
+		</xs:annotation>
+		<xs:restriction base="xs:string">
+			<xs:minLength value="3"/>
+			<xs:maxLength value="3"/>
+		</xs:restriction>
+	</xs:simpleType>
+	<xs:simpleType name="CodeType" xml:base="xs:string">
+		<xs:annotation>
+			<xs:documentation>Represents Entity ID</xs:documentation>
+		</xs:annotation>
+		<xs:restriction base="xs:string">
+			<xs:minLength value="4"/>
+			<xs:maxLength value="255"/>
+		</xs:restriction>
+	</xs:simpleType>
+	<xs:complexType name="ReimbursementRequestType">
+		<xs:sequence>
+			<xs:element maxOccurs="1" minOccurs="1" name="Code" nillable="false" type="fgl:CodeType"/>
+			<xs:element maxOccurs="1" minOccurs="1" name="CreatedBy" nillable="false" type="xs:string"/>
+			<xs:element maxOccurs="1" minOccurs="0" name="TotalAmount" nillable="false" type="xs:double"/>
+			<xs:element maxOccurs="1" minOccurs="0" name="ShippingAmount" nillable="false" type="xs:double"/>
+			<xs:element maxOccurs="1" minOccurs="1" name="ReimbursementStatus" nillable="false">
+				<xs:simpleType>
+					<xs:restriction base="xs:string">
+						<xs:enumeration value="NEW"/>
+						<xs:enumeration value="PROCESSED"/>
+						<xs:enumeration value="FAILURE"/>
+					</xs:restriction>
+				</xs:simpleType>
+			</xs:element>
+			<xs:element maxOccurs="1" minOccurs="1" name="TransactionNumber" nillable="false" type="xs:string"/>
+			<xs:element maxOccurs="1" minOccurs="0" name="RefundAuthorizationNbr" nillable="false" type="xs:string"/>
+			<xs:element maxOccurs="1" minOccurs="1" name="ReimbursementEntries" nillable="false">
+				<xs:complexType>
+					<xs:sequence>
+						<xs:element maxOccurs="unbounded" minOccurs="1" name="ReimbursementEntry" nillable="false" type="fgl:ReimbursementEntryType"/>
+					</xs:sequence>
+				</xs:complexType>
+			</xs:element>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:complexType name="ReimbursementEntryType">
+		<xs:sequence>
+			<xs:element maxOccurs="1" minOccurs="0" name="Amount" nillable="false" type="xs:double"/>
+			<xs:element maxOccurs="1" minOccurs="1" name="Reason" nillable="true" type="xs:string"/>
+			<xs:element maxOccurs="1" minOccurs="1" name="ReasonCode" nillable="true" type="xs:string"/>
+			<xs:element maxOccurs="1" minOccurs="1" name="Notes" nillable="true" type="xs:string"/>
+			<xs:element maxOccurs="1" minOccurs="1" name="Type" nillable="true" type="fgl:ReimbursementEntryTypeOptionType"/>
+			<xs:element maxOccurs="1" minOccurs="0" name="ConsignmentEntryCode" nillable="false" type="fgl:CodeType"/>
+			<xs:element maxOccurs="1" minOccurs="0" name="ConsignmentCode" nillable="false" type="fgl:CodeType"/>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:complexType name="RefundEntryType">
+		<xs:annotation>
+			<xs:documentation>Represents RefundEntryType of ReturnRequestRefunded of Order</xs:documentation>
+		</xs:annotation>
+		<xs:sequence>
+			<xs:element maxOccurs="1" minOccurs="1" name="ProductCode" nillable="false" type="xs:string"/>
+			<xs:element maxOccurs="1" minOccurs="1" name="VariantCode" nillable="false" type="xs:string"/>
+			<xs:element minOccurs="1" name="PmmColorCode" nillable="false" type="xs:string"/>
+			<xs:element minOccurs="1" name="PmmSize" nillable="false" type="xs:double"/>
+			<xs:element maxOccurs="1" minOccurs="1" name="Quantity" nillable="false" type="xs:long"/>
+			<xs:element maxOccurs="1" minOccurs="0" name="UpcCode" nillable="false" type="xs:string"/>
+			<xs:element minOccurs="1" name="BasePrice" nillable="false" type="fgl:PriceType"/>
+			<xs:element minOccurs="0" name="TotalProductDiscount" nillable="false" type="xs:double"/>
+			<xs:element minOccurs="0" name="TotalOrderDiscount" nillable="false" type="xs:double"/>
+			<xs:element maxOccurs="1" minOccurs="1" name="Subtotal" nillable="false" type="xs:double"/>
+			<xs:element maxOccurs="1" minOccurs="1" name="ReturnReason" nillable="false" type="xs:string"/>
+			<xs:element maxOccurs="1" minOccurs="1" name="ReturnCondition" nillable="false" type="xs:string"/>
+			<xs:element maxOccurs="1" minOccurs="1" name="CategoryClass" nillable="false" type="xs:string"/>
+			<xs:element maxOccurs="1" minOccurs="1" name="CategorySubClass" nillable="false" type="xs:string"/>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:complexType name="ReturnRequestRefundConsignmentType">
+		<xs:annotation>
+			<xs:documentation>Represents RefundEntryType of ReturnRequestRefunded of Order</xs:documentation>
+		</xs:annotation>
+		<xs:sequence>
+			<xs:element name="TaxAmounts">
+				<xs:complexType>
+					<xs:sequence>
+						<xs:element maxOccurs="unbounded" minOccurs="0" name="TaxAmount" type="fgl:TaxType"/>
+					</xs:sequence>
+				</xs:complexType>
+			</xs:element>
+			<xs:element maxOccurs="1" minOccurs="1" name="TotalTaxValue" nillable="false" type="xs:double"/>
+			<xs:element maxOccurs="1" minOccurs="1" name="Subtotal" nillable="false" type="xs:double"/>
+			<xs:element maxOccurs="1" minOccurs="1" name="Total" nillable="false" type="xs:double"/>
+			<xs:element maxOccurs="1" minOccurs="1" name="TotalDiscount" nillable="false" type="xs:double"/>
+			<xs:element maxOccurs="1" minOccurs="1" name="TransactionNumber" nillable="false" type="xs:string"/>
+			<xs:element maxOccurs="1" minOccurs="1" name="OriginalTransactionNumber" nillable="false" type="xs:string"/>
+			<xs:element name="Tenders">
+				<xs:complexType>
+					<xs:sequence>
+						<xs:element maxOccurs="unbounded" minOccurs="1" name="Tender" type="fgl:TenderType"/>
+					</xs:sequence>
+				</xs:complexType>
+			</xs:element>
+			<xs:element maxOccurs="1" minOccurs="1" name="ShippingAddress" nillable="false" type="fgl:CanadaPostAwareShippingAddressType"/>
+			<xs:element maxOccurs="1" minOccurs="1" name="RefundEntries" nillable="false">
+				<xs:complexType>
+					<xs:sequence>
+						<xs:element maxOccurs="unbounded" minOccurs="1" name="RefundEntry" nillable="false" type="fgl:RefundEntryType"/>
+					</xs:sequence>
+				</xs:complexType>
+			</xs:element>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:simpleType name="ReimbursementEntryTypeOptionType">
+		<xs:restriction base="xs:string">
+			<xs:enumeration value="PRODUCT_REFUND"/>
+			<xs:enumeration value="SHIPMENT_REFUND"/>
+			<xs:enumeration value="NON_MERCH_REFUND"/>
+		</xs:restriction>
+	</xs:simpleType>
+	<xs:element name="NonMerchReimbursement">
+		<xs:annotation>
+			<xs:documentation>Non Merch Reimbursement content outbound</xs:documentation>
+		</xs:annotation>
+		<xs:complexType>
+			<xs:complexContent>
+				<xs:extension base="fgl:MessageType">
+					<xs:sequence>
+						<xs:sequence>
+							<xs:element maxOccurs="1" minOccurs="1" name="Performed" nillable="false" type="xs:dateTime"/>
+							<xs:element maxOccurs="1" minOccurs="1" name="PaymentAddress" nillable="false" type="fgl:PaymentAddressType"/>
+							<xs:element maxOccurs="1" minOccurs="1" name="Code" nillable="false" type="fgl:CodeType"/>
+							<xs:element maxOccurs="1" minOccurs="1" name="OrderNumber" nillable="false" type="xs:string"/>
+							<xs:element maxOccurs="1" minOccurs="1" name="CreatedBy" nillable="false" type="xs:string"/>
+							<xs:element maxOccurs="1" minOccurs="0" name="TotalAmount" nillable="false" type="xs:double"/>
+							<xs:element maxOccurs="1" minOccurs="1" name="ReturnReason" nillable="false" type="xs:string"/>
+							<xs:element maxOccurs="1" minOccurs="1" name="Notes" nillable="false" type="xs:string"/>
+							<xs:element maxOccurs="1" minOccurs="1" name="CustomerId">
+								<xs:simpleType>
+									<xs:restriction base="xs:string">
+										<xs:minLength value="1"/>
+									</xs:restriction>
+								</xs:simpleType>
+							</xs:element>
+							<xs:element name="Tenders">
+								<xs:complexType>
+									<xs:sequence>
+										<xs:element maxOccurs="unbounded" minOccurs="1" name="Tender" type="fgl:TenderType"/>
+									</xs:sequence>
+								</xs:complexType>
+							</xs:element>
+						</xs:sequence>
+					</xs:sequence>
+				</xs:extension>
+			</xs:complexContent>
+		</xs:complexType>
+	</xs:element>
+	<xs:complexType name="AbstractOrderShipmentType">
+		<xs:annotation>
+			<xs:documentation>Represents Shipment Attributes</xs:documentation>
+		</xs:annotation>
+		<xs:sequence>
+			<xs:element name="ShipmentKey" type="xs:string">
+				<xs:annotation>
+					<xs:documentation>Unique identifier for a shipment </xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="ShipmentStatus" type="fgl:ConsignmentStatusType">
+				<xs:annotation>
+					<xs:documentation>Status of the Shippment i.e. PACKED, CANCELLED etc.</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="ShipmentStatusDateTime" type="xs:dateTime">
+				<xs:annotation>
+					<xs:documentation>The date/time when the Shipment Status was set or changed</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="FulfilmentBusinessUnitNumber" type="xs:string">
+				<xs:annotation>
+					<xs:documentation>The BusinesUnit  Number  i..e. FGL Store or DC number used to fulfill the Shipment</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:complexType name="OrderShipmentPackedType">
+		<xs:annotation>
+			<xs:documentation>Represents Shipment Attributes</xs:documentation>
+		</xs:annotation>
+		<xs:complexContent>
+			<xs:extension base="fgl:AbstractOrderShipmentType">
+				<xs:sequence>
+					<xs:element name="ShipmentLines">
+						<xs:complexType>
+							<xs:sequence>
+								<xs:element maxOccurs="unbounded" name="ShipmentLine" type="fgl:ShipmentLineType"/>
+							</xs:sequence>
+						</xs:complexType>
+					</xs:element>
+				</xs:sequence>
+			</xs:extension>
+		</xs:complexContent>
+	</xs:complexType>
+	<xs:complexType name="OrderShipmentShippedType">
+		<xs:annotation>
+			<xs:documentation>Represents Shipment Attributes</xs:documentation>
+		</xs:annotation>
+		<xs:complexContent>
+			<xs:extension base="fgl:AbstractOrderShipmentType">
+				<xs:sequence>
+					<xs:element name="CarrierCode">
+						<xs:annotation>
+							<xs:documentation>Code that identifies the Carrier Service Used.  restricted to values of CANADA_POST and PUROLATOR</xs:documentation>
+						</xs:annotation>
+						<xs:simpleType>
+							<xs:restriction base="xs:string">
+								<xs:enumeration value="CANADA_POST"/>
+								<xs:enumeration value="PUROLATOR"/>
+							</xs:restriction>
+						</xs:simpleType>
+					</xs:element>
+					<xs:element name="ShipmentContainers">
+						<xs:complexType>
+							<xs:sequence>
+								<xs:element maxOccurs="unbounded" name="ShipmentContainer" type="fgl:ShipmentContainersType"/>
+							</xs:sequence>
+						</xs:complexType>
+					</xs:element>
+				</xs:sequence>
+			</xs:extension>
+		</xs:complexContent>
+	</xs:complexType>
+	<xs:complexType name="ShipmentContainersType">
+		<xs:annotation>
+			<xs:documentation>Represents attributes of a Container associated to a Shipment</xs:documentation>
+		</xs:annotation>
+		<xs:sequence>
+			<xs:element name="ContainerNumber" type="xs:string">
+				<xs:annotation>
+					<xs:documentation>The container number. This is a unique key or business key, which by itself identifies a delivery plan. </xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element minOccurs="0" name="ContainerTrackingNumber" type="xs:string">
+				<xs:annotation>
+					<xs:documentation>TrackingNo associated to the container</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="ContainerEntries">
+				<xs:complexType>
+					<xs:sequence>
+						<xs:element maxOccurs="unbounded" name="ContainerEntry" type="fgl:ShipmentLineType"/>
+					</xs:sequence>
+				</xs:complexType>
+			</xs:element>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:complexType name="ShipmentLineType">
+		<xs:annotation>
+			<xs:documentation> Represents attributes of Shippment Lines</xs:documentation>
+		</xs:annotation>
+		<xs:sequence>
+			<xs:element name="ShipmentLineNumber" type="xs:string">
+				<xs:annotation>
+					<xs:documentation>Shipment Line Number </xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="CustomerOrderSequenceNumber" type="xs:int">
+				<xs:annotation>
+					<xs:documentation>A unique system assigned identifier for the LineItem within the confines of the CustomerOrder.</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="PackedQuantity" type="xs:long">
+				<xs:annotation>
+					<xs:documentation>The quantity of the item packed </xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="ItemNumber" type="xs:string">
+				<xs:annotation>
+					<xs:documentation>Business Identifier for Item/SKU </xs:documentation>
+				</xs:annotation>
+			</xs:element>
+		</xs:sequence>
+	</xs:complexType>
+</xs:schema>

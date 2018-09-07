@@ -1,0 +1,64 @@
+--* File name : TicketCancelled.esql
+--* Purpose : To implement trx.pickticketcancelled-dom flow.
+--* Authors :kavitha Dhulipala
+--* Create Date : 17th Aug 2016
+--* Version : 1.0
+--* Revision Date: 
+--* @copyright MWW-FGLSPORTS 2015. All Rights Reserved.
+
+BROKER SCHEMA trx.pickticketcancelled.dom
+DECLARE theSchema CONSTANT CHARACTER 'trx.pickticketcancelled.dom';
+CREATE FILTER MODULE dom_Filter
+	DECLARE theModule CONSTANT CHARACTER theSchema||'.'||'dom_Filter';
+	CREATE FUNCTION Main() RETURNS BOOLEAN
+	BEGIN
+		DECLARE rEnv REFERENCE TO Environment;
+		DECLARE MSG_ID CHARACTER rEnv.__MsgIdForLog4J__;
+		CALL core.log.Debug(theModule||' - ID# : '||MSG_ID||' >> BEGIN');
+		DECLARE returnValue BOOLEAN TRUE;
+		--No-op implementation for wms_Filter - for future purposes as required by business/functional requirements
+		CALL core.log.Debug(theModule||' - RETURN '||CAST(returnValue AS CHARACTER));
+		CALL core.log.Debug(theModule||' - ID# : '||MSG_ID||' << END');
+		RETURN returnValue;
+	END;
+END MODULE;
+
+
+
+CREATE COMPUTE MODULE dom_BuildOutputMessage
+	DECLARE theModule CONSTANT CHARACTER theSchema||'.'||'dom_BuildOutputMessage';
+	CREATE FUNCTION Main() RETURNS BOOLEAN
+	BEGIN
+		DECLARE rEnv REFERENCE TO Environment;        
+		DECLARE CANCEL CONSTANT CHARACTER 'CANCEL';
+		DECLARE DCTYPE CONSTANT CHARACTER '0001';
+		DECLARE BLANK CONSTANT CHARACTER '';
+		DECLARE nsFgl CHARACTER NULL;
+		DECLARE nsYfc CHARACTER NULL;
+		DECLARE fgl NAMESPACE 'http://www.fglsports.com/schema/hybris/order/v2';
+		--DECLARE yfc NAMESPACE 'http://www.sterlingcommerce.com/documentation/YFS/changeOrder/input';
+		DECLARE rInput REFERENCE TO InputRoot;
+		DECLARE rOutput REFERENCE TO OutputRoot;
+	    DECLARE MSG_ID CHARACTER rEnv.__MsgIdForLog4J__;
+	    CALL core.log.Debug(theModule||' - ID# : '||MSG_ID||' >> BEGIN');
+		DECLARE refToInOrderCancel REFERENCE To InputRoot.XMLNSC.fgl:OrderCancellation;
+	
+        CALL core.log.Info(theModule||' - ID# : '||MSG_ID||' - ACTION : CANCEL');
+        CALL core.log.Info(theModule||' - ID# : '||MSG_ID||' - ORDER_NO :'||COALESCE(refToInOrderCancel.fgl:Code,BLANK));
+        CALL core.log.Info(theModule||' - ID# : '||MSG_ID||' - ENTERPRISECODE :'||COALESCE(refToInOrderCancel.(XMLNSC.Attribute)BannerName,BLANK));
+	
+		CALL common.common_CopyMessageHeaders(rInput, rOutput);
+		CALL common.common_CreateLastChildOfOutputRootDomainXmlnsc(rOutput);
+		
+		CREATE FIELD rOutput.XMLNSC.Order; 
+		DECLARE rOrder REFERENCE TO rOutput.XMLNSC.Order;
+		
+       --Mapping Begins-- 
+    	SET rOrder.(XMLNSC.Attribute)Action = CANCEL;
+    	SET rOrder.(XMLNSC.Attribute)EnterpriseCode = COALESCE(refToInOrderCancel.(XMLNSC.Attribute)bannerName,BLANK);
+    	SET rOrder.(XMLNSC.Attribute)DocumentType = DCTYPE;
+    	SET rOrder.(XMLNSC.Attribute)EnteredBy = COALESCE(refToInOrderCancel.fgl:CancelRequestOperatorID,BLANK);
+    	SET rOrder.(XMLNSC.Attribute)OrderNo = COALESCE(refToInOrderCancel.fgl:Code,BLANK);
+    	SET rOrder.(XMLNSC.Attribute)ReqCancelDate = COALESCE(refToInOrderCancel.fgl:Cancelled,BLANK);	  	   
+	END;
+END MODULE;		

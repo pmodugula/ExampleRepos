@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- edited with XMLSpy v2014 sp1 (x64) (http://www.altova.com) by FGL SPORTS LTD (FGL SPORTS LTD) -->
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" elementFormDefault="qualified" attributeFormDefault="unqualified">
+	<xs:complexType name="MerchandiseDetail">
+		<xs:sequence>
+			<xs:element name="RecordType" type="xs:string" fixed="M" nillable="false"/>
+			<xs:element name="LineId" type="xs:integer" nillable="false"/>
+			<xs:element name="MerchandiseCategory" type="xs:integer" nillable="true" minOccurs="0"/>
+			<xs:element name="Unused1" type="xs:integer" nillable="true" minOccurs="0"/>
+			<xs:element name="UPC" type="xs:long" nillable="true" minOccurs="0"/>
+			<xs:element name="Units" type="xs:decimal" nillable="true" minOccurs="0"/>
+			<xs:element name="UnitsMultiplicationFactor" type="xs:integer" nillable="true" minOccurs="0"/>
+			<xs:element name="SalesPerson1" type="xs:string" nillable="true" minOccurs="0" maxOccurs="1"/>
+			<xs:element name="SalesPerson2" type="xs:string" nillable="true" minOccurs="0" maxOccurs="1"/>
+			<xs:element name="PriceOverrideFlg" type="xs:string" nillable="true" minOccurs="0"/>
+			<xs:element name="UpcMissingInPosIPLUFileFlg" type="xs:string" nillable="true" minOccurs="0"/>
+			<xs:element name="PosDeptOrClass" type="xs:long" nillable="true" minOccurs="0"/>
+			<xs:element name="PosNoHitDeptClass" type="xs:long" nillable="true" minOccurs="0"/>
+			<xs:element name="Unused" type="xs:decimal" nillable="true" minOccurs="0" maxOccurs="2"/>
+			<xs:element name="PosItemIdentifier" type="xs:string" nillable="true" minOccurs="0"/>
+			<xs:element name="ScannedFlg" type="xs:integer" nillable="true" minOccurs="0"/>
+			<xs:element name="OriginatingStoreNbr" type="xs:string" nillable="true" minOccurs="0"/>
+		</xs:sequence>
+	</xs:complexType>
+</xs:schema>

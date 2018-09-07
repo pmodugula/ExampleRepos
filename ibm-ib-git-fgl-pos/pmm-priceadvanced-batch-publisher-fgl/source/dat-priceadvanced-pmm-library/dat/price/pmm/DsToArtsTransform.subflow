@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ecore:EPackage xmi:version="2.0" xmlns:xmi="http://www.omg.org/XMI" xmlns:ComIbmCompute.msgnode="ComIbmCompute.msgnode" xmlns:common_translate_code_and_codeDesc_app_to_cmn.subflow="common/translate_code_and_codeDesc_app_to_cmn.subflow" xmlns:core_message__validation.subflow="core/message/_validation.subflow" xmlns:ecore="http://www.eclipse.org/emf/2002/Ecore" xmlns:eflow="http://www.ibm.com/wbi/2005/eflow" xmlns:utility="http://www.ibm.com/wbi/2005/eflow_utility" nsURI="dat/price/pmm/DsToArtsTransform.subflow" nsPrefix="dat_price_pmm_DsToArtsTransform.subflow">
+  <eClassifiers xmi:type="eflow:FCMComposite" name="FCMComposite_1" useDefaults="true" udpSupport="true">
+    <eSuperTypes href="http://www.ibm.com/wbi/2005/eflow#//FCMBlock"/>
+    <eStructuralFeatures xmi:type="ecore:EAttribute" xmi:id="Property.IIBDataSource" name="IIBDataSource">
+      <eType xmi:type="ecore:EDataType" href="http://www.eclipse.org/emf/2002/Ecore#//EString"/>
+    </eStructuralFeatures>
+    <eStructuralFeatures xmi:type="ecore:EAttribute" xmi:id="Property.CoreArtsMessageValidation" name="CoreArtsMessageValidation" lowerBound="1" defaultValueLiteral="false">
+      <eType xmi:type="ecore:EDataType" href="http://www.eclipse.org/emf/2002/Ecore#//EBoolean"/>
+    </eStructuralFeatures>
+    <eStructuralFeatures xmi:type="ecore:EAttribute" xmi:id="Property.CoreDatastageMessageValidation" name="CoreDatastageMessageValidation" lowerBound="1" defaultValueLiteral="false">
+      <eType xmi:type="ecore:EDataType" href="http://www.eclipse.org/emf/2002/Ecore#//EBoolean"/>
+    </eStructuralFeatures>
+    <translation xmi:type="utility:TranslatableString" key="DsToArtsTransform" bundleName="dat/price/pmm/DsToArtsTransform" pluginId="dat-priceadvanced-pmm-library"/>
+    <colorGraphic16 xmi:type="utility:GIFFileGraphic" resourceName="platform:/plugin/dat-priceadvanced-pmm-library/icons/full/obj16/DsToArtsTransform.gif"/>
+    <colorGraphic32 xmi:type="utility:GIFFileGraphic" resourceName="platform:/plugin/dat-priceadvanced-pmm-library/icons/full/obj30/DsToArtsTransform.gif"/>
+    <composition>
+      <nodes xmi:type="eflow:FCMSource" xmi:id="InTerminal.Input" location="10,20">
+        <translation xmi:type="utility:TranslatableString" key="InTerminal.Input" bundleName="dat/price/pmm/DsToArtsTransform" pluginId="dat-priceadvanced-pmm-library"/>
+      </nodes>
+      <nodes xmi:type="eflow:FCMSink" xmi:id="OutTerminal.Output" location="944,20">
+        <translation xmi:type="utility:TranslatableString" key="OutTerminal.Output" bundleName="dat/price/pmm/DsToArtsTransform" pluginId="dat-priceadvanced-pmm-library"/>
+      </nodes>
+      <nodes xmi:type="ComIbmCompute.msgnode:FCMComposite_1" xmi:id="FCMComposite_1_1" location="294,20" computeExpression="esql://routine/dat.price.pmm#SetupCodeTranslation.Main" throwExceptionOnDatabaseError="false">
+        <translation xmi:type="utility:ConstantString" string="SetupCodeTranslation"/>
+      </nodes>
+      <nodes xmi:type="ComIbmCompute.msgnode:FCMComposite_1" xmi:id="FCMComposite_1_3" location="677,20" computeExpression="esql://routine/dat.price.pmm#DsToArtsTransform.Main" throwExceptionOnDatabaseError="false">
+        <translation xmi:type="utility:ConstantString" string="BuildOutput"/>
+      </nodes>
+      <nodes xmi:type="core_message__validation.subflow:FCMComposite_1" xmi:id="FCMComposite_1_5" location="773,20">
+        <translation xmi:type="utility:ConstantString" string="CoreArtsMessageValidation"/>
+      </nodes>
+      <nodes xmi:type="core_message__validation.subflow:FCMComposite_1" xmi:id="FCMComposite_1_6" location="93,20">
+        <translation xmi:type="utility:ConstantString" string="CoreDatastageMessageValidation"/>
+      </nodes>
+      <nodes xmi:type="common_translate_code_and_codeDesc_app_to_cmn.subflow:FCMComposite_1" xmi:id="FCMComposite_1_4" location="440,20">
+        <translation xmi:type="utility:ConstantString" string="CodeAndCodeDescTranslationAppToCmn"/>
+      </nodes>
+      <connections xmi:type="eflow:FCMConnection" xmi:id="FCMConnection_6" targetNode="FCMComposite_1_5" sourceNode="FCMComposite_1_3" sourceTerminalName="OutTerminal.out" targetTerminalName="InTerminal.Input"/>
+      <connections xmi:type="eflow:FCMConnection" xmi:id="FCMConnection_7" targetNode="OutTerminal.Output" sourceNode="FCMComposite_1_5" sourceTerminalName="OutTerminal.Output" targetTerminalName="InTerminal.in"/>
+      <connections xmi:type="eflow:FCMConnection" xmi:id="FCMConnection_1" targetNode="FCMComposite_1_6" sourceNode="InTerminal.Input" sourceTerminalName="OutTerminal.out" targetTerminalName="InTerminal.Input"/>
+      <connections xmi:type="eflow:FCMConnection" xmi:id="FCMConnection_4" targetNode="FCMComposite_1_1" sourceNode="FCMComposite_1_6" sourceTerminalName="OutTerminal.Output" targetTerminalName="InTerminal.in"/>
+      <connections xmi:type="eflow:FCMConnection" xmi:id="FCMConnection_2" targetNode="FCMComposite_1_4" sourceNode="FCMComposite_1_1" sourceTerminalName="OutTerminal.out" targetTerminalName="InTerminal.Input"/>
+      <connections xmi:type="eflow:FCMConnection" xmi:id="FCMConnection_3" targetNode="FCMComposite_1_3" sourceNode="FCMComposite_1_4" sourceTerminalName="OutTerminal.Output" targetTerminalName="InTerminal.in"/>
+    </composition>
+    <propertyOrganizer>
+      <propertyDescriptor groupName="Group.Basic" configurable="true" describedAttribute="Property.IIBDataSource">
+        <propertyName xmi:type="utility:TranslatableString" key="Property.IIBDataSource" bundleName="common/translate_code_and_codeDesc_app_to_cmn" pluginId="common-library"/>
+        <propertyDescriptor groupName="Group.Basic" configurable="true" userDefined="true" describedAttribute="Property.CoreArtsMessageValidation">
+          <propertyName xmi:type="utility:TranslatableString" key="Property.CoreArtsMessageValidation" bundleName="dat/price/pmm/ds_to_arts_transformation" pluginId="dat-priceadvanced-pmm-library"/>
+          <propertyDescriptor groupName="Group.Basic" configurable="true" userDefined="true" describedAttribute="Property.CoreDatastageMessageValidation">
+            <propertyName xmi:type="utility:TranslatableString" key="Property.CoreDatastageMessageValidation" bundleName="dat/price/pmm/ds_to_arts_transformation" pluginId="dat-priceadvanced-pmm-library"/>
+          </propertyDescriptor>
+        </propertyDescriptor>
+      </propertyDescriptor>
+    </propertyOrganizer>
+    <attributeLinks promotedAttribute="Property.IIBDataSource" overriddenNodes="FCMComposite_1_4">
+      <overriddenAttribute href="common/translate_code_and_codeDesc_app_to_cmn.subflow#Property.IIBDataSource"/>
+    </attributeLinks>
+    <attributeLinks promotedAttribute="Property.CoreArtsMessageValidation" overriddenNodes="FCMComposite_1_5">
+      <overriddenAttribute href="core/message/_validation.subflow#Property.CoreMessageValidation"/>
+    </attributeLinks>
+    <attributeLinks promotedAttribute="Property.CoreDatastageMessageValidation" overriddenNodes="FCMComposite_1_6">
+      <overriddenAttribute href="core/message/_validation.subflow#Property.CoreMessageValidation"/>
+    </attributeLinks>
+    <stickyBoard/>
+  </eClassifiers>
+</ecore:EPackage>

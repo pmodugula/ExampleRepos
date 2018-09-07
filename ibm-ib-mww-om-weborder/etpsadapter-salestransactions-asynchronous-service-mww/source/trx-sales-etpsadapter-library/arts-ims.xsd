@@ -1,0 +1,189 @@
+<?xml version="1.0" encoding="UTF-8"?><xsd:schema xmlns:xsd="http://www.w3.org/2001/XMLSchema" elementFormDefault="qualified" targetNamespace="http://www.marks.com/2014/01/schemas/IMS" xmlns:tns="http://www.marks.com/2014/01/schemas/IMS">
+
+
+    
+      <xsd:complexType name="Customer">
+      	<xsd:sequence>
+      		<xsd:element name="CustomerNumber" type="xsd:string">
+      		</xsd:element>
+      		<xsd:element name="Party" type="tns:Party"/>
+
+      		<xsd:element name="Site" type="tns:Site"/>
+      	</xsd:sequence>
+      </xsd:complexType>
+    
+
+
+      <xsd:complexType name="Party">
+      	<xsd:sequence>
+      		<xsd:element fixed="O" name="PartyTypeCode" type="xsd:string"/>
+      		<xsd:element name="Organization" type="tns:Organization"/>
+      	</xsd:sequence>
+      </xsd:complexType>
+
+      <xsd:complexType name="Organization">
+      	<xsd:sequence>
+      		<xsd:element name="Name" type="xsd:string"/>
+      	</xsd:sequence>
+      </xsd:complexType>
+
+      <xsd:complexType name="Address">
+      	<xsd:sequence>
+      		<xsd:element name="AddressLine1" nillable="true" type="xsd:string"/>
+      		<xsd:element name="AddressLine2" nillable="true" type="xsd:string"/>
+      		<xsd:element name="CityName" nillable="true" type="xsd:string"/>
+      		<xsd:element name="ProvinceStateCode" nillable="true" type="xsd:string"/>
+      		<xsd:element name="ProvinceStateName" nillable="true" type="xsd:string"/>
+      		<xsd:element name="PostalCode" nillable="true" type="xsd:string"/>
+      		<xsd:element name="CountryCode" nillable="true" type="xsd:string"/>
+      		<xsd:element name="CountryName" nillable="true" type="xsd:string"/>
+      		<xsd:element name="SourceCorrelationID" type="xsd:string"/>
+      		<xsd:element name="SourceCreateTimestamp" nillable="true" type="xsd:date"/>
+      		<xsd:element name="SourceCreateUserID" nillable="true" type="xsd:string"/>
+      		<xsd:element name="SourceUpdateTimestamp" nillable="true" type="xsd:date"/>
+      		<xsd:element name="SourceUpdateUserID" nillable="true" type="xsd:string"/>
+      	</xsd:sequence>
+      </xsd:complexType>
+
+      <xsd:complexType name="Site">
+      	<xsd:sequence>
+      		<xsd:element name="Address" type="tns:Address"/>
+      		<xsd:element name="CustomerAccounts" type="tns:CustomerAccounts"/>
+      	</xsd:sequence>
+      </xsd:complexType>
+
+      <xsd:complexType name="TaxExemption">
+      	<xsd:sequence>
+      		<xsd:element name="TaxCode" type="xsd:string"/>
+      		<xsd:element name="TaxExemptionCode" type="xsd:string"/>
+      	</xsd:sequence>
+      </xsd:complexType>
+
+      <xsd:complexType name="TaxExemptions">
+      	<xsd:sequence>
+      		<xsd:element maxOccurs="unbounded" minOccurs="0" name="TaxExemption" type="tns:TaxExemption"/>
+      	</xsd:sequence>
+      </xsd:complexType>
+
+      <xsd:complexType name="PartyContactMethod">
+      	<xsd:sequence>
+      		<xsd:element fixed="Customer Billing" name="ContactPurposeTypeDesc" nillable="false" type="xsd:string">
+      		</xsd:element>
+      		<xsd:element name="ContactName" nillable="true" type="xsd:string"/>
+      		<xsd:element name="ContactTitle" nillable="true" type="xsd:string"/>
+      		<xsd:element name="ContactInternationalCode" nillable="true" type="xsd:string"/>
+      		<xsd:element name="ContactAreaCode" nillable="true" type="xsd:string"/>
+      		<xsd:element name="ContactNumber" nillable="true" type="xsd:string"/>
+      		<xsd:element name="ContactExtensionNumber" nillable="true" type="xsd:string"/>
+      		<xsd:element name="ContactNumberFax" nillable="true" type="xsd:string"/>
+      		<xsd:element name="ContactEmail" nillable="true" type="xsd:string"/>
+      		<xsd:element default="Y" name="PrimaryContactFlag" nillable="true" type="xsd:string"/>
+      	</xsd:sequence>
+      </xsd:complexType>
+
+      <xsd:complexType name="PartyContactMethods">
+      	<xsd:sequence>
+      		<xsd:element maxOccurs="unbounded" minOccurs="1" name="PartyContactMethod" type="tns:PartyContactMethod"/>
+      	</xsd:sequence>
+      </xsd:complexType>
+
+      <xsd:complexType name="CustomerAccount">
+      	<xsd:sequence>
+      		<xsd:element name="CustomerAccountNumber" nillable="false" type="xsd:string"/>
+      		<xsd:element name="Name" nillable="false" type="xsd:string"/>
+      		<xsd:element name="TypeCode" nillable="true" type="xsd:string"/>
+      		<xsd:element name="AssociatedCustomerStoreNumber" nillable="true" type="xsd:string">
+      		</xsd:element>
+      		<xsd:element name="NationalCustomerFlag" nillable="true" type="xsd:string"/>
+      		<xsd:element name="POVoucherRequiredFlag" nillable="true" type="xsd:string"/>
+      		<xsd:element name="CreditLimit" nillable="false" type="xsd:double"/>
+      		<xsd:element name="AvailableCredit" nillable="false" type="xsd:double"/>
+      		<xsd:element name="DiscountPercentage" nillable="true" type="xsd:string"/>
+      		<xsd:element name="GovernmentProcessingFlag" nillable="true" type="xsd:string"/>
+      		<xsd:element name="QuebecProcessingFlag" nillable="true" type="xsd:string"/>
+      		<xsd:element name="Url" nillable="true" type="xsd:string"/>
+      		<xsd:element name="CustomerStatusCode" nillable="false" type="xsd:string"/>
+      		<xsd:element name="SourceCorrelationID" nillable="true" type="xsd:string"/>
+      		<xsd:element name="SourceCreateTimestamp" nillable="true" type="xsd:date"/>
+      		<xsd:element name="SourceCreateUserID" nillable="true" type="xsd:string"/>
+      		<xsd:element name="SourceUpdateTimestamp" nillable="true" type="xsd:date"/>
+      		<xsd:element name="SourceUpdateUserID" nillable="true" type="xsd:string"/>
+      		<xsd:element maxOccurs="1" minOccurs="0" name="TaxExemptions" nillable="true" type="tns:TaxExemptions"/>
+      		<xsd:element name="PartyContactMethods" nillable="true" type="tns:PartyContactMethods"/>
+      	</xsd:sequence>
+      </xsd:complexType>
+
+      <xsd:complexType name="CustomerAccounts">
+      	<xsd:sequence>
+      		<xsd:element maxOccurs="unbounded" minOccurs="1" name="CustomerAccount" type="tns:CustomerAccount">
+      		</xsd:element>
+
+
+      	</xsd:sequence>
+      </xsd:complexType>
+
+      <xsd:complexType name="PacketControlInfo">
+      	<xsd:sequence>
+      		<xsd:element name="ErrorMessage" type="xsd:string"/>
+      		<xsd:element name="Found" type="xsd:string"/>
+      		<xsd:element name="DataClassificationCode" type="xsd:string"/>
+      		<xsd:element fixed="MWW" name="StrategicBusinessUnitCode" type="xsd:string"/>
+      		<xsd:element fixed="IMS" name="DataSourceCode" type="xsd:string"/>
+      	</xsd:sequence>
+      </xsd:complexType>
+
+
+
+      <xsd:complexType name="FindByAccountNumberResponse">
+      	<xsd:sequence>
+      		<xsd:element name="CustomerAccount" type="tns:CustomerAccount">
+      		</xsd:element>
+      		<xsd:element name="PacketControlInfo" type="tns:PacketControlInfo"/>
+      	</xsd:sequence>
+      </xsd:complexType>
+
+      <xsd:complexType name="CustomerAccountItemPricing">
+      	<xsd:sequence>
+      		<xsd:element maxOccurs="unbounded" minOccurs="1" name="CustomerAccountItemPrice" type="tns:CustomerAccountItemPrice"/>
+      	</xsd:sequence>
+      </xsd:complexType>
+
+      <xsd:complexType name="CustomerAccountItemPrice">
+      	<xsd:sequence>
+      		<xsd:element maxOccurs="1" minOccurs="1" name="itemNumber" type="xsd:string"/>
+      		<xsd:element maxOccurs="1" minOccurs="0" name="onProgram" type="xsd:string">
+      		</xsd:element>
+      		<xsd:element maxOccurs="1" minOccurs="0" name="hasOverridePrice" type="xsd:string">
+      		</xsd:element>
+      		<xsd:element maxOccurs="1" minOccurs="0" name="overridePrice" type="xsd:double">
+      		</xsd:element>
+      		<xsd:element maxOccurs="1" minOccurs="0" name="programDiscountPercent" type="xsd:double">
+      		</xsd:element>
+      		<xsd:element maxOccurs="unbounded" minOccurs="0" name="ProgramItemCustomization" type="tns:ProgramItemCustomization">
+      		</xsd:element>
+      	</xsd:sequence>
+      </xsd:complexType>
+
+      <xsd:complexType name="ProgramItemCustomization">
+      	<xsd:sequence>
+      		<xsd:element name="CategoryName" nillable="false" type="xsd:string"/>
+      		<xsd:element name="ItemNumber" nillable="false" type="xsd:string"/>
+      		<xsd:element name="ItemName" nillable="false" type="xsd:string"/>
+      		<xsd:element name="RetailAmount" nillable="false" type="xsd:double"/>
+      	</xsd:sequence>
+      </xsd:complexType>
+
+      <xsd:complexType name="CustomerAccountPricing">
+    	<xsd:sequence>
+    		<xsd:element name="CustomerAccountNumber" type="xsd:string"/>
+    		<xsd:element maxOccurs="unbounded" minOccurs="1" name="CustomerAccountItemPrice" type="tns:CustomerAccountItemPrice"/>
+    	</xsd:sequence>
+    </xsd:complexType>
+
+      <xsd:complexType name="ChargeAccount">
+      	<xsd:sequence>
+      		<xsd:element name="CustomerAccountNumber" type="xsd:string"/>
+      		<xsd:element name="ChargeAmount" type="xsd:double"/>
+      	</xsd:sequence>
+      </xsd:complexType>
+</xsd:schema>

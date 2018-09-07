@@ -1,0 +1,4 @@
+ext{
+   buildAll=true
+   repoName='aw-salestransactions-event-subscriber-fgl'
+}

@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<dependencies>
+	<build>development</build>
+	<core>2.1.0</core>
+	
+	<folders>
+		<!-- Comment: Build Dependencies -->
+		<folder type="build">build</folder>
+		<folder type="build">deployment</folder>
+		<folder type="build">resources</folder>
+		<folder type="core">common-library</folder>
+		<folder type="core">common-library-java</folder>
+		<folder type="core">core-audit-handler-library</folder>
+		<folder type="core">core-audit-handler-library-java</folder>
+		<folder type="core">core-cache-library</folder>
+		<folder type="core">core-cache-library-java</folder>
+		<folder type="core">core-configuration-handler-library</folder>
+		<folder type="core">core-configuration-loader-database</folder>
+		<folder type="core">core-configuration-loader-file</folder>
+		<folder type="core">core-configuration-loader-library</folder>
+		<folder type="core">core-configuration-loader-system</folder>
+		<folder type="core">core-configuration-loader-system-java</folder>
+		<folder type="core">core-log-handler-library</folder>
+		<folder type="core">core-message-processor-library</folder>
+		<folder type="core">core-testing-handler-library</folder>
+	</folders>
+	
+	
+</dependencies>

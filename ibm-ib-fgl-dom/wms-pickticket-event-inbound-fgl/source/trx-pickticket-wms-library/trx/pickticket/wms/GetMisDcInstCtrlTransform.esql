@@ -1,0 +1,69 @@
+/*
+* File name: DsToArtsTransform.esql
+*
+* Purpose: ESQL file for DS to ARTS message transformation.
+*
+* Version: Initial Version
+*
+* Authors: Sukumar
+*
+* Create Date: 16th Qugust 2016
+*
+* @copyright FGL 2016. All rights reserved.
+*/
+
+BROKER SCHEMA trx.pickticket.wms
+
+CREATE PROCEDURE GetInstMisDcCtrSequence(In rEnv REFERENCE) RETURNS CHARACTER
+BEGIN
+
+	DECLARE schemaName CHARACTER;
+	DECLARE sequenceName CHARACTER;
+	DECLARE PIBCTNMisDcSequence CHARACTER;
+	SET schemaName = 'IIB';
+	SET sequenceName='IIB_SQNC_MDC_XXBCTN_SEQ';
+	DECLARE getBatchControlNumberQuery CHARACTER;
+	SET getBatchControlNumberQuery= 'SELECT '||schemaName||'.'||sequenceName||'.nextval FROM DUAL';
+	SET rEnv.__PIBCTNMisDcSequence__[] = PASSTHRU(getBatchControlNumberQuery);
+	SET PIBCTNMisDcSequence = TRIM(CAST(CAST(rEnv.__PIBCTNMisDcSequence__[1].NEXTVAL AS DECIMAL) AS CHARACTER));
+	WHILE 0 < CARDINALITY(rEnv.__PIBCTNMisDcSequence__[]) DO
+		DELETE FIELD rEnv.__PIBCTNMisDcSequence__[<];
+	END WHILE;
+	RETURN PIBCTNMisDcSequence;
+END;
+
+
+CREATE COMPUTE MODULE GetMisDcInstCtrTransform
+	DECLARE theModule CONSTANT CHARACTER theSchema||'.'||'GetMisDcInstCtrTransform';
+	DECLARE I INTEGER 1;
+
+	CREATE FUNCTION Main() RETURNS BOOLEAN
+	BEGIN
+		DECLARE rInput,rI2INPT00In REFERENCE TO InputRoot;
+		DECLARE rOutput REFERENCE TO OutputRoot;
+		DECLARE rEnv REFERENCE TO Environment;
+		CALL common.common_CopyMessageHeaders(rInput, rOutput);
+		CALL common.common_CreateLastChildOfOutputRootDomainXmlnsc(rOutput);
+		DECLARE wms NAMESPACE 'http://www.fglsports.com/schema/wmstaging/tables/v1';
+
+--		DECLARE rI1INPT00In REFERENCE TO InputRoot.XMLNSC.wms:WMStaging.wms:WMBody.wms:PickTicket.wms:I1INPT00;
+--		MOVE rI2INPT00In rI1INPT00In.wms:I2INPT00[1];
+--		DECLARE I2 INTEGER CARDINALITY(rI1INPT00In.wms:I2INPT00[]);
+--		DECLARE K INTEGER 1;
+--
+--		WHILE(K <=I2) DO
+--		SET OutputRoot.XMLNSC.wms:WMStaging.wms:WMBody.wms:PickTicket.wms:I1INPT00.wms:rI2INPT00In.wms:rI3INPT00In = rI1INPT00In.wms:I2INPT00[K].wms:I3INPT00[M];				
+--		--SET rI3INPT00.wms:PIBCTN='';
+--		--SET rI3INPT00.wms:PIIDES='';
+--
+--		SET K= K+1;
+
+	--END WHILE;
+
+			
+
+
+
+	RETURN TRUE;
+END;
+END MODULE;

@@ -1,0 +1,157 @@
+<?xml version="1.0" encoding="UTF-8"?><mappingRoot domainID="com.ibm.msl.mapping.xml" domainIDExtension="mb" mainMap="true" targetNamespace="fastfind.order.status.update" version="8.0.4.0" xmlns="http://www.ibm.com/2008/ccl/Mapping" xmlns:map="fastfind.order.status.update">
+    <input path="/processes/fulfillmentprocess/SourcingContainer.xsd" var="var"/>
+    <input path="/SharedContainer.xsd" var="var1"/>
+    <output path="/arts/ARTSCustomerOrderStatusMessageV1_00_00.xsd"/>
+    <namespaces>
+        <namespace kind="extension" prefix="fn" uri="http://www.w3.org/2005/xpath-functions"/>
+    </namespaces>
+    <generation engine="xquery"/>
+    <mappingDeclaration name="_convert_fastfind_order_status_to_arts_order_status">
+        <input namespace="http://MarkS2_lib/processes/fulfillmentprocess" path="$var/mb:msg(SourcingContainer,assembly,XMLNSC,LocalEnvironment,Properties)">
+            <cast path="LocalEnvironment/Variables/any" qualifier="{http://www.marks.com/SharedContainer}SharedContainer" ref="var1"/>
+        </input>
+        <output namespace="http://www.fgl.com/exchange/" path="mb:msg(Exchange,assembly,XMLNSC,LocalEnvironment,Properties)"/>
+        <move>
+            <input path="Properties"/>
+            <output path="Properties"/>
+        </move>
+        <move>
+            <input path="LocalEnvironment"/>
+            <output path="LocalEnvironment"/>
+        </move>
+        <move>
+            <input path="LocalEnvironment/Variables/SharedContainer[1]/EXTERNAL_ORDER_NUMBER"/>
+            <output path="Exchange/Messages/ArtsCustomerOrderStatuses[1]/CustomerOrderNumber/text()"/>
+        </move>
+        <assign value="ORDER FOR DELIVERY">
+            <output path="Exchange/Messages/ArtsCustomerOrderStatuses/CustomerOrderType/CustomerOrderTypeCode/text()"/>
+        </assign>
+        <assign value="ORDER FOR DELIVERY">
+            <output path="Exchange/Messages/ArtsCustomerOrderStatuses/CustomerOrderType/CustomerOrderTypeName/text()"/>
+        </assign>
+        <move>
+            <input path="LocalEnvironment/Variables/SharedContainer[1]/FF_ORDER_STATUS"/>
+            <output path="Exchange/Messages/ArtsCustomerOrderStatuses[1]/CustomerOrderState/CustomerOrderStateCode/text()"/>
+        </move>
+        <move>
+            <input path="LocalEnvironment/Variables/SharedContainer[1]/EXTERNAL_ORDER_STATUS"/>
+            <output path="Exchange/Messages/ArtsCustomerOrderStatuses[1]/CustomerOrderState/CustomerOrderStateName/text()"/>
+        </move>
+        <move>
+            <input path="LocalEnvironment/Variables/SharedContainer[1]/ORDER_CREATE_DATE"/>
+            <output path="Exchange/Messages/ArtsCustomerOrderStatuses/CustomerOrderCreateDate/text()"/>
+        </move>
+        <function ref="fn:current-dateTime">
+            <output path="Exchange/Messages/ArtsCustomerOrderStatuses/CustomerOrderState/EffectiveDateTime/text()"/>
+        </function>
+        <assign value="1">
+            <output path="Exchange/Messages/SourceSystems/Count"/>
+        </assign>
+        <move>
+            <input path="LocalEnvironment/Variables/SharedContainer[1]/ORDER_EXPIRY_DATE"/>
+            <output path="Exchange/Messages/ArtsCustomerOrderStatuses/ExpirationDateTime/text()"/>
+        </move>
+        <create empty="true">
+            <output path="Exchange/DqResults"/>
+            <assign value="0">
+                <output path="Count"/>
+            </assign>
+        </create>
+        <function ref="fn:abs">
+            <output path="Exchange/Messages/ArtsCustomerOrderStatuses/Index"/>
+            <param name="numeric" value="1"/>
+        </function>
+        <function ref="fn:abs">
+            <output path="Exchange/Messages/ArtsCustomerOrderStatuses/CustomerOrderLineItemStates/Count"/>
+            <param name="numeric" value="0"/>
+        </function>
+        <assign value="1">
+            <output path="Exchange/@MinorVersion"/>
+        </assign>
+        <assign value="0">
+            <output path="Exchange/@FixVersion"/>
+        </assign>
+        <assign value="0">
+            <output path="Exchange/@MajorVersion"/>
+        </assign>
+        <assign value="1">
+            <output path="Exchange/Messages/Count"/>
+        </assign>
+        <move>
+            <input path="LocalEnvironment/Variables/SharedContainer[1]/ORDER_EXPIRY_DATE" var="ORDER_EXPIRY_DATE"/>
+            <output path="Exchange/Messages/ArtsCustomerOrderStatuses/CustomerOrderState/ExpirationDateTime/text()"/>
+        </move>
+        <function ref="fn:current-dateTime">
+            <output path="Exchange/Messages/ArtsCustomerOrderStatuses/EffectiveDateTime/text()"/>
+        </function>
+        <create empty="true">
+            <output path="Exchange/MessageRouting"/>
+            <assign value="1">
+                <output path="Guid"/>
+            </assign>
+            <assign value="1">
+                <output path="MessageId"/>
+            </assign>
+            <assign value="PointToPoint">
+                <output path="MessageType"/>
+            </assign>
+            <assign value="CustomerOrderStatus">
+                <output path="SubjectArea"/>
+            </assign>
+            <assign value="2">
+                <output path="SbuNumber"/>
+            </assign>
+            <assign value="MWW">
+                <output path="SbuCode"/>
+            </assign>
+            <assign value="Marks Ltd.">
+                <output path="SbuName"/>
+            </assign>
+            <assign value="FF">
+                <output path="DataSourceCode"/>
+            </assign>
+            <assign>
+                <output path="DataSourceCodeName"/>
+            </assign>
+        </create>
+        <create empty="true">
+            <output path="Exchange/Messages/SourceSystems/SourceSystem"/>
+            <assign value="1">
+                <output path="Index"/>
+            </assign>
+            <assign value="2">
+                <output path="SbuNumber"/>
+            </assign>
+            <assign value="MWW">
+                <output path="SbuCode"/>
+            </assign>
+            <assign value="Marks Ltd.">
+                <output path="SbuName"/>
+            </assign>
+            <assign value="FF">
+                <output path="MessageSourceCode"/>
+            </assign>
+            <assign value="FastFind">
+                <output path="MessageSourceCodeName"/>
+            </assign>
+        </create>
+        <create empty="true">
+            <output path="Exchange/Messages/ArtsCustomerOrderStatuses/DataSource"/>
+            <assign value="2">
+                <output path="SbuNumber/text()"/>
+            </assign>
+            <assign value="MWW">
+                <output path="SbuCode/text()"/>
+            </assign>
+            <assign value="Marks Ltd.">
+                <output path="SbuName/text()"/>
+            </assign>
+            <assign value="FastFind">
+                <output path="DataSourceName/text()"/>
+            </assign>
+            <assign value="FF">
+                <output path="DataSourceCode/text()"/>
+            </assign>
+        </create>
+    </mappingDeclaration>
+</mappingRoot>

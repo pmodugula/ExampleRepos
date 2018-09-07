@@ -1,0 +1,8 @@
+dat.exchangerate.pos_message_collector#IIBInboundQueue=RECV.${EXCRATES_IN_IB}
+dat.exchangerate.pos_message_collector#IIBCollFailureQueue=${EXCRATES_IN_FAILED_CLTNS}
+dat.exchangerate.pos_message_collector#IIBFailureQueue=${EXCRATES_IN_FAILURE_QUEUE}
+dat.exchangerate.pos_message_collector#CoreAuditDataSource=AUD${ENVN}${INST}
+dat.exchangerate.pos_message_collector#PreProcessorAuditEnabled=False
+dat.exchangerate.pos_message_collector#PostProcessorAuditEnabled=False
+dat.exchangerate.pos_message_collector#IIBOutboundDirectory=${INITIAL_LOAD_DIRECTORY_PATH}
+dat.exchangerate.pos_message_collector#FileExtension=${FILE_FORMAT}

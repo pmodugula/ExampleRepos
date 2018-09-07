@@ -1,0 +1,4 @@
+trx.consignmentpaid.jms_to_mq.consumer#EMSATMOSourceQueue=FGL.${emsEnvQ}.HYBRIS.ATMO.CONSIGN.PAID.Q
+trx.consignmentpaid.jms_to_mq.consumer#EMSSCSourceQueue=FGL.${emsEnvQ}.HYBRIS.SC.CONSIGN.PAID.Q
+trx.consignmentpaid.jms_to_mq.consumer#IIBOutboundQueue=SEND.${CONSIGN_PAID}
+trx.consignmentpaid.jms_to_mq.consumer#HybrisBackupQueue=${CONSIGN_PAID_BACKUP}

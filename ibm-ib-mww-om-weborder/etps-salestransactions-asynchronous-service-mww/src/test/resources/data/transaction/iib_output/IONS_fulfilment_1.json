@@ -1,0 +1,190 @@
+{
+  "msgType": "transaction",
+  "transactionId": "9976220151029100000",
+  "transactionTypeCode": "SaleTransaction",
+  "majorVersion": 4,
+  "retailStoreId": "997",
+  "workstationId": "62",
+  "sequenceNumber": "100000",
+  "beginDateTime": "2015-10-29T10:31:29-06:00",
+  "endDateTime": "2015-10-29T10:31:29-06:00",
+  "operatorId": "0",
+  "sourceSystem": "ETPS",
+  "retailTransaction": {
+    "productLineItems": [
+      {
+        "lineItemSeqNumber": "1",
+        "itemNumber": "410008938371",
+        "merchandiseHierarchyLevel": "4",
+        "merchandiseHierarchyId": "1A",
+        "regularSalesUnitPrice": 159.99,
+        "actualSalesPrice": 126.99,
+        "basePrice": 126.99,
+        "proratedPrice": 126.99,
+        "discountAmount": 33.00,
+        "quantity": 1,
+        "priceModifiers": [
+          {
+            "reason": {
+              "reasonCode": "19",
+              "reasonUniqueId": 4
+            },
+            "amount": 33.00,
+            "action": "Subtract",
+            "priceDerivationRuleType": "APPLIED_IMAGEWEAR_PROMOTION",
+            "type": "DISCOUNT",
+            "quantity": 1
+          }
+        ],
+        "taxes": [
+          {
+            "type": "GST",
+            "taxAmountPerItem": 6.35
+          },
+          {
+            "type": "PST",
+            "taxAmountPerItem": 8.89
+          }
+        ]
+      },
+      {
+        "lineItemSeqNumber": "2",
+        "itemNumber": "410011180002",
+        "merchandiseHierarchyLevel": "4",
+        "merchandiseHierarchyId": "93",
+        "regularSalesUnitPrice": 3.75,
+        "actualSalesPrice": 3.75,
+        "basePrice": 3.75,
+        "proratedPrice": 3.75,
+        "quantity": 1,
+        "taxes": [
+          {
+            "type": "GST",
+            "taxAmountPerItem": 0.19
+          },
+          {
+            "type": "PST",
+            "taxAmountPerItem": 0.26
+          }
+        ]
+      },
+      {
+        "lineItemSeqNumber": "3",
+        "itemNumber": "400009813265",
+        "merchandiseHierarchyLevel": "4",
+        "merchandiseHierarchyId": "93",
+        "regularSalesUnitPrice": 3.75,
+        "actualSalesPrice": 3.75,
+        "basePrice": 3.75,
+        "proratedPrice": 3.75,
+        "quantity": 1,
+        "taxes": [
+          {
+            "type": "GST",
+            "taxAmountPerItem": 0.19
+          },
+          {
+            "type": "PST",
+            "taxAmountPerItem": 0.26
+          }
+        ]
+      },
+      {
+        "lineItemSeqNumber": "4",
+        "itemNumber": "410011179983",
+        "merchandiseHierarchyLevel": "4",
+        "merchandiseHierarchyId": "93",
+        "regularSalesUnitPrice": 3.75,
+        "actualSalesPrice": 3.75,
+        "basePrice": 3.75,
+        "proratedPrice": 3.75,
+        "quantity": 1,
+        "taxes": [
+          {
+            "type": "GST",
+            "taxAmountPerItem": 0.19
+          },
+          {
+            "type": "PST",
+            "taxAmountPerItem": 0.26
+          }
+        ]
+      },
+      {
+        "lineItemSeqNumber": "5",
+        "itemNumber": "400009390483",
+        "merchandiseHierarchyLevel": "4",
+        "merchandiseHierarchyId": "93",
+        "regularSalesUnitPrice": 3.75,
+        "actualSalesPrice": 3.75,
+        "basePrice": 3.75,
+        "proratedPrice": 3.75,
+        "quantity": 1,
+        "taxes": [
+          {
+            "type": "GST",
+            "taxAmountPerItem": 0.19
+          },
+          {
+            "type": "PST",
+            "taxAmountPerItem": 0.26
+          }
+        ]
+      }
+    ],
+    "tenders": [
+      {
+        "amount": 159.03,
+        "subTenderType": "CREDIT",
+        "successfulPedTransactionUuid": "12345",
+        "tenderType": "CreditDebit"
+      }
+    ],
+    "allPedTransactions": [
+      {
+        "accountNumber": "4400**********08",
+        "amount": 159.03,
+        "approvalNumber": "048050",
+        "cardName": "CREDIT",
+        "cashBackAmount": 0,
+        "creditDebitCardType": "CREDIT",
+        "expiryDate": "0112",
+        "pedTransactionUid": "0012010130",
+        "storeCode": "997",
+        "pedNumber": "66173973",
+        "uuid": "12345",
+        "pedTransactionStatus": "APPROVED"
+      }
+    ],
+    "taxes": [
+      {
+        "type": "GST",
+        "typeCode": "Sale",
+        "amount": 7.11
+      },
+      {
+        "type": "PST",
+        "typeCode": "Sale",
+        "amount": 9.93
+      }
+    ],
+    "customerInformation": {
+      "businessCustomerFlag": "true",
+      "firstName": "Bia",
+      "lastName": "Karamessinis",
+      "imagewearEmployeeNumber": "2838"
+    },
+    "imagewearTransaction": {
+      "type": "IONS",
+      "customerAccount": {
+        "number": "00249368",
+        "addressLine1":"String",
+        "provinceState": "AB"
+      },
+      "taxAreaCode": "AB"
+    },
+    "transactionSubtotal": 141.99,
+    "transactionGrossAmount": 159.03,
+    "sourceSystem": "IONS"
+  }
+}

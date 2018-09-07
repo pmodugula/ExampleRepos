@@ -1,0 +1,14 @@
+
+
+BROKER SCHEMA com.marks.hyb.fastfind
+
+
+DECLARE nsOrderStatus NAMESPACE 'http://MarkS2_lib/processes/fulfillmentprocess';
+CREATE COMPUTE MODULE process_fastfind_order
+	CREATE FUNCTION Main() RETURNS BOOLEAN
+	BEGIN		
+
+
+		RETURN TRUE;
+	END;
+END MODULE;

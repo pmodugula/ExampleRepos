@@ -1,0 +1,33 @@
+/*
+ * File name: common.esql
+ *
+ * Purpose:   ESQL file for common modules used across dat-businessunit-pmm-publisher-fgl application.
+ *
+ * Version:   Initial Version
+ *
+ * Authors:   Madanlal Tilsiram
+ *                 
+ * Create Date:  22 July 2016
+ * 
+ * @copyright FGL 2016.  All rights reserved.
+ */
+BROKER SCHEMA dat.businessunit.pmm
+
+/** Module to store logging parameters to environment **/
+CREATE COMPUTE MODULE SetLogParams
+	CREATE FUNCTION Main() RETURNS BOOLEAN
+	BEGIN
+		SET OutputRoot = InputRoot;
+		
+		DECLARE etl NAMESPACE 'http://www.fgl.com/SourceStagingStorePmmFgl';
+		
+		DECLARE rInExch REFERENCE TO InputRoot.XMLNSC.etl:Exchange;
+		DECLARE rInMsg REFERENCE TO InputRoot.XMLNSC.etl:Exchange.etl:Message;
+		DECLARE guid CHARACTER rInExch.etl:MessageRouting.etl:Guid;
+		DECLARE businessKey, messageKey CHARACTER FIELDVALUE(rInMsg.etl:Store.etl:StoreDetails.etl:ORG_LVL_NUMBER); 
+		DECLARE subjectAreaRunName CHARACTER rInExch.etl:MessageRouting.etl:SubjectAreaRunName;
+		SET Environment.__MsgIdForLog4J__ = Environment.__MsgIdForLog4J__ || ', GUID: ' || guid || ', Business Key: ' || businessKey  || ', Message Key: ' ||  messageKey || ', Run Name: ' || subjectAreaRunName;
+		--SET Environment.Log.Key = 'GUID: ' || guid || ', Business Key: ' || businessKey  || ', Message Key: ' ||  messageKey || ', Run Name: ' || subjectAreaRunName;
+		RETURN TRUE;
+	END;
+END MODULE;

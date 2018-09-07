@@ -1,0 +1,8 @@
+dat.tax.pos_message_collector#IIBInboundQueue=RECV.${TAXEXCE_INIT_IN_IB}
+dat.tax.pos_message_collector#IIBCollFailureQueue=${TAXEXCE_INIT_IN_FAILED_CLTNS}
+dat.tax.pos_message_collector#IIBFailureQueue=${TAXEXCE_INIT_IN_FAILURE_QUEUE}
+dat.tax.pos_message_collector#CoreAuditDataSource=AUD${ENVN}${INST}
+dat.tax.pos_message_collector#PreProcessorAuditEnabled=False
+dat.tax.pos_message_collector#PostProcessorAuditEnabled=False
+dat.tax.pos_message_collector#IIBOutboundDirectory=${INITIAL_LOAD_DIRECTORY_PATH}
+dat.tax.pos_message_collector#FileExtension=${FILE_FORMAT}

@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?><xsd:schema xmlns:csv="http://www.ibm.com/dfdl/CommaSeparatedFormat" xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0/" xmlns:ibmDfdlExtn="http://www.ibm.com/dfdl/extensions" xmlns:ibmSchExtn="http://www.ibm.com/schema/extensions" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+
+
+    <xsd:import namespace="http://www.ibm.com/dfdl/CommaSeparatedFormat" schemaLocation="IBMdefined/CommaSeparatedFormat.xsd"/>
+    <xsd:annotation>
+		<xsd:appinfo source="http://www.ogf.org/dfdl/">
+			<dfdl:format documentFinalTerminatorCanBeMissing="yes" encoding="{$dfdl:encoding}" escapeSchemeRef="csv:CSVEscapeScheme" ref="csv:CommaSeparatedFormat"/>
+		</xsd:appinfo>
+	</xsd:annotation>
+
+
+	<xsd:element ibmSchExtn:docRoot="true" name="Input">
+		<xsd:complexType>
+			<xsd:sequence dfdl:separator="">
+				<xsd:element dfdl:terminator="%CR;%LF;%WSP*;" name="body">
+					<xsd:complexType>
+						<xsd:sequence dfdl:initiator="%STX;" dfdl:separator="%FS;" dfdl:separatorSuppressionPolicy="trailingEmpty" dfdl:terminator="%ETX;">
+							<xsd:element ibmDfdlExtn:sampleValue="909" minOccurs="0" name="GivexMsgIdFormat" type="xsd:string"/>
+							<xsd:element dfdl:nilKind="literalValue" dfdl:nilValue="%ES;" dfdl:useNilForDefault="yes" ibmDfdlExtn:sampleValue="en" maxOccurs="unbounded" minOccurs="0" name="LanguageCode" nillable="true" type="xsd:string"/>
+							                            						                                                                                </xsd:sequence>
+					</xsd:complexType>
+				</xsd:element>				
+			</xsd:sequence>
+		</xsd:complexType>
+	</xsd:element>
+
+
+</xsd:schema>

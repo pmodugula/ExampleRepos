@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8"?><xsd:schema targetNamespace="http://www.marks.com/2014/01/services/FF/" xmlns:ARTS="http://www.marks.com/2014/01/schemas/ARTS" xmlns:ibmSchExtn="http://www.ibm.com/schema/extensions" xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/" xmlns:tns="http://www.marks.com/2014/01/services/FF/" xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+                                                                                  <xsd:import namespace="http://www.marks.com/2014/01/schemas/ARTS" schemaLocation="arts-0.2.xsd"/>
+            <xsd:element ibmSchExtn:docRoot="true" name="getOrdersDetailListRequest" type="ARTS:GetOrdersDetailListRequest">
+
+      </xsd:element>
+            <xsd:element ibmSchExtn:docRoot="true" name="getOrdersDetailListResponse">
+        <xsd:complexType>
+          <xsd:sequence>
+          	<xsd:element name="PacketControlInfo" type="ARTS:PacketControlInfo"/>
+          	<xsd:element maxOccurs="1" minOccurs="0" name="CustomerOrders" type="ARTS:CustomerOrders"/>
+          </xsd:sequence>
+        </xsd:complexType>
+      </xsd:element>
+            <xsd:element ibmSchExtn:docRoot="true" name="updateOrderStatusRequest" type="ARTS:UpdateOrderDetailsRequest">
+
+      </xsd:element>
+            <xsd:element ibmSchExtn:docRoot="true" name="updateOrderStatusResponse">
+      	<xsd:complexType>
+      		<xsd:sequence>
+
+      			<xsd:element name="PacketControlInfo" type="ARTS:PacketControlInfo"/>
+      		</xsd:sequence>
+      	</xsd:complexType>
+      </xsd:element>
+            <xsd:element ibmSchExtn:docRoot="true" name="processOrderRequest" type="ARTS:ProcessOrderRequest">
+
+      </xsd:element>
+            <xsd:element ibmSchExtn:docRoot="true" name="processOrderResponse">
+      	<xsd:complexType>
+      		<xsd:sequence>
+
+      			<xsd:element name="PacketControlInfo" type="ARTS:PacketControlInfo"/>
+      		</xsd:sequence>
+      	</xsd:complexType>
+      </xsd:element>
+            <xsd:element ibmSchExtn:docRoot="true" name="createOrderRequest" type="ARTS:CreateOrderRequest">
+
+      </xsd:element>
+            <xsd:element ibmSchExtn:docRoot="true" name="createOrderResponse">
+      	<xsd:complexType>
+      		<xsd:sequence>
+
+      			<xsd:element name="PacketControlInfo" type="ARTS:PacketControlInfo">
+      			</xsd:element>
+      			<xsd:element name="CustomerOrder" type="ARTS:CustomerOrder"/>
+      		</xsd:sequence>
+      	</xsd:complexType>
+      </xsd:element>
+        </xsd:schema>

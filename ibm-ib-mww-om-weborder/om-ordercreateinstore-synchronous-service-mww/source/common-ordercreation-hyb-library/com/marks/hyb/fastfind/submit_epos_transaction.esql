@@ -1,0 +1,157 @@
+BROKER SCHEMA com.marks.hyb.fastfind
+
+
+CREATE COMPUTE MODULE etps_request_creation
+	CREATE FUNCTION Main() RETURNS BOOLEAN
+	BEGIN
+		
+		SET OutputRoot.Properties = Environment.Properties;
+		SET OutputRoot.MQMD = Environment.MQMD;
+		
+		-- Namespace declaration
+		DECLARE eai NAMESPACE 'http://www.fgl.com/exchange/';
+		DECLARE arts NAMESPACE 'http://www.fgl.com/ARTS';
+		DECLARE soapenv NAMESPACE 'http://schemas.xmlsoap.org/soap/envelope/';
+		
+		-- References declaration
+		DECLARE refXMLNSC,refOutPosLog,refOutTrans,refOutRtlTrans REFERENCE TO OutputRoot;
+		DECLARE refInExchg REFERENCE TO Environment.XMLNSC.eai:Exchange;
+		DECLARE refInTrans REFERENCE TO refInExchg.eai:Messages.eai:Transaction.arts:Transaction;
+		DECLARE refInCustOrd REFERENCE TO refInExchg.eai:Messages.eai:ArtsCustomerOrders;
+		DECLARE refInCustOrdItm REFERENCE TO refInCustOrd.arts:CustomerOrderLineItems.arts:CustomerOrderLineItem[1];
+		DECLARE rndFlg,payItmFlg BOOLEAN FALSE;
+		DECLARE SaleGftCrdFlg BOOLEAN TRUE;
+		DECLARE associatedId CHARACTER;
+		DECLARE I,seqNum INTEGER 1;
+		DECLARE tendrSeqNum INTEGER 0;
+		
+		CREATE LASTCHILD OF OutputRoot AS refXMLNSC DOMAIN 'XMLNSC';
+		SET refXMLNSC.eai:Exchange.(XMLNSC.Attribute)xmlns:eai = eai;
+		SET refXMLNSC.eai:Exchange.(XMLNSC.Attribute)xmlns:arts = arts;
+		SET refXMLNSC.eai:Exchange.(XMLNSC.Attribute)MajorVersion = '0';
+		SET refXMLNSC.eai:Exchange.(XMLNSC.Attribute)MinorVersion = '0';
+		SET refXMLNSC.eai:Exchange.(XMLNSC.Attribute)FixVersion = '0';
+		SET refXMLNSC.eai:Exchange.eai:MessageRouting = refInExchg.eai:MessageRouting;
+		SET refXMLNSC.eai:Exchange.eai:Messages.eai:Count = refInExchg.eai:Messages.eai:Count;
+		SET refXMLNSC.eai:Exchange.eai:Messages.eai:SourceSystems = refInExchg.eai:Messages.eai:SourceSystems;
+		
+		CREATE LASTCHILD OF refXMLNSC.eai:Exchange.eai:Messages AS refOutPosLog NAMESPACE eai NAME 'POSLog'; 
+		SET refOutPosLog.arts:Count = refInExchg.eai:Messages.eai:Transaction.arts:Count;
+		SET refOutPosLog.arts:DataSource.*[] = refInCustOrd.arts:DataSource.*[];
+		CALL core.log.info(MessageFlowLabel||'Module name: etps_request_creation - transaction message creation : start for -'||'EXTERNAL_ORDER :' ||CAST(Environment.XMLNSC.nsOrder:Exchange.nsOrder:Messages.nsOrder:ArtsCustomerOrders.nsOrder1:CustomerOrderNumber AS CHARACTER));
+		CREATE LASTCHILD OF refOutPosLog AS refOutTrans NAMESPACE arts NAME 'Transaction';
+		SET refOutTrans.(XMLNSC.Attribute)MajorVersion = '4';
+		SET refOutTrans.(XMLNSC.Attribute)MinorVersion = '0';
+		SET refOutTrans.(XMLNSC.Attribute)FixVersion = '0';
+		SET refOutTrans.arts:RetailStoreID = FIELDVALUE(refInTrans.arts:RetailStoreID);
+		SET refOutTrans.arts:TransactionID = FIELDVALUE(refInTrans.arts:TransactionID);
+		SET refOutTrans.arts:WorkstationID = FIELDVALUE(refInTrans.arts:WorkstationID);
+		SET refOutTrans.arts:SequenceNumber = FIELDVALUE(refInTrans.arts:SequenceNumber);
+		SET refOutTrans.arts:BeginDateTime = FIELDVALUE(refInTrans.arts:BeginDateTime);
+		SET refOutTrans.arts:EndDateTime = FIELDVALUE(refInTrans.arts:EndDateTime);
+		SET refOutTrans.arts:OperatorID = FIELDVALUE(refInTrans.arts:OperatorID);
+		 
+		
+		
+		CREATE LASTCHILD OF refOutTrans AS refOutRtlTrans NAMESPACE arts NAME 'RetailTransaction';
+		WHILE LASTMOVE(refInCustOrdItm) DO
+			DECLARE refInTendrTyp REFERENCE TO refInCustOrdItm.arts:CustomerOrderPaymentLineItem.arts:TenderType;
+			DECLARE refInRnd REFERENCE TO refInCustOrdItm.arts:CustomerOrderRoundingLineItem;
+			IF LASTMOVE(refInRnd) THEN
+				SET refOutRtlTrans.arts:LineItem[I].arts:SequenceNumber = seqNum;
+				IF (refInRnd.arts:RoundUpFlag = 'Y') THEN
+					SET refOutRtlTrans.arts:LineItem[I].arts:Rounding.(XMLNSC.Attribute)Action = 'Add';
+				ELSE
+					SET refOutRtlTrans.arts:LineItem[I].arts:Rounding.(XMLNSC.Attribute)Action = 'Subtract';
+				END IF;
+				SET refOutRtlTrans.arts:LineItem[I].arts:Rounding.arts:RoundingAmount = ABS(CAST(FIELDVALUE(refInRnd.arts:RoundingAmount) AS DECIMAL));
+				SET refOutRtlTrans.arts:LineItem[I].arts:Rounding.arts:ItemID = '400008725941';
+				SET I = I+1;
+				SET seqNum = seqNum + 1;
+			END IF;
+			
+			IF LASTMOVE(refInTendrTyp) THEN
+				SET refOutRtlTrans.arts:LineItem[I].arts:SequenceNumber = tendrSeqNum;
+				--TODO
+				DECLARE refInLyltyRdmptn REFERENCE TO refInTendrTyp.arts:LoyaltyRedemption;
+				DECLARE refInLyltyCrncy REFERENCE TO refInLyltyRdmptn.arts:LoyaltyCurrencies.arts:LoyaltyCurrency;				
+				SET refOutRtlTrans.arts:LineItem[I].arts:Tender.arts:Amount = CAST(FIELDVALUE(refInTendrTyp.arts:FastFindExtensions.arts:RequestedAmount)AS DECIMAL);
+				IF (refInTendrTyp.arts:TenderTypeCode = 'CASH') THEN
+					SET refOutRtlTrans.arts:LineItem[I].arts:Tender.(XMLNSC.Attribute)TenderType = 'Cash';
+					SET refOutRtlTrans.arts:LineItem[I].arts:Tender.(XMLNSC.Attribute)TypeCode = 'Sale';
+					SET refOutRtlTrans.arts:LineItem[I].arts:Tender.(XMLNSC.Attribute)SubTenderType = FIELDVALUE(refInTendrTyp.arts:CurrencyCode);
+					SET refOutRtlTrans.arts:LineItem[I].arts:Tender.arts:CashbackAmount = CAST(FIELDVALUE(refInTendrTyp.arts:CashbackAmount)AS DECIMAL);
+					DECLARE refForgnTdrTpe REFERENCE TO refInTendrTyp.arts:ForeignTenderType;
+					IF LASTMOVE(refForgnTdrTpe) THEN
+						SET refOutRtlTrans.arts:LineItem[I].arts:Tender.arts:ForeignCurrency.arts:CurrencyCode = FIELDVALUE(refInTendrTyp.arts:ForeignTenderType.arts:ForeignCurrencyCode);
+						SET refOutRtlTrans.arts:LineItem[I].arts:Tender.arts:ForeignCurrency.arts:OriginalFaceAmount = FIELDVALUE(refInTendrTyp.arts:ForeignTenderType.arts:ForeignCurrencyAmount);	
+					END IF;
+				ELSEIF (refInTendrTyp.arts:TenderTypeCode = 'CREDITDEBIT') THEN
+					SET refOutRtlTrans.arts:LineItem[I].arts:Tender.(XMLNSC.Attribute)TenderType = 'CreditDebit';
+					SET refOutRtlTrans.arts:LineItem[I].arts:Tender.(XMLNSC.Attribute)TypeCode = 'Sale';
+					IF LCASE(TRIM(FIELDVALUE(refInTendrTyp.arts:TenderTypeDescriptionText))) = 'mastercard' THEN						
+						SET refOutRtlTrans.arts:LineItem[I].arts:Tender.(XMLNSC.Attribute)SubTenderType = UPPER(SUBSTRING(FIELDVALUE(refInTendrTyp.arts:TenderTypeDescriptionText) FROM 1 FOR 1))||LCASE(SUBSTRING(FIELDVALUE(refInTendrTyp.arts:TenderTypeDescriptionText) FROM 2 FOR 5))||UPPER(SUBSTRING(FIELDVALUE(refInTendrTyp.arts:TenderTypeDescriptionText) FROM 7 FOR 1))||LCASE(SUBSTRING(FIELDVALUE(refInTendrTyp.arts:TenderTypeDescriptionText) FROM 8 FOR 3));
+					ELSE
+						SET refOutRtlTrans.arts:LineItem[I].arts:Tender.(XMLNSC.Attribute)SubTenderType = SUBSTRING(FIELDVALUE(refInTendrTyp.arts:TenderTypeDescriptionText) FROM 1 FOR 1)||LCASE(SUBSTRING(FIELDVALUE(refInTendrTyp.arts:TenderTypeDescriptionText) FROM 2));
+					END IF;		
+					SET refOutRtlTrans.arts:LineItem[I].arts:Tender.arts:Authorization.arts:AuthorizationCode = FIELDVALUE(refInTendrTyp.arts:FastFindExtensions.arts:AdjudicationCode);
+					SET refOutRtlTrans.arts:LineItem[I].arts:Tender.arts:CreditDebit.arts:PrimaryAccountNumber = BASE64ENCODE(CAST(FIELDVALUE(refInTendrTyp.arts:FastFindExtensions.arts:CardIssueSequenceNumber) AS CHARACTER));
+					SET refOutRtlTrans.arts:LineItem[I].arts:Tender.arts:CreditDebit.arts:ExpirationDate = FIELDVALUE(refInTendrTyp.arts:FastFindExtensions.arts:CardExpirationDate);
+					SET refOutRtlTrans.arts:LineItem[I].arts:Tender.arts:CreditDebit.arts:BankResponseSequenceNumber = FIELDVALUE(refInTendrTyp.arts:FastFindExtensions.arts:AccountNumber);
+					CREATE NEXTSIBLING OF refOutTrans.arts:OperatorID NAMESPACE arts NAME 'PinpadNumber' VALUE FIELDVALUE(refInTendrTyp.arts:FastFindExtensions.arts:TenderAuthorizationTerminalId);
+				ELSEIF (refInTendrTyp.arts:TenderTypeCode = 'GIFTCARD') THEN
+					SET refOutRtlTrans.arts:LineItem[I].arts:Tender.(XMLNSC.Attribute)TenderType = 'GiftCard';
+					SET refOutRtlTrans.arts:LineItem[I].arts:Tender.(XMLNSC.Attribute)TypeCode = 'Sale';
+					SET refOutRtlTrans.arts:LineItem[I].arts:Tender.(XMLNSC.Attribute)SubTenderType = FIELDVALUE(refInTendrTyp.arts:CurrencyCode);
+					SET refOutRtlTrans.arts:LineItem[I].arts:Tender.arts:GiftCard.arts:CardNumber = FIELDVALUE(refInTendrTyp.arts:FastFindExtensions.arts:CardIssueSequenceNumber);
+				-- Loyalty Redemption mapping changes part of Loyalty Program changes. TPS to CSS mapping v1.24.
+				ELSEIF (refInTendrTyp.arts:TenderTypeCode = 'LoyaltyRedemption') THEN
+					SET refOutRtlTrans.arts:LineItem[I].arts:Tender.(XMLNSC.Attribute)TenderType = 'LoyaltyRedemption';
+					SET refOutRtlTrans.arts:LineItem[I].arts:Tender.(XMLNSC.Attribute)TypeCode = 'Sale';				
+					SET refOutRtlTrans.arts:LineItem[I].arts:Tender.arts:LoyaltyRedemption.arts:LoyaltyProgramName = FIELDVALUE(refInLyltyRdmptn.arts:LoyaltyProgramName);
+					SET refOutRtlTrans.arts:LineItem[I].arts:Tender.arts:LoyaltyRedemption.arts:LoyaltyCardNumber  = FIELDVALUE(refInLyltyRdmptn.arts:LoyaltyCardNumber);
+					SET refOutRtlTrans.arts:LineItem[I].arts:Tender.arts:LoyaltyRedemption.arts:LoyaltyCurrencies.arts:Count = 1;
+					SET refOutRtlTrans.arts:LineItem[I].arts:Tender.arts:LoyaltyRedemption.arts:LoyaltyCurrencies.arts:LoyaltyCurrency.arts:Index = 1;
+					SET refOutRtlTrans.arts:LineItem[I].arts:Tender.arts:LoyaltyRedemption.arts:LoyaltyCurrencies.arts:LoyaltyCurrency.arts:LoyaltyCurrencyTypeCode = FIELDVALUE(refInLyltyCrncy.arts:LoyaltyCurrencyTypeCode);
+					SET refOutRtlTrans.arts:LineItem[I].arts:Tender.arts:LoyaltyRedemption.arts:LoyaltyCurrencies.arts:LoyaltyCurrency.arts:LoyaltyCurrencyDescriptionText = FIELDVALUE(refInLyltyCrncy.arts:LoyaltyCurrencyDescriptionText);
+					SET refOutRtlTrans.arts:LineItem[I].arts:Tender.arts:LoyaltyRedemption.arts:LoyaltyCurrencies.arts:LoyaltyCurrency.arts:LoyaltyCurrencyDetail.arts:UnitsRedeemedQuantity = FIELDVALUE(refInLyltyCrncy.arts:LoyaltyCurrencyDetail.arts:UnitsRedeemedQuantity);
+					SET refOutRtlTrans.arts:LineItem[I].arts:Tender.arts:LoyaltyRedemption.arts:LoyaltyCurrencies.arts:LoyaltyCurrency.arts:MonetaryValueAmount.arts:Amount = FIELDVALUE(refInLyltyCrncy.arts:MonetaryValueAmount.arts:Amount);
+					SET refOutRtlTrans.arts:LineItem[I].arts:Tender.arts:LoyaltyRedemption.arts:LoyaltyCurrencies.arts:LoyaltyCurrency.arts:MonetaryValueAmount.arts:CurrencyCode = FIELDVALUE(refInLyltyCrncy.arts:MonetaryValueAmount.arts:CurrencyCode);				
+				END IF;
+				
+				
+				SET I = I+1;
+				SET tendrSeqNum = tendrSeqNum + 1;
+			END IF;
+			
+			IF (SaleGftCrdFlg)  THEN
+				SET refOutRtlTrans.arts:LineItem[I].arts:SequenceNumber = seqNum;
+				SET refOutRtlTrans.arts:LineItem[I].arts:SaleOfGiftCard.arts:CardNumber = Environment.Variables.GiftCardNumbFull;
+				SET refOutRtlTrans.arts:LineItem[I].arts:SaleOfGiftCard.arts:ItemID		= '400008725941'; --to be exteralized --TODO
+				SET refOutRtlTrans.arts:LineItem[I].arts:SaleOfGiftCard.arts:InitialBalance = CAST(FIELDVALUE(refInCustOrd.arts:VirtualTenderSubtotalAmount) AS DECIMAL);
+				SET SaleGftCrdFlg = FALSE;
+				SET seqNum = seqNum + 1;
+				SET I = I+1;
+			END IF;
+			
+			SET associatedId = FIELDVALUE(refInCustOrdItm.arts:CustomerOrderDiscountLineItem.arts:EmployeeDiscountCardNumber);
+			MOVE refInCustOrdItm NEXTSIBLING;
+		END WHILE;
+		SET refOutRtlTrans.arts:Total[1].(XMLNSC.Attribute)TotalType = 'TransactionGrossAmount';
+		SET refOutRtlTrans.arts:Total[1] =FIELDVALUE(refInCustOrd.arts:OrderTotalAmount);
+		SET refOutRtlTrans.arts:Total[2].(XMLNSC.Attribute)TotalType = 'TransactionSubtotal';
+		--SET refOutRtlTrans.arts:Total[2] = FIELDVALUE(refInCustOrd.arts:OrderSubtotalAmount);
+		SET refOutRtlTrans.arts:Total[2] = FIELDVALUE(refInCustOrd.arts:OrderTotalAmount);
+		IF (LENGTH(associatedId) > 0) THEN
+			SET refOutRtlTrans.arts:Associate.arts:AssociateID = associatedId;
+		END IF;
+		--  LoyaltyTransactionID field mapped part of TPS to CSS mapping v1.24.
+		SET refOutTrans.arts:LoyaltyTransactionID = refInExchg.eai:Messages.eai:ArtsCustomerOrders.arts:LoyaltyTransactionID;		
+		--Added message logging in debug mode
+		SET OutputLocalEnvironment.Variables.SubmitTrans.Message = CAST(ASBITSTREAM( OutputRoot.XMLNSC.eai:Exchange OPTIONS FolderBitStream) AS CHAR CCSID CAST(Environment.MQMD.CodedCharSetId AS INT) ENCODING CAST(Environment.MQMD.Encoding AS INT));
+		CALL core.log.Debug(MessageFlowLabel||'Module name: etps_request_creation: '|| OutputLocalEnvironment.Variables.SubmitTrans.Message);
+		CALL core.log.Info(MessageFlowLabel||'Module name: etps_request_creation'||' - RetailStoreID :'||CAST(refInTrans.arts:RetailStoreID AS CHARACTER)||' - TransactionID :'||CAST(refInTrans.arts:TransactionID AS CHARACTER)||' - Loyalty TransactionID :'||CAST(refOutTrans.arts:LoyaltyTransactionID AS CHARACTER)||' - WorkstationID :'||CAST(refInTrans.arts:WorkstationID AS CHARACTER)||' - SequenceNumber :'||CAST(refInTrans.arts:SequenceNumber AS CHARACTER));	
+		CALL core.log.Info(MessageFlowLabel||'Module name: etps_request_creation - transaction message creation : end for -'||'EXTERNAL_ORDER :'||CAST(Environment.XMLNSC.nsOrder:Exchange.nsOrder:Messages.nsOrder:ArtsCustomerOrders.nsOrder1:CustomerOrderNumber AS CHARACTER));		
+	  RETURN TRUE;
+	END;
+END MODULE;

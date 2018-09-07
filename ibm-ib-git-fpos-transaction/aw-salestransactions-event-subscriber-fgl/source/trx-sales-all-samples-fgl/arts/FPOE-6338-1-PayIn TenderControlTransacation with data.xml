@@ -1,0 +1,58 @@
+<eai:Exchange xmlns:arts="http://www.fgl.com/ARTS" xmlns:eai="http://www.fgl.com/exchange/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" MajorVersion="2" MinorVersion="0" FixVersion="0" xsi:schemaLocation="http://www.fgl.com/exchange/ file:///C:/Users/plam/Documents/GIT-REPO/IIB/xsd/arts/ARTSTransactionMessageV2_00_00.xsd">
+	<eai:MessageRouting>
+		<eai:Guid>37984B5264DA008CE0530A6702465199</eai:Guid>
+		<eai:MessageId>String</eai:MessageId>
+		<eai:MessageType>PubSub</eai:MessageType>
+		<eai:SubjectArea>Normal Retail Sales Transactions</eai:SubjectArea>
+		<eai:SbuNumber>3</eai:SbuNumber>
+		<eai:SbuCode>FGL</eai:SbuCode>
+		<eai:SbuName>FGL Sports Ltd.</eai:SbuName>
+		<eai:DataSourceCode>POE</eai:DataSourceCode>
+		<eai:DataSourceCodeName>POE POS FGL</eai:DataSourceCodeName>
+		<eai:MessageIndex>1</eai:MessageIndex>
+		<eai:MessageCount>1</eai:MessageCount>
+		<eai:SubjectAreaRunName>salestransactions-309-20160506-152444</eai:SubjectAreaRunName>
+	</eai:MessageRouting>
+	<eai:Messages>
+		<eai:Count>1</eai:Count>
+		<eai:SourceSystems>
+			<eai:Count>1</eai:Count>
+			<eai:SourceSystem>
+				<eai:Index>1</eai:Index>
+				<eai:SbuNumber>3</eai:SbuNumber>
+				<eai:SbuCode>FGL</eai:SbuCode>
+				<eai:SbuName>FGL Sports Ltd.</eai:SbuName>
+				<eai:MessageSourceCode>CSS</eai:MessageSourceCode>
+				<eai:MessageSourceCodeName>Central Sales Server</eai:MessageSourceCodeName>
+			</eai:SourceSystem>
+		</eai:SourceSystems>
+		<eai:POSLog>
+			<arts:Count>1</arts:Count>
+			<arts:Transaction TypeCode="PayIn">
+				<arts:BusinessUnit>
+					<arts:BusinessUnitNumber>309</arts:BusinessUnitNumber>
+					<arts:BusinessUnitTypeCode>RS</arts:BusinessUnitTypeCode>
+					<arts:BusinessUnitShortName>SC309</arts:BusinessUnitShortName>
+					<arts:BusinessUnitName>SC MARKET MALL</arts:BusinessUnitName>
+				</arts:BusinessUnit>
+				<arts:WorkstationID>1</arts:WorkstationID>
+				<arts:SequenceNumber>2069</arts:SequenceNumber>
+				<arts:BeginDateTime>2016-05-06T15:24:44</arts:BeginDateTime>
+				<arts:EndDateTime>2016-05-06T15:24:44</arts:EndDateTime>
+				<arts:OperatorID>1</arts:OperatorID>
+				<arts:TransactionApproval>
+					<arts:ApproverID>35824</arts:ApproverID>
+				</arts:TransactionApproval>
+				<arts:TenderControlTransaction>
+					<arts:TenderControlTransactionSubtypeCode>PayIn</arts:TenderControlTransactionSubtypeCode>
+					<arts:PayIn>
+						<arts:TenderAmount>1</arts:TenderAmount>
+						<arts:ReasonCode>SUPPLIES</arts:ReasonCode>
+						<arts:ReasonDescriptionText>Supplies</arts:ReasonDescriptionText>
+					</arts:PayIn>
+				</arts:TenderControlTransaction>
+				<arts:TransactionSubtypeCode>TenderControlTransaction</arts:TransactionSubtypeCode>
+			</arts:Transaction>
+		</eai:POSLog>
+	</eai:Messages>
+</eai:Exchange>

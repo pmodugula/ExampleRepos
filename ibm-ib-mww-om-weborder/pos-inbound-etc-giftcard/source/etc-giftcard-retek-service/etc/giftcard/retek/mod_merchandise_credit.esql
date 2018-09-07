@@ -1,0 +1,262 @@
+
+
+BROKER SCHEMA etc.giftcard.retek
+
+
+CREATE COMPUTE MODULE mod_set_env_927
+	CREATE FUNCTION Main() RETURNS BOOLEAN
+	BEGIN
+		SET OutputRoot = InputRoot;
+
+		DECLARE refInpMsg REFERENCE TO InputRoot.DFDL.Input927.body;
+		DECLARE ExtrctGivxCrdNumb CHARACTER SUBSTRING(refInpMsg.GivexNumb FROM 7 FOR 13);
+
+		SET Environment.GivxCrdNumb = CAST(ExtrctGivxCrdNumb AS INTEGER);
+		SET Environment.ChkDgt = SUBSTRING(CAST(refInpMsg.GivexNumb AS CHARACTER) FROM 20);
+
+		RETURN TRUE;
+	END;
+END MODULE;
+
+CREATE DATABASE MODULE mod_retrieve_Exst_giftcard_dtls_927
+	CREATE FUNCTION Main() RETURNS BOOLEAN
+	BEGIN
+
+		DECLARE query CHARACTER;
+		CALL core.log.Debug(MessageFlowLabel||'Module name: mod_retrieve_Exst_giftcard_dtls_927 - select start');
+		SET query = 'SELECT GC.* , GCD.DENOMINATIONAMOUNT,GCD.DENOMINATIONID
+		FROM '||RetekSchema||'.GIFTCARD GC, '||RetekSchema||'.GIFTCARDTYPE GCT, '||RetekSchema||'.GIFTCARDDENOMINATION GCD
+		WHERE GIFTCARDNUMBER= ?
+		AND GCT.SKU = GC.SKU AND GCD.DENOMINATIONID = GCT.DENOMINATIONID';
+		--Store existing Gift card details in Environment
+		SET Environment.ExstGiftCrdDtls.row[] =
+		PASSTHRU(query
+		VALUES (Environment.GivxCrdNumb));
+		CALL core.log.Debug(MessageFlowLabel||'Module name: mod_retrieve_Exst_giftcard_dtls_927 - select end');
+		RETURN TRUE;
+	END;
+END MODULE;
+
+
+CREATE COMPUTE MODULE mod_set_currentGiftCard_value_927
+	CREATE FUNCTION Main() RETURNS BOOLEAN
+	BEGIN
+
+		SEt OutputRoot=InputRoot;
+		-- Check if the amount is denominal
+		IF ( Environment.ExstGiftCrdDtls.row[1].DENOMINATIONAMOUNT > 0) THEN
+
+			SET Environment.GiftCrdVal = Environment.ExstGiftCrdDtls.row[1].HISTORYAMOUNT;
+		ELSE
+			SET Environment.GiftCrdVal = 0.0;
+		END IF;
+		-- Reference to existing Gift card details
+		DECLARE refCurGiftCrd REFERENCE TO Environment.ExstGiftCrdDtls.row[1];
+
+		SET Environment.GvxMsdId = SUBSTRING(refCurGiftCrd.GIFTCARDHISTORYCOMMENT FROM 1 FOR 3);		
+
+		
+
+
+	END;
+END MODULE;
+
+
+CREATE COMPUTE MODULE mod_create_dataconnect_response_927
+	CREATE FUNCTION Main() RETURNS BOOLEAN
+	BEGIN
+
+		SET OutputRoot.Properties = InputRoot.Properties;
+		SET OutputRoot.Properties.MessageType = '{}:Output_927';
+
+		DECLARE refOut,refOutBody REFERENCE TO OutputRoot;
+		DECLARE refInpMsg REFERENCE TO InputRoot.DFDL.Input927.body;
+		DECLARE refResult REFERENCE TO Environment.CurGiftCrd.Row[1];
+		-- Create Dataconect message to send the Activated Gift Card details
+		-------------
+		-- Start
+		-------------
+		CREATE LASTCHILD OF OutputRoot AS refOut DOMAIN 'DFDL';
+
+		CREATE LASTCHILD OF refOut.Output927 AS refOutBody NAME 'body';
+
+		SET refOutBody.TransactionCode = refInpMsg.TransCode;
+		SET refOutBody.Result = '0';
+		SET refOutBody.Msg = refInpMsg.TransCode;
+		SET refOutBody.CertBal = CAST(refResult.GIFTCARDVALUE AS CHARACTER);
+		SET refOutBody.CertExpDate = SUBSTRING(CAST(refResult.GIFTCARDEXPIRYDATE AS CHARACTER) FROM 7 FOR 10);
+		-------------
+		-- End
+		-------------
+		RETURN TRUE;
+		RETURN TRUE;
+	END;
+END MODULE;
+
+
+CREATE DATABASE MODULE mod_retrieve_current_giftcard_dtls_927
+	CREATE FUNCTION Main() RETURNS BOOLEAN
+	BEGIN
+		SET Environment.CurGiftCrd.Row[] =
+		PASSTHRU('SELECT * FROM '||RetekSchema||'.GIFTCARD where GIFTCARDNUMBER= ?'
+		VALUES (Environment.GivxCrdNumb));
+
+		RETURN TRUE;
+	END;
+END MODULE;
+CREATE FILTER MODULE mod_CheckGiftCardPresent_927
+	CREATE FUNCTION Main() RETURNS BOOLEAN
+	BEGIN
+		DECLARE refResult REFERENCE TO Environment.ExstGiftCrdDtls.row[1];
+		--In case gift card not found then raise an exception
+		IF NOT LASTMOVE(refResult) THEN
+			CALL core.log.Debug(MessageFlowLabel||'Module name: CheckGiftCardPresent - RETURN FALSE');
+			RETURN FALSE;
+		END IF;
+		CALL core.log.Debug(MessageFlowLabel||'Module name: CheckGiftCardPresent - RETURN TRUE');
+		RETURN TRUE;
+	END;
+END MODULE;
+
+
+CREATE FILTER MODULE mod_GiftCardValue_Gt_500
+	CREATE FUNCTION Main() RETURNS BOOLEAN
+	BEGIN
+		DECLARE refResult REFERENCE TO Environment.CurGiftCrd.Row[1];
+		--In case gift card not found then raise an exception
+		IF (CAST(Root.DFDL.Input927.body.Amount AS DECIMAL) > 500 OR CAST(Root.DFDL.Input927.body.Amount AS DECIMAL) < 0) THEN
+			CALL core.log.Debug(MessageFlowLabel||'Module name: GiftCardValue_Gt_500 - RETURN FALSE');
+			RETURN FALSE;
+		END IF;
+		CALL core.log.Debug(MessageFlowLabel||'Module name: GiftCardValue_Gt_500 - RETURN TRUE');
+		RETURN TRUE;
+	END;
+
+END MODULE;
+CREATE FILTER MODULE mod_non_reversal_transaction_927
+	CREATE FUNCTION Main() RETURNS BOOLEAN
+	BEGIN
+		DECLARE refResult REFERENCE TO Environment.ExstGiftCrdDtls.row[1];
+		IF (Root.DFDL.Input918.body.TransCode = refResult.LINE_TRANSACTION_ID) THEN
+			CALL core.log.Debug(MessageFlowLabel||'Module name: non_reversal_transaction - RETURN TRUE');
+			RETURN TRUE;
+		END IF;
+		CALL core.log.Debug(MessageFlowLabel||'Module name: non_reversal_transaction - RETURN FALSE');
+		RETURN FALSE;
+	END;
+
+END MODULE;
+
+CREATE FILTER MODULE mod_CheckUserAdPass_927
+	CREATE FUNCTION Main() RETURNS BOOLEAN
+	BEGIN
+		DECLARE refResult REFERENCE TO Environment.ExstGiftCrdDtls.row[1];
+		IF ((Root.DFDL.Input927.body.UserId = UserName) AND (Root.DFDL.Input927.body.Passwrd = Password) ) THEN
+			CALL core.log.Debug(MessageFlowLabel||'Module name: CheckUserAdPass - RETURN TRUE');
+			RETURN TRUE;
+		END IF;
+		CALL core.log.Debug(MessageFlowLabel||'Module name: CheckUserAdPass - RETURN FALSE');
+		RETURN FALSE;
+	END;
+
+END MODULE;
+
+CREATE FILTER MODULE mod_DigitCheck_927
+	CREATE FUNCTION Main() RETURNS BOOLEAN
+	BEGIN
+
+		DECLARE refResult REFERENCE TO Environment.ExstGiftCrdDtls.row[1];
+		--In case gift card not found then raise an exception
+		IF (refResult.GIFTCARDCHECKDIGIT <> Environment.ChkDgt ) THEN
+			CALL core.log.Debug(MessageFlowLabel||'Module name: DigitCheck - RETURN FALSE');
+			RETURN FALSE;
+		END IF;
+		CALL core.log.Debug(MessageFlowLabel||'Module name: DigitCheck - RETURN TRUE');
+		RETURN TRUE;
+	END;
+
+END MODULE;
+
+CREATE FILTER MODULE mod_Check_NonDenominalCard
+	CREATE FUNCTION Main() RETURNS BOOLEAN
+	BEGIN
+		IF (Environment.ExstGiftCrdDtls.row[1].DENOMINATIONID = '6')THEN
+			CALL core.log.Debug(MessageFlowLabel||'Module name: Check_NonDenominalCard - RETURN TRUE');
+		RETURN TRUE;
+		END IF;
+	CALL core.log.Debug(MessageFlowLabel||'Module name: Check_NonDenominalCard - RETURN FALSE');
+	RETURN FALSE;
+	END;
+
+END MODULE;
+CREATE FILTER MODULE mod_CheckState_927
+	CREATE FUNCTION Main() RETURNS BOOLEAN
+	BEGIN
+		DECLARE refResult REFERENCE TO Environment.ExstGiftCrdDtls.row[1];
+		IF ( refResult.CURRENTCARDSTATE NOT IN (10,20,30) ) THEN
+			CALL core.log.Debug(MessageFlowLabel||'Module name: CheckState - RETURN FALSE');
+			RETURN FALSE;
+		END IF;
+		CALL core.log.Debug(MessageFlowLabel||'Module name: CheckState - RETURN TRUE');
+		RETURN TRUE;
+	END;
+
+END MODULE;
+
+CREATE DATABASE MODULE mod_credit_amount_927
+	CREATE FUNCTION Main() RETURNS BOOLEAN
+	BEGIN
+		-- Reference to existing Gift card details
+		DECLARE refCurGiftCrd REFERENCE TO Environment.ExstGiftCrdDtls.row[1];
+		DECLARE refInpMsg REFERENCE TO Root.DFDL.Input927.body;
+		DECLARE expYears CHARACTER '2';
+		CALL core.log.Debug(MessageFlowLabel||'Module name: mod_credit_amount_927 - update start');
+		SET LocalEnvironment.Upd_GC.row[] = PASSTHRU('UPDATE '||RetekSchema||'.GIFTCARD
+		SET GIFTCARDVALUE = ? ,GIFTCARDEXPIRYDATE =? , CURRENTCARDSTATE = ?, ISSUINGSTOREID = ?
+		WHERE GIFTCARDNUMBER= ? '
+		VALUES(refInpMsg.Amount,CURRENT_DATE + CAST(expYears as INTERVAL YEAR),'40',SUBSTRING(refInpMsg.TransCode FROM 1 FOR 4),Environment.GivxCrdNumb));
+		CALL core.log.Debug(MessageFlowLabel||'Module name: mod_credit_amount_927 - update end');
+		RETURN TRUE;
+	END;
+END MODULE;
+
+
+CREATE DATABASE MODULE mod_log_history_927
+	CREATE FUNCTION Main() RETURNS BOOLEAN
+	BEGIN
+		-- Reference to existing Gift card details
+		DECLARE refCurGiftCrd REFERENCE TO Environment.ExstGiftCrdDtls.row[1];
+		DECLARE Insert_GCH CHARACTER;
+		DECLARE refInpMsg REFERENCE TO Root.DFDL.Input927.body;
+		
+		------------- POE-27321 converted to MST time stamp --------
+		DECLARE GCHTS TIMESTAMP;
+        DECLARE mstGCHTS CHARACTER;
+   		SET GCHTS = CAST(CURRENT_TIMESTAMP AS TIMESTAMP FORMAT 'I');
+        CALL getTimestampInMST(GCHTS) INTO mstGCHTS;
+        ------------------
+        
+		CALL core.log.Debug(MessageFlowLabel||'Module name: mod_log_history_927 - insert start');
+		DECLARE LineTransId CHARACTER SUBSTRING(refInpMsg.TransCode FROM 1 FOR 3)||'*'||SUBSTRING(refInpMsg.TransCode FROM 4 FOR 2)||'*'||CAST( CURRENT_DATE AS CHARACTER FORMAT 'yyyyMMdd')||'*'||SUBSTRING(refInpMsg.TransCode FROM 6);
+		-- Insert goes after update
+		SET Insert_GCH = 'INSERT INTO '||RetekSchema||'.GIFTCARDHISTORY
+		(GIFTCARDNUMBER,GIFTCARDHISTTIMESTAMP,HISTORYFROMSTATE,HISTORYTOSTATE,HISTORYAMOUNT,HISTORYLDAPPROFILE,STORE_ID,LINE_TRANSACTION_ID,LINE_SEQUENCE_NUMBER,GIFTCARDHISTORYCOMMENT)
+		VALUES(?,?,?,?,?,?,?,?,?,?)';
+		SET LocalEnvironment.Insert_GCH.Row[] =
+		PASSTHRU(Insert_GCH VALUES(Environment.GivxCrdNumb,mstGCHTS,refCurGiftCrd.CURRENTCARDSTATE,40,refInpMsg.Amount ,refInpMsg.UserId,SUBSTRING(refInpMsg.TransCode FROM 1 FOR 3),LineTransId,NULL,refInpMsg.GivexMsdIdFrmt ||'- Merchandise credit'));
+		CALL core.log.Debug(MessageFlowLabel||'Module name: mod_log_history_927 - insert end');
+		RETURN TRUE;
+	END;
+END MODULE;
+
+CREATE DATABASE MODULE mod_retrieve_giftcard_dtls_927
+	CREATE FUNCTION Main() RETURNS BOOLEAN
+	BEGIN
+		CALL core.log.Debug(MessageFlowLabel||'Module name: mod_retrieve_giftcard_dtls_927 - select start');
+		SET Environment.CurGiftCrd.Row[] =
+		PASSTHRU('SELECT * FROM '||RetekSchema||'.GIFTCARD where GIFTCARDNUMBER= ?'
+		VALUES (Environment.GivxCrdNumb));
+		CALL core.log.Debug(MessageFlowLabel||'Module name: mod_retrieve_giftcard_dtls_927 - select end');
+		RETURN TRUE;
+	END;
+END MODULE;

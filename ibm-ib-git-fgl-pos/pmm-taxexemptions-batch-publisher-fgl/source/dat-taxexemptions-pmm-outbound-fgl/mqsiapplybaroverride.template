@@ -1,0 +1,8 @@
+dat.tax.pmm.initial_load#IIBInboundQueue=RECV.${TAX_EXN_INIT_IN_DS}
+dat.tax.pmm.initial_load#IIBOutboundQueue=SEND.${TAX_EXN_INIT_IN_IB}
+dat.tax.pmm.initial_load#CoreAuditDataSource=AUD${ENVN}${INST}
+dat.tax.pmm.initial_load#additionalInstances=${EXTRATHREADS}
+dat.tax.pmm.initial_load#PreProcessorAuditEnabled=False
+dat.tax.pmm.initial_load#PostProcessorAuditEnabled=False
+dat.tax.pmm.initial_load#CoreDatastageMessageValidation=${DS_VALIDATION}
+dat.tax.pmm.initial_load#CoreArtsMessageValidation=${ARTS_VALIDATION}

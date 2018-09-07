@@ -1,0 +1,132 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<!-- edited with XMLSpy v2014 rel. 2 (http://www.altova.com) by Ron Matyjanka (FGL SPORTS LTD) -->
+<!--
+ * ER/Studio Data Architect XE3 %s XML Schema Generation
+ * Company:		FGL Sports
+ * Project:		FGL Corporate Data Warehouse
+ * Author:		Warren Whale
+ * Version:		1.0
+ * Date Created:	2015-01-23
+-->
+<xs:schema xmlns:arts="http://www.fgl.com/ARTS" xmlns:xs="http://www.w3.org/2001/XMLSchema" targetNamespace="http://www.fgl.com/ARTS" elementFormDefault="qualified">
+	<xs:include schemaLocation="AttributeGroupsV1_00_00.xsd"/>
+	<xs:complexType name="ArtsTelephoneType">
+		<xs:annotation>
+			<xs:documentation>A telephone, cellular, pager, fax or other telecommunication device number.</xs:documentation>
+		</xs:annotation>
+		<xs:sequence>
+			<xs:element name="Index" type="xs:long"/>
+			<xs:element name="SbuNumber">
+				<xs:complexType>
+					<xs:simpleContent>
+						<xs:extension base="xs:string">
+							<xs:attributeGroup ref="arts:ElementControlAttributeGroup"/>
+						</xs:extension>
+					</xs:simpleContent>
+				</xs:complexType>
+			</xs:element>
+			<xs:element name="SbuCode">
+				<xs:complexType>
+					<xs:simpleContent>
+						<xs:extension base="xs:string">
+							<xs:attributeGroup ref="arts:ElementControlAttributeGroup"/>
+						</xs:extension>
+					</xs:simpleContent>
+				</xs:complexType>
+			</xs:element>
+			<xs:element name="SbuName">
+				<xs:complexType>
+					<xs:simpleContent>
+						<xs:extension base="xs:string">
+							<xs:attributeGroup ref="arts:ElementControlAttributeGroup"/>
+						</xs:extension>
+					</xs:simpleContent>
+				</xs:complexType>
+			</xs:element>
+			<xs:element name="DataSourceCode">
+				<xs:complexType>
+					<xs:simpleContent>
+						<xs:extension base="xs:string">
+							<xs:attributeGroup ref="arts:ElementControlAttributeGroup"/>
+						</xs:extension>
+					</xs:simpleContent>
+				</xs:complexType>
+			</xs:element>
+			<xs:element name="DataSourceCodeName">
+				<xs:complexType>
+					<xs:simpleContent>
+						<xs:extension base="xs:string">
+							<xs:attributeGroup ref="arts:ElementControlAttributeGroup"/>
+						</xs:extension>
+					</xs:simpleContent>
+				</xs:complexType>
+			</xs:element>
+			<xs:element name="PhoneNumberType">
+				<xs:annotation>
+					<xs:documentation>Fax, Office, Mobile, etc.</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="ITUCountryCode" nillable="true">
+				<xs:annotation>
+					<xs:documentation>A 1 - 3 digit telephone number dialling code denoting a Country or similar locality as assigned by the International Telgraphic Union (ITU).</xs:documentation>
+				</xs:annotation>
+				<xs:complexType>
+					<xs:simpleContent>
+						<xs:extension base="xs:string">
+							<xs:attributeGroup ref="arts:ElementControlAttributeGroup"/>
+						</xs:extension>
+					</xs:simpleContent>
+				</xs:complexType>
+			</xs:element>
+			<xs:element name="AreaCode" nillable="true">
+				<xs:annotation>
+					<xs:documentation>The 1 - 6 digit area code that further categorizes the Telephone with it's Country.</xs:documentation>
+				</xs:annotation>
+				<xs:complexType>
+					<xs:simpleContent>
+						<xs:extension base="xs:string">
+							<xs:attributeGroup ref="arts:ElementControlAttributeGroup"/>
+						</xs:extension>
+					</xs:simpleContent>
+				</xs:complexType>
+			</xs:element>
+			<xs:element name="TelephoneNumberText" nillable="true">
+				<xs:annotation>
+					<xs:documentation>The 5 - 8 digit number for the Telephone within the confines of the ITUCountryCode and AreaCode.</xs:documentation>
+				</xs:annotation>
+				<xs:complexType>
+					<xs:simpleContent>
+						<xs:extension base="xs:string">
+							<xs:attributeGroup ref="arts:ElementControlAttributeGroup"/>
+						</xs:extension>
+					</xs:simpleContent>
+				</xs:complexType>
+			</xs:element>
+			<xs:element name="CompleteTelephoneNumberText" nillable="true">
+				<xs:annotation>
+					<xs:documentation>The complete telephone number including the CountryCode, AreaCode, Telephone Number and ExtensionNumber.</xs:documentation>
+				</xs:annotation>
+				<xs:complexType>
+					<xs:simpleContent>
+						<xs:extension base="xs:string">
+							<xs:attributeGroup ref="arts:ElementControlAttributeGroup"/>
+						</xs:extension>
+					</xs:simpleContent>
+				</xs:complexType>
+			</xs:element>
+			<xs:element name="ExtensionText" nillable="true">
+				<xs:annotation>
+					<xs:documentation>Addtional numbers required to reach a Party's Telephone or voice mailbox.</xs:documentation>
+				</xs:annotation>
+				<xs:complexType>
+					<xs:simpleContent>
+						<xs:extension base="xs:string">
+							<xs:attributeGroup ref="arts:ElementControlAttributeGroup"/>
+						</xs:extension>
+					</xs:simpleContent>
+				</xs:complexType>
+			</xs:element>
+		</xs:sequence>
+		<xs:attributeGroup ref="arts:TypeControlAttributeGroup"/>
+	</xs:complexType>
+</xs:schema>

@@ -1,0 +1,85 @@
+{
+  "msgType": "transaction",
+  "transactionId": "552782016121913301",
+  "transactionTypeCode": "SaleTransaction",
+  "majorVersion": 4,
+  "retailStoreId": "552",
+  "workstationId": "78",
+  "sequenceNumber": "13301",
+  "beginDateTime": "2015-01-30T16:54:19-07:00",
+  "endDateTime": "2015-01-30T16:55:19-07:00",
+  "operatorId": "33655",
+  "sourceSystem": "POE",
+  "retailTransaction": {
+    "productLineItems": [
+      {
+        "lineItemSeqNumber": "1",
+        "itemNumber": "410011828553",
+        "merchandiseHierarchyLevel": "4",
+        "merchandiseHierarchyId": "7B",
+        "regularSalesUnitPrice": 20.00,
+        "actualSalesPrice": 20.00,
+        "basePrice": 20.00,
+        "proratedPrice": 20.00,
+        "discountAmount": 0.00,
+        "quantity": 1,
+        "taxes": [
+          {
+            "type": "GST",
+            "taxAmountPerItem": 1.00
+          },
+          {
+            "type": "PSTMB",
+            "taxAmountPerItem": 1.60
+          }
+        ]
+      }
+    ],
+    "tenders": [
+      {
+        "amount": 20.00,
+        "subTenderType": "CAD",
+        "tenderType": "Cash"
+      }
+    ],
+    "taxes": [
+      {
+        "type": "GST",
+        "typeCode": "Sale",
+        "amount": 1.00,
+        "taxExemption": {
+          "exemptTaxAmount": 1.00,
+          "exemptTaxableAmount": 20.00,
+          "customer": {
+            "nativeBandNumber": "876874",
+            "certificateNumber": "12345"
+          },
+          "reason": {
+            "reasonCode": "TE07",
+            "reasonUniqueId" : "252"
+          }
+        }
+      },
+      {
+        "type": "PSTMB",
+        "typeCode": "Sale",
+        "amount": 1.60,
+        "taxExemption": {
+          "exemptTaxAmount": 1.60,
+          "exemptTaxableAmount": 20.00,
+          "customer": {
+            "nativeBandNumber": "876874",
+            "certificateNumber": "12345"
+          },
+          "reason": {
+            "reasonCode": "TE07",
+            "reasonUniqueId" : "252"
+          }
+        }
+      }
+    ],
+    "transactionGrossAmount": 22.60,
+    "transactionSubtotal": 20.00,
+    "transactionDiscountTotal": 0.00
+  }
+}

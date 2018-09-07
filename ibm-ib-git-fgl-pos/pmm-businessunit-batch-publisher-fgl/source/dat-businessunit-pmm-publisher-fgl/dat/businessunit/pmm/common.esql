@@ -1,0 +1,63 @@
+/*
+ * File name: common.esql
+ *
+ * Purpose:   ESQL file for common modules used across dat-businessunit-pmm-publisher-fgl application.
+ *
+ * Version:   Initial Version
+ *
+ * Authors:   Madanlal Tilsiram
+ *                 
+ * Create Date:  22 July 2016
+ * 
+ * @copyright FGL 2016.  All rights reserved.
+ */
+BROKER SCHEMA dat.businessunit.pmm
+
+DECLARE IIBPublication EXTERNAL CHARACTER '';
+
+/** Module to build RFH2 header and add to header of the message **/
+CREATE COMPUTE MODULE pmm_BuildRFH2
+	CREATE FUNCTION Main() RETURNS BOOLEAN
+      BEGIN  
+      	      	
+			DECLARE schemaName CHARACTER 'dat.businessunit.pmm';
+			DECLARE moduleName CHARACTER 'pmm_BuildRFH2';
+			DECLARE theModule CONSTANT CHARACTER schemaName||'.'||moduleName;
+			DECLARE rEnv REFERENCE TO Environment;
+			DECLARE MSG_ID CHARACTER rEnv.__MsgIdForLog4J__;
+			--CALL core.log.Debug(theModule||' - ID# : '||MSG_ID||' >> BEGIN');
+     
+            SET OutputRoot = InputRoot;
+            IF NOT EXISTS(InputRoot.MQMD[]) THEN
+                  CREATE NEXTSIBLING OF OutputRoot.Properties DOMAIN 'MQMD';
+            END IF;
+            IF 0 = CARDINALITY(InputRoot.MQRFH2[]) THEN
+                  SET OutputRoot.MQMD.Format = MQFMT_RF_HEADER_2;
+                  CREATE NEXTSIBLING OF OutputRoot.MQMD DOMAIN('MQRFH2');
+            END IF;           
+            SET OutputRoot.MQRFH2.(MQRFH2.Field)Version = MQRFH_VERSION_2;
+            SET OutputRoot.MQRFH2.(MQRFH2.Field)Encoding = InputRoot.MQMD.Encoding;
+            SET OutputRoot.MQRFH2.(MQRFH2.Field)CodedCharSetId = InputRoot.MQMD.CodedCharSetId;
+--          SET OutputRoot.MQRFH2.(MQRFH2.Field)Format = InputRoot.MQMD.Format;
+			SET OutputRoot.MQRFH2.(MQRFH2.Field)Format = 'MQSTR';
+            SET OutputRoot.MQRFH2.psc.Command = 'Publish';
+            SET OutputRoot.MQRFH2.psc.Topic = IIBPublication;  
+            
+            --CALL core.log.Debug(theModule||' - ID# : '||MSG_ID||' << END');         
+            RETURN TRUE;
+      END;
+END MODULE;
+
+/** Module to build log when there is no match for the publication topic **/
+CREATE COMPUTE MODULE pmm_AuditNoMatch
+	CREATE FUNCTION Main() RETURNS BOOLEAN
+	BEGIN
+			DECLARE schemaName CHARACTER 'dat.businessunit.pmm';
+			DECLARE moduleName CHARACTER 'pmm_AuditNoMatch';			
+			DECLARE rEnv REFERENCE TO Environment;                    	
+        	CALL core.log.InfoMessage(rEnv, schemaName || '.' || moduleName, ' [ Publication node propagated out of terminal ''NoMatch''. Message Dropped.]');                            
+            SET OutputRoot = InputRoot;
+            RETURN TRUE;
+      END;
+END MODULE;
+

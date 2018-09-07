@@ -1,0 +1,1056 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<!-- edited with XMLSpy v2015 rel. 3 sp1 (x64) (http://www.altova.com) by Suni Mathews (FGL Sports, Ltd.) -->
+<!--
+ * ER/Studio Data Architect XE3 %s XML Schema Generation
+ * Company:		FGL Sports
+ * Project:		FGL Corporate Data Warehouse
+ * Author:		Warren Whale
+ * Version:		1.0
+ * Date Created:	2015-01-23
+-->
+<xs:schema xmlns:arts="http://www.fgl.com/ARTS" xmlns:xs="http://www.w3.org/2001/XMLSchema" targetNamespace="http://www.fgl.com/ARTS" elementFormDefault="qualified">
+	<xs:include schemaLocation="AttributeGroupsV1_00_00.xsd"/>
+	<xs:include schemaLocation="ARTS_ItemSubsetTypeV1_02_00.xsd"/>
+	<xs:include schemaLocation="ARTS_StockItemSubsetTypeV1_00_00.xsd"/>
+	<xs:include schemaLocation="ARTS_TenderTypeV1_00_00.xsd"/>
+	<xs:include schemaLocation="ARTS_TaxTypeV1_00_00.xsd"/>
+	<xs:include schemaLocation="ARTS_AddressTypeV1_00_00.xsd"/>
+	<xs:include schemaLocation="ARTS_CustomerOrderStatusTypeV1_00_00.xsd"/>
+	<xs:include schemaLocation="ARTS_CustomerTypeV1_00_00.xsd"/>
+	<xs:include schemaLocation="ARTS_BusinessUnitSubsetTypeV1_04_00.xsd"/>
+	<xs:complexType name="CustomerOrder">
+		<xs:annotation>
+			<xs:documentation>A document that describes a request by a Customer to purchase merchandise and/or service items from a retailer on agreed terms and conditions (price, delivery, payments schedule, cancellation policy, etc.)
+</xs:documentation>
+		</xs:annotation>
+		<xs:sequence>
+			<xs:element name="Index"/>
+			<xs:element name="DataSource" type="arts:DataSource"/>
+			<xs:element name="SourceOrderKey" nillable="false" minOccurs="0">
+				<xs:annotation>
+					<xs:documentation>The Order Reference Number from the related Soutrce Application System i.e. a POS system Refernce Key</xs:documentation>
+				</xs:annotation>
+				<xs:complexType>
+					<xs:simpleContent>
+						<xs:extension base="xs:string">
+							<xs:attributeGroup ref="arts:ElementControlAttributeGroup"/>
+						</xs:extension>
+					</xs:simpleContent>
+				</xs:complexType>
+			</xs:element>
+			<xs:element name="CustomerOrderNumber" nillable="false">
+				<xs:annotation>
+					<xs:documentation>Order Number for the Customer Purchase Order</xs:documentation>
+				</xs:annotation>
+				<xs:complexType>
+					<xs:simpleContent>
+						<xs:extension base="xs:string">
+							<xs:attributeGroup ref="arts:ElementControlAttributeGroup"/>
+						</xs:extension>
+					</xs:simpleContent>
+				</xs:complexType>
+			</xs:element>
+			<xs:element name="CustomerOrderType">
+				<xs:annotation>
+					<xs:documentation>A unique retailer assigned  code denoting a type of CustomerOrder
+Examples include:
+LAYAWAY
+ORDER FOR DELIVERY
+ORDER FOR PICKUP
+Eg: Layaway, Order for Delivery, Order for Pickup,  etc...</xs:documentation>
+				</xs:annotation>
+				<xs:complexType>
+					<xs:simpleContent>
+						<xs:extension base="xs:string">
+							<xs:attributeGroup ref="arts:ElementControlAttributeGroup"/>
+						</xs:extension>
+					</xs:simpleContent>
+				</xs:complexType>
+			</xs:element>
+			<xs:element name="InternationalOrderFlag">
+				<xs:annotation>
+					<xs:documentation>Indicates whether this is an international order. Values should be "Yes" or "No"</xs:documentation>
+				</xs:annotation>
+				<xs:complexType>
+					<xs:simpleContent>
+						<xs:extension base="xs:string">
+							<xs:attributeGroup ref="arts:ElementControlAttributeGroup"/>
+						</xs:extension>
+					</xs:simpleContent>
+				</xs:complexType>
+			</xs:element>
+			<xs:element name="CustomerOrderCreateDate" nillable="true">
+				<xs:annotation>
+					<xs:documentation>The date/time when an order was created .</xs:documentation>
+				</xs:annotation>
+				<xs:complexType>
+					<xs:simpleContent>
+						<xs:extension base="xs:dateTime">
+							<xs:attributeGroup ref="arts:ElementControlAttributeGroup"/>
+						</xs:extension>
+					</xs:simpleContent>
+				</xs:complexType>
+			</xs:element>
+			<xs:element name="CustomerOrderExpiryDate" nillable="true">
+				<xs:annotation>
+					<xs:documentation>The date/time when an order will be expired and will be sent to originating store for refund or retry.</xs:documentation>
+				</xs:annotation>
+				<xs:complexType>
+					<xs:simpleContent>
+						<xs:extension base="xs:dateTime">
+							<xs:attributeGroup ref="arts:ElementControlAttributeGroup"/>
+						</xs:extension>
+					</xs:simpleContent>
+				</xs:complexType>
+			</xs:element>
+			<xs:element name="OrderCommentsText" nillable="true">
+				<xs:annotation>
+					<xs:documentation>Internal comments regarding the processing of the order entered by store staff.  I.e. SKU missing</xs:documentation>
+				</xs:annotation>
+				<xs:complexType>
+					<xs:simpleContent>
+						<xs:extension base="xs:string">
+							<xs:attributeGroup ref="arts:ElementControlAttributeGroup"/>
+						</xs:extension>
+					</xs:simpleContent>
+				</xs:complexType>
+			</xs:element>
+			<xs:element name="OrderSubtotalAmount" nillable="true">
+				<xs:annotation>
+					<xs:documentation>The order SubTotal excluding excluding offers and taxes.</xs:documentation>
+				</xs:annotation>
+				<xs:complexType>
+					<xs:simpleContent>
+						<xs:extension base="xs:decimal">
+							<xs:attributeGroup ref="arts:ElementControlAttributeGroup"/>
+						</xs:extension>
+					</xs:simpleContent>
+				</xs:complexType>
+			</xs:element>
+			<xs:element name="OrderTotalAmount" nillable="false">
+				<xs:annotation>
+					<xs:documentation>Total charge for the order including item total price + taxes.</xs:documentation>
+				</xs:annotation>
+				<xs:complexType>
+					<xs:simpleContent>
+						<xs:extension base="xs:decimal">
+							<xs:attributeGroup ref="arts:ElementControlAttributeGroup"/>
+						</xs:extension>
+					</xs:simpleContent>
+				</xs:complexType>
+			</xs:element>
+			<xs:element name="OrderTotalItemQuantity" nillable="true">
+				<xs:annotation>
+					<xs:documentation>Total units of items in order</xs:documentation>
+				</xs:annotation>
+				<xs:complexType>
+					<xs:simpleContent>
+						<xs:extension base="xs:long">
+							<xs:attributeGroup ref="arts:ElementControlAttributeGroup"/>
+						</xs:extension>
+					</xs:simpleContent>
+				</xs:complexType>
+			</xs:element>
+			<xs:element name="CustomerOrderAssociates">
+				<xs:complexType>
+					<xs:sequence>
+						<xs:element name="Count" type="xs:long"/>
+						<xs:element name="CustomerOrderAssociate" minOccurs="0" maxOccurs="unbounded">
+							<xs:annotation>
+								<xs:documentation>Records the Worker (other than the Operator of record) involved in conducting the Transaction.  e.g. Serving the customer purchasing the merchandise or services identified in a RetailTransaction.</xs:documentation>
+							</xs:annotation>
+							<xs:complexType>
+								<xs:sequence>
+									<xs:element name="Index">
+										<xs:complexType>
+											<xs:simpleContent>
+												<xs:extension base="xs:long"/>
+											</xs:simpleContent>
+										</xs:complexType>
+									</xs:element>
+									<xs:element name="AssociateSequenceNumber">
+										<xs:annotation>
+											<xs:documentation>A sequential counter used to uniquely identify the association within the confines of the current RetailTransaction.</xs:documentation>
+										</xs:annotation>
+										<xs:complexType>
+											<xs:simpleContent>
+												<xs:extension base="xs:long">
+													<xs:attributeGroup ref="arts:ElementControlAttributeGroup"/>
+												</xs:extension>
+											</xs:simpleContent>
+										</xs:complexType>
+									</xs:element>
+									<xs:element name="AssociateAction">
+										<xs:annotation>
+											<xs:documentation>An action that is performed by a Worker while assisting a customer purchasing the merchandise or services.</xs:documentation>
+										</xs:annotation>
+										<xs:complexType>
+											<xs:sequence>
+												<xs:element name="AssociateActionId">
+													<xs:annotation>
+														<xs:documentation>A unique system assigned identifier for an action that is performed by a Worker while assisting a customer purchasing the merchandise or services.</xs:documentation>
+													</xs:annotation>
+													<xs:complexType>
+														<xs:simpleContent>
+															<xs:extension base="xs:string">
+																<xs:attributeGroup ref="arts:ElementControlAttributeGroup"/>
+															</xs:extension>
+														</xs:simpleContent>
+													</xs:complexType>
+												</xs:element>
+												<xs:element name="AssociateActionName">
+													<xs:annotation>
+														<xs:documentation>The common name for the action that is performed by a Worker while assisting a customer purchasing the merchandise or services.</xs:documentation>
+													</xs:annotation>
+													<xs:complexType>
+														<xs:simpleContent>
+															<xs:extension base="xs:string">
+																<xs:attributeGroup ref="arts:ElementControlAttributeGroup"/>
+															</xs:extension>
+														</xs:simpleContent>
+													</xs:complexType>
+												</xs:element>
+											</xs:sequence>
+											<xs:attributeGroup ref="arts:TypeControlAttributeGroup"/>
+										</xs:complexType>
+									</xs:element>
+									<xs:element name="ActionDateTime">
+										<xs:annotation>
+											<xs:documentation>The date and time that the associate performed the action for which a commission is payable.</xs:documentation>
+										</xs:annotation>
+										<xs:complexType>
+											<xs:simpleContent>
+												<xs:extension base="xs:dateTime">
+													<xs:attributeGroup ref="arts:ElementControlAttributeGroup"/>
+												</xs:extension>
+											</xs:simpleContent>
+										</xs:complexType>
+									</xs:element>
+									<xs:element name="CommissionAmount" minOccurs="0">
+										<xs:annotation>
+											<xs:documentation>Defines the flat amount of commission earned on the sale of this item</xs:documentation>
+										</xs:annotation>
+										<xs:complexType>
+											<xs:simpleContent>
+												<xs:extension base="xs:decimal">
+													<xs:attributeGroup ref="arts:ElementControlAttributeGroup"/>
+												</xs:extension>
+											</xs:simpleContent>
+										</xs:complexType>
+									</xs:element>
+									<xs:element name="CommissionPercent" minOccurs="0">
+										<xs:annotation>
+											<xs:documentation>Defines the percentage applied to the sold-at retail amount to arrive at the commission for any items or services sold in the RetailTransaction.</xs:documentation>
+										</xs:annotation>
+										<xs:complexType>
+											<xs:simpleContent>
+												<xs:extension base="xs:decimal">
+													<xs:attributeGroup ref="arts:ElementControlAttributeGroup"/>
+												</xs:extension>
+											</xs:simpleContent>
+										</xs:complexType>
+									</xs:element>
+									<xs:element name="MethodCode" minOccurs="0">
+										<xs:annotation>
+											<xs:documentation>A code denoting the commission calculation method to be used.</xs:documentation>
+										</xs:annotation>
+										<xs:complexType>
+											<xs:simpleContent>
+												<xs:extension base="xs:string">
+													<xs:attributeGroup ref="arts:ElementControlAttributeGroup"/>
+												</xs:extension>
+											</xs:simpleContent>
+										</xs:complexType>
+									</xs:element>
+									<xs:element name="Worker">
+										<xs:annotation>
+											<xs:documentation>A person who provides services to a retail store. May be either an Employee or a Contractor</xs:documentation>
+										</xs:annotation>
+										<xs:complexType>
+											<xs:sequence>
+												<xs:element name="WorkerNumber">
+													<xs:complexType>
+														<xs:simpleContent>
+															<xs:extension base="xs:string">
+																<xs:attributeGroup ref="arts:ElementControlAttributeGroup"/>
+															</xs:extension>
+														</xs:simpleContent>
+													</xs:complexType>
+												</xs:element>
+												<xs:element name="EffectiveDate">
+													<xs:annotation>
+														<xs:documentation>The date that an EMPLOYEE ASSIGMENT is first valid.</xs:documentation>
+													</xs:annotation>
+													<xs:complexType>
+														<xs:simpleContent>
+															<xs:extension base="xs:date">
+																<xs:attributeGroup ref="arts:ElementControlAttributeGroup"/>
+															</xs:extension>
+														</xs:simpleContent>
+													</xs:complexType>
+												</xs:element>
+												<xs:element name="ExpirationDate">
+													<xs:annotation>
+														<xs:documentation>The date that an employee's assignment is no longer valid.</xs:documentation>
+													</xs:annotation>
+													<xs:complexType>
+														<xs:simpleContent>
+															<xs:extension base="xs:date">
+																<xs:attributeGroup ref="arts:ElementControlAttributeGroup"/>
+															</xs:extension>
+														</xs:simpleContent>
+													</xs:complexType>
+												</xs:element>
+												<xs:element name="StatusCode">
+													<xs:annotation>
+														<xs:documentation>A code that represents the current state of a WorkerAssignment.</xs:documentation>
+													</xs:annotation>
+													<xs:complexType>
+														<xs:simpleContent>
+															<xs:extension base="xs:string">
+																<xs:attributeGroup ref="arts:ElementControlAttributeGroup"/>
+															</xs:extension>
+														</xs:simpleContent>
+													</xs:complexType>
+												</xs:element>
+												<xs:element name="Title">
+													<xs:annotation>
+														<xs:documentation>The title the Worker held while assigned to the nominated Position.
+
+e.g. Sporting Goods Department Manager</xs:documentation>
+													</xs:annotation>
+													<xs:complexType>
+														<xs:simpleContent>
+															<xs:extension base="xs:string">
+																<xs:attributeGroup ref="arts:ElementControlAttributeGroup"/>
+															</xs:extension>
+														</xs:simpleContent>
+													</xs:complexType>
+												</xs:element>
+											</xs:sequence>
+											<xs:attributeGroup ref="arts:TypeControlAttributeGroup"/>
+										</xs:complexType>
+									</xs:element>
+								</xs:sequence>
+								<xs:attributeGroup ref="arts:TypeControlAttributeGroup"/>
+							</xs:complexType>
+						</xs:element>
+					</xs:sequence>
+				</xs:complexType>
+			</xs:element>
+			<xs:element name="CustomerOrderLineItems">
+				<xs:complexType>
+					<xs:sequence>
+						<xs:element name="Count" type="xs:long"/>
+						<xs:element name="CustomerOrderLineItem" minOccurs="0" maxOccurs="unbounded">
+							<xs:annotation>
+								<xs:documentation>A line item component of a Customer placed order.</xs:documentation>
+							</xs:annotation>
+							<xs:complexType>
+								<xs:sequence>
+									<xs:element name="Index" type="xs:long"/>
+									<xs:element name="CustomerOrderSequenceNumber">
+										<xs:annotation>
+											<xs:documentation>A unique system assigned identifier for the LineItem within the confines of the CustomerOrder.</xs:documentation>
+										</xs:annotation>
+										<xs:complexType>
+											<xs:simpleContent>
+												<xs:extension base="xs:long">
+													<xs:attributeGroup ref="arts:ElementControlAttributeGroup"/>
+												</xs:extension>
+											</xs:simpleContent>
+										</xs:complexType>
+									</xs:element>
+									<xs:element name="RetailTransactionId" nillable="false">
+										<xs:annotation>
+											<xs:documentation>A universally unique identifier (UUID) for the Transaction.  This may be assembled from alternate key members.</xs:documentation>
+										</xs:annotation>
+										<xs:complexType>
+											<xs:simpleContent>
+												<xs:extension base="xs:string">
+													<xs:attributeGroup ref="arts:ElementControlAttributeGroup"/>
+												</xs:extension>
+											</xs:simpleContent>
+										</xs:complexType>
+									</xs:element>
+									<xs:element name="RetailTransactionLineItemSequenceNumber" minOccurs="0">
+										<xs:annotation>
+											<xs:documentation>The sequence number of line item within the context of this RetailTransaction.</xs:documentation>
+										</xs:annotation>
+										<xs:complexType>
+											<xs:simpleContent>
+												<xs:extension base="xs:long">
+													<xs:attributeGroup ref="arts:ElementControlAttributeGroup"/>
+												</xs:extension>
+											</xs:simpleContent>
+										</xs:complexType>
+									</xs:element>
+									<xs:element name="LineItemNumber" nillable="true">
+										<xs:annotation>
+											<xs:documentation>Relative line sequence number within an order.  Provides mechanism to order how CustomerOrderLineItem instances are displayed when presenting a CustomerOrder.</xs:documentation>
+										</xs:annotation>
+										<xs:complexType>
+											<xs:simpleContent>
+												<xs:extension base="xs:string">
+													<xs:attributeGroup ref="arts:ElementControlAttributeGroup"/>
+												</xs:extension>
+											</xs:simpleContent>
+										</xs:complexType>
+									</xs:element>
+									<xs:element name="CustomerOrderLineItemTypeCode" nillable="false">
+										<xs:annotation>
+											<xs:documentation>A retailer assigned code denoting which sub-type of CustomerOrderLineItem this particular line item is.</xs:documentation>
+										</xs:annotation>
+										<xs:complexType>
+											<xs:simpleContent>
+												<xs:extension base="xs:string">
+													<xs:attributeGroup ref="arts:ElementControlAttributeGroup"/>
+												</xs:extension>
+											</xs:simpleContent>
+										</xs:complexType>
+									</xs:element>
+									<xs:choice>
+										<xs:element name="CustomerOrderTaxLineItem">
+											<xs:annotation>
+												<xs:documentation>A line item component of a Customer placed order, recording the Tax liability that the entire order is incurring.</xs:documentation>
+											</xs:annotation>
+											<xs:complexType>
+												<xs:sequence>
+													<xs:element name="TaxType" type="arts:ArtsTaxType"/>
+													<xs:element name="TaxAmount">
+														<xs:annotation>
+															<xs:documentation>The total tax amount for the lineitem .</xs:documentation>
+														</xs:annotation>
+														<xs:complexType>
+															<xs:simpleContent>
+																<xs:extension base="xs:decimal">
+																	<xs:attributeGroup ref="arts:ElementControlAttributeGroup"/>
+																</xs:extension>
+															</xs:simpleContent>
+														</xs:complexType>
+													</xs:element>
+													<xs:element name="TaxGroupRuleCode">
+														<xs:annotation>
+															<xs:documentation>The code to identify a rule denoting what percentage or dollar amount of tax is applied to a particular taxable total.</xs:documentation>
+														</xs:annotation>
+														<xs:complexType>
+															<xs:simpleContent>
+																<xs:extension base="xs:string">
+																	<xs:attributeGroup ref="arts:ElementControlAttributeGroup"/>
+																</xs:extension>
+															</xs:simpleContent>
+														</xs:complexType>
+													</xs:element>
+													<xs:element name="TaxExemptionFlag">
+														<xs:annotation>
+															<xs:documentation>Flag to indicate tax exemption eligibility.</xs:documentation>
+														</xs:annotation>
+														<xs:complexType>
+															<xs:simpleContent>
+																<xs:extension base="xs:string">
+																	<xs:attributeGroup ref="arts:ElementControlAttributeGroup"/>
+																</xs:extension>
+															</xs:simpleContent>
+														</xs:complexType>
+													</xs:element>
+												</xs:sequence>
+												<xs:attributeGroup ref="arts:TypeControlAttributeGroup"/>
+											</xs:complexType>
+										</xs:element>
+										<xs:element name="CustomerOrderDiscountLineItem">
+											<xs:annotation>
+												<xs:documentation>A line item component of a Customer placed order, recording any discount that is subtracted as part of the ordering process.</xs:documentation>
+											</xs:annotation>
+											<xs:complexType>
+												<xs:sequence>
+													<xs:element name="ItemIndex" type="xs:long" minOccurs="0">
+														<xs:annotation>
+															<xs:documentation>Points to the Item in CustomerOrder/Items/ItemOrStockItem to which this line applies</xs:documentation>
+														</xs:annotation>
+													</xs:element>
+													<xs:element name="DiscountTypeCode">
+														<xs:annotation>
+															<xs:documentation>Indicates the type of a discount e.g. ShippingDsicount</xs:documentation>
+														</xs:annotation>
+														<xs:complexType>
+															<xs:simpleContent>
+																<xs:extension base="xs:string">
+																	<xs:attributeGroup ref="arts:ElementControlAttributeGroup"/>
+																</xs:extension>
+															</xs:simpleContent>
+														</xs:complexType>
+													</xs:element>
+													<xs:element name="DiscountReasonText">
+														<xs:annotation>
+															<xs:documentation>The reason for the discount.</xs:documentation>
+														</xs:annotation>
+														<xs:complexType>
+															<xs:simpleContent>
+																<xs:extension base="xs:string">
+																	<xs:attributeGroup ref="arts:ElementControlAttributeGroup"/>
+																</xs:extension>
+															</xs:simpleContent>
+														</xs:complexType>
+													</xs:element>
+													<xs:element name="DiscountAmount" minOccurs="0">
+														<xs:annotation>
+															<xs:documentation>The Discount amount</xs:documentation>
+														</xs:annotation>
+														<xs:complexType>
+															<xs:simpleContent>
+																<xs:extension base="xs:decimal">
+																	<xs:attributeGroup ref="arts:ElementControlAttributeGroup"/>
+																</xs:extension>
+															</xs:simpleContent>
+														</xs:complexType>
+													</xs:element>
+													<xs:element name="DiscountPercentage" minOccurs="0">
+														<xs:annotation>
+															<xs:documentation>The Discount percentage</xs:documentation>
+														</xs:annotation>
+														<xs:complexType>
+															<xs:simpleContent>
+																<xs:extension base="xs:decimal">
+																	<xs:attributeGroup ref="arts:ElementControlAttributeGroup"/>
+																</xs:extension>
+															</xs:simpleContent>
+														</xs:complexType>
+													</xs:element>
+												</xs:sequence>
+												<xs:attributeGroup ref="arts:TypeControlAttributeGroup"/>
+											</xs:complexType>
+										</xs:element>
+										<xs:element name="CustomerOrderChargeLineItem">
+											<xs:annotation>
+												<xs:documentation>A line item component of a Customer placed order, recording any extra charge that is added as part of the ordering process.</xs:documentation>
+											</xs:annotation>
+											<xs:complexType>
+												<xs:sequence>
+													<xs:element name="ItemIndex" type="xs:long" minOccurs="0">
+														<xs:annotation>
+															<xs:documentation>Points to the Item in CustomerOrder/Items/ItemOrStockItem to which this line applies</xs:documentation>
+														</xs:annotation>
+													</xs:element>
+													<xs:element name="ChargeTypeCode">
+														<xs:annotation>
+															<xs:documentation>Indicates the type of a misc charge type e.g. ShippingCharge</xs:documentation>
+														</xs:annotation>
+														<xs:complexType>
+															<xs:simpleContent>
+																<xs:extension base="xs:string">
+																	<xs:attributeGroup ref="arts:ElementControlAttributeGroup"/>
+																</xs:extension>
+															</xs:simpleContent>
+														</xs:complexType>
+													</xs:element>
+													<xs:element name="MiscellaneousFeeReasonText">
+														<xs:annotation>
+															<xs:documentation>The reason for which the fee is  paid by the CUSTOMER for a service. An example would be delivery charge, gift wrapping service, etc.</xs:documentation>
+														</xs:annotation>
+														<xs:complexType>
+															<xs:simpleContent>
+																<xs:extension base="xs:string">
+																	<xs:attributeGroup ref="arts:ElementControlAttributeGroup"/>
+																</xs:extension>
+															</xs:simpleContent>
+														</xs:complexType>
+													</xs:element>
+													<xs:element name="MiscellaneousFeeAmount">
+														<xs:annotation>
+															<xs:documentation>A fee paid by the CUSTOMER for a service, normally associated with the purchase of a STOCK ITEM. An example would be delivery charge, gift wrapping service, etc</xs:documentation>
+														</xs:annotation>
+														<xs:complexType>
+															<xs:simpleContent>
+																<xs:extension base="xs:decimal">
+																	<xs:attributeGroup ref="arts:ElementControlAttributeGroup"/>
+																</xs:extension>
+															</xs:simpleContent>
+														</xs:complexType>
+													</xs:element>
+													<xs:element name="CustomerOrderChargeTaxLineItems">
+														<xs:complexType>
+															<xs:sequence>
+																<xs:element name="Count" type="xs:long"/>
+																<xs:element name="CustomerOrderChargeTaxLineItem" minOccurs="0" maxOccurs="unbounded">
+																	<xs:annotation>
+																		<xs:documentation>A line item component of a Customer placed order, recording the Tax liability that the extra charge is incurring.</xs:documentation>
+																	</xs:annotation>
+																	<xs:complexType>
+																		<xs:sequence>
+																			<xs:element name="CustomerOrderId">
+																				<xs:annotation>
+																					<xs:documentation>A unique system assigned identifier for the CustomerOrder.</xs:documentation>
+																				</xs:annotation>
+																				<xs:simpleType>
+																					<xs:annotation>
+																						<xs:documentation>A unique system assigned identifier for the CustomerOrder.</xs:documentation>
+																					</xs:annotation>
+																					<xs:restriction base="xs:decimal"/>
+																				</xs:simpleType>
+																			</xs:element>
+																			<xs:element name="CustomerOrderSequenceNumber">
+																				<xs:annotation>
+																					<xs:documentation>A unique system assigned identifier for the LineItem within the confines of the CustomerOrder.</xs:documentation>
+																				</xs:annotation>
+																				<xs:simpleType>
+																					<xs:annotation>
+																						<xs:documentation>A unique system assigned identifier for the LineItem within the confines of the CustomerOrder.</xs:documentation>
+																					</xs:annotation>
+																					<xs:restriction base="xs:decimal"/>
+																				</xs:simpleType>
+																			</xs:element>
+																			<xs:element name="ChargeTaxSequenceNumber">
+																				<xs:annotation>
+																					<xs:documentation>A sequnce number to uniquely identify the Tax lineitem for a Customer Order Charge.</xs:documentation>
+																				</xs:annotation>
+																				<xs:simpleType>
+																					<xs:annotation>
+																						<xs:documentation>A sequnce number to uniquely identify the Tax lineitem for a Customer Order Charge.</xs:documentation>
+																					</xs:annotation>
+																					<xs:restriction base="xs:decimal"/>
+																				</xs:simpleType>
+																			</xs:element>
+																			<xs:element name="TaxAmount" nillable="true">
+																				<xs:annotation>
+																					<xs:documentation>The total tax amount for the lineitem .</xs:documentation>
+																				</xs:annotation>
+																				<xs:simpleType>
+																					<xs:annotation>
+																						<xs:documentation>The total tax amount for the lineitem .</xs:documentation>
+																					</xs:annotation>
+																					<xs:restriction base="xs:decimal"/>
+																				</xs:simpleType>
+																			</xs:element>
+																			<xs:element name="TaxTypeCode" nillable="true">
+																				<xs:annotation>
+																					<xs:documentation>The Tax Type i.e. PST, GST, HST etc.</xs:documentation>
+																				</xs:annotation>
+																				<xs:simpleType>
+																					<xs:annotation>
+																						<xs:documentation>The Tax Type i.e. PST, GST, HST etc.</xs:documentation>
+																					</xs:annotation>
+																					<xs:restriction base="xs:string"/>
+																				</xs:simpleType>
+																			</xs:element>
+																			<xs:element name="TaxGroupRuleCode" nillable="true">
+																				<xs:annotation>
+																					<xs:documentation>The code to identify a rule denoting what percentage or dollar amount of tax is applied to a particular taxable total.</xs:documentation>
+																				</xs:annotation>
+																				<xs:simpleType>
+																					<xs:annotation>
+																						<xs:documentation>The code to identify a rule denoting what percentage or dollar amount of tax is applied to a particular taxable total.</xs:documentation>
+																					</xs:annotation>
+																					<xs:restriction base="xs:string"/>
+																				</xs:simpleType>
+																			</xs:element>
+																			<xs:element name="TaxExemptionFlag" nillable="true">
+																				<xs:annotation>
+																					<xs:documentation>Flag to indicate tax exemption eligibility.</xs:documentation>
+																				</xs:annotation>
+																				<xs:simpleType>
+																					<xs:annotation>
+																						<xs:documentation>Flag to indicate tax exemption eligibility.</xs:documentation>
+																					</xs:annotation>
+																					<xs:restriction base="xs:string"/>
+																				</xs:simpleType>
+																			</xs:element>
+																		</xs:sequence>
+																		<xs:attributeGroup ref="arts:TypeControlAttributeGroup"/>
+																	</xs:complexType>
+																</xs:element>
+															</xs:sequence>
+														</xs:complexType>
+													</xs:element>
+												</xs:sequence>
+												<xs:attributeGroup ref="arts:TypeControlAttributeGroup"/>
+											</xs:complexType>
+										</xs:element>
+										<xs:element name="CustomerOrderPaymentLineItem">
+											<xs:annotation>
+												<xs:documentation>A line item component of a Customer placed order, recording any deposit payment that is made during the life cycle of the Order.  The actual payment will be recorded as a PaymentOnAccount line item in a RetailTransaction, and will be accrued in a CustomerAccount, until the ordered merchandise is shipped or picked up.</xs:documentation>
+											</xs:annotation>
+											<xs:complexType>
+												<xs:sequence>
+													<xs:element name="TenderType" type="arts:ArtsTenderType">
+														<xs:annotation>
+															<xs:documentation>type of tender, ie cash, check, credit card, etc.</xs:documentation>
+														</xs:annotation>
+													</xs:element>
+												</xs:sequence>
+												<xs:attributeGroup ref="arts:TypeControlAttributeGroup"/>
+											</xs:complexType>
+										</xs:element>
+										<xs:element name="CustomerOrderTenderPreAuthorization">
+											<xs:annotation>
+												<xs:documentation>A line item component of a Customer placed order, recording any Credit or Debit Card pre-authorization that is performed at the time the order is taken.</xs:documentation>
+											</xs:annotation>
+											<xs:complexType>
+												<xs:sequence>
+													<xs:element name="TenderAuthorizationSequenceNumber">
+														<xs:annotation>
+															<xs:documentation>A unique sequence number for this TenderAuthorization. Required because a particular TenderLineItem may have more than one TenderAuthorization attempt.</xs:documentation>
+														</xs:annotation>
+														<xs:complexType>
+															<xs:simpleContent>
+																<xs:extension base="xs:long">
+																	<xs:attributeGroup ref="arts:ElementControlAttributeGroup"/>
+																</xs:extension>
+															</xs:simpleContent>
+														</xs:complexType>
+													</xs:element>
+													<xs:element name="TenderType" type="arts:ArtsTenderType"/>
+												</xs:sequence>
+												<xs:attributeGroup ref="arts:TypeControlAttributeGroup"/>
+											</xs:complexType>
+										</xs:element>
+										<xs:element name="CustomerOrderProductLineItem">
+											<xs:annotation>
+												<xs:documentation>A line item component of a Customer placed order, recording the StockItem, and quantity that is to be supplied.</xs:documentation>
+											</xs:annotation>
+											<xs:complexType>
+												<xs:sequence>
+													<xs:element name="ItemIndex" type="xs:long">
+														<xs:annotation>
+															<xs:documentation>Points to the Item in CustomerOrder/Items/ItemOrStockItem to which this line applies</xs:documentation>
+														</xs:annotation>
+													</xs:element>
+													<xs:element name="Description">
+														<xs:annotation>
+															<xs:documentation>The textual description of the Item being ordered and its characteristics.</xs:documentation>
+														</xs:annotation>
+														<xs:complexType>
+															<xs:simpleContent>
+																<xs:extension base="xs:string">
+																	<xs:attributeGroup ref="arts:ElementControlAttributeGroup"/>
+																</xs:extension>
+															</xs:simpleContent>
+														</xs:complexType>
+													</xs:element>
+													<xs:element name="OrderedItemQuantity">
+														<xs:annotation>
+															<xs:documentation>The number of Items being ordered.</xs:documentation>
+														</xs:annotation>
+														<xs:complexType>
+															<xs:simpleContent>
+																<xs:extension base="xs:decimal">
+																	<xs:attributeGroup ref="arts:ElementControlAttributeGroup"/>
+																</xs:extension>
+															</xs:simpleContent>
+														</xs:complexType>
+													</xs:element>
+													<xs:element name="FulfilledItemQuantity">
+														<xs:annotation>
+															<xs:documentation>The number of ordered items that have been made available for delivery to the Customer or pickup by the Customer.</xs:documentation>
+														</xs:annotation>
+														<xs:complexType>
+															<xs:simpleContent>
+																<xs:extension base="xs:decimal">
+																	<xs:attributeGroup ref="arts:ElementControlAttributeGroup"/>
+																</xs:extension>
+															</xs:simpleContent>
+														</xs:complexType>
+													</xs:element>
+													<xs:element name="SaleUnitRetailPriceAmount">
+														<xs:annotation>
+															<xs:documentation>The agreed unit retail selling price for the merchandise being ordered,</xs:documentation>
+														</xs:annotation>
+														<xs:complexType>
+															<xs:simpleContent>
+																<xs:extension base="xs:decimal">
+																	<xs:attributeGroup ref="arts:ElementControlAttributeGroup"/>
+																</xs:extension>
+															</xs:simpleContent>
+														</xs:complexType>
+													</xs:element>
+													<xs:element name="TotalRetailDiscountAmount">
+														<xs:annotation>
+															<xs:documentation>The discount amount for all the merchandise being ordered on this line item.
+</xs:documentation>
+														</xs:annotation>
+														<xs:complexType>
+															<xs:simpleContent>
+																<xs:extension base="xs:decimal">
+																	<xs:attributeGroup ref="arts:ElementControlAttributeGroup"/>
+																</xs:extension>
+															</xs:simpleContent>
+														</xs:complexType>
+													</xs:element>
+													<xs:element name="TotalRetailPriceAmount">
+														<xs:annotation>
+															<xs:documentation>The agreed retail selling price for all the merchandise being ordered on this line item.
+
+Would usually be calculated by multiplying SaleUnitRetailPriceAmount by OrderedCount - but this may differ.</xs:documentation>
+														</xs:annotation>
+														<xs:complexType>
+															<xs:simpleContent>
+																<xs:extension base="xs:decimal">
+																	<xs:attributeGroup ref="arts:ElementControlAttributeGroup"/>
+																</xs:extension>
+															</xs:simpleContent>
+														</xs:complexType>
+													</xs:element>
+													<xs:element name="EstimatedAvailabilityDate">
+														<xs:annotation>
+															<xs:documentation>The date the merchandise being ordered is expected to be available for delivery to the Customer or pickup by the Customer.</xs:documentation>
+														</xs:annotation>
+														<xs:complexType>
+															<xs:simpleContent>
+																<xs:extension base="xs:date">
+																	<xs:attributeGroup ref="arts:ElementControlAttributeGroup"/>
+																</xs:extension>
+															</xs:simpleContent>
+														</xs:complexType>
+													</xs:element>
+													<xs:element name="ActualAvailabilityDate">
+														<xs:annotation>
+															<xs:documentation>The date all the merchandise being ordered was made available for delivery to the Customer or pickup by the Customer.
+
+Where the merchandise becomes available over a period of time - this field holds the date the last ordered product was available for delivery or pickup.</xs:documentation>
+														</xs:annotation>
+														<xs:complexType>
+															<xs:simpleContent>
+																<xs:extension base="xs:date">
+																	<xs:attributeGroup ref="arts:ElementControlAttributeGroup"/>
+																</xs:extension>
+															</xs:simpleContent>
+														</xs:complexType>
+													</xs:element>
+													<xs:element name="CurrencyCode">
+														<xs:annotation>
+															<xs:documentation>Currency code designated by ISO to identify national currency</xs:documentation>
+														</xs:annotation>
+														<xs:complexType>
+															<xs:simpleContent>
+																<xs:extension base="xs:string">
+																	<xs:attributeGroup ref="arts:ElementControlAttributeGroup"/>
+																</xs:extension>
+															</xs:simpleContent>
+														</xs:complexType>
+													</xs:element>
+													<xs:element name="SpecialInstructions">
+														<xs:complexType>
+															<xs:sequence>
+																<xs:element name="Count" type="xs:long"/>
+																<xs:element name="SpecialInstruction" minOccurs="0" maxOccurs="unbounded">
+																	<xs:annotation>
+																		<xs:documentation>A line item component of a Customer placed order, recording any special instructions the Customer may have for the product being ordered.  Eg: paint color  or other alterations.</xs:documentation>
+																	</xs:annotation>
+																	<xs:complexType>
+																		<xs:sequence>
+																			<xs:element name="Index" type="xs:long"/>
+																			<xs:element name="SpecialInstructionsText">
+																				<xs:annotation>
+																					<xs:documentation>Any special instructions that the customer wishes to communicate.</xs:documentation>
+																				</xs:annotation>
+																				<xs:complexType>
+																					<xs:simpleContent>
+																						<xs:extension base="xs:string">
+																							<xs:attributeGroup ref="arts:ElementControlAttributeGroup"/>
+																						</xs:extension>
+																					</xs:simpleContent>
+																				</xs:complexType>
+																			</xs:element>
+																		</xs:sequence>
+																		<xs:attributeGroup ref="arts:TypeControlAttributeGroup"/>
+																	</xs:complexType>
+																</xs:element>
+															</xs:sequence>
+														</xs:complexType>
+													</xs:element>
+													<xs:element name="CustomerOrderProductTaxLineItems">
+														<xs:complexType>
+															<xs:sequence>
+																<xs:element name="Count"/>
+																<xs:element name="CustomerOrderProductTaxLineItem" minOccurs="0" maxOccurs="unbounded">
+																	<xs:annotation>
+																		<xs:documentation>A line item component of a Customer placed order, recording the Tax liability that the ordered product is incurring.</xs:documentation>
+																	</xs:annotation>
+																	<xs:complexType>
+																		<xs:sequence>
+																			<xs:element name="TaxType" type="arts:ArtsTaxType"/>
+																			<xs:element name="TaxAmount">
+																				<xs:annotation>
+																					<xs:documentation>The total tax amount for the lineitem .</xs:documentation>
+																				</xs:annotation>
+																				<xs:complexType>
+																					<xs:simpleContent>
+																						<xs:extension base="xs:decimal">
+																							<xs:attributeGroup ref="arts:ElementControlAttributeGroup"/>
+																						</xs:extension>
+																					</xs:simpleContent>
+																				</xs:complexType>
+																			</xs:element>
+																			<xs:element name="TaxGroupRuleCode">
+																				<xs:annotation>
+																					<xs:documentation>The code to identify a rule denoting what percentage or dollar amount of tax is applied to a particular taxable total.</xs:documentation>
+																				</xs:annotation>
+																				<xs:complexType>
+																					<xs:simpleContent>
+																						<xs:extension base="xs:string">
+																							<xs:attributeGroup ref="arts:ElementControlAttributeGroup"/>
+																						</xs:extension>
+																					</xs:simpleContent>
+																				</xs:complexType>
+																			</xs:element>
+																			<xs:element name="TaxExemptionFlag">
+																				<xs:annotation>
+																					<xs:documentation>Flag to indicate tax exemption eligibility.</xs:documentation>
+																				</xs:annotation>
+																				<xs:complexType>
+																					<xs:simpleContent>
+																						<xs:extension base="xs:string">
+																							<xs:attributeGroup ref="arts:ElementControlAttributeGroup"/>
+																						</xs:extension>
+																					</xs:simpleContent>
+																				</xs:complexType>
+																			</xs:element>
+																		</xs:sequence>
+																		<xs:attributeGroup ref="arts:TypeControlAttributeGroup"/>
+																	</xs:complexType>
+																</xs:element>
+															</xs:sequence>
+														</xs:complexType>
+													</xs:element>
+													<xs:element name="CustomerOrderProductAssignments">
+														<xs:complexType>
+															<xs:sequence>
+																<xs:element name="Count" type="xs:long"/>
+																<xs:element name="CustomerOrderProductAssignment" minOccurs="0" maxOccurs="unbounded">
+																	<xs:annotation>
+																		<xs:documentation> where and how a particular item ordered by a Customer is to be processed by the retailer</xs:documentation>
+																	</xs:annotation>
+																	<xs:complexType>
+																		<xs:sequence>
+																			<xs:element name="CustomerOrderProductAssignmentQuantity" type="xs:decimal">
+																				<xs:annotation>
+																					<xs:documentation>The number of items from the OrderProductLineItem that are included in the OrderProductGroup.</xs:documentation>
+																				</xs:annotation>
+																			</xs:element>
+																			<xs:element name="CustomerOrderProductGroupIndex">
+																				<xs:annotation>
+																					<xs:documentation>Points to the CustomerOrderProductGroups (CustomerOrder/CustomerOrderProductGroups/CustomerOrderProductGroup) associated with this line</xs:documentation>
+																				</xs:annotation>
+																			</xs:element>
+																		</xs:sequence>
+																	</xs:complexType>
+																</xs:element>
+															</xs:sequence>
+														</xs:complexType>
+													</xs:element>
+												</xs:sequence>
+												<xs:attributeGroup ref="arts:TypeControlAttributeGroup"/>
+											</xs:complexType>
+										</xs:element>
+									</xs:choice>
+								</xs:sequence>
+								<xs:attributeGroup ref="arts:TypeControlAttributeGroup"/>
+							</xs:complexType>
+						</xs:element>
+					</xs:sequence>
+				</xs:complexType>
+			</xs:element>
+			<xs:element name="Items">
+				<xs:annotation>
+					<xs:documentation>The list of Items is included at this level because an item can be referred to from either:
+1. CustomerOrderChargeLineItem
+2. CustomerOrderProductLineItem</xs:documentation>
+				</xs:annotation>
+				<xs:complexType>
+					<xs:sequence>
+						<xs:element name="Count" type="xs:long"/>
+						<xs:element name="ItemOrStockItem" minOccurs="0" maxOccurs="unbounded">
+							<xs:annotation>
+								<xs:documentation>The Item can be a Stock Item of a generic item such as a service</xs:documentation>
+							</xs:annotation>
+							<xs:complexType>
+								<xs:sequence>
+									<xs:element name="ItemOrStockItemFlag" type="xs:string"/>
+									<xs:choice>
+										<xs:element name="Item" type="arts:ArtsItemSubset"/>
+										<xs:element name="StockItem" type="arts:ArtsStockItemSubset"/>
+									</xs:choice>
+								</xs:sequence>
+							</xs:complexType>
+						</xs:element>
+					</xs:sequence>
+				</xs:complexType>
+			</xs:element>
+			<xs:element name="CustomerOrderProductGroups">
+				<xs:annotation>
+					<xs:documentation>The list of CustiomerOrderProductGroups is included at this level because multiple CustomerOrderProductLineItems can refer to a single CustomerOrderProductGroup</xs:documentation>
+				</xs:annotation>
+				<xs:complexType>
+					<xs:sequence>
+						<xs:element name="Count" type="xs:long"/>
+						<xs:element name="CustomerOrderProductGroup" minOccurs="0" maxOccurs="unbounded">
+							<xs:annotation>
+								<xs:documentation>A group of line items from a Customer placed order with similar properties.  Eg: To be picked up by Customer, to be delivered to customer, to be sourced from particular store , fullied from a store or to be gift wrapped, etc</xs:documentation>
+							</xs:annotation>
+							<xs:complexType>
+								<xs:sequence>
+									<xs:element name="Index" type="xs:long"/>
+									<xs:element name="CustomerOrderProductGroupTypeCode">
+										<xs:annotation>
+											<xs:documentation>A retailer assigned code denoting the different kinds of CustomerOrderProductGroups.  Possible values include: FulfillmentGroup, SourceGroup, GiftWrapGroup etc...</xs:documentation>
+										</xs:annotation>
+										<xs:complexType>
+											<xs:simpleContent>
+												<xs:extension base="xs:string">
+													<xs:attributeGroup ref="arts:ElementControlAttributeGroup"/>
+												</xs:extension>
+											</xs:simpleContent>
+										</xs:complexType>
+									</xs:element>
+									<xs:element name="CustomerOrderProductGroupTypeName">
+										<xs:annotation>
+											<xs:documentation>The common name for a particular kind of CustomerOrderProductGroups.</xs:documentation>
+										</xs:annotation>
+										<xs:complexType>
+											<xs:simpleContent>
+												<xs:extension base="xs:string">
+													<xs:attributeGroup ref="arts:ElementControlAttributeGroup"/>
+												</xs:extension>
+											</xs:simpleContent>
+										</xs:complexType>
+									</xs:element>
+									<xs:element name="CustomerShippingInstructionText" nillable="true" minOccurs="0">
+										<xs:annotation>
+											<xs:documentation>Shipping instructions</xs:documentation>
+										</xs:annotation>
+										<xs:complexType>
+											<xs:simpleContent>
+												<xs:extension base="xs:string">
+													<xs:attributeGroup ref="arts:ElementControlAttributeGroup"/>
+												</xs:extension>
+											</xs:simpleContent>
+										</xs:complexType>
+									</xs:element>
+									<xs:element name="BusinessUnit" type="arts:ArtsBusinessUnitSubsetType"/>
+									<xs:element name="ContactMethods">
+										<xs:complexType>
+											<xs:sequence>
+												<xs:element name="Count" type="xs:long"/>
+												<xs:element name="ContactMethod" type="arts:ArtsContactMethodType" maxOccurs="unbounded"/>
+											</xs:sequence>
+										</xs:complexType>
+									</xs:element>
+								</xs:sequence>
+								<xs:attributeGroup ref="arts:TypeControlAttributeGroup"/>
+							</xs:complexType>
+						</xs:element>
+					</xs:sequence>
+				</xs:complexType>
+			</xs:element>
+			<xs:element name="Customer" type="arts:ArtsCustomerType">
+				<xs:annotation>
+					<xs:documentation>The association between a retailer on one hand and an individual or organization (Party) on the other hand where the party is a Consumer that has completed at least one purchase and whose associated ConsumerConversionState indicates their status as a CUSTOMER. 
+
+We are using the term "Constumer" to reflect the idea that this  parties that retailers are SELLING TO (or trying to sell to).  In other entities we differentiate between parties that are in a pre-sale state (typically they're in the customer acquisition funnel), an active state (they have purchased items and are ActiveCustomers) , an inactive state (InactiveCustomers) or a "dead" state (ExCustomers).
+</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="CustomerOrderStatus" type="arts:CustomerOrderStatus"/>
+		</xs:sequence>
+		<xs:attributeGroup ref="arts:ElementControlAttributeGroup"/>
+	</xs:complexType>
+</xs:schema>

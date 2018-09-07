@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?><xsd:schema targetNamespace="http://www.marks.com/OrderSharedContainer" xmlns="http://www.marks.com/OrderSharedContainer" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+	<xsd:element name="OrderSharedContainer">
+		<xsd:complexType>
+			<xsd:sequence>
+				<xsd:element name="SHIPPING_SKU" type="xsd:string"/>
+				<xsd:element name="WEBSTORE_EMAIL" type="xsd:string"/>
+				<xsd:element name="WEBSTORE_CUSTOMER_FIRSTNAME" type="xsd:string"/>
+				<xsd:element name="WEBSTORE_CUSTOMER_LASTNAME" type="xsd:string"/>
+				<xsd:element name="POS_TRANSACTION_ID" type="xsd:string"/>
+				<xsd:element name="VIRTUAL_GIFT_CARD_NUMBER" type="xsd:string"/>
+				<xsd:element maxOccurs="1" minOccurs="0" ref="STOREADDRESS"/>
+			</xsd:sequence>
+		</xsd:complexType>
+	</xsd:element>
+
+	<xsd:element name="STOREADDRESS">
+		<xsd:complexType>
+			<xsd:sequence>
+				<xsd:element minOccurs="0" name="ADDRESSLINE1" type="xsd:string"/>
+				<xsd:element minOccurs="0" name="ADDRESSLINE2" type="xsd:string"/>
+				<xsd:element minOccurs="0" name="ADDRESSLINE3" type="xsd:string"/>
+				<xsd:element minOccurs="0" name="CITYID" type="xsd:string"/>
+				<xsd:element minOccurs="0" name="PROVINCEID" type="xsd:string"/>
+				<xsd:element minOccurs="0" name="CITYNAME" type="xsd:string"/>
+				<xsd:element minOccurs="0" name="PROVINCEABBREV" type="xsd:string"/>
+				<xsd:element minOccurs="0" name="COUNTRYID" type="xsd:string"/>
+				<xsd:element minOccurs="0" name="AREACODE" type="xsd:string"/>
+				<xsd:element minOccurs="0" name="PHONENUMBER" type="xsd:string"/>
+				<xsd:element minOccurs="0" name="POSTALCODE" type="xsd:string"/>
+				<xsd:element minOccurs="0" name="LATTITUDE" type="xsd:double"/>
+				<xsd:element minOccurs="0" name="LONGITUDE" type="xsd:double"/>
+				<xsd:element minOccurs="0" name="STOREID" type="xsd:string"/>
+				<xsd:element minOccurs="0" name="STORENUMBER" type="xsd:string"/>
+			</xsd:sequence>
+		</xsd:complexType>
+	</xsd:element>
+
+</xsd:schema>

@@ -1,0 +1,183 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ecore:EPackage xmi:version="2.0"
+    xmlns:xmi="http://www.omg.org/XMI" xmlns:ComIbmMQInput.msgnode="ComIbmMQInput.msgnode" xmlns:core_message__postprocessor.subflow="core/message/_postprocessor.subflow" xmlns:core_message__preprocessor.subflow="core/message/_preprocessor.subflow" xmlns:ecore="http://www.eclipse.org/emf/2002/Ecore" xmlns:eflow="http://www.ibm.com/wbi/2005/eflow" xmlns:trx_sales_aw__inbound.subflow="trx/sales/aw/_inbound.subflow" xmlns:utility="http://www.ibm.com/wbi/2005/eflow_utility" nsURI="trx/sales/aw/inbound.msgflow"
+    nsPrefix="trx_sales_aw_inbound.msgflow">
+  <eClassifiers xmi:type="eflow:FCMComposite" name="FCMComposite_1">
+    <eSuperTypes href="http://www.ibm.com/wbi/2005/eflow#//FCMBlock"/>
+    <eStructuralFeatures xmi:type="ecore:EAttribute" xmi:id="Property.IIBInboundQueue" name="IIBInboundQueue" lowerBound="1" defaultValueLiteral="RECV.FGL.AW.FPOS.SALESRAW_OUT.IIB.DV">
+      <eType xmi:type="ecore:EDataType" href="http://www.eclipse.org/emf/2002/Ecore#//EString"/>
+    </eStructuralFeatures>
+    <eStructuralFeatures xmi:type="ecore:EAttribute" xmi:id="Property.CoreAuditDataSource" name="CoreAuditDataSource" defaultValueLiteral="FGLRPLDEV">
+      <eType xmi:type="ecore:EDataType" href="http://www.eclipse.org/emf/2002/Ecore#//EString"/>
+    </eStructuralFeatures>
+    <eStructuralFeatures xmi:type="ecore:EAttribute" xmi:id="Property.PreProcessorAuditEnabled" name="PreProcessorAuditEnabled" lowerBound="1" defaultValueLiteral="false">
+      <eType xmi:type="ecore:EDataType" href="http://www.eclipse.org/emf/2002/Ecore#//EBoolean"/>
+    </eStructuralFeatures>
+    <eStructuralFeatures xmi:type="ecore:EAttribute" xmi:id="Property.PostProcessorAuditEnabled" name="PostProcessorAuditEnabled" lowerBound="1" defaultValueLiteral="false">
+      <eType xmi:type="ecore:EDataType" href="http://www.eclipse.org/emf/2002/Ecore#//EBoolean"/>
+    </eStructuralFeatures>
+    <eStructuralFeatures xmi:type="ecore:EAttribute" xmi:id="Property.IIBInboundFailureQueue" name="IIBInboundFailureQueue" defaultValueLiteral="FGL.AW.FPOS.SALESRAW_FAIL.IIB.DV">
+      <eType xmi:type="ecore:EDataType" href="http://www.eclipse.org/emf/2002/Ecore#//EString"/>
+    </eStructuralFeatures>
+    <eStructuralFeatures xmi:type="ecore:EAttribute" xmi:id="Property.AWStagingDirectoryPath" name="AWStagingDirectoryPath" lowerBound="1" defaultValueLiteral="/var/mqsi/staging/transactions/auditworks">
+      <eType xmi:type="ecore:EDataType" href="http://www.eclipse.org/emf/2002/Ecore#//EString"/>
+    </eStructuralFeatures>
+    <eStructuralFeatures xmi:type="ecore:EAttribute" xmi:id="Property.AWDirectoryNamePrefix" name="AWDirectoryNamePrefix" lowerBound="1" defaultValueLiteral="AWF">
+      <eType xmi:type="ecore:EDataType" href="http://www.eclipse.org/emf/2002/Ecore#//EString"/>
+    </eStructuralFeatures>
+    <eStructuralFeatures xmi:type="ecore:EAttribute" xmi:id="Property.AWTargetDirectoryPath" name="AWTargetDirectoryPath" lowerBound="1" defaultValueLiteral="/sybwork">
+      <eType xmi:type="ecore:EDataType" href="http://www.eclipse.org/emf/2002/Ecore#//EString"/>
+    </eStructuralFeatures>
+    <eStructuralFeatures xmi:type="ecore:EAttribute" xmi:id="Property.XpolldFileNamePrefix" name="XpolldFileNamePrefix" lowerBound="1" defaultValueLiteral="XPOLLD">
+      <eType xmi:type="ecore:EDataType" href="http://www.eclipse.org/emf/2002/Ecore#//EString"/>
+    </eStructuralFeatures>
+    <eStructuralFeatures xmi:type="ecore:EAttribute" xmi:id="Property.XpolldFileExtension" name="XpolldFileExtension">
+      <eType xmi:type="ecore:EDataType" href="http://www.eclipse.org/emf/2002/Ecore#//EString"/>
+    </eStructuralFeatures>
+    <eStructuralFeatures xmi:type="ecore:EAttribute" xmi:id="Property.RemoteTransfer" name="RemoteTransfer" lowerBound="1" defaultValueLiteral="true">
+      <eType xmi:type="ecore:EDataType" href="http://www.eclipse.org/emf/2002/Ecore#//EBoolean"/>
+    </eStructuralFeatures>
+    <eStructuralFeatures xmi:type="ecore:EAttribute" xmi:id="Property.RemoteTransfer.internal_npcompiler" name="RemoteTransfer.internal_npcompiler">
+      <eType xmi:type="ecore:EDataType" href="http://www.eclipse.org/emf/2002/Ecore#//EString"/>
+    </eStructuralFeatures>
+    <eStructuralFeatures xmi:type="ecore:EAttribute" xmi:id="Property.TransferProtocol" name="TransferProtocol" eType="//@eClassifiers.1" defaultValueLiteral="SFTP"/>
+    <eStructuralFeatures xmi:type="ecore:EAttribute" xmi:id="Property.ServerAndPort" name="ServerAndPort" defaultValueLiteral="nfs-aws-brkadm">
+      <eType xmi:type="ecore:EDataType" href="http://www.eclipse.org/emf/2002/Ecore#//EString"/>
+    </eStructuralFeatures>
+    <eStructuralFeatures xmi:type="ecore:EAttribute" xmi:id="Property.SecurityIdentity" name="SecurityIdentity" defaultValueLiteral="aws-brkadm">
+      <eType xmi:type="ecore:EDataType" href="http://www.eclipse.org/emf/2002/Ecore#//EString"/>
+    </eStructuralFeatures>
+    <eStructuralFeatures xmi:type="ecore:EAttribute" xmi:id="Property.ServerDirectory" name="ServerDirectory" defaultValueLiteral="/sybwork">
+      <eType xmi:type="ecore:EDataType" href="http://www.eclipse.org/emf/2002/Ecore#//EString"/>
+    </eStructuralFeatures>
+    <translation xmi:type="utility:TranslatableString" key="inbound" bundleName="trx/sales/aw/inbound" pluginId="trx-sales-aw-inbound-fgl"/>
+    <colorGraphic16 xmi:type="utility:GIFFileGraphic" resourceName="platform:/plugin/trx-sales-aw-inbound-fgl/icons/full/obj16/inbound.gif"/>
+    <colorGraphic32 xmi:type="utility:GIFFileGraphic" resourceName="platform:/plugin/trx-sales-aw-inbound-fgl/icons/full/obj30/inbound.gif"/>
+    <composition>
+      <nodes xmi:type="ComIbmMQInput.msgnode:FCMComposite_1" xmi:id="FCMComposite_1_1" location="10,20" queueName="RECV.FGL.AW.INBOUND_SALES_IN.IBM_IB.DV" messageDomainProperty="BLOB">
+        <translation xmi:type="utility:ConstantString" string="RECV.FGL.AW.FPOS.SALESRAW_OUT.IIB"/>
+        <shortDescription xmi:type="utility:ConstantString" string="FPOS Audit works Inbound Queue"/>
+        <longDescription xmi:type="utility:ConstantString" string="It receives the XPLOLLD XML messages from Sale transactions auditworks subscriber."/>
+      </nodes>
+      <nodes xmi:type="core_message__preprocessor.subflow:FCMComposite_1" xmi:id="FCMComposite_1_3" location="269,20">
+        <translation xmi:type="utility:ConstantString" string="CoreMessagePreProcessor"/>
+      </nodes>
+      <nodes xmi:type="core_message__postprocessor.subflow:FCMComposite_1" xmi:id="FCMComposite_1_4" location="571,20">
+        <translation xmi:type="utility:ConstantString" string="CoreMessagePostProcessor"/>
+      </nodes>
+      <nodes xmi:type="trx_sales_aw__inbound.subflow:FCMComposite_1" xmi:id="FCMComposite_1_2" location="434,95">
+        <translation xmi:type="utility:ConstantString" string="XPOLLDFileGenerator"/>
+      </nodes>
+      <connections xmi:type="eflow:FCMConnection" xmi:id="FCMConnection_1" targetNode="FCMComposite_1_3" sourceNode="FCMComposite_1_1" sourceTerminalName="OutTerminal.out" targetTerminalName="InTerminal.CatchInput"/>
+      <connections xmi:type="eflow:FCMConnection" xmi:id="FCMConnection_2" targetNode="FCMComposite_1_3" sourceNode="FCMComposite_1_1" sourceTerminalName="OutTerminal.failure" targetTerminalName="InTerminal.FailureInput"/>
+      <connections xmi:type="eflow:FCMConnection" xmi:id="FCMConnection_3" targetNode="FCMComposite_1_3" sourceNode="FCMComposite_1_1" sourceTerminalName="OutTerminal.catch" targetTerminalName="InTerminal.Input"/>
+      <connections xmi:type="eflow:FCMConnection" xmi:id="FCMConnection_6" targetNode="FCMComposite_1_4" sourceNode="FCMComposite_1_3" sourceTerminalName="OutTerminal.Output" targetTerminalName="InTerminal.Input"/>
+      <connections xmi:type="eflow:FCMConnection" xmi:id="FCMConnection_7" targetNode="FCMComposite_1_4" sourceNode="FCMComposite_1_3" sourceTerminalName="OutTerminal.FailureOutput" targetTerminalName="InTerminal.Input2"/>
+      <connections xmi:type="eflow:FCMConnection" xmi:id="FCMConnection_4" targetNode="FCMComposite_1_2" sourceNode="FCMComposite_1_3" sourceTerminalName="OutTerminal.CatchOutput" targetTerminalName="InTerminal.Input"/>
+      <connections xmi:type="eflow:FCMConnection" xmi:id="FCMConnection_5" targetNode="FCMComposite_1_4" sourceNode="FCMComposite_1_2" sourceTerminalName="OutTerminal.Output" targetTerminalName="InTerminal.Input1"/>
+    </composition>
+    <propertyOrganizer>
+      <propertyDescriptor groupName="Group.Basic" propertyEditor="com.ibm.etools.mft.ibmnodes.editors.mq.MQQueueNameEditor" configurable="true" describedAttribute="Property.IIBInboundQueue">
+        <propertyName xmi:type="utility:TranslatableString" key="Property.IIBInboundQueue" bundleName="trx/sales/aw/inbound" pluginId="trx-sales-aw-inbound-fgl"/>
+        <propertyDescriptor groupName="Group.Basic" configurable="true" describedAttribute="Property.CoreAuditDataSource">
+          <propertyName xmi:type="utility:TranslatableString" key="Property.CoreAuditDataSource" bundleName="core/audit/_audit" pluginId="core-audit-handler-library"/>
+          <propertyDescriptor groupName="Group.Basic" configurable="true" userDefined="true" describedAttribute="Property.PreProcessorAuditEnabled">
+            <propertyName xmi:type="utility:TranslatableString" key="Property.PreProcessorAuditEnabled" bundleName="trx/sales/aw/inbound" pluginId="trx-sales-aw-inbound-fgl"/>
+            <propertyDescriptor groupName="Group.Basic" configurable="true" userDefined="true" describedAttribute="Property.PostProcessorAuditEnabled">
+              <propertyName xmi:type="utility:TranslatableString" key="Property.PostProcessorAuditEnabled" bundleName="trx/sales/aw/inbound" pluginId="trx-sales-aw-inbound-fgl"/>
+              <propertyDescriptor groupName="Group.Basic" propertyEditor="com.ibm.etools.mft.ibmnodes.editors.mq.MQQueueNameEditor" configurable="true" describedAttribute="Property.IIBInboundFailureQueue">
+                <propertyName xmi:type="utility:TranslatableString" key="Property.IIBInboundFailureQueue" bundleName="trx/sales/aw/inbound" pluginId="trx-sales-aw-inbound-fgl"/>
+                <propertyDescriptor groupName="Group.DirPathsAndFileName" configurable="true" userDefined="true" describedAttribute="Property.AWStagingDirectoryPath">
+                  <propertyName xmi:type="utility:TranslatableString" key="Property.AWStagingDirectoryPath" bundleName="trx/sales/aw/_inbound" pluginId="trx-sales-aw-inbound-library-fgl"/>
+                  <propertyDescriptor groupName="Group.DirPathsAndFileName" configurable="true" userDefined="true" describedAttribute="Property.AWDirectoryNamePrefix">
+                    <propertyName xmi:type="utility:TranslatableString" key="Property.AWDirectoryNamePrefix" bundleName="trx/sales/aw/_inbound" pluginId="trx-sales-aw-inbound-library-fgl"/>
+                    <propertyDescriptor groupName="Group.DirPathsAndFileName" configurable="true" userDefined="true" describedAttribute="Property.AWTargetDirectoryPath">
+                      <propertyName xmi:type="utility:TranslatableString" key="Property.AWTargetDirectoryPath" bundleName="trx/sales/aw/_inbound" pluginId="trx-sales-aw-inbound-library-fgl"/>
+                      <propertyDescriptor groupName="Group.DirPathsAndFileName" configurable="true" userDefined="true" describedAttribute="Property.XpolldFileNamePrefix">
+                        <propertyName xmi:type="utility:TranslatableString" key="Property.XpolldFileNamePrefix" bundleName="trx/sales/aw/_inbound" pluginId="trx-sales-aw-inbound-library-fgl"/>
+                        <propertyDescriptor groupName="Group.DirPathsAndFileName" configurable="true" userDefined="true" describedAttribute="Property.XpolldFileExtension">
+                          <propertyName xmi:type="utility:TranslatableString" key="Property.XpolldFileExtension" bundleName="trx/sales/aw/_inbound" pluginId="trx-sales-aw-inbound-library-fgl"/>
+                          <propertyDescriptor groupName="Group.FtpServerConfigurations" compiler="com.ibm.etools.mft.ibmnodes.compilers.BooleanPropertyCompiler" configurable="true" describedAttribute="Property.RemoteTransfer">
+                            <propertyName xmi:type="utility:TranslatableString" key="Property.RemoteTransfer" bundleName="trx/sales/aw/inbound" pluginId="trx-sales-aw-inbound-fgl"/>
+                            <propertyDescriptor groupName="Group.InternalRuntimeGroup" readOnly="true" hidden="true" userDefined="true" describedAttribute="Property.RemoteTransfer.internal_npcompiler">
+                              <propertyName xmi:type="utility:TranslatableString" key="Property.RemoteTransfer.internal_npcompiler" bundleName="trx/sales/aw/inbound" pluginId="trx-sales-aw-inbound-fgl"/>
+                              <propertyDescriptor groupName="Group.FtpServerConfigurations" propertyEditor="com.ibm.etools.mft.ibmnodes.editors.file.FileRemoteTransferTypeListenerPropertyEditor" configurable="true" describedAttribute="Property.TransferProtocol">
+                                <propertyName xmi:type="utility:TranslatableString" key="Property.TransferProtocol" bundleName="trx/sales/aw/inbound" pluginId="trx-sales-aw-inbound-fgl"/>
+                                <propertyDescriptor groupName="Group.FtpServerConfigurations" propertyEditor="com.ibm.etools.mft.ibmnodes.editors.file.FileFtpServerListenerPropertyEditor" configurable="true" describedAttribute="Property.ServerAndPort">
+                                  <propertyName xmi:type="utility:TranslatableString" key="Property.ServerAndPort" bundleName="trx/sales/aw/inbound" pluginId="trx-sales-aw-inbound-fgl"/>
+                                  <propertyDescriptor groupName="Group.FtpServerConfigurations" propertyEditor="com.ibm.etools.mft.ibmnodes.editors.file.FileFtpStringListenerPropertyEditor" configurable="true" describedAttribute="Property.SecurityIdentity">
+                                    <propertyName xmi:type="utility:TranslatableString" key="Property.SecurityIdentity" bundleName="trx/sales/aw/inbound" pluginId="trx-sales-aw-inbound-fgl"/>
+                                    <propertyDescriptor groupName="Group.FtpServerConfigurations" propertyEditor="com.ibm.etools.mft.ibmnodes.editors.file.FileFtpStringListenerPropertyEditor" configurable="true" describedAttribute="Property.ServerDirectory">
+                                      <propertyName xmi:type="utility:TranslatableString" key="Property.ServerDirectory" bundleName="trx/sales/aw/inbound" pluginId="trx-sales-aw-inbound-fgl"/>
+                                    </propertyDescriptor>
+                                  </propertyDescriptor>
+                                </propertyDescriptor>
+                              </propertyDescriptor>
+                            </propertyDescriptor>
+                          </propertyDescriptor>
+                        </propertyDescriptor>
+                      </propertyDescriptor>
+                    </propertyDescriptor>
+                  </propertyDescriptor>
+                </propertyDescriptor>
+              </propertyDescriptor>
+            </propertyDescriptor>
+          </propertyDescriptor>
+        </propertyDescriptor>
+      </propertyDescriptor>
+    </propertyOrganizer>
+    <attributeLinks promotedAttribute="Property.IIBInboundQueue" overriddenNodes="FCMComposite_1_1">
+      <overriddenAttribute href="ComIbmMQInput.msgnode#Property.queueName"/>
+    </attributeLinks>
+    <attributeLinks promotedAttribute="Property.CoreAuditDataSource" overriddenNodes="FCMComposite_1_4">
+      <overriddenAttribute href="core/message/_postprocessor.subflow#Property.CoreAuditDataSource"/>
+    </attributeLinks>
+    <attributeLinks promotedAttribute="Property.CoreAuditDataSource" overriddenNodes="FCMComposite_1_3">
+      <overriddenAttribute href="core/message/_preprocessor.subflow#Property.CoreAuditDataSource"/>
+    </attributeLinks>
+    <attributeLinks promotedAttribute="Property.PreProcessorAuditEnabled" overriddenNodes="FCMComposite_1_3">
+      <overriddenAttribute href="core/message/_preprocessor.subflow#Property.CoreAuditEnabled"/>
+    </attributeLinks>
+    <attributeLinks promotedAttribute="Property.PostProcessorAuditEnabled" overriddenNodes="FCMComposite_1_4">
+      <overriddenAttribute href="core/message/_postprocessor.subflow#Property.CoreAuditEnabled"/>
+    </attributeLinks>
+    <attributeLinks promotedAttribute="Property.IIBInboundFailureQueue" overriddenNodes="FCMComposite_1_2">
+      <overriddenAttribute href="trx/sales/aw/_inbound.subflow#Property.INBOUND_FAILURE_QUEUE"/>
+    </attributeLinks>
+    <attributeLinks promotedAttribute="Property.AWStagingDirectoryPath" overriddenNodes="FCMComposite_1_2">
+      <overriddenAttribute href="trx/sales/aw/_inbound.subflow#Property.AWStagingDirectoryPath"/>
+    </attributeLinks>
+    <attributeLinks promotedAttribute="Property.AWDirectoryNamePrefix" overriddenNodes="FCMComposite_1_2">
+      <overriddenAttribute href="trx/sales/aw/_inbound.subflow#Property.AWDirectoryNamePrefix"/>
+    </attributeLinks>
+    <attributeLinks promotedAttribute="Property.AWTargetDirectoryPath" overriddenNodes="FCMComposite_1_2">
+      <overriddenAttribute href="trx/sales/aw/_inbound.subflow#Property.AWTargetDirectoryPath"/>
+    </attributeLinks>
+    <attributeLinks promotedAttribute="Property.XpolldFileNamePrefix" overriddenNodes="FCMComposite_1_2">
+      <overriddenAttribute href="trx/sales/aw/_inbound.subflow#Property.XpolldFileNamePrefix"/>
+    </attributeLinks>
+    <attributeLinks promotedAttribute="Property.XpolldFileExtension" overriddenNodes="FCMComposite_1_2">
+      <overriddenAttribute href="trx/sales/aw/_inbound.subflow#Property.XpolldFileExtension"/>
+    </attributeLinks>
+    <attributeLinks promotedAttribute="Property.RemoteTransfer" overriddenNodes="FCMComposite_1_2">
+      <overriddenAttribute href="trx/sales/aw/_inbound.subflow#Property.fileFtp"/>
+    </attributeLinks>
+    <attributeLinks promotedAttribute="Property.TransferProtocol" overriddenNodes="FCMComposite_1_2">
+      <overriddenAttribute href="trx/sales/aw/_inbound.subflow#Property.remoteTransferType"/>
+    </attributeLinks>
+    <attributeLinks promotedAttribute="Property.ServerAndPort" overriddenNodes="FCMComposite_1_2">
+      <overriddenAttribute href="trx/sales/aw/_inbound.subflow#Property.fileFtpServer"/>
+    </attributeLinks>
+    <attributeLinks promotedAttribute="Property.SecurityIdentity" overriddenNodes="FCMComposite_1_2">
+      <overriddenAttribute href="trx/sales/aw/_inbound.subflow#Property.fileFtpUser"/>
+    </attributeLinks>
+    <attributeLinks promotedAttribute="Property.ServerDirectory" overriddenNodes="FCMComposite_1_2">
+      <overriddenAttribute href="trx/sales/aw/_inbound.subflow#Property.fileFtpDirectory"/>
+    </attributeLinks>
+    <stickyBoard/>
+  </eClassifiers>
+  <eClassifiers xmi:type="ecore:EEnum">
+    <eLiterals xmi:id="TransferProtocol.FTP" name="FTP"/>
+    <eLiterals xmi:id="TransferProtocol.SFTP" name="SFTP" value="1"/>
+  </eClassifiers>
+</ecore:EPackage>

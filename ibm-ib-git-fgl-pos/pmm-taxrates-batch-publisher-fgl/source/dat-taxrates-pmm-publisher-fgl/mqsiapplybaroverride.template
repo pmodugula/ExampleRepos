@@ -1,0 +1,9 @@
+dat.tax.pmm.publisher#IIBInboundQueue=RECV.${TAX_RATES_BATCH_IN_DS}
+dat.tax.pmm.publisher#IIBPublication=${TAX_RATES_TOPICSTR}
+dat.tax.pmm.publisher#CoreAuditDataSource=AUD${ENVN}${INST}
+dat.tax.pmm.publisher#IIBDataSource=FGLRPL${ENVN}${INST}
+dat.tax.pmm.publisher#additionalInstances=${EXTRATHREADS}
+dat.tax.pmm.publisher#PreProcessorAuditEnabled=False
+dat.tax.pmm.publisher#PostProcessorAuditEnabled=False
+dat.tax.pmm.publisher#CoreArtsMessageValidation=${ARTS_VALIDATION}
+dat.tax.pmm.publisher#CoreDatastageMessageValidation=${DS_VALIDATION}

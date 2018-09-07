@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?><xsd:schema xmlns:csv="http://www.ibm.com/dfdl/CommaSeparatedFormat" xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0/" xmlns:ibmDfdlExtn="http://www.ibm.com/dfdl/extensions" xmlns:ibmSchExtn="http://www.ibm.com/schema/extensions" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+
+
+    <xsd:import namespace="http://www.ibm.com/dfdl/CommaSeparatedFormat" schemaLocation="IBMdefined/CommaSeparatedFormat.xsd"/>
+    <xsd:annotation>
+		<xsd:appinfo source="http://www.ogf.org/dfdl/">
+			<dfdl:format documentFinalTerminatorCanBeMissing="yes" encoding="{$dfdl:encoding}" escapeSchemeRef="csv:CSVEscapeScheme" ref="csv:CommaSeparatedFormat"/>
+		</xsd:appinfo>
+	</xsd:annotation>
+
+
+	<xsd:element ibmSchExtn:docRoot="true" name="Output904">
+		<xsd:complexType>
+			<xsd:sequence dfdl:separator="">
+				<xsd:element dfdl:terminator="%CR;%LF;%WSP*;" name="body">
+					<xsd:complexType>
+						<xsd:sequence dfdl:initiator="%STX;" dfdl:separator="%FS;" dfdl:separatorSuppressionPolicy="trailingEmpty" dfdl:terminator="%ETX;">
+							<xsd:element default="904" ibmDfdlExtn:sampleValue="904" minOccurs="0" name="GivexMsgIdFormat" type="xsd:string"/>
+							<xsd:element default="" ibmDfdlExtn:sampleValue="" name="TransactionCode" type="xsd:string"/>
+							<xsd:element default="" ibmDfdlExtn:sampleValue="0" name="Result" type="xsd:string"/>
+                            						<xsd:element default="" dfdl:fillByte="" ibmDfdlExtn:sampleValue="" minOccurs="0" name="GivxTransRef" nillable="false" type="xsd:string"/>
+                                                                                    <xsd:element default="" dfdl:textNumberPattern="#0.###" ibmDfdlExtn:sampleValue="" minOccurs="0" name="GivxNumb" nillable="false" type="xsd:string"/>
+                                                        <xsd:element default="" minOccurs="0" name="CertBal" type="xsd:string"/>
+                            <xsd:element default="" ibmDfdlExtn:sampleValue="" minOccurs="0" name="CertExpDate">
+                <xsd:simpleType>
+                  <xsd:restriction base="xsd:string">
+                    <xsd:maxLength value="10"/>
+                  </xsd:restriction>
+                </xsd:simpleType>
+              </xsd:element>
+                                                                                                                                                                                                                            <xsd:element default="" minOccurs="0" name="RecptMsg" type="xsd:string"/>
+                                                                                                                                                                    </xsd:sequence>
+					</xsd:complexType>
+				</xsd:element>				
+                			            </xsd:sequence>
+		</xsd:complexType>
+	</xsd:element>
+
+
+</xsd:schema>

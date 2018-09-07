@@ -1,0 +1,97 @@
+<eai:Exchange MinorVersion="0" MajorVersion="2" FixVersion="0" xmlns:eai="http://www.fgl.com/exchange/" xmlns:arts="http://www.fgl.com/ARTS" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.fgl.com/exchange/ file:///C:/Users/IULIIA_SHVETS/Desktop/EAI%20ARTS%20Message%20Schemas%20V1_21/arts/ARTSTransactionMessageV2_00_00.xsd">
+    <eai:MessageRouting>
+        <eai:Guid>2D5CCC7BDB6944B9AF7506CD142D2C08</eai:Guid>
+        <eai:MessageId/>
+        <eai:MessageType>PointToPoint</eai:MessageType>
+        <eai:SubjectArea>Normal Retail Sales Transactions</eai:SubjectArea>
+        <eai:SbuNumber>3</eai:SbuNumber>
+        <eai:SbuCode>FGL</eai:SbuCode>
+        <eai:SbuName>FGL Sports Ltd.</eai:SbuName>
+        <eai:DataSourceCode>POE</eai:DataSourceCode>
+        <eai:DataSourceCodeName>POE POS FGL</eai:DataSourceCodeName>
+        <eai:MessageIndex>1</eai:MessageIndex>
+        <eai:MessageCount>1</eai:MessageCount>
+        <eai:SubjectAreaRunName>salestransactions-280-20161004-040400</eai:SubjectAreaRunName>
+    </eai:MessageRouting>
+    <eai:Messages>
+        <eai:Count>1</eai:Count>
+        <eai:SourceSystems>
+            <eai:Count>1</eai:Count>
+            <eai:SourceSystem>
+                <eai:Index>1</eai:Index>
+                <eai:SbuNumber>3</eai:SbuNumber>
+                <eai:SbuCode>FGL</eai:SbuCode>
+                <eai:SbuName>FGL Sports Ltd.</eai:SbuName>
+                <eai:MessageSourceCode>CSS</eai:MessageSourceCode>
+                <eai:MessageSourceCodeName>Central Sales Server</eai:MessageSourceCodeName>
+            </eai:SourceSystem>
+        </eai:SourceSystems>
+        <eai:POSLog>
+            <arts:Count>1</arts:Count>
+            <arts:Transaction TypeCode="SaleTransaction">
+                <arts:BusinessUnit>
+                    <arts:Index>1</arts:Index>
+                    <arts:BusinessUnitNumber>280</arts:BusinessUnitNumber>
+                    <arts:BusinessUnitTypeCode>RT</arts:BusinessUnitTypeCode>
+                    <arts:BusinessUnitShortName>SC FORT MCMURRAY</arts:BusinessUnitShortName>
+                    <arts:BusinessUnitName>SC280</arts:BusinessUnitName>
+                </arts:BusinessUnit>
+                <arts:WorkstationID>101</arts:WorkstationID>
+                <arts:SequenceNumber>000004</arts:SequenceNumber>
+                <arts:BeginDateTime>2016-10-04T04:02:51-06:00</arts:BeginDateTime>
+                <arts:EndDateTime>2016-10-04T04:03:01-06:00</arts:EndDateTime>
+                <arts:OperatorID OperatorName="ishvets Cashier" LastName="Cashier" FirstName="ishvets">000002016</arts:OperatorID>
+                <arts:RetailTransaction>
+                    <arts:LineItemCount>3</arts:LineItemCount>
+                    <arts:CustomerCount>0</arts:CustomerCount>
+                    <arts:AssociateCount>0</arts:AssociateCount>
+                    <arts:LineItem VoidFlag="false">
+                        <arts:Index>1</arts:Index>
+                        <arts:SequenceNumber>1</arts:SequenceNumber>
+                        <arts:Sale TaxableFlag="true" ItemType="Stock">
+                            <arts:TaxCount>1</arts:TaxCount>
+                            <arts:RetailPriceModifierCount>0</arts:RetailPriceModifierCount>
+                            <arts:Item>
+                                <arts:ItemNumber>330613396</arts:ItemNumber>
+                                <arts:ItemName>DEMO - NIKE DYMO2 FWY WOOD 92 00</arts:ItemName>
+                                <arts:UPCNumber>440004353472</arts:UPCNumber>
+                            </arts:Item>
+                            <arts:MerchandiseHierarchy Level="4" ID="9232"/>
+                            <arts:RegularSalesUnitPrice>89.00</arts:RegularSalesUnitPrice>
+                            <arts:ActualSalesUnitPrice>89.00</arts:ActualSalesUnitPrice>
+                            <arts:DiscountAmount>0.00</arts:DiscountAmount>
+                            <arts:Quantity>1</arts:Quantity>
+                            <arts:Tax TypeCode="Sale" TaxType="GST" SourceSystemTaxExemptionFlag="false">
+                                <arts:Index>1</arts:Index>
+                                <arts:Amount>4.45</arts:Amount>
+                                <arts:Percent>5</arts:Percent>
+                            </arts:Tax>
+                        </arts:Sale>
+                        <arts:LineItemSubtypeCode>Sale</arts:LineItemSubtypeCode>
+                    </arts:LineItem>
+                    <arts:LineItem>
+                        <arts:Index>2</arts:Index>
+                        <arts:SequenceNumber>2</arts:SequenceNumber>
+                        <arts:Tax TypeCode="Sale" TaxType="GST">
+                            <arts:Index>1</arts:Index>
+                            <arts:Amount>4.45</arts:Amount>
+                            <arts:Percent>5</arts:Percent>
+                        </arts:Tax>
+                        <arts:LineItemSubtypeCode>Tax</arts:LineItemSubtypeCode>
+                    </arts:LineItem>
+                    <arts:LineItem>
+                        <arts:Index>3</arts:Index>
+                        <arts:SequenceNumber>3</arts:SequenceNumber>
+                        <arts:Tender TypeCode="Sale" TenderType="Cash" SubTenderType="CAD">
+                            <arts:Amount>93.45</arts:Amount>
+                        </arts:Tender>
+                        <arts:LineItemSubtypeCode>Tender</arts:LineItemSubtypeCode>
+                    </arts:LineItem>
+                    <arts:Total TotalType="TransactionGrossAmount">93.45</arts:Total>
+                    <arts:Total TotalType="TransactionSubtotal">89.00</arts:Total>
+                </arts:RetailTransaction>
+                <arts:TransactionSubtypeCode>RetailTransaction</arts:TransactionSubtypeCode>
+            </arts:Transaction>
+        </eai:POSLog>
+    </eai:Messages>
+</eai:Exchange>

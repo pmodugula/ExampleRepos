@@ -1,0 +1,58 @@
+BROKER SCHEMA trx.sales.etps
+
+	DECLARE USERID 	 EXTERNAL CHARACTER USERID;
+	DECLARE PASSWORD EXTERNAL CHARACTER PASSWORD;
+	
+CREATE COMPUTE MODULE virtual_giftcard_redeem_Req
+	CREATE FUNCTION Main() RETURNS BOOLEAN
+	BEGIN
+		SET OutputRoot.Properties = InputRoot.Properties;
+		SET OutputRoot.Properties.MessageType = '{}:Input_902';
+		DECLARE refOut,refOutBody REFERENCE TO OutputRoot;
+
+		DECLARE eai NAMESPACE 'http://www.fgl.com/exchange/';
+		DECLARE arts NAMESPACE 'http://www.fgl.com/ARTS';
+		DECLARE refInGcPayments REFERENCE TO Environment.XMLNSC.submitTxnRequest.gcpayments;
+		DECLARE giftCardNumberInt 		 INTEGER 0;
+		DECLARE aftrPadVal 	 CHARACTER;
+		-- Create Dataconect message to send the Activated Gift Card details
+		-------------
+		-- Start
+		-------------
+		SET Environment.Timeout = 6600;
+		CREATE LASTCHILD OF OutputRoot AS refOut DOMAIN 'DFDL';
+		CREATE LASTCHILD OF refOut.Input902 AS refOutBody NAME 'body';
+		
+		--The transaction id created earlier by the adapter
+		SET refOutBody.TransCode = SUBSTRING(FIELDVALUE(Environment.Variables.TransID)FROM 1 FOR 5) || SUBSTRING(FIELDVALUE(Environment.Variables.TransID)FROM 14);
+		SET refOutBody.UserId  = USERID;
+		SET refOutBody.Passwrd = PASSWORD;
+		
+		--gift card number is passed through with check digit included - no need to calculate check digit
+		DECLARE giftCardNumber CHARACTER CAST(refInGcPayments.id AS CHARACTER);
+		SET giftCardNumberInt = CAST(giftCardNumber AS INTEGER); 
+		SET aftrPadVal = CAST(giftCardNumberInt AS CHARACTER FORMAT '*0####################');
+		SET refOutBody.GivexNumb = aftrPadVal;
+		SET refOutBody.Amount = refInGcPayments.amount;
+		
+
+		CALL core.log.Debug(MessageFlowLabel||'Module name: virtual_giftcard_creation_Req - Create GC message created');
+		-------------
+		-- End
+		-------------
+		RETURN TRUE;
+	END;
+END MODULE;
+
+CREATE FILTER MODULE virtual_giftcard_redeem_GiftCardCreationSuccess_
+	CREATE FUNCTION Main() RETURNS BOOLEAN
+	BEGIN
+		DECLARE refGiftCrdCrt REFERENCE TO Body.Output902.body;
+		IF (refGiftCrdCrt.Result <> 0) THEN
+			CALL core.log.Debug(MessageFlowLabel||'Module name: GiftCardCreationSuccess - RETURN FALSE');
+			RETURN FALSE; 
+		END IF;
+		RETURN TRUE;
+	END;
+
+END MODULE;

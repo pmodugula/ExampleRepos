@@ -1,0 +1,83 @@
+<eai:Exchange xmlns:arts="http://www.fgl.com/ARTS" xmlns:eai="http://www.fgl.com/exchange/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" MajorVersion="0" MinorVersion="0" FixVersion="0" xsi:schemaLocation="http://www.fgl.com/exchange/ ../../../../../../source/trx-sales-arts-msgmodel/xsd/arts/ARTSTransactionMessageV1_05_00.xsd">
+<eai:MessageRouting>
+        <eai:Guid>1</eai:Guid>
+        <eai:MessageType>PointToPoint</eai:MessageType>
+        <eai:SubjectArea>CustomerOrderStatus</eai:SubjectArea>
+        <eai:SbuNumber>2</eai:SbuNumber>
+        <eai:SbuCode>MWW</eai:SbuCode>
+        <eai:SbuName>Marks Ltd.</eai:SbuName>
+        <eai:DataSourceCode>FF</eai:DataSourceCode>
+        <eai:DataSourceCodeName>FastFind</eai:DataSourceCodeName>
+    </eai:MessageRouting>
+    <eai:Messages>
+        <eai:Count>1</eai:Count>
+        <eai:SourceSystems>
+            <eai:Count>1</eai:Count>
+            <eai:SourceSystem>
+                <eai:Index>1</eai:Index>
+                <eai:SbuNumber>2</eai:SbuNumber>
+                <eai:SbuCode>MWW</eai:SbuCode>
+                <eai:SbuName>Marks Ltd.</eai:SbuName>
+                <eai:MessageSourceCode>FF</eai:MessageSourceCode>
+                <eai:MessageSourceCodeName>FastFind</eai:MessageSourceCodeName>
+            </eai:SourceSystem>
+        </eai:SourceSystems>
+        <eai:POSLog>
+            <arts:Count>1</arts:Count>
+            <arts:DataSource>
+                <arts:SbuNumber DataClassification="Internal">2</arts:SbuNumber>
+                <arts:SbuCode DataClassification="Internal">MWW</arts:SbuCode>
+                <arts:SbuName DataClassification="Internal">Marks Ltd.</arts:SbuName>
+                <arts:DataSourceCode DataClassification="Internal">FF</arts:DataSourceCode>
+                <arts:DataSourceName DataClassification="Internal">FastFind</arts:DataSourceName>
+            </arts:DataSource>
+            <arts:Transaction MajorVersion="4" MinorVersion="0" FixVersion="0">
+                <arts:RetailStoreID>780</arts:RetailStoreID>
+                <arts:TransactionID>7800120160222100938</arts:TransactionID>
+                <arts:WorkstationID>01</arts:WorkstationID>
+                <arts:SequenceNumber>100938</arts:SequenceNumber>
+                <arts:BeginDateTime>2016-02-22T23:35:50+02:00</arts:BeginDateTime>
+                <arts:EndDateTime>2016-02-22T23:36:24+02:00</arts:EndDateTime>
+                <arts:OperatorID>00285</arts:OperatorID>
+                <arts:PinpadNumber/>
+                <arts:RetailTransaction>
+                    <arts:LineItem>
+                        <arts:SequenceNumber>0</arts:SequenceNumber>
+                        <arts:Tender TenderType="Cash" TypeCode="Sale" SubTenderType="CAD">
+                            <arts:Amount>28.13000</arts:Amount>
+                            <arts:ForeignCurrency>
+                                <arts:CurrencyCode>USD</arts:CurrencyCode>
+                                <arts:OriginalFaceAmount>20.00000</arts:OriginalFaceAmount>
+                            </arts:ForeignCurrency>
+                        </arts:Tender>
+                    </arts:LineItem>
+                    <arts:LineItem>
+                        <arts:SequenceNumber>1</arts:SequenceNumber>
+                        <arts:SaleOfGiftCard>
+                            <arts:CardNumber>902606709</arts:CardNumber>
+                            <arts:ItemID>410010875183</arts:ItemID>
+                            <arts:InitialBalance>65.99</arts:InitialBalance>
+                        </arts:SaleOfGiftCard>
+                    </arts:LineItem>
+                    <arts:LineItem>
+                        <arts:SequenceNumber>1</arts:SequenceNumber>
+                        <arts:Tender TenderType="CreditDebit" TypeCode="Sale" SubTenderType="Visa">
+                            <arts:Amount>37.86</arts:Amount>
+                            <arts:Authorization>
+                                <arts:AuthorizationCode>7447</arts:AuthorizationCode>
+                            </arts:Authorization>
+                            <arts:ForeignCurrency/>
+                            <arts:CreditDebit>
+                                <arts:PrimaryAccountNumber/>
+                                <arts:ExpirationDate>2021-12</arts:ExpirationDate>
+                                <arts:BankResponseSequenceNumber/>
+                            </arts:CreditDebit>
+                        </arts:Tender>
+                    </arts:LineItem>
+                    <arts:Total TotalType="TransactionGrossAmount">65.99</arts:Total>
+                    <arts:Total TotalType="TransactionSubtotal">59.99</arts:Total>
+                </arts:RetailTransaction>
+            </arts:Transaction>
+        </eai:POSLog>
+    </eai:Messages>
+</eai:Exchange>

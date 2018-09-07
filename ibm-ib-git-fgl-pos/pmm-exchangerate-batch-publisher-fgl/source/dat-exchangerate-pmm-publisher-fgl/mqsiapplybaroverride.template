@@ -1,0 +1,9 @@
+dat.exchangerate.pmm.publisher#IIBInboundQueue=RECV.${EXCRATES_BATCH_IN_DS}
+dat.exchangerate.pmm.publisher#IIBPublication=${EXCRATES_TOPICSTR}
+dat.exchangerate.pmm.publisher#IIBDataSource=FGLRPL${ENVN}${INST}
+dat.exchangerate.pmm.publisher#CoreAuditDataSource=AUD${ENVN}${INST}
+dat.exchangerate.pmm.publisher#additionalInstances=${EXTRATHREADS}
+dat.exchangerate.pmm.publisher#PreProcessorAuditEnabled=False
+dat.exchangerate.pmm.publisher#PostProcessorAuditEnabled=False
+dat.exchangerate.pmm.publisher#CoreDatastageMessageValidation=${DS_VALIDATION}
+dat.exchangerate.pmm.publisher#CoreArtsMessageValidation=${ARTS_VALIDATION}

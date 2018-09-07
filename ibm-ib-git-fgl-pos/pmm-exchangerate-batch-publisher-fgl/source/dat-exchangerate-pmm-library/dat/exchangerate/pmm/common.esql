@@ -1,0 +1,35 @@
+/*
+ * File name: common.esql
+ *
+ * Purpose:   ESQL file for common modules used across application main flows.
+ *
+ * Version:   Initial Version
+ *
+ * Authors:   Madanlal Tulsiram
+ *                 
+ * Create Date:  8th September 2016
+ * 
+ * @copyright FGL 2016.  All rights reserved.
+ */
+BROKER SCHEMA dat.exchangerate.pmm
+/** Module to store logging parameters to environment **/
+CREATE COMPUTE MODULE SetLogParams
+	CREATE FUNCTION Main() RETURNS BOOLEAN
+	BEGIN
+		SET OutputRoot = InputRoot;		
+		DECLARE etl NAMESPACE 'http://www.fgl.com/SourceStagingExchangeRatePmmFgl';		
+		DECLARE RefInExch REFERENCE TO InputRoot.XMLNSC.etl:Exchange;
+		DECLARE RefInMsg REFERENCE TO RefInExch.etl:Message;
+		DECLARE RefInMsgRtng REFERENCE TO RefInExch.etl:MessageRouting;
+		DECLARE RefInExchRate REFERENCE TO RefInMsg.etl:ExchangeRate;		
+		-- Log key business fields
+		DECLARE guid CHARACTER COALESCE(RefInMsgRtng.etl:Guid,'nill');
+		DECLARE FROM_CURR_CODE CHARACTER COALESCE(RefInMsg.etl:CURR_CODE,'nill');
+		DECLARE TO_CURR_CODE CHARACTER COALESCE(RefInMsg.etl:TO_CURR_CODE,'nill');
+		DECLARE RATE_DATE CHARACTER COALESCE(SUBSTRING(RefInExchRate.etl:RATE_DATE FROM 1 FOR 10),'nill');
+		DECLARE businessKey,messageKey CHARACTER FROM_CURR_CODE ||'__'||TO_CURR_CODE ||'__'||RATE_DATE;		
+		DECLARE subjectAreaRunName CHARACTER COALESCE(RefInExch.etl:MessageRouting.etl:SubjectAreaRunName,'nill');		
+		SET Environment.__MsgIdForLog4J__ = Environment.__MsgIdForLog4J__ || ', GUID: ' || guid || ', Business Key: ' || businessKey  || ', Message Key: ' ||  messageKey || ', Run Name: ' || subjectAreaRunName;		
+		RETURN TRUE;
+	END;
+END MODULE;	

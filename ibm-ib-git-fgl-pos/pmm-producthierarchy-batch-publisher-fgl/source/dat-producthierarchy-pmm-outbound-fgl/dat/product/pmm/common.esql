@@ -1,0 +1,19 @@
+BROKER SCHEMA dat.product.pmm
+
+DECLARE eai NAMESPACE 'http://www.fgl.com/exchange/';
+
+CREATE COMPUTE MODULE pos_AuditEndOfData
+      CREATE FUNCTION Main() RETURNS BOOLEAN
+      BEGIN
+            DECLARE FileDirectory CHARACTER InputLocalEnvironment.WrittenDestination.File.Directory;
+            DECLARE SubjectAreaRunName CHARACTER InputLocalEnvironment.WrittenDestination.File.Name;               
+            CALL core.audit.AuditState(Environment, 'DROP');
+            CALL core.audit.AuditStateComment(Environment, 'Initial Load file - ""' ||SubjectAreaRunName || '"" is created in Directory -"'||FileDirectory||'".');
+            SET OutputRoot = InputRoot;
+            RETURN TRUE;
+      END;
+END MODULE;
+
+
+
+

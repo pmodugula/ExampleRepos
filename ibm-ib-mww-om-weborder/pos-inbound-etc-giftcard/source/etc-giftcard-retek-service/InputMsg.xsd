@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?><xsd:schema xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0/" xmlns:ibmDfdlExtn="http://www.ibm.com/dfdl/extensions" xmlns:ibmSchExtn="http://www.ibm.com/schema/extensions" xmlns:recSepFieldsFmt="http://www.ibm.com/dfdl/RecordSeparatedFieldFormat" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+    <xsd:import namespace="http://www.ibm.com/dfdl/RecordSeparatedFieldFormat" schemaLocation="IBMdefined/RecordSeparatedFieldFormat.xsd"/>
+    <xsd:annotation>
+		<xsd:appinfo source="http://www.ogf.org/dfdl/">
+			<dfdl:format byteOrder="{$dfdl:byteOrder}" encoding="{$dfdl:encoding}" escapeSchemeRef="recSepFieldsFmt:RecordEscapeScheme" occursCountKind="fixed" ref="recSepFieldsFmt:RecordSeparatedFieldsFormat"/>
+		</xsd:appinfo>
+	</xsd:annotation>
+
+	<xsd:element ibmSchExtn:docRoot="true" name="InputMsg">
+		<xsd:complexType>
+			<xsd:sequence dfdl:separator="%CR;%LF;%WSP*;">
+				<xsd:element dfdl:emptyValueDelimiterPolicy="initiator" dfdl:initiator="" dfdl:terminator="" maxOccurs="1" name="body">
+					<xsd:complexType>
+						<xsd:sequence dfdl:encoding="ISO-8859-1" dfdl:initiatedContent="no" dfdl:initiator="%STX;" dfdl:separator="%FS;" dfdl:separatorPosition="infix" dfdl:terminator="%ETX;">
+                            							<xsd:element ibmDfdlExtn:sampleValue="909" name="GivexMsdIdFrmt" type="xsd:string"/>
+                            <xsd:element default="" dfdl:initiator="" dfdl:nilKind="literalValue" dfdl:nilValue="%ES;" dfdl:occursCountKind="implicit" dfdl:terminator="" dfdl:useNilForDefault="yes" ibmDfdlExtn:sampleValue="en" maxOccurs="unbounded" name="Elem" nillable="true" type="xsd:string"/>
+                                                        							                            						                                                                                                                                                            </xsd:sequence>
+					</xsd:complexType>
+				</xsd:element>
+                			            </xsd:sequence>
+		</xsd:complexType>
+	</xsd:element>
+
+</xsd:schema>

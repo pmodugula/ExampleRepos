@@ -1,0 +1,110 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<!-- edited with XMLSpy v2014 rel. 2 (http://www.altova.com) by Ron Matyjanka (FGL SPORTS LTD) -->
+<!--
+ * ER/Studio Data Architect XE3 %s XML Schema Generation
+ * Company:		FGL Sports
+ * Project:		FGL Corporate Data Warehouse
+ * Author:		Warren Whale
+ * Version:		1.0
+ * Date Created:	2015-01-23
+-->
+<xs:schema xmlns:arts="http://www.fgl.com/ARTS" xmlns:xs="http://www.w3.org/2001/XMLSchema" targetNamespace="http://www.fgl.com/ARTS" elementFormDefault="qualified">
+	<xs:include schemaLocation="AttributeGroupsV1_00_00.xsd"/>
+	<xs:include schemaLocation="ARTS_PersonTypeV1_00_00.xsd"/>
+	<xs:include schemaLocation="ARTS_OrganizationTypeV1_00_00.xsd"/>
+	<xs:include schemaLocation="ARTS_ContactMethodTypeV1_00_00.xsd"/>
+	<xs:include schemaLocation="ARTS_CustomerAccountTypeV1_00_00.xsd"/>
+	<xs:complexType name="ArtsCustomerType">
+		<xs:annotation>
+			<xs:documentation>A PartyRoleAssignment type that represents the association between a retailer on one hand and an individual or organization (Party) on the other hand where the party is a Consumer that has completed at least one purchase and whose associated ConsumerConversionState indicates their status as a CUSTOMER. 
+
+We are using the term "Consumerr" to reflect the idea that this PartyRoleAssignment represents parties that retailers are SELLING TO (or trying to sell to).  In other entities we differentiate between parties that are in a pre-sale state (typically they're in the customer acquisition funnel), an active state (they have purchased items and are ActiveCustomers) , an inactive state (InactiveCustomers) or a "dead" state (ExCustomers).
+</xs:documentation>
+		</xs:annotation>
+		<xs:sequence>
+			<xs:element name="Index" type="xs:long"/>
+			<xs:element name="DataSource" type="arts:DataSource"/>
+			<xs:element name="CustomerNumber" nillable="true">
+				<xs:annotation>
+					<xs:documentation>Business defined uique identifier for a Customer</xs:documentation>
+				</xs:annotation>
+				<xs:complexType>
+					<xs:simpleContent>
+						<xs:extension base="xs:string">
+							<xs:attributeGroup ref="arts:ElementControlAttributeGroup"/>
+						</xs:extension>
+					</xs:simpleContent>
+				</xs:complexType>
+			</xs:element>
+			<xs:element name="PersonOrOrganizationFlag" type="xs:string">
+				<xs:annotation>
+					<xs:documentation>Indicates which of the following choice sections is present.</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:choice>
+				<xs:element name="Person" type="arts:ArtsPersonType"/>
+				<xs:element name="Organization" type="arts:ArtsOrganizationType"/>
+			</xs:choice>
+			<xs:element name="KeyCustomers">
+				<xs:complexType>
+					<xs:sequence>
+						<xs:element name="Count" type="xs:long"/>
+						<xs:element name="KeyCustomer" minOccurs="0" maxOccurs="unbounded">
+							<xs:annotation>
+								<xs:documentation>A customer that has registered with the retailer and in addition to a unique identifier has provided name, address, phone, email and other personal contact information.
+
+KeyCustomer is the basis for establishing an account relationship between a customer and the retailer.  It can be thoguht of  as the registration (i.e. personal contact information) part of setting up an account relationship.</xs:documentation>
+							</xs:annotation>
+							<xs:complexType>
+								<xs:sequence>
+									<xs:element name="Index" type="xs:long"/>
+									<xs:element name="ConsumerRegistrationStateCode">
+										<xs:annotation>
+											<xs:documentation>Code value that designates a type of enrollment condition.  The list is determined by the retailer.   Common examples include:
+
+REGISTERED_VALIDATED - consumer is registered but information is not validated
+REGISTERED_UNVALIDATE - consumer is registered and information has been validated
+UNREGISTERED - consumer has NOT registered.
+
+Others as required by the retailer.</xs:documentation>
+										</xs:annotation>
+										<xs:complexType>
+											<xs:simpleContent>
+												<xs:extension base="xs:string">
+													<xs:attributeGroup ref="arts:ElementControlAttributeGroup"/>
+												</xs:extension>
+											</xs:simpleContent>
+										</xs:complexType>
+									</xs:element>
+									<xs:element name="CustomerAccounts">
+										<xs:complexType>
+											<xs:sequence>
+												<xs:element name="Count" type="xs:long"/>
+												<xs:element name="CustomerAccount" type="arts:ArtsCustomerAccountType" minOccurs="0" maxOccurs="unbounded">
+													<xs:annotation>
+														<xs:documentation>A charge account or other accounting relationship a customer has with the store or enterprise.  An account exists to allow the store to record a series of transactions with the same customer and keep an ongoing record of monies owed by the customer and monies due to the customer.
+
+CustomerAccount is subtyped into a number of different kinds of accounts such as loyalty account, installment account, etc.  Each has additional attributes required to describe the reponsibilities and obligations associated with each account type.</xs:documentation>
+													</xs:annotation>
+												</xs:element>
+											</xs:sequence>
+										</xs:complexType>
+									</xs:element>
+								</xs:sequence>
+							</xs:complexType>
+						</xs:element>
+					</xs:sequence>
+				</xs:complexType>
+			</xs:element>
+			<xs:element name="ContactMethods">
+				<xs:complexType>
+					<xs:sequence>
+						<xs:element name="Count" type="xs:long"/>
+						<xs:element name="ContactMethod" type="arts:ArtsContactMethodType" maxOccurs="unbounded"/>
+					</xs:sequence>
+				</xs:complexType>
+			</xs:element>
+		</xs:sequence>
+		<xs:attributeGroup ref="arts:TypeControlAttributeGroup"/>
+	</xs:complexType>
+</xs:schema>

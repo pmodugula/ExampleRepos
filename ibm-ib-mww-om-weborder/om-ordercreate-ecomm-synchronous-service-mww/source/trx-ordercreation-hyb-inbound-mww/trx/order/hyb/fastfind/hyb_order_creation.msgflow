@@ -1,0 +1,184 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ecore:EPackage xmi:version="2.0"
+    xmlns:xmi="http://www.omg.org/XMI" xmlns:ComIbmCompute.msgnode="ComIbmCompute.msgnode" xmlns:ComIbmMQInput.msgnode="ComIbmMQInput.msgnode" xmlns:ComIbmMQOutput.msgnode="ComIbmMQOutput.msgnode" xmlns:ComIbmPassthru.msgnode="ComIbmPassthru.msgnode" xmlns:core_message__postprocessor.subflow="core/message/_postprocessor.subflow" xmlns:core_message__preprocessor.subflow="core/message/_preprocessor.subflow" xmlns:core_message__validation.subflow="core/message/_validation.subflow" xmlns:ecore="http://www.eclipse.org/emf/2002/Ecore"
+    xmlns:eflow="http://www.ibm.com/wbi/2005/eflow" xmlns:trx_order_hyb_fastfind__hyb_order_creation.subflow="trx/order/hyb/fastfind/_hyb_order_creation.subflow" xmlns:utility="http://www.ibm.com/wbi/2005/eflow_utility" nsURI="trx/order/hyb/fastfind/hyb_order_creation.msgflow"
+    nsPrefix="trx_order_hyb_fastfind_hyb_order_creation.msgflow">
+  <eClassifiers xmi:type="eflow:FCMComposite" name="FCMComposite_1">
+    <eSuperTypes href="http://www.ibm.com/wbi/2005/eflow#//FCMBlock"/>
+    <eStructuralFeatures xmi:type="ecore:EAttribute" xmi:id="Property.IIBInboundQueue" name="IIBInboundQueue" lowerBound="1" defaultValueLiteral="RECV.MWW.DIG.ORDERCREATE_OUT.IBM_IB.DV">
+      <eType xmi:type="ecore:EDataType" href="http://www.eclipse.org/emf/2002/Ecore#//EString"/>
+    </eStructuralFeatures>
+    <eStructuralFeatures xmi:type="ecore:EAttribute" xmi:id="Property.IIBOutboundQueue" name="IIBOutboundQueue" defaultValueLiteral="SEND.MWW.DIG.ORDERCREATESTATUS_IN.IBM_IB.DV">
+      <eType xmi:type="ecore:EDataType" href="http://www.eclipse.org/emf/2002/Ecore#//EString"/>
+    </eStructuralFeatures>
+    <eStructuralFeatures xmi:type="ecore:EAttribute" xmi:id="Property.CoreAuditDataSource" name="CoreAuditDataSource" defaultValueLiteral="AUDDEV">
+      <eType xmi:type="ecore:EDataType" href="http://www.eclipse.org/emf/2002/Ecore#//EString"/>
+    </eStructuralFeatures>
+    <eStructuralFeatures xmi:type="ecore:EAttribute" xmi:id="Property.OMDataSource" name="OMDataSource" defaultValueLiteral="ENTDEV">
+      <eType xmi:type="ecore:EDataType" href="http://www.eclipse.org/emf/2002/Ecore#//EString"/>
+    </eStructuralFeatures>
+    <eStructuralFeatures xmi:type="ecore:EAttribute" xmi:id="Property.RetekDataSource" name="RetekDataSource" defaultValueLiteral="POSDEV">
+      <eType xmi:type="ecore:EDataType" href="http://www.eclipse.org/emf/2002/Ecore#//EString"/>
+    </eStructuralFeatures>
+    <eStructuralFeatures xmi:type="ecore:EAttribute" xmi:id="Property.RetekSchema" name="RetekSchema" defaultValueLiteral="JPPRDDATA">
+      <eType xmi:type="ecore:EDataType" href="http://www.eclipse.org/emf/2002/Ecore#//EString"/>
+    </eStructuralFeatures>
+    <eStructuralFeatures xmi:type="ecore:EAttribute" xmi:id="Property.PreProcessorAuditEnabled" name="PreProcessorAuditEnabled" lowerBound="1" defaultValueLiteral="true">
+      <eType xmi:type="ecore:EDataType" href="http://www.eclipse.org/emf/2002/Ecore#//EBoolean"/>
+    </eStructuralFeatures>
+    <eStructuralFeatures xmi:type="ecore:EAttribute" xmi:id="Property.PostProcessorAuditEnabled" name="PostProcessorAuditEnabled" lowerBound="1" defaultValueLiteral="true">
+      <eType xmi:type="ecore:EDataType" href="http://www.eclipse.org/emf/2002/Ecore#//EBoolean"/>
+    </eStructuralFeatures>
+    <eStructuralFeatures xmi:type="ecore:EAttribute" xmi:id="Property.CoreMessageValidation" name="CoreMessageValidation" lowerBound="1" defaultValueLiteral="true">
+      <eType xmi:type="ecore:EDataType" href="http://www.eclipse.org/emf/2002/Ecore#//EBoolean"/>
+    </eStructuralFeatures>
+    <eStructuralFeatures xmi:type="ecore:EAttribute" xmi:id="Property.TPSEndPoint" name="TPSEndPoint" defaultValueLiteral="http://mffd02ap01d.mww.lan:8080/TrxnPstSvcProcess_QUniformWeb/sca/SubmitSaleTxnInfExport">
+      <eType xmi:type="ecore:EDataType" href="http://www.eclipse.org/emf/2002/Ecore#//EString"/>
+    </eStructuralFeatures>
+    <eStructuralFeatures xmi:type="ecore:EAttribute" xmi:id="Property.TPSEndPoint.internal_npcompiler" name="TPSEndPoint.internal_npcompiler">
+      <eType xmi:type="ecore:EDataType" href="http://www.eclipse.org/emf/2002/Ecore#//EString"/>
+    </eStructuralFeatures>
+    <eStructuralFeatures xmi:type="ecore:EAttribute" xmi:id="Property.WSGFFEndPoint" name="WSGFFEndPoint" defaultValueLiteral="http://mwsgesb201.mww.lan:1242/WSG/MARKS/SOAP_FF">
+      <eType xmi:type="ecore:EDataType" href="http://www.eclipse.org/emf/2002/Ecore#//EString"/>
+    </eStructuralFeatures>
+    <eStructuralFeatures xmi:type="ecore:EAttribute" xmi:id="Property.WSGFFEndPoint.internal_npcompiler" name="WSGFFEndPoint.internal_npcompiler">
+      <eType xmi:type="ecore:EDataType" href="http://www.eclipse.org/emf/2002/Ecore#//EString"/>
+    </eStructuralFeatures>
+    <eStructuralFeatures xmi:type="ecore:EAttribute" xmi:id="Property.WSGGivexEndPoint" name="WSGGivexEndPoint" lowerBound="1" defaultValueLiteral="mwwlxesb202.mww.lan:7001">
+      <eType xmi:type="ecore:EDataType" href="http://www.eclipse.org/emf/2002/Ecore#//EString"/>
+    </eStructuralFeatures>
+    <translation xmi:type="utility:TranslatableString" key="hyb_order_creation" bundleName="trx/order/hyb/fastfind/hyb_order_creation" pluginId="trx-ordercreation-hyb-inbound-mww"/>
+    <colorGraphic16 xmi:type="utility:GIFFileGraphic" resourceName="platform:/plugin/trx-ordercreation-hyb-inbound-mww/icons/full/obj16/hyb_order_creation.gif"/>
+    <colorGraphic32 xmi:type="utility:GIFFileGraphic" resourceName="platform:/plugin/trx-ordercreation-hyb-inbound-mww/icons/full/obj30/hyb_order_creation.gif"/>
+    <composition>
+      <nodes xmi:type="ComIbmMQInput.msgnode:FCMComposite_1" xmi:id="FCMComposite_1_1" location="10,20" queueName="IN" messageDomainProperty="XMLNSC" validateTiming="complete" parserXmlnscBuildTreeUsingXMLSchema="true" validateMaster="contentAndValue">
+        <translation xmi:type="utility:ConstantString" string="MWW.FASTFIND.ORDER_CREATION_IN"/>
+      </nodes>
+      <nodes xmi:type="ComIbmMQOutput.msgnode:FCMComposite_1" xmi:id="FCMComposite_1_2" location="941,20" queueName="OUT">
+        <translation xmi:type="utility:ConstantString" string="MWW.FASTFIND.ORDER_CREATION_OUT"/>
+      </nodes>
+      <nodes xmi:type="core_message__preprocessor.subflow:FCMComposite_1" xmi:id="FCMComposite_1_3" location="245,20">
+        <translation xmi:type="utility:ConstantString" string="CoreMessagePreProcessor"/>
+      </nodes>
+      <nodes xmi:type="core_message__postprocessor.subflow:FCMComposite_1" xmi:id="FCMComposite_1_4" location="1335,20">
+        <translation xmi:type="utility:ConstantString" string="CoreMessagePostProcessor"/>
+      </nodes>
+      <nodes xmi:type="ComIbmPassthru.msgnode:FCMComposite_1" xmi:id="FCMComposite_1_6" location="1186,99">
+        <translation xmi:type="utility:ConstantString" string="PassThroughForDebug"/>
+      </nodes>
+      <nodes xmi:type="trx_order_hyb_fastfind__hyb_order_creation.subflow:FCMComposite_1" xmi:id="FCMComposite_1_5" location="686,178">
+        <translation xmi:type="utility:ConstantString" string="HybrisOrderCreation"/>
+      </nodes>
+      <nodes xmi:type="ComIbmCompute.msgnode:FCMComposite_1" xmi:id="FCMComposite_1_7" location="428,20" computeExpression="esql://routine/trx.order.hyb.fastfind#mod_FailedHybrisMsg.Main">
+        <translation xmi:type="utility:ConstantString" string="FailureHybrisMsg"/>
+      </nodes>
+      <nodes xmi:type="ComIbmCompute.msgnode:FCMComposite_1" xmi:id="FCMComposite_1_9" location="825,178" computeExpression="esql://routine/trx.order.hyb.fastfind#mod_finalHybris_response.Main">
+        <translation xmi:type="utility:ConstantString" string="FinalHybrisResp"/>
+      </nodes>
+      <nodes xmi:type="ComIbmCompute.msgnode:FCMComposite_1" xmi:id="FCMComposite_1_8" location="564,178" computeExpression="esql://routine/trx.order.hyb.fastfind#mod_hyb_order_creation_Store_ArtsMsg.Main">
+        <translation xmi:type="utility:ConstantString" string="StoreMQHeaders"/>
+      </nodes>
+      <nodes xmi:type="core_message__validation.subflow:FCMComposite_1" xmi:id="FCMComposite_1_10" location="413,178">
+        <translation xmi:type="utility:ConstantString" string="CoreArtsMessageValidation"/>
+      </nodes>
+      <connections xmi:type="eflow:FCMConnection" xmi:id="FCMConnection_8" targetNode="FCMComposite_1_6" sourceNode="FCMComposite_1_2" sourceTerminalName="OutTerminal.out" targetTerminalName="InTerminal.in"/>
+      <connections xmi:type="eflow:FCMConnection" xmi:id="FCMConnection_9" targetNode="FCMComposite_1_4" sourceNode="FCMComposite_1_6" sourceTerminalName="OutTerminal.out" targetTerminalName="InTerminal.Input"/>
+      <connections xmi:type="eflow:FCMConnection" xmi:id="FCMConnection_10" targetNode="FCMComposite_1_4" sourceNode="FCMComposite_1_2" sourceTerminalName="OutTerminal.failure" targetTerminalName="InTerminal.Input"/>
+      <connections xmi:type="eflow:FCMConnection" xmi:id="FCMConnection_6" targetNode="FCMComposite_1_7" sourceNode="FCMComposite_1_3" sourceTerminalName="OutTerminal.FailureOutput" targetTerminalName="InTerminal.in"/>
+      <connections xmi:type="eflow:FCMConnection" xmi:id="FCMConnection_11" targetNode="FCMComposite_1_2" sourceNode="FCMComposite_1_7" sourceTerminalName="OutTerminal.out" targetTerminalName="InTerminal.in"/>
+      <connections xmi:type="eflow:FCMConnection" xmi:id="FCMConnection_15" targetNode="FCMComposite_1_2" sourceNode="FCMComposite_1_9" sourceTerminalName="OutTerminal.out" targetTerminalName="InTerminal.in"/>
+      <connections xmi:type="eflow:FCMConnection" xmi:id="FCMConnection_7" targetNode="FCMComposite_1_5" sourceNode="FCMComposite_1_8" sourceTerminalName="OutTerminal.out" targetTerminalName="InTerminal.Input"/>
+      <connections xmi:type="eflow:FCMConnection" xmi:id="FCMConnection_5" targetNode="FCMComposite_1_7" sourceNode="FCMComposite_1_3" sourceTerminalName="OutTerminal.Output" targetTerminalName="InTerminal.in"/>
+      <connections xmi:type="eflow:FCMConnection" xmi:id="FCMConnection_13" targetNode="FCMComposite_1_9" sourceNode="FCMComposite_1_5" sourceTerminalName="OutTerminal.Output" targetTerminalName="InTerminal.in"/>
+      <connections xmi:type="eflow:FCMConnection" xmi:id="FCMConnection_1" targetNode="FCMComposite_1_3" sourceNode="FCMComposite_1_1" sourceTerminalName="OutTerminal.out" targetTerminalName="InTerminal.CatchInput"/>
+      <connections xmi:type="eflow:FCMConnection" xmi:id="FCMConnection_2" targetNode="FCMComposite_1_3" sourceNode="FCMComposite_1_1" sourceTerminalName="OutTerminal.failure" targetTerminalName="InTerminal.FailureInput"/>
+      <connections xmi:type="eflow:FCMConnection" xmi:id="FCMConnection_3" targetNode="FCMComposite_1_3" sourceNode="FCMComposite_1_1" sourceTerminalName="OutTerminal.catch" targetTerminalName="InTerminal.Input"/>
+      <connections xmi:type="eflow:FCMConnection" xmi:id="FCMConnection_4" targetNode="FCMComposite_1_10" sourceNode="FCMComposite_1_3" sourceTerminalName="OutTerminal.CatchOutput" targetTerminalName="InTerminal.Input"/>
+      <connections xmi:type="eflow:FCMConnection" xmi:id="FCMConnection_12" targetNode="FCMComposite_1_8" sourceNode="FCMComposite_1_10" sourceTerminalName="OutTerminal.Output" targetTerminalName="InTerminal.in"/>
+    </composition>
+    <propertyOrganizer>
+      <propertyDescriptor groupName="Group.HybrisOrderManagement" propertyEditor="com.ibm.etools.mft.ibmnodes.editors.mq.MQQueueNameEditor" configurable="true" describedAttribute="Property.IIBInboundQueue">
+        <propertyName xmi:type="utility:TranslatableString" key="Property.IIBInboundQueue" bundleName="trx/order/hyb/fastfind/hyb_order_creation" pluginId="trx-ordercreation-hyb-inbound-mww"/>
+        <propertyDescriptor groupName="Group.HybrisOrderManagement" propertyEditor="com.ibm.etools.mft.ibmnodes.editors.mq.MQQueueNameEditor" configurable="true" describedAttribute="Property.IIBOutboundQueue">
+          <propertyName xmi:type="utility:TranslatableString" key="Property.IIBOutboundQueue" bundleName="trx/order/hyb/fastfind/hyb_order_creation" pluginId="trx-ordercreation-hyb-inbound-mww"/>
+          <propertyDescriptor groupName="Group.HybrisOrderManagement" configurable="true" describedAttribute="Property.CoreAuditDataSource">
+            <propertyName xmi:type="utility:TranslatableString" key="Property.CoreAuditDataSource" bundleName="core/audit/_audit" pluginId="core-audit-handler-library"/>
+            <propertyDescriptor groupName="Group.HybrisOrderManagement" configurable="true" describedAttribute="Property.OMDataSource">
+              <propertyName xmi:type="utility:TranslatableString" key="Property.OMDataSource" bundleName="trx/order/hyb/fastfind/hyb_order_creation" pluginId="trx-ordercreation-hyb-inbound-mww"/>
+              <propertyDescriptor groupName="Group.HybrisOrderManagement" configurable="true" describedAttribute="Property.RetekDataSource">
+                <propertyName xmi:type="utility:TranslatableString" key="Property.RetekDataSource" bundleName="trx/order/hyb/fastfind/submit_pos_txn" pluginId="trx-ordercreation-hyb-inbound-mww"/>
+                <propertyDescriptor groupName="Group.HybrisOrderManagement" configurable="true" userDefined="true" describedAttribute="Property.RetekSchema">
+                  <propertyName xmi:type="utility:TranslatableString" key="Property.RetekSchema" bundleName="trx/order/hyb/fastfind/submit_pos_txn" pluginId="trx-ordercreation-hyb-inbound-mww"/>
+                  <propertyDescriptor groupName="Group.HybrisOrderManagement" configurable="true" userDefined="true" describedAttribute="Property.PreProcessorAuditEnabled">
+                    <propertyName xmi:type="utility:TranslatableString" key="Property.PreProcessorAuditEnabled" bundleName="trx/order/hyb/fastfind/hyb_order_creation" pluginId="trx-ordercreation-hyb-inbound-mww"/>
+                    <propertyDescriptor groupName="Group.HybrisOrderManagement" configurable="true" userDefined="true" describedAttribute="Property.PostProcessorAuditEnabled">
+                      <propertyName xmi:type="utility:TranslatableString" key="Property.PostProcessorAuditEnabled" bundleName="trx/order/hyb/fastfind/hyb_order_creation" pluginId="trx-ordercreation-hyb-inbound-mww"/>
+                      <propertyDescriptor groupName="Group.HybrisOrderManagement" configurable="true" userDefined="true" describedAttribute="Property.CoreMessageValidation">
+                        <propertyName xmi:type="utility:TranslatableString" key="Property.CoreMessageValidation" bundleName="core/message/_validation" pluginId="core-message-processor-library"/>
+                        <propertyDescriptor groupName="Group.ServiceEndpoints" propertyEditor="com.ibm.etools.mft.ibmnodes.editors.soap.http.SOAP_Over_HTTP_WebServicesURLPropertyEditor" compiler="com.ibm.etools.mft.ibmnodes.compilers.GenericSOAPCompiler" configurable="true" describedAttribute="Property.TPSEndPoint">
+                          <propertyName xmi:type="utility:TranslatableString" key="Property.TPSEndPoint" bundleName="trx/order/hyb/fastfind/hyb_order_creation" pluginId="trx-ordercreation-hyb-inbound-mww"/>
+                          <propertyDescriptor groupName="Group.InternalRuntimeGroup" readOnly="true" hidden="true" userDefined="true" describedAttribute="Property.TPSEndPoint.internal_npcompiler">
+                            <propertyName xmi:type="utility:TranslatableString" key="Property.TPSEndPoint.internal_npcompiler" bundleName="trx/order/hyb/fastfind/hyb_order_creation" pluginId="trx-ordercreation-hyb-inbound-mww"/>
+                            <propertyDescriptor groupName="Group.ServiceEndpoints" propertyEditor="com.ibm.etools.mft.ibmnodes.editors.soap.http.SOAP_Over_HTTP_WebServicesURLPropertyEditor" compiler="com.ibm.etools.mft.ibmnodes.compilers.GenericSOAPCompiler" configurable="true" describedAttribute="Property.WSGFFEndPoint">
+                              <propertyName xmi:type="utility:TranslatableString" key="Property.WSGFFEndPoint" bundleName="trx/order/hyb/fastfind/fastfind_order_creation" pluginId="trx-ordercreation-hyb-inbound-mww"/>
+                              <propertyDescriptor groupName="Group.InternalRuntimeGroup" readOnly="true" hidden="true" userDefined="true" describedAttribute="Property.WSGFFEndPoint.internal_npcompiler">
+                                <propertyName xmi:type="utility:TranslatableString" key="Property.WSGFFEndPoint.internal_npcompiler" bundleName="trx/order/hyb/fastfind/hyb_order_creation" pluginId="trx-ordercreation-hyb-inbound-mww"/>
+                                <propertyDescriptor groupName="Group.ServiceEndpoints" propertyEditor="com.ibm.etools.mft.ibmnodes.editors.tcpip.TCPIPConnectionPropertyEditor" configurable="true" describedAttribute="Property.WSGGivexEndPoint">
+                                  <propertyName xmi:type="utility:TranslatableString" key="Property.WSGGivexEndPoint" bundleName="trx/order/hyb/fastfind/hyb_order_creation" pluginId="trx-ordercreation-hyb-inbound-mww"/>
+                                </propertyDescriptor>
+                              </propertyDescriptor>
+                            </propertyDescriptor>
+                          </propertyDescriptor>
+                        </propertyDescriptor>
+                      </propertyDescriptor>
+                    </propertyDescriptor>
+                  </propertyDescriptor>
+                </propertyDescriptor>
+              </propertyDescriptor>
+            </propertyDescriptor>
+          </propertyDescriptor>
+        </propertyDescriptor>
+      </propertyDescriptor>
+    </propertyOrganizer>
+    <attributeLinks promotedAttribute="Property.IIBInboundQueue" overriddenNodes="FCMComposite_1_1">
+      <overriddenAttribute href="ComIbmMQInput.msgnode#Property.queueName"/>
+    </attributeLinks>
+    <attributeLinks promotedAttribute="Property.IIBOutboundQueue" overriddenNodes="FCMComposite_1_2">
+      <overriddenAttribute href="ComIbmMQOutput.msgnode#Property.queueName"/>
+    </attributeLinks>
+    <attributeLinks promotedAttribute="Property.CoreAuditDataSource" overriddenNodes="FCMComposite_1_4">
+      <overriddenAttribute href="core/message/_postprocessor.subflow#Property.CoreAuditDataSource"/>
+    </attributeLinks>
+    <attributeLinks promotedAttribute="Property.CoreAuditDataSource" overriddenNodes="FCMComposite_1_3">
+      <overriddenAttribute href="core/message/_preprocessor.subflow#Property.CoreAuditDataSource"/>
+    </attributeLinks>
+    <attributeLinks promotedAttribute="Property.OMDataSource" overriddenNodes="FCMComposite_1_5">
+      <overriddenAttribute href="trx/order/hyb/fastfind/_hyb_order_creation.subflow#Property.dataSource"/>
+    </attributeLinks>
+    <attributeLinks promotedAttribute="Property.RetekDataSource" overriddenNodes="FCMComposite_1_5">
+      <overriddenAttribute href="trx/order/hyb/fastfind/_hyb_order_creation.subflow#Property.RetekDataSource"/>
+    </attributeLinks>
+    <attributeLinks promotedAttribute="Property.RetekSchema" overriddenNodes="FCMComposite_1_5">
+      <overriddenAttribute href="trx/order/hyb/fastfind/_hyb_order_creation.subflow#Property.RetekSchema"/>
+    </attributeLinks>
+    <attributeLinks promotedAttribute="Property.PreProcessorAuditEnabled" overriddenNodes="FCMComposite_1_3">
+      <overriddenAttribute href="core/message/_preprocessor.subflow#Property.CoreAuditEnabled"/>
+    </attributeLinks>
+    <attributeLinks promotedAttribute="Property.PostProcessorAuditEnabled" overriddenNodes="FCMComposite_1_4">
+      <overriddenAttribute href="core/message/_postprocessor.subflow#Property.CoreAuditEnabled"/>
+    </attributeLinks>
+    <attributeLinks promotedAttribute="Property.CoreMessageValidation" overriddenNodes="FCMComposite_1_10">
+      <overriddenAttribute href="core/message/_validation.subflow#Property.CoreMessageValidation"/>
+    </attributeLinks>
+    <attributeLinks promotedAttribute="Property.TPSEndPoint" overriddenNodes="FCMComposite_1_5">
+      <overriddenAttribute href="trx/order/hyb/fastfind/_hyb_order_creation.subflow#Property.TPSEndpoint"/>
+    </attributeLinks>
+    <attributeLinks promotedAttribute="Property.WSGFFEndPoint" overriddenNodes="FCMComposite_1_5">
+      <overriddenAttribute href="trx/order/hyb/fastfind/_hyb_order_creation.subflow#Property.WSGFFEndPoint"/>
+    </attributeLinks>
+    <attributeLinks promotedAttribute="Property.WSGGivexEndPoint" overriddenNodes="FCMComposite_1_5">
+      <overriddenAttribute href="trx/order/hyb/fastfind/_hyb_order_creation.subflow#Property.WSGGivexEndpoint"/>
+    </attributeLinks>
+    <stickyBoard/>
+  </eClassifiers>
+</ecore:EPackage>

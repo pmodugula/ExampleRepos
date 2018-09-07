@@ -1,0 +1,8 @@
+dat.price.pos_message_collector#IIBInboundQueue=RECV.${PRICEBASIC_INIT_IN_IB}
+dat.price.pos_message_collector#IIBCollFailureQueue=${PRICEBASIC_INIT_IN_FAILED_CLTNS}
+dat.price.pos_message_collector#IIBFailureQueue=${PRICEBASIC_INIT_IN_FAILURE_QUEUE}
+dat.price.pos_message_collector#CoreAuditDataSource=AUD${ENVN}${INST}
+dat.price.pos_message_collector#PreProcessorAuditEnabled=False
+dat.price.pos_message_collector#PostProcessorAuditEnabled=False
+dat.price.pos_message_collector#IIBOutboundDirectory=${INITIAL_LOAD_DIR_PATH}
+dat.price.pos_message_collector#fileExtension=${FILE_FORMAT}

@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="UTF-8"?><xsd:schema xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0/" xmlns:ibmDfdlExtn="http://www.ibm.com/dfdl/extensions" xmlns:ibmSchExtn="http://www.ibm.com/schema/extensions" xmlns:recSepFieldsFmt="http://www.ibm.com/dfdl/RecordSeparatedFieldFormat">
+    <xsd:import namespace="http://www.ibm.com/dfdl/RecordSeparatedFieldFormat" schemaLocation="IBMdefined/RecordSeparatedFieldFormat.xsd"/>
+    <xsd:annotation>
+		<xsd:appinfo source="http://www.ogf.org/dfdl/">
+			<dfdl:format encoding="{$dfdl:encoding}" escapeSchemeRef="" occursCountKind="implicit" ref="recSepFieldsFmt:RecordSeparatedFieldsFormat"/>
+		</xsd:appinfo>
+	</xsd:annotation>
+	<xsd:element ibmSchExtn:docRoot="true" name="Input902">
+		<xsd:complexType>
+			<xsd:sequence dfdl:separator="%CR;%LF;%WSP*;">
+				<xsd:element dfdl:emptyValueDelimiterPolicy="initiator" dfdl:initiator="" dfdl:terminator="" maxOccurs="1" name="body">
+					<xsd:complexType>
+						<xsd:sequence dfdl:encoding="ISO-8859-1" dfdl:initiatedContent="no" dfdl:initiator="%STX;" dfdl:separator="%FS;" dfdl:separatorSuppressionPolicy="never" dfdl:terminator="%ETX;">
+                            							<xsd:element default="902" ibmDfdlExtn:sampleValue="902" name="GivexMsdIdFrmt">
+                <xsd:simpleType>
+                  <xsd:restriction base="xsd:string">
+                    <xsd:minLength value="3"/>
+                    <xsd:maxLength value="3"/>
+                  </xsd:restriction>
+                </xsd:simpleType>
+              </xsd:element>
+                            <xsd:element default="en" dfdl:initiator="" dfdl:terminator="" ibmDfdlExtn:sampleValue="en" name="Lang">
+                <xsd:simpleType>
+                  <xsd:restriction base="xsd:string">
+                    <xsd:minLength value="1"/>
+                    <xsd:maxLength value="2"/>
+                                                                                                                                                                                                                                                              <xsd:enumeration value="0"/>
+                                        <xsd:enumeration value="1"/>
+                                        <xsd:enumeration value="en"/>
+                                        <xsd:enumeration value="fr"/>
+                                        <xsd:enumeration value="EN"/>
+                                        <xsd:enumeration value="FR"/>
+                                    </xsd:restriction>
+                </xsd:simpleType>
+              </xsd:element>
+                                                        							                            						                                                <xsd:element ibmDfdlExtn:sampleValue="" name="TransCode">
+                <xsd:simpleType>
+                  <xsd:restriction base="xsd:string">
+                    <xsd:minLength value="12"/>
+                    <xsd:maxLength value="12"/>
+                  </xsd:restriction>
+                </xsd:simpleType>
+              </xsd:element>
+                            <xsd:element ibmDfdlExtn:sampleValue="" name="UserId">
+                <xsd:simpleType>
+                  <xsd:restriction base="xsd:string">
+                    <xsd:minLength value="1"/>
+                    <xsd:maxLength value="10"/>
+                  </xsd:restriction>
+                </xsd:simpleType>
+              </xsd:element>
+                                                        <xsd:element name="Passwrd" type="xsd:string"/>
+                            <xsd:element dfdl:textNumberPattern="#0" name="GivexNumb">
+                <xsd:simpleType>
+                  <xsd:restriction base="xsd:string">
+                    <xsd:minLength value="20"/>
+                    <xsd:maxLength value="20"/>
+                  </xsd:restriction>
+                </xsd:simpleType>
+              </xsd:element>
+                                                        <xsd:element dfdl:nilKind="literalValue" dfdl:nilValue="%ES;" dfdl:textNumberPattern="#0.###" dfdl:useNilForDefault="yes" name="Amount" nillable="true" type="xsd:string"/>
+                                                        <xsd:element default="" name="SecCode" type="xsd:string"/>
+                            <xsd:element default="" dfdl:nilKind="logicalValue" dfdl:nilValue="%ES;" dfdl:useNilForDefault="yes" name="TotlChkAmt" nillable="true" type="xsd:string"/>
+                            <xsd:element default="" dfdl:nilKind="literalValue" dfdl:nilValue="%ES;" dfdl:useNilForDefault="yes" ibmDfdlExtn:sampleValue="" name="SKU" nillable="true" type="xsd:string"/>
+                                                    <xsd:element default="" name="VoucherNo" type="xsd:string"/>
+                        </xsd:sequence>
+					</xsd:complexType>
+				</xsd:element>
+                			            </xsd:sequence>
+		</xsd:complexType>
+	</xsd:element>
+</xsd:schema>

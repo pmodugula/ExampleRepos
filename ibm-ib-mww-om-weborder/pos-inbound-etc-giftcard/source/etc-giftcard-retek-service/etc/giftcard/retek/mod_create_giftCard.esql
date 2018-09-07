@@ -1,0 +1,162 @@
+BROKER SCHEMA etc.giftcard.retek
+
+
+CREATE DATABASE MODULE mod_create_GiftCard
+	CREATE FUNCTION Main() RETURNS BOOLEAN
+	BEGIN
+		-- Reference to existing Gift card details
+		DECLARE Insert_GC CHARACTER;
+		DECLARE refInpMsg REFERENCE TO Root.DFDL.Input904.body;
+		DECLARE crdnum CHARACTER SUBSTRING(refInpMsg.GivexNumber FROM 1 FOR 9);
+		DECLARE chk CHARACTER SUBSTRING(refInpMsg.GivexNumber FROM 9 FOR 1);
+		CALL core.log.Debug(MessageFlowLabel||'Module name: mod_create_GiftCard - insert start');
+		DECLARE GIFTCARD_CHECK_DIGIT INTEGER 0;
+		CALL calculateCheckDigit(CAST(SUBSTRING(refInpMsg.GivexNumber FROM 1 FOR 9) AS INTEGER),GIFTCARD_CHECK_DIGIT);
+		-- Insert goes after update
+		SET Insert_GC = 'INSERT INTO '||RetekSchema||'.GIFTCARD
+		(GIFTCARDNUMBER,GIFTCARDCHECKDIGIT,CURRENTCARDSTATE,GIFTCARDEXPIRYDATE,SKU,GIFTCARDVALUE,ISSUINGSTOREID,GIFTCARDEXPIRED,GIFTCARDRECON,GIFTCARDPINCODE)
+		VALUES(?,?,?,?,?,?,?,?,?,?)';
+		-- Update with algorithm for check digit
+		SET LocalEnvironment.Insert_GC.Row[] =
+		PASSTHRU(Insert_GC VALUES(crdnum,GIFTCARD_CHECK_DIGIT,30,NULL,990,refInpMsg.GiftCardValue,SUBSTRING(refInpMsg.TransCode FROM 1 FOR 3),NULL,'N',NULL));
+		
+		CALL core.log.Debug(MessageFlowLabel||'Module name: mod_create_GiftCard - insert end');
+		RETURN TRUE;
+	END;
+
+END MODULE;
+
+
+CREATE DATABASE MODULE mod_retrieve_create_GiftCard_dtls
+	CREATE FUNCTION Main() RETURNS BOOLEAN
+	BEGIN
+		-- Reference to existing Gift card details
+		DECLARE query CHARACTER;
+		DECLARE refInpMsg REFERENCE TO Root.DFDL.Input904.body;
+		DECLARE crdnum CHARACTER SUBSTRING(refInpMsg.GivexNumber FROM 1 FOR 9);
+		CALL core.log.Debug(MessageFlowLabel||'Module name: mod_retrieve_create_GiftCard_dtls - SELECT start');
+		
+		SET query = 'SELECT * FROM '||RetekSchema||'.GIFTCARD where GIFTCARDNUMBER= ?';
+		--Store existing Gift card details in Environment
+		SET Environment.CurGiftCrd.row[] =
+		PASSTHRU(query
+		VALUES (crdnum));
+		CALL core.log.Debug(MessageFlowLabel||'Module name: mod_retrieve_create_GiftCard_dtls - SELECT end');
+		RETURN TRUE;
+	END;
+
+END MODULE;
+
+CREATE DATABASE MODULE mod_logHistory_Create
+	CREATE FUNCTION Main() RETURNS BOOLEAN
+	BEGIN
+		-- Reference to existing Gift card details
+		
+		DECLARE Insert_GCH CHARACTER;
+		DECLARE refInpMsg REFERENCE TO Root.DFDL.Input904.body;
+		
+		------------- POE-27321 converted to MST time stamp --------
+		DECLARE GCHTS TIMESTAMP;
+        DECLARE mstGCHTS CHARACTER;
+   		SET GCHTS = CAST(CURRENT_TIMESTAMP AS TIMESTAMP FORMAT 'I');
+        CALL getTimestampInMST(GCHTS) INTO mstGCHTS;
+        ------------------
+        
+		CALL core.log.Debug(MessageFlowLabel||'Module name: mod_create_GiftCard - insert start');
+		-- Insert goes after update
+		SET Insert_GCH = 'INSERT INTO '||RetekSchema||'.GIFTCARDHISTORY
+		(GIFTCARDNUMBER,GIFTCARDHISTTIMESTAMP,HISTORYFROMSTATE,HISTORYTOSTATE,HISTORYAMOUNT,HISTORYLDAPPROFILE,STORE_ID,LINE_TRANSACTION_ID,LINE_SEQUENCE_NUMBER,GIFTCARDHISTORYCOMMENT)
+		VALUES(?,?,?,?,?,?,?,?,?,?)';
+		SET LocalEnvironment.Insert_GCH.Row[] =
+		PASSTHRU(Insert_GCH VALUES(SUBSTRING(refInpMsg.GivexNumber FROM 1 FOR 9),mstGCHTS,NULL,30,refInpMsg.GiftCardValue,'DP',NULL,NULL,NULL,'Fast Find Virtual Gift Card for order:'||SUBSTRING(refInpMsg.GivexNumber FROM 3)));
+		CALL core.log.Debug(MessageFlowLabel||'Module name: mod_create_GiftCard - insert end');
+		RETURN TRUE;
+	END;
+
+END MODULE;
+
+
+CREATE COMPUTE MODULE mod_create_dataconnect_createMsg
+	CREATE FUNCTION Main() RETURNS BOOLEAN
+	BEGIN
+
+		SET OutputRoot.Properties = InputRoot.Properties;
+		SET OutputRoot.Properties.MessageType = '{}:Output_904';
+
+		DECLARE refOut,refOutBody REFERENCE TO OutputRoot;
+		DECLARE refInpMsg REFERENCE TO InputRoot.DFDL.Input904.body;
+		-- Reference to existing Gift card details
+		DECLARE refResult REFERENCE TO Environment.CurGiftCrd.row[1];
+		-- Create Dataconect message to send the Activated Gift Card details
+		-------------
+		-- Start
+		-------------
+		CREATE LASTCHILD OF OutputRoot AS refOut DOMAIN 'DFDL';
+		CREATE LASTCHILD OF refOut.Output904 AS refOutBody NAME 'body';
+		SET refOutBody.TransactionCode = refInpMsg.TransCode;
+		SET refOutBody.Result = '0';
+		SET refOutBody.GivxTransRef = refInpMsg.TransCode;
+		SET refOutBody.GivxNumb = CAST(refResult.GIFTCARDNUMBER AS CHARACTER) || CAST(refResult.GIFTCARDCHECKDIGIT AS CHARACTER);
+		SET refOutBody.CertBal = CAST(refResult.GIFTCARDVALUE AS CHARACTER);
+		-------------
+		-- End
+		-------------
+		RETURN TRUE;
+	END;
+END MODULE;
+
+
+CREATE PROCEDURE calculateCheckDigit(IN GIFTCARD_NUMBER INTEGER,OUT CHECK_DIGIT_NUMBER INTEGER)
+BEGIN
+	DECLARE INDEX INTEGER 0;
+	SET CHECK_DIGIT_NUMBER = 0;
+	CHECK_DIGIT:WHILE (INDEX < 10) DO
+		DECLARE COMPLETE_GIFTCARD_NUMBER CHARACTER CAST(GIFTCARD_NUMBER AS CHARACTER) || CAST(INDEX AS CHARACTER);
+		DECLARE CHECK_DIGIT_FLAG BOOLEAN ;
+		CALL isValidCheckDigit(COMPLETE_GIFTCARD_NUMBER,CHECK_DIGIT_FLAG);
+		IF( CHECK_DIGIT_FLAG = TRUE ) THEN 
+			SET CHECK_DIGIT_NUMBER = INDEX;
+			LEAVE CHECK_DIGIT;
+		END IF;
+		SET INDEX = INDEX + 1;
+	END WHILE;
+END;
+
+CREATE PROCEDURE isValidCheckDigit(IN COMPLETE_GIFTCARD_NUMBER CHARACTER, OUT CHECK_DIGIT_FLAG BOOLEAN)
+BEGIN
+       
+		DECLARE CURRENT_INDEX INTEGER 0;
+		DECLARE TOTAL INTEGER 0;
+		DECLARE GIFTCARD_LENGTH INTEGER LENGTH(COMPLETE_GIFTCARD_NUMBER);
+        WHILE (CURRENT_INDEX < GIFTCARD_LENGTH ) DO
+			-- Inspect each character from last to first
+			DECLARE LENGTH1 INTEGER GIFTCARD_LENGTH - CURRENT_INDEX;
+			DECLARE LENGTH2 INTEGER 1 ;
+			DECLARE CURRENT_DIGIT INTEGER CAST(SUBSTRING(COMPLETE_GIFTCARD_NUMBER from LENGTH1 for LENGTH2) AS INTEGER);
+			
+			IF(MOD(CURRENT_INDEX, 2) = 0) THEN
+			  -- if the currIndex is evenly divisible by 2 add the digitAtCurrIndex to the running total unchanged
+			  SET TOTAL = TOTAL + CURRENT_DIGIT;
+            ELSE 
+            	-- if the currIndex is NOT evenly divisible by 2 double it.
+            	DECLARE CURRENT_DIGIT_DOUBLED INTEGER CURRENT_DIGIT * 2;
+            	IF( CURRENT_DIGIT_DOUBLED > 9) THEN
+            		-- if the currDigitDoubled is 10 add 1 + 0 to the runningTotal
+					-- if the currDigitDoubled is 12 add 1 + 2 to the runningTotal
+					-- if the currDigitDoubled is 14 add 1 + 4 to the runningTotal . . . and so on . . .
+					SET TOTAL = TOTAL + (CURRENT_DIGIT_DOUBLED/10);  -- quotient  will be the tens digit. a > 9 so we will not get 0 / 10.
+					SET TOTAL = TOTAL + MOD(CURRENT_DIGIT_DOUBLED, 10); -- remainder will be the ones digit.
+        		ELSE
+        			SET TOTAL = TOTAL + CURRENT_DIGIT_DOUBLED;
+        		END IF;
+            END IF;
+            SET CURRENT_INDEX = CURRENT_INDEX + 1;
+	    END WHILE;
+
+        IF(MOD( TOTAL, 10) = 0) THEN
+        	SET CHECK_DIGIT_FLAG = TRUE;
+        ELSE
+        	SET CHECK_DIGIT_FLAG = FALSE;
+        END IF;
+        
+END;

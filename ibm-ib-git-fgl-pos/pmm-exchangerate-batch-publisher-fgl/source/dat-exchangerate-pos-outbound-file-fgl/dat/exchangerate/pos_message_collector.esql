@@ -1,0 +1,42 @@
+/*
+ * File name: common.esql
+ *
+ * Purpose:   ESQL file for bulking application modules.
+ *
+ * Version:   Initial Version
+ *
+ * Authors:   Madanlal Tulsiram
+ *                 
+ * Create Date:  14th September 2016
+ * 
+ * @copyright FGL 2016.  All rights reserved.
+ */
+BROKER SCHEMA dat.exchangerate
+
+DECLARE FileExtension EXTERNAL CHARACTER 'xml';
+DECLARE eai NAMESPACE 'http://www.fgl.com/exchange/';
+
+
+CREATE COMPUTE MODULE SetFileName
+	CREATE FUNCTION Main() RETURNS BOOLEAN
+	BEGIN
+		DECLARE rEnv REFERENCE TO Environment;
+        DECLARE schemaName CHARACTER 'dat.exchangerate';
+		DECLARE moduleName CHARACTER 'SetFileName';
+		DECLARE batchCount CHARACTER CAST(InputRoot.XMLNSC.eai:Exchange.eai:Messages.eai:Count AS CHARACTER);
+		DECLARE msgIndex CHARACTER CAST(InputRoot.XMLNSC.eai:Exchange.eai:MessageRouting.eai:MessageIndex AS CHARACTER);
+        DECLARE msgCount CHARACTER CAST(InputRoot.XMLNSC.eai:Exchange.eai:MessageRouting.eai:MessageCount AS CHARACTER);
+        
+       --  Store SubjectArea Name from input message.
+  		DECLARE subjectAreaRunName CHARACTER InputRoot.XMLNSC.eai:Exchange.eai:MessageRouting.eai:SubjectAreaRunName;
+  		DECLARE CurTimeStamp CHARACTER;
+  		SET CurTimeStamp = CAST( CURRENT_TIMESTAMP AS CHARACTER FORMAT 'yyyyMMdd-HHmmss-SSS');
+  		-- set file name
+		SET OutputLocalEnvironment.Destination.File.Name = subjectAreaRunName||'-'||CurTimeStamp||'.'||COALESCE(FileExtension,'xml');
+		-- Increment FileNumber 																											 
+--		SET FileNumberBusinessUnit = FileNumberBusinessUnit + 1;
+		SET OutputRoot = InputRoot;
+		CALL core.log.InfoMessage(rEnv, schemaName || '.' || moduleName, ' Writing ' || batchCount || ' message(s) out of ' || msgCount || ' message(s) to file ' || OutputLocalEnvironment.Destination.File.Name);
+		RETURN TRUE;
+	END;
+END MODULE;

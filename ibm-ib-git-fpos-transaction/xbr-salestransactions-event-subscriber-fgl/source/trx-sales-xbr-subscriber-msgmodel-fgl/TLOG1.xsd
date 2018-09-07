@@ -1,0 +1,2195 @@
+<?xml version="1.0" encoding="UTF-8"?><xsd:schema xmlns:csv="http://www.ibm.com/dfdl/CommaSeparatedFormat" xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0/" xmlns:ibmDfdlExtn="http://www.ibm.com/dfdl/extensions" xmlns:ibmSchExtn="http://www.ibm.com/schema/extensions" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+
+	<xsd:import namespace="http://www.ibm.com/dfdl/CommaSeparatedFormat" schemaLocation="IBMdefined/CommaSeparatedFormat.xsd"/>
+	<xsd:annotation>
+		<xsd:appinfo source="http://www.ogf.org/dfdl/">
+			<dfdl:format documentFinalTerminatorCanBeMissing="yes" encoding="{$dfdl:encoding}" escapeSchemeRef="csv:CSVEscapeScheme" ref="csv:CommaSeparatedFormat"/>
+		</xsd:appinfo>
+	</xsd:annotation>
+
+	<xsd:element dfdl:lengthKind="implicit" dfdl:terminator="%CR;%LF;" ibmSchExtn:docRoot="true" name="TLOG1">
+		<xsd:complexType>
+			<xsd:sequence dfdl:separator="%CR;%LF;" dfdl:terminator="">
+                				                <xsd:element dfdl:lengthKind="implicit" dfdl:terminator="" name="TransactionHeader">
+					<xsd:complexType>
+						<xsd:sequence dfdl:separator="" dfdl:terminator="">
+							<xsd:element default="      " dfdl:lengthKind="implicit" ibmDfdlExtn:sampleValue="value" name="StoreNumber">
+								<xsd:simpleType>
+									<xsd:restriction base="xsd:string">
+										<xsd:minLength value="6"/>
+										<xsd:maxLength value="6"/>
+									</xsd:restriction>
+								</xsd:simpleType>
+							</xsd:element>
+							<xsd:element default="              " dfdl:lengthKind="implicit" ibmDfdlExtn:sampleValue="value" name="TransactionDateTime">
+								<xsd:simpleType>
+									<xsd:restriction base="xsd:string">
+										<xsd:minLength value="14"/>
+										<xsd:maxLength value="14"/>
+									</xsd:restriction>
+								</xsd:simpleType>
+							</xsd:element>
+							<xsd:element default="   " dfdl:lengthKind="implicit" ibmDfdlExtn:sampleValue="value" name="RegisterNumber">
+								<xsd:simpleType>
+									<xsd:restriction base="xsd:string">
+										<xsd:minLength value="3"/>
+										<xsd:maxLength value="3"/>
+									</xsd:restriction>
+								</xsd:simpleType>
+							</xsd:element>
+							<xsd:element default=" " dfdl:lengthKind="implicit" ibmDfdlExtn:sampleValue="value" name="RollOverFlag">
+								<xsd:simpleType>
+									<xsd:restriction base="xsd:string">
+										<xsd:minLength value="1"/>
+										<xsd:maxLength value="1"/>
+									</xsd:restriction>
+								</xsd:simpleType>
+							</xsd:element>
+							<xsd:element default="    " dfdl:lengthKind="implicit" ibmDfdlExtn:sampleValue="value" name="TransactionNumber">
+								<xsd:simpleType>
+									<xsd:restriction base="xsd:string">
+										<xsd:minLength value="4"/>
+										<xsd:maxLength value="4"/>
+									</xsd:restriction>
+								</xsd:simpleType>
+							</xsd:element>
+							<xsd:element default="   " dfdl:lengthKind="implicit" ibmDfdlExtn:sampleValue="value" name="SequenceNumber">
+								<xsd:simpleType>
+									<xsd:restriction base="xsd:string">
+										<xsd:minLength value="3"/>
+										<xsd:maxLength value="3"/>
+									</xsd:restriction>
+								</xsd:simpleType>
+							</xsd:element>
+							<xsd:element default="   " dfdl:lengthKind="implicit" ibmDfdlExtn:sampleValue="value" name="SubSequenceNumber">
+								<xsd:simpleType>
+									<xsd:restriction base="xsd:string">
+										<xsd:minLength value="3"/>
+										<xsd:maxLength value="3"/>
+									</xsd:restriction>
+								</xsd:simpleType>
+							</xsd:element>
+							<xsd:element default="  " dfdl:lengthKind="implicit" ibmDfdlExtn:sampleValue="value" name="RecordType">
+								<xsd:simpleType>
+									<xsd:restriction base="xsd:string">
+										<xsd:minLength value="2"/>
+										<xsd:maxLength value="2"/>
+									</xsd:restriction>
+								</xsd:simpleType>
+							</xsd:element>
+							<xsd:element default="  " dfdl:lengthKind="implicit" ibmDfdlExtn:sampleValue="value" name="TransactionType">
+								<xsd:simpleType>
+									<xsd:restriction base="xsd:string">
+										<xsd:minLength value="2"/>
+										<xsd:maxLength value="2"/>
+									</xsd:restriction>
+								</xsd:simpleType>
+							</xsd:element>
+							<xsd:element default="     " dfdl:lengthKind="implicit" ibmDfdlExtn:sampleValue="value" name="TillID">
+								<xsd:simpleType>
+									<xsd:restriction base="xsd:string">
+										<xsd:minLength value="5"/>
+										<xsd:maxLength value="5"/>
+									</xsd:restriction>
+								</xsd:simpleType>
+							</xsd:element>
+							<xsd:element default=" " dfdl:lengthKind="implicit" ibmDfdlExtn:sampleValue="value" name="Status">
+								<xsd:simpleType>
+									<xsd:restriction base="xsd:string">
+										<xsd:minLength value="1"/>
+										<xsd:maxLength value="1"/>
+									</xsd:restriction>
+								</xsd:simpleType>
+							</xsd:element>
+							<xsd:element default="          " dfdl:lengthKind="implicit" ibmDfdlExtn:sampleValue="value" name="CashierNumber">
+								<xsd:simpleType>
+									<xsd:restriction base="xsd:string">
+										<xsd:minLength value="10"/>
+										<xsd:maxLength value="10"/>
+									</xsd:restriction>
+								</xsd:simpleType>
+							</xsd:element>
+							<xsd:element default="   " dfdl:lengthKind="implicit" ibmDfdlExtn:sampleValue="value" name="HomeCurrencyCode">
+								<xsd:simpleType>
+									<xsd:restriction base="xsd:string">
+										<xsd:minLength value="3"/>
+										<xsd:maxLength value="3"/>
+									</xsd:restriction>
+								</xsd:simpleType>
+							</xsd:element>
+							<xsd:element default="           " dfdl:lengthKind="implicit" ibmDfdlExtn:sampleValue="value" name="TotalTransactionAmount">
+								<xsd:simpleType>
+									<xsd:restriction base="xsd:string">
+										<xsd:minLength value="11"/>
+										<xsd:maxLength value="11"/>
+									</xsd:restriction>
+								</xsd:simpleType>
+							</xsd:element>
+							<xsd:element default=" " dfdl:lengthKind="implicit" ibmDfdlExtn:sampleValue="value" name="TotalTransactionAmountSign">
+								<xsd:simpleType>
+									<xsd:restriction base="xsd:string">
+										<xsd:minLength value="1"/>
+										<xsd:maxLength value="1"/>
+									</xsd:restriction>
+								</xsd:simpleType>
+							</xsd:element>
+							<xsd:element default="           " dfdl:lengthKind="implicit" ibmDfdlExtn:sampleValue="value" name="TotalTenderedAmount">
+								<xsd:simpleType>
+									<xsd:restriction base="xsd:string">
+										<xsd:minLength value="11"/>
+										<xsd:maxLength value="11"/>
+									</xsd:restriction>
+								</xsd:simpleType>
+							</xsd:element>
+							<xsd:element default=" " dfdl:lengthKind="implicit" ibmDfdlExtn:sampleValue="value" name="TotalTenderedAmountSign">
+								<xsd:simpleType>
+									<xsd:restriction base="xsd:string">
+										<xsd:minLength value="1"/>
+										<xsd:maxLength value="1"/>
+									</xsd:restriction>
+								</xsd:simpleType>
+							</xsd:element>
+							<xsd:element default="              " dfdl:lengthKind="implicit" ibmDfdlExtn:sampleValue="value" name="CustomerNumber">
+								<xsd:simpleType>
+									<xsd:restriction base="xsd:string">
+										<xsd:minLength value="14"/>
+										<xsd:maxLength value="14"/>
+									</xsd:restriction>
+								</xsd:simpleType>
+							</xsd:element>
+							<xsd:element default="                    " dfdl:lengthKind="implicit" ibmDfdlExtn:sampleValue="value" name="MemberNumber">
+								<xsd:simpleType>
+									<xsd:restriction base="xsd:string">
+										<xsd:minLength value="20"/>
+										<xsd:maxLength value="20"/>
+									</xsd:restriction>
+								</xsd:simpleType>
+							</xsd:element>
+							<xsd:element default=" " dfdl:lengthKind="implicit" ibmDfdlExtn:sampleValue="value" name="AccountType">
+								<xsd:simpleType>
+									<xsd:restriction base="xsd:string">
+										<xsd:minLength value="1"/>
+										<xsd:maxLength value="1"/>
+									</xsd:restriction>
+								</xsd:simpleType>
+							</xsd:element>
+							<xsd:element default="                    " dfdl:lengthKind="implicit" ibmDfdlExtn:sampleValue="value" name="AccountNumber">
+								<xsd:simpleType>
+									<xsd:restriction base="xsd:string">
+										<xsd:minLength value="20"/>
+										<xsd:maxLength value="20"/>
+									</xsd:restriction>
+								</xsd:simpleType>
+							</xsd:element>
+							<xsd:element default="     " dfdl:lengthKind="implicit" ibmDfdlExtn:sampleValue="value" name="PostVoidTransactionNumber">
+								<xsd:simpleType>
+									<xsd:restriction base="xsd:string">
+										<xsd:minLength value="5"/>
+										<xsd:maxLength value="5"/>
+									</xsd:restriction>
+								</xsd:simpleType>
+							</xsd:element>
+							<xsd:element default="    " dfdl:lengthKind="implicit" ibmDfdlExtn:sampleValue="value2" name="TransactionReasonCode">
+								<xsd:simpleType>
+									<xsd:restriction base="xsd:string">
+										<xsd:minLength value="4"/>
+										<xsd:maxLength value="4"/>
+									</xsd:restriction>
+								</xsd:simpleType>
+							</xsd:element>
+							<xsd:element default="          " dfdl:lengthKind="implicit" ibmDfdlExtn:sampleValue="value" name="EmployeeID">
+								<xsd:simpleType>
+									<xsd:restriction base="xsd:string">
+										<xsd:minLength value="10"/>
+										<xsd:maxLength value="10"/>
+									</xsd:restriction>
+								</xsd:simpleType>
+							</xsd:element>
+							<xsd:element default="         " dfdl:lengthKind="implicit" ibmDfdlExtn:sampleValue="value" name="CustomerZipCode">
+								<xsd:simpleType>
+									<xsd:restriction base="xsd:string">
+										<xsd:minLength value="9"/>
+										<xsd:maxLength value="9"/>
+									</xsd:restriction>
+								</xsd:simpleType>
+							</xsd:element>
+							<xsd:element default="                    " dfdl:lengthKind="implicit" ibmDfdlExtn:sampleValue="value" name="CustomerTaxExemptionNumber">
+								<xsd:simpleType>
+									<xsd:restriction base="xsd:string">
+										<xsd:minLength value="20"/>
+										<xsd:maxLength value="20"/>
+									</xsd:restriction>
+								</xsd:simpleType>
+							</xsd:element>
+							<xsd:element default="      " dfdl:lengthKind="implicit" ibmDfdlExtn:sampleValue="value" name="OriginalTransactionStoreNumber">
+								<xsd:simpleType>
+									<xsd:restriction base="xsd:string">
+										<xsd:minLength value="6"/>
+										<xsd:maxLength value="6"/>
+									</xsd:restriction>
+								</xsd:simpleType>
+							</xsd:element>
+							<xsd:element default="        " dfdl:lengthKind="implicit" ibmDfdlExtn:sampleValue="value" name="OriginalTransactionDate">
+								<xsd:simpleType>
+									<xsd:restriction base="xsd:string">
+										<xsd:minLength value="8"/>
+										<xsd:maxLength value="8"/>
+									</xsd:restriction>
+								</xsd:simpleType>
+							</xsd:element>
+							<xsd:element default="        " dfdl:lengthKind="implicit" ibmDfdlExtn:sampleValue="value" name="SalesDate">
+								<xsd:simpleType>
+									<xsd:restriction base="xsd:string">
+										<xsd:minLength value="8"/>
+										<xsd:maxLength value="8"/>
+									</xsd:restriction>
+								</xsd:simpleType>
+							</xsd:element>
+							<xsd:element default="                              " dfdl:lengthKind="implicit" ibmDfdlExtn:sampleValue="value" name="CustomerLastName">
+								<xsd:simpleType>
+									<xsd:restriction base="xsd:string">
+										<xsd:minLength value="30"/>
+										<xsd:maxLength value="30"/>
+									</xsd:restriction>
+								</xsd:simpleType>
+							</xsd:element>
+							<xsd:element default="                              " dfdl:lengthKind="implicit" ibmDfdlExtn:sampleValue="value" name="CustomerFirstName">
+								<xsd:simpleType>
+									<xsd:restriction base="xsd:string">
+										<xsd:minLength value="30"/>
+										<xsd:maxLength value="30"/>
+									</xsd:restriction>
+								</xsd:simpleType>
+							</xsd:element>
+							<xsd:element default=" " dfdl:lengthKind="implicit" ibmDfdlExtn:sampleValue="value" name="CustomerMiddleInitial">
+								<xsd:simpleType>
+									<xsd:restriction base="xsd:string">
+										<xsd:minLength value="1"/>
+										<xsd:maxLength value="1"/>
+									</xsd:restriction>
+								</xsd:simpleType>
+							</xsd:element>
+							<xsd:element default="                              " dfdl:lengthKind="implicit" ibmDfdlExtn:sampleValue="value" name="CustomerAddressLine1">
+								<xsd:simpleType>
+									<xsd:restriction base="xsd:string">
+										<xsd:minLength value="30"/>
+										<xsd:maxLength value="30"/>
+									</xsd:restriction>
+								</xsd:simpleType>
+							</xsd:element>
+							<xsd:element default="                              " dfdl:lengthKind="implicit" ibmDfdlExtn:sampleValue="value" name="CustomerAddressLine2">
+								<xsd:simpleType>
+									<xsd:restriction base="xsd:string">
+										<xsd:minLength value="30"/>
+										<xsd:maxLength value="30"/>
+									</xsd:restriction>
+								</xsd:simpleType>
+							</xsd:element>
+							<xsd:element default="                              " dfdl:lengthKind="implicit" ibmDfdlExtn:sampleValue="value" name="CustomerCity">
+								<xsd:simpleType>
+									<xsd:restriction base="xsd:string">
+										<xsd:minLength value="30"/>
+										<xsd:maxLength value="30"/>
+									</xsd:restriction>
+								</xsd:simpleType>
+							</xsd:element>
+							<xsd:element default="                              " dfdl:lengthKind="implicit" ibmDfdlExtn:sampleValue="value" name="CustomerProvinceOrState">
+								<xsd:simpleType>
+									<xsd:restriction base="xsd:string">
+										<xsd:minLength value="30"/>
+										<xsd:maxLength value="30"/>
+									</xsd:restriction>
+								</xsd:simpleType>
+							</xsd:element>
+							<xsd:element default="               " dfdl:lengthKind="implicit" ibmDfdlExtn:sampleValue="value" name="CustomerPostalOrZipCode">
+								<xsd:simpleType>
+									<xsd:restriction base="xsd:string">
+										<xsd:minLength value="15"/>
+										<xsd:maxLength value="15"/>
+									</xsd:restriction>
+								</xsd:simpleType>
+							</xsd:element>
+
+							<xsd:element default="               " dfdl:lengthKind="implicit" ibmDfdlExtn:sampleValue="value" name="CustomerPhoneNumber">
+								<xsd:simpleType>
+									<xsd:restriction base="xsd:string">
+										<xsd:minLength value="15"/>
+										<xsd:maxLength value="15"/>
+									</xsd:restriction>
+								</xsd:simpleType>
+							</xsd:element>
+							<xsd:element default="           " dfdl:lengthKind="implicit" ibmDfdlExtn:sampleValue="value" name="AirmilesNumber">
+								<xsd:simpleType>
+									<xsd:restriction base="xsd:string">
+										<xsd:minLength value="11"/>
+										<xsd:maxLength value="11"/>
+									</xsd:restriction>
+								</xsd:simpleType>
+							</xsd:element>
+							<xsd:element default="                    " dfdl:lengthKind="implicit" ibmDfdlExtn:sampleValue="value" name="AirmilesCoupon">
+								<xsd:simpleType>
+									<xsd:restriction base="xsd:string">
+										<xsd:minLength value="20"/>
+										<xsd:maxLength value="20"/>
+									</xsd:restriction>
+								</xsd:simpleType>
+							</xsd:element>
+							<xsd:element default="          " dfdl:lengthKind="implicit" ibmDfdlExtn:sampleValue="value" name="ClientType">
+								<xsd:simpleType>
+									<xsd:restriction base="xsd:string">
+										<xsd:minLength value="10"/>
+										<xsd:maxLength value="10"/>
+									</xsd:restriction>
+								</xsd:simpleType>
+							</xsd:element>
+							<xsd:element default="    " dfdl:lengthKind="implicit" ibmDfdlExtn:sampleValue="value" name="ItemCount">
+								<xsd:simpleType>
+									<xsd:restriction base="xsd:string">
+										<xsd:minLength value="4"/>
+										<xsd:maxLength value="4"/>
+									</xsd:restriction>
+								</xsd:simpleType>
+							</xsd:element>
+							<xsd:element default="                " dfdl:lengthKind="implicit" ibmDfdlExtn:sampleValue="value" name="SceneCardNumber">
+								<xsd:simpleType>
+									<xsd:restriction base="xsd:string">
+										<xsd:minLength value="16"/>
+										<xsd:maxLength value="16"/>
+									</xsd:restriction>
+								</xsd:simpleType>
+							</xsd:element>
+							<xsd:element default="         " dfdl:lengthKind="implicit" dfdl:terminator="" ibmDfdlExtn:sampleValue="value" name="SceneCardPoints">
+								<xsd:simpleType>
+									<xsd:restriction base="xsd:string">
+										<xsd:minLength value="9"/>
+										<xsd:maxLength value="9"/>
+									</xsd:restriction>
+								</xsd:simpleType>
+							</xsd:element>
+						</xsd:sequence>
+					</xsd:complexType>
+				</xsd:element>
+        <xsd:sequence dfdl:separator="%CR;%LF;">
+          <xsd:element dfdl:lengthKind="implicit" dfdl:terminator="" maxOccurs="unbounded" minOccurs="0" name="TransactionDetail">
+					<xsd:complexType>
+						<xsd:sequence dfdl:separator="">
+							<xsd:element default="      " dfdl:lengthKind="implicit" name="StoreNumber">
+								<xsd:simpleType>
+									<xsd:restriction base="xsd:string">
+										<xsd:minLength value="6"/>
+										<xsd:maxLength value="6"/>
+									</xsd:restriction>
+								</xsd:simpleType>
+							</xsd:element>
+							<xsd:element default="              " dfdl:lengthKind="implicit" name="TransactionDateTime">
+								<xsd:simpleType>
+									<xsd:restriction base="xsd:string">
+										<xsd:minLength value="14"/>
+										<xsd:maxLength value="14"/>
+									</xsd:restriction>
+								</xsd:simpleType>
+							</xsd:element>
+							<xsd:element default="   " dfdl:lengthKind="implicit" name="RegisterNumber">
+								<xsd:simpleType>
+									<xsd:restriction base="xsd:string">
+										<xsd:minLength value="3"/>
+										<xsd:maxLength value="3"/>
+									</xsd:restriction>
+								</xsd:simpleType>
+							</xsd:element>
+							<xsd:element default=" " dfdl:lengthKind="implicit" name="RollOverFlag">
+								<xsd:simpleType>
+									<xsd:restriction base="xsd:string">
+										<xsd:minLength value="1"/>
+										<xsd:maxLength value="1"/>
+									</xsd:restriction>
+								</xsd:simpleType>
+							</xsd:element>
+							<xsd:element default="    " dfdl:lengthKind="implicit" name="TransactionNumber">
+								<xsd:simpleType>
+									<xsd:restriction base="xsd:string">
+										<xsd:minLength value="4"/>
+										<xsd:maxLength value="4"/>
+									</xsd:restriction>
+								</xsd:simpleType>
+							</xsd:element>
+							<xsd:element default="   " dfdl:lengthKind="implicit" name="SequenceNumber">
+								<xsd:simpleType>
+									<xsd:restriction base="xsd:string">
+										<xsd:minLength value="3"/>
+										<xsd:maxLength value="3"/>
+									</xsd:restriction>
+								</xsd:simpleType>
+							</xsd:element>
+							<xsd:element default="   " dfdl:lengthKind="implicit" name="SubSequenceNumber">
+								<xsd:simpleType>
+									<xsd:restriction base="xsd:string">
+										<xsd:minLength value="3"/>
+										<xsd:maxLength value="3"/>
+									</xsd:restriction>
+								</xsd:simpleType>
+							</xsd:element>
+							<xsd:element default="  " dfdl:lengthKind="implicit" name="RecordType">
+								<xsd:simpleType>
+									<xsd:restriction base="xsd:string">
+										<xsd:minLength value="2"/>
+										<xsd:maxLength value="2"/>
+									</xsd:restriction>
+								</xsd:simpleType>
+							</xsd:element>
+							<xsd:element default="  " dfdl:lengthKind="implicit" name="TransactionType">
+								<xsd:simpleType>
+									<xsd:restriction base="xsd:string">
+										<xsd:minLength value="2"/>
+										<xsd:maxLength value="2"/>
+									</xsd:restriction>
+								</xsd:simpleType>
+							</xsd:element>
+							<xsd:element default="     " dfdl:lengthKind="implicit" name="TillID">
+								<xsd:simpleType>
+									<xsd:restriction base="xsd:string">
+										<xsd:minLength value="5"/>
+										<xsd:maxLength value="5"/>
+									</xsd:restriction>
+								</xsd:simpleType>
+							</xsd:element>
+							<xsd:element default=" " dfdl:lengthKind="implicit" name="Status">
+								<xsd:simpleType>
+									<xsd:restriction base="xsd:string">
+										<xsd:minLength value="1"/>
+										<xsd:maxLength value="1"/>
+									</xsd:restriction>
+								</xsd:simpleType>
+							</xsd:element>
+							<xsd:element default="          " dfdl:lengthKind="implicit" name="CashierNumber">
+								<xsd:simpleType>
+									<xsd:restriction base="xsd:string">
+										<xsd:minLength value="10"/>
+										<xsd:maxLength value="10"/>
+									</xsd:restriction>
+								</xsd:simpleType>
+							</xsd:element>
+							<xsd:element default="               " dfdl:lengthKind="implicit" name="SKU">
+								<xsd:simpleType>
+									<xsd:restriction base="xsd:string">
+										<xsd:minLength value="15"/>
+										<xsd:maxLength value="15"/>
+									</xsd:restriction>
+								</xsd:simpleType>
+							</xsd:element>
+							<xsd:element default="         " dfdl:lengthKind="implicit" name="ItemQuantity">
+								<xsd:simpleType>
+									<xsd:restriction base="xsd:string">
+										<xsd:minLength value="9"/>
+										<xsd:maxLength value="9"/>
+									</xsd:restriction>
+								</xsd:simpleType>
+							</xsd:element>
+							<xsd:element default=" " dfdl:lengthKind="implicit" name="QuantitySign">
+								<xsd:simpleType>
+									<xsd:restriction base="xsd:string">
+										<xsd:minLength value="1"/>
+										<xsd:maxLength value="1"/>
+									</xsd:restriction>
+								</xsd:simpleType>
+							</xsd:element>
+							<xsd:element default="           " dfdl:lengthKind="implicit" name="UnitRetailPrice">
+								<xsd:simpleType>
+									<xsd:restriction base="xsd:string">
+										<xsd:minLength value="11"/>
+										<xsd:maxLength value="11"/>
+									</xsd:restriction>
+								</xsd:simpleType>
+							</xsd:element>
+							<xsd:element default="           " dfdl:lengthKind="implicit" name="SellingPrice">
+								<xsd:simpleType>
+									<xsd:restriction base="xsd:string">
+										<xsd:minLength value="11"/>
+										<xsd:maxLength value="11"/>
+									</xsd:restriction>
+								</xsd:simpleType>
+							</xsd:element>
+							<xsd:element default="             " dfdl:lengthKind="implicit" name="ExtendedPrice">
+								<xsd:simpleType>
+									<xsd:restriction base="xsd:string">
+										<xsd:minLength value="13"/>
+										<xsd:maxLength value="13"/>
+									</xsd:restriction>
+								</xsd:simpleType>
+							</xsd:element>
+							<xsd:element default=" " dfdl:lengthKind="implicit" name="ExtendedPriceSign">
+								<xsd:simpleType>
+									<xsd:restriction base="xsd:string">
+										<xsd:minLength value="1"/>
+										<xsd:maxLength value="1"/>
+									</xsd:restriction>
+								</xsd:simpleType>
+							</xsd:element>
+							<xsd:element default="           " dfdl:lengthKind="implicit" name="DiscountAmount">
+								<xsd:simpleType>
+									<xsd:restriction base="xsd:string">
+										<xsd:minLength value="11"/>
+										<xsd:maxLength value="11"/>
+									</xsd:restriction>
+								</xsd:simpleType>
+							</xsd:element>
+							<xsd:element default=" " dfdl:lengthKind="implicit" name="DiscountAmountSign">
+								<xsd:simpleType>
+									<xsd:restriction base="xsd:string">
+										<xsd:minLength value="1"/>
+										<xsd:maxLength value="1"/>
+									</xsd:restriction>
+								</xsd:simpleType>
+							</xsd:element>
+							<xsd:element default=" " dfdl:lengthKind="implicit" name="PriceOverrideFlag">
+								<xsd:simpleType>
+									<xsd:restriction base="xsd:string">
+										<xsd:minLength value="1"/>
+										<xsd:maxLength value="1"/>
+									</xsd:restriction>
+								</xsd:simpleType>
+							</xsd:element>
+							<xsd:element default="             " dfdl:lengthKind="implicit" name="PriceOverrideAmount">
+								<xsd:simpleType>
+									<xsd:restriction base="xsd:string">
+										<xsd:minLength value="13"/>
+										<xsd:maxLength value="13"/>
+									</xsd:restriction>
+								</xsd:simpleType>
+							</xsd:element>
+							<xsd:element default="                  " dfdl:lengthKind="implicit" name="UPC">
+								<xsd:simpleType>
+									<xsd:restriction base="xsd:string">
+										<xsd:minLength value="18"/>
+										<xsd:maxLength value="18"/>
+									</xsd:restriction>
+								</xsd:simpleType>
+							</xsd:element>
+							<xsd:element default="               " dfdl:lengthKind="implicit" name="DocumentIssuedNumber">
+								<xsd:simpleType>
+									<xsd:restriction base="xsd:string">
+										<xsd:minLength value="15"/>
+										<xsd:maxLength value="15"/>
+									</xsd:restriction>
+								</xsd:simpleType>
+							</xsd:element>
+                            							<xsd:element dfdl:lengthKind="implicit" ibmDfdlExtn:sampleValue="    " name="LineItemReasonCode">
+                <xsd:simpleType>
+                  <xsd:restriction base="xsd:string">
+                    <xsd:maxLength value="4"/>
+                    <xsd:minLength value="4"/>
+                  </xsd:restriction>
+                </xsd:simpleType>
+              </xsd:element>
+                            <xsd:element default=" " dfdl:lengthKind="implicit" name="ScanFlag">
+								<xsd:simpleType>
+									<xsd:restriction base="xsd:string">
+										<xsd:minLength value="1"/>
+										<xsd:maxLength value="1"/>
+									</xsd:restriction>
+								</xsd:simpleType>
+							</xsd:element>
+							<xsd:element default="          " dfdl:lengthKind="implicit" name="SalesPerson1EmployeeID">
+								<xsd:simpleType>
+									<xsd:restriction base="xsd:string">
+										<xsd:minLength value="10"/>
+										<xsd:maxLength value="10"/>
+									</xsd:restriction>
+								</xsd:simpleType>
+							</xsd:element>
+							<xsd:element default="     " dfdl:lengthKind="implicit" name="SalesPerson1CommissionPercent">
+								<xsd:simpleType>
+									<xsd:restriction base="xsd:string">
+										<xsd:minLength value="5"/>
+										<xsd:maxLength value="5"/>
+									</xsd:restriction>
+								</xsd:simpleType>
+							</xsd:element>
+							<xsd:element default="          " dfdl:lengthKind="implicit" name="SalesPerson2EmployeeID">
+								<xsd:simpleType>
+									<xsd:restriction base="xsd:string">
+										<xsd:minLength value="10"/>
+										<xsd:maxLength value="10"/>
+									</xsd:restriction>
+								</xsd:simpleType>
+							</xsd:element>
+							<xsd:element default="     " dfdl:lengthKind="implicit" name="SalesPerson2CommissionPercent">
+								<xsd:simpleType>
+									<xsd:restriction base="xsd:string">
+										<xsd:minLength value="5"/>
+										<xsd:maxLength value="5"/>
+									</xsd:restriction>
+								</xsd:simpleType>
+							</xsd:element>
+							<xsd:element default="          " dfdl:lengthKind="implicit" name="SalesPerson3EmployeeID">
+								<xsd:simpleType>
+									<xsd:restriction base="xsd:string">
+										<xsd:minLength value="10"/>
+										<xsd:maxLength value="10"/>
+									</xsd:restriction>
+								</xsd:simpleType>
+							</xsd:element>
+							<xsd:element default="     " dfdl:lengthKind="implicit" name="SalesPerson3CommissionPercent">
+								<xsd:simpleType>
+									<xsd:restriction base="xsd:string">
+										<xsd:minLength value="5"/>
+										<xsd:maxLength value="5"/>
+									</xsd:restriction>
+								</xsd:simpleType>
+							</xsd:element>
+							<xsd:element default="      " dfdl:lengthKind="implicit" name="TaxArea">
+								<xsd:simpleType>
+									<xsd:restriction base="xsd:string">
+										<xsd:minLength value="6"/>
+										<xsd:maxLength value="6"/>
+									</xsd:restriction>
+								</xsd:simpleType>
+							</xsd:element>
+							<xsd:element default="      " dfdl:lengthKind="implicit" name="TaxAuthority1">
+								<xsd:simpleType>
+									<xsd:restriction base="xsd:string">
+										<xsd:minLength value="6"/>
+										<xsd:maxLength value="6"/>
+									</xsd:restriction>
+								</xsd:simpleType>
+							</xsd:element>
+							<xsd:element default="      " dfdl:lengthKind="implicit" name="TaxCode1">
+								<xsd:simpleType>
+									<xsd:restriction base="xsd:string">
+										<xsd:minLength value="6"/>
+										<xsd:maxLength value="6"/>
+									</xsd:restriction>
+								</xsd:simpleType>
+							</xsd:element>
+							<xsd:element default="      " dfdl:lengthKind="implicit" name="TaxAuthority2">
+								<xsd:simpleType>
+									<xsd:restriction base="xsd:string">
+										<xsd:minLength value="6"/>
+										<xsd:maxLength value="6"/>
+									</xsd:restriction>
+								</xsd:simpleType>
+							</xsd:element>
+							<xsd:element default="      " dfdl:lengthKind="implicit" name="TaxCode2">
+								<xsd:simpleType>
+									<xsd:restriction base="xsd:string">
+										<xsd:minLength value="6"/>
+										<xsd:maxLength value="6"/>
+									</xsd:restriction>
+								</xsd:simpleType>
+							</xsd:element>
+
+							<xsd:element default="      " dfdl:lengthKind="implicit" name="TaxAuthority3">
+								<xsd:simpleType>
+									<xsd:restriction base="xsd:string">
+										<xsd:minLength value="6"/>
+										<xsd:maxLength value="6"/>
+									</xsd:restriction>
+								</xsd:simpleType>
+							</xsd:element>
+							<xsd:element default="      " dfdl:lengthKind="implicit" name="TaxCode3">
+								<xsd:simpleType>
+									<xsd:restriction base="xsd:string">
+										<xsd:minLength value="6"/>
+										<xsd:maxLength value="6"/>
+									</xsd:restriction>
+								</xsd:simpleType>
+							</xsd:element>
+							<xsd:element default="      " dfdl:lengthKind="implicit" name="TaxAuthority4">
+								<xsd:simpleType>
+									<xsd:restriction base="xsd:string">
+										<xsd:minLength value="6"/>
+										<xsd:maxLength value="6"/>
+									</xsd:restriction>
+								</xsd:simpleType>
+							</xsd:element>
+							<xsd:element default="      " dfdl:lengthKind="implicit" name="TaxCode4">
+								<xsd:simpleType>
+									<xsd:restriction base="xsd:string">
+										<xsd:minLength value="6"/>
+										<xsd:maxLength value="6"/>
+									</xsd:restriction>
+								</xsd:simpleType>
+							</xsd:element>
+							<xsd:element default="      " dfdl:lengthKind="implicit" name="TaxAuthority5">
+								<xsd:simpleType>
+									<xsd:restriction base="xsd:string">
+										<xsd:minLength value="6"/>
+										<xsd:maxLength value="6"/>
+									</xsd:restriction>
+								</xsd:simpleType>
+							</xsd:element>
+							<xsd:element default="      " dfdl:lengthKind="implicit" name="TaxCode5">
+								<xsd:simpleType>
+									<xsd:restriction base="xsd:string">
+										<xsd:minLength value="6"/>
+										<xsd:maxLength value="6"/>
+									</xsd:restriction>
+								</xsd:simpleType>
+							</xsd:element>
+							<xsd:element default="      " dfdl:lengthKind="implicit" name="TaxAuthority6">
+								<xsd:simpleType>
+									<xsd:restriction base="xsd:string">
+										<xsd:minLength value="6"/>
+										<xsd:maxLength value="6"/>
+									</xsd:restriction>
+								</xsd:simpleType>
+							</xsd:element>
+							<xsd:element default="      " dfdl:lengthKind="implicit" name="TaxCode6">
+								<xsd:simpleType>
+									<xsd:restriction base="xsd:string">
+										<xsd:minLength value="6"/>
+										<xsd:maxLength value="6"/>
+									</xsd:restriction>
+								</xsd:simpleType>
+							</xsd:element>
+							<xsd:element default="      " dfdl:lengthKind="implicit" name="TaxAuthority7">
+								<xsd:simpleType>
+									<xsd:restriction base="xsd:string">
+										<xsd:minLength value="6"/>
+										<xsd:maxLength value="6"/>
+									</xsd:restriction>
+								</xsd:simpleType>
+							</xsd:element>
+							<xsd:element default="      " dfdl:lengthKind="implicit" name="TaxCode7">
+								<xsd:simpleType>
+									<xsd:restriction base="xsd:string">
+										<xsd:minLength value="6"/>
+										<xsd:maxLength value="6"/>
+									</xsd:restriction>
+								</xsd:simpleType>
+							</xsd:element>
+							<xsd:element default="      " dfdl:lengthKind="implicit" name="TaxAuthority8">
+								<xsd:simpleType>
+									<xsd:restriction base="xsd:string">
+										<xsd:minLength value="6"/>
+										<xsd:maxLength value="6"/>
+									</xsd:restriction>
+								</xsd:simpleType>
+							</xsd:element>
+							<xsd:element default="      " dfdl:lengthKind="implicit" name="TaxCode8">
+								<xsd:simpleType>
+									<xsd:restriction base="xsd:string">
+										<xsd:minLength value="6"/>
+										<xsd:maxLength value="6"/>
+									</xsd:restriction>
+								</xsd:simpleType>
+							</xsd:element>
+							<xsd:element default="           " dfdl:lengthKind="implicit" name="TaxAmount">
+								<xsd:simpleType>
+									<xsd:restriction base="xsd:string">
+										<xsd:maxLength value="11"/>
+										<xsd:minLength value="11"/>
+									</xsd:restriction>
+								</xsd:simpleType>
+							</xsd:element>
+							<xsd:element default=" " dfdl:lengthKind="implicit" name="TaxAmountSign">
+								<xsd:simpleType>
+									<xsd:restriction base="xsd:string">
+										<xsd:maxLength value="1"/>
+										<xsd:minLength value="1"/>
+									</xsd:restriction>
+								</xsd:simpleType>
+							</xsd:element>
+							<xsd:element default="              " dfdl:lengthKind="implicit" name="CustomerNumber">
+								<xsd:simpleType>
+									<xsd:restriction base="xsd:string">
+										<xsd:maxLength value="14"/>
+										<xsd:minLength value="14"/>
+									</xsd:restriction>
+								</xsd:simpleType>
+							</xsd:element>
+							<xsd:element default="      " dfdl:lengthKind="implicit" name="OriginalTransactionStoreNumber">
+								<xsd:simpleType>
+									<xsd:restriction base="xsd:string">
+										<xsd:maxLength value="6"/>
+										<xsd:minLength value="6"/>
+									</xsd:restriction>
+								</xsd:simpleType>
+							</xsd:element>
+							<xsd:element default="        " dfdl:lengthKind="implicit" name="OriginalTransactionDate">
+								<xsd:simpleType>
+									<xsd:restriction base="xsd:string">
+										<xsd:maxLength value="8"/>
+										<xsd:minLength value="8"/>
+									</xsd:restriction>
+								</xsd:simpleType>
+							</xsd:element>
+							<xsd:element default="    " dfdl:lengthKind="implicit" name="OriginalTransactionNumber">
+								<xsd:simpleType>
+									<xsd:restriction base="xsd:string">
+										<xsd:maxLength value="4"/>
+										<xsd:minLength value="4"/>
+									</xsd:restriction>
+								</xsd:simpleType>
+							</xsd:element>
+							<xsd:element default="          " dfdl:lengthKind="implicit" name="OriginalCashierNumber">
+								<xsd:simpleType>
+									<xsd:restriction base="xsd:string">
+										<xsd:maxLength value="10"/>
+										<xsd:minLength value="10"/>
+									</xsd:restriction>
+								</xsd:simpleType>
+							</xsd:element>
+							<xsd:element default="   " dfdl:lengthKind="implicit" name="HomeCurrencyCode">
+								<xsd:simpleType>
+									<xsd:restriction base="xsd:string">
+										<xsd:maxLength value="3"/>
+										<xsd:minLength value="3"/>
+									</xsd:restriction>
+								</xsd:simpleType>
+							</xsd:element>
+							<xsd:element default="               " dfdl:lengthKind="implicit" name="ExchangeRate">
+								<xsd:simpleType>
+									<xsd:restriction base="xsd:string">
+										<xsd:maxLength value="15"/>
+										<xsd:minLength value="15"/>
+									</xsd:restriction>
+								</xsd:simpleType>
+							</xsd:element>
+							<xsd:element default=" " dfdl:lengthKind="implicit" name="ExchangeRateFactor">
+								<xsd:simpleType>
+									<xsd:restriction base="xsd:string">
+										<xsd:maxLength value="1"/>
+										<xsd:minLength value="1"/>
+									</xsd:restriction>
+								</xsd:simpleType>
+							</xsd:element>
+							<xsd:element default="        " dfdl:lengthKind="implicit" name="SalesDate">
+								<xsd:simpleType>
+									<xsd:restriction base="xsd:string">
+										<xsd:maxLength value="8"/>
+										<xsd:minLength value="8"/>
+									</xsd:restriction>
+								</xsd:simpleType>
+							</xsd:element>
+							<xsd:element default="            " dfdl:lengthKind="implicit" name="PriceBook">
+								<xsd:simpleType>
+									<xsd:restriction base="xsd:string">
+										<xsd:maxLength value="12"/>
+										<xsd:minLength value="12"/>
+									</xsd:restriction>
+								</xsd:simpleType>
+							</xsd:element>
+							<xsd:element default="   " dfdl:lengthKind="implicit" name="CurrencyCode">
+								<xsd:simpleType>
+									<xsd:restriction base="xsd:string">
+										<xsd:maxLength value="3"/>
+										<xsd:minLength value="3"/>
+									</xsd:restriction>
+								</xsd:simpleType>
+							</xsd:element>
+							<xsd:element default="             " dfdl:lengthKind="implicit" name="ForeignValue">
+								<xsd:simpleType>
+									<xsd:restriction base="xsd:string">
+										<xsd:maxLength value="13"/>
+										<xsd:minLength value="13"/>
+									</xsd:restriction>
+								</xsd:simpleType>
+							</xsd:element>
+							<xsd:element default=" " dfdl:lengthKind="implicit" name="ExtendedPriceSign2">
+								<xsd:simpleType>
+									<xsd:restriction base="xsd:string">
+										<xsd:maxLength value="1"/>
+										<xsd:minLength value="1"/>
+									</xsd:restriction>
+								</xsd:simpleType>
+							</xsd:element>
+							<xsd:element default="   " dfdl:lengthKind="implicit" name="DepartmentID">
+								<xsd:simpleType>
+									<xsd:restriction base="xsd:string">
+										<xsd:maxLength value="3"/>
+										<xsd:minLength value="3"/>
+									</xsd:restriction>
+								</xsd:simpleType>
+							</xsd:element>
+							<xsd:element default="   " dfdl:lengthKind="implicit" name="SubDepartmentID">
+								<xsd:simpleType>
+									<xsd:restriction base="xsd:string">
+										<xsd:maxLength value="3"/>
+										<xsd:minLength value="3"/>
+									</xsd:restriction>
+								</xsd:simpleType>
+							</xsd:element>
+							<xsd:element default="   " dfdl:lengthKind="implicit" name="ClassID">
+								<xsd:simpleType>
+									<xsd:restriction base="xsd:string">
+										<xsd:maxLength value="3"/>
+										<xsd:minLength value="3"/>
+									</xsd:restriction>
+								</xsd:simpleType>
+							</xsd:element>
+							<xsd:element default="   " dfdl:lengthKind="implicit" name="SubClassID">
+								<xsd:simpleType>
+									<xsd:restriction base="xsd:string">
+										<xsd:maxLength value="3"/>
+										<xsd:minLength value="3"/>
+									</xsd:restriction>
+								</xsd:simpleType>
+							</xsd:element>
+							<xsd:element default="           " dfdl:lengthKind="implicit" name="Cost">
+								<xsd:simpleType>
+									<xsd:restriction base="xsd:string">
+										<xsd:maxLength value="11"/>
+										<xsd:minLength value="11"/>
+									</xsd:restriction>
+								</xsd:simpleType>
+							</xsd:element>
+							<xsd:element default="   " dfdl:lengthKind="implicit" name="OriginalRegisterNumber">
+								<xsd:simpleType>
+									<xsd:restriction base="xsd:string">
+										<xsd:maxLength value="3"/>
+										<xsd:minLength value="3"/>
+									</xsd:restriction>
+								</xsd:simpleType>
+							</xsd:element>
+							<xsd:element default="                                        " dfdl:lengthKind="implicit" name="CustomerName">
+								<xsd:simpleType>
+									<xsd:restriction base="xsd:string">
+										<xsd:maxLength value="40"/>
+										<xsd:minLength value="40"/>
+									</xsd:restriction>
+								</xsd:simpleType>
+							</xsd:element>
+							<xsd:element default="               " dfdl:lengthKind="implicit" name="CustomerPhoneNumber">
+								<xsd:simpleType>
+									<xsd:restriction base="xsd:string">
+										<xsd:maxLength value="15"/>
+										<xsd:minLength value="15"/>
+									</xsd:restriction>
+								</xsd:simpleType>
+							</xsd:element>
+							<xsd:element default="          " dfdl:lengthKind="implicit" name="CustomerPostalOrZipCode">
+								<xsd:simpleType>
+									<xsd:restriction base="xsd:string">
+										<xsd:maxLength value="10"/>
+										<xsd:minLength value="10"/>
+									</xsd:restriction>
+								</xsd:simpleType>
+							</xsd:element>
+						
+							<xsd:element default="               " dfdl:lengthKind="implicit" name="DealGroupNumber">
+								<xsd:simpleType>
+									<xsd:restriction base="xsd:string">
+										<xsd:maxLength value="15"/>
+										<xsd:minLength value="15"/>
+									</xsd:restriction>
+								</xsd:simpleType>
+							</xsd:element>
+							<xsd:element default="               " dfdl:lengthKind="implicit" name="EGCAuthorizationCode">
+								<xsd:simpleType>
+									<xsd:restriction base="xsd:string">
+										<xsd:maxLength value="15"/>
+										<xsd:minLength value="15"/>
+									</xsd:restriction>
+								</xsd:simpleType>
+							</xsd:element>
+							<xsd:element default=" " dfdl:lengthKind="implicit" name="EGCRequestType">
+								<xsd:simpleType>
+									<xsd:restriction base="xsd:string">
+										<xsd:maxLength value="1"/>
+										<xsd:minLength value="1"/>
+									</xsd:restriction>
+								</xsd:simpleType>
+							</xsd:element>
+							<xsd:element default="                    " dfdl:lengthKind="implicit" name="SerialNumber">
+								<xsd:simpleType>
+									<xsd:restriction base="xsd:string">
+										<xsd:maxLength value="20"/>
+										<xsd:minLength value="20"/>
+									</xsd:restriction>
+								</xsd:simpleType>
+							</xsd:element>
+                            						                                                </xsd:sequence>
+					</xsd:complexType>
+				</xsd:element>
+          <xsd:element dfdl:lengthKind="implicit" dfdl:terminator="" maxOccurs="unbounded" minOccurs="0" name="NonMerchandise">
+					<xsd:complexType>
+						<xsd:sequence dfdl:separator="" dfdl:separatorSuppressionPolicy="trailingEmpty">
+							<xsd:element default="      " dfdl:lengthKind="implicit" name="StoreNumber">
+								<xsd:simpleType>
+									<xsd:restriction base="xsd:string">
+										<xsd:minLength value="6"/>
+										<xsd:maxLength value="6"/>
+									</xsd:restriction>
+								</xsd:simpleType>
+							</xsd:element>
+							<xsd:element default="              " dfdl:lengthKind="implicit" name="TransactionDateTime">
+								<xsd:simpleType>
+									<xsd:restriction base="xsd:string">
+										<xsd:minLength value="14"/>
+										<xsd:maxLength value="14"/>
+									</xsd:restriction>
+								</xsd:simpleType>
+							</xsd:element>
+							<xsd:element default="   " dfdl:lengthKind="implicit" name="RegisterNumber">
+								<xsd:simpleType>
+									<xsd:restriction base="xsd:string">
+										<xsd:minLength value="3"/>
+										<xsd:maxLength value="3"/>
+									</xsd:restriction>
+								</xsd:simpleType>
+							</xsd:element>
+							<xsd:element default=" " dfdl:lengthKind="implicit" name="RollOverFlag">
+								<xsd:simpleType>
+									<xsd:restriction base="xsd:string">
+										<xsd:minLength value="1"/>
+										<xsd:maxLength value="1"/>
+									</xsd:restriction>
+								</xsd:simpleType>
+							</xsd:element>
+							<xsd:element default="    " dfdl:lengthKind="implicit" name="TransactionNumber">
+								<xsd:simpleType>
+									<xsd:restriction base="xsd:string">
+										<xsd:minLength value="4"/>
+										<xsd:maxLength value="4"/>
+									</xsd:restriction>
+								</xsd:simpleType>
+							</xsd:element>
+							<xsd:element default="   " dfdl:lengthKind="implicit" name="SequenceNumber">
+								<xsd:simpleType>
+									<xsd:restriction base="xsd:string">
+										<xsd:minLength value="3"/>
+										<xsd:maxLength value="3"/>
+									</xsd:restriction>
+								</xsd:simpleType>
+							</xsd:element>
+							<xsd:element default="   " dfdl:lengthKind="implicit" name="SubSequenceNumber">
+								<xsd:simpleType>
+									<xsd:restriction base="xsd:string">
+										<xsd:minLength value="3"/>
+										<xsd:maxLength value="3"/>
+									</xsd:restriction>
+								</xsd:simpleType>
+							</xsd:element>
+							<xsd:element default="  " dfdl:lengthKind="implicit" name="RecordType">
+								<xsd:simpleType>
+									<xsd:restriction base="xsd:string">
+										<xsd:minLength value="2"/>
+										<xsd:maxLength value="2"/>
+									</xsd:restriction>
+								</xsd:simpleType>
+							</xsd:element>
+							<xsd:element default="  " dfdl:lengthKind="implicit" name="TransactionType">
+								<xsd:simpleType>
+									<xsd:restriction base="xsd:string">
+										<xsd:minLength value="2"/>
+										<xsd:maxLength value="2"/>
+									</xsd:restriction>
+								</xsd:simpleType>
+							</xsd:element>
+							<xsd:element default="     " dfdl:lengthKind="implicit" name="TillID">
+								<xsd:simpleType>
+									<xsd:restriction base="xsd:string">
+										<xsd:minLength value="5"/>
+										<xsd:maxLength value="5"/>
+									</xsd:restriction>
+								</xsd:simpleType>
+							</xsd:element>
+							<xsd:element default=" " dfdl:lengthKind="implicit" name="Status">
+								<xsd:simpleType>
+									<xsd:restriction base="xsd:string">
+										<xsd:minLength value="1"/>
+										<xsd:maxLength value="1"/>
+									</xsd:restriction>
+								</xsd:simpleType>
+							</xsd:element>
+							<xsd:element default="          " dfdl:lengthKind="implicit" name="CashierNumber">
+								<xsd:simpleType>
+									<xsd:restriction base="xsd:string">
+										<xsd:minLength value="10"/>
+										<xsd:maxLength value="10"/>
+									</xsd:restriction>
+								</xsd:simpleType>
+							</xsd:element>
+							<xsd:element default="               " dfdl:lengthKind="implicit" name="SKU">
+								<xsd:simpleType>
+									<xsd:restriction base="xsd:string">
+										<xsd:minLength value="15"/>
+										<xsd:maxLength value="15"/>
+									</xsd:restriction>
+								</xsd:simpleType>
+							</xsd:element>
+							<xsd:element default="         " dfdl:lengthKind="implicit" name="ItemQuantity">
+								<xsd:simpleType>
+									<xsd:restriction base="xsd:string">
+										<xsd:minLength value="9"/>
+										<xsd:maxLength value="9"/>
+									</xsd:restriction>
+								</xsd:simpleType>
+							</xsd:element>
+							<xsd:element default=" " dfdl:lengthKind="implicit" name="QuantitySign">
+								<xsd:simpleType>
+									<xsd:restriction base="xsd:string">
+										<xsd:minLength value="1"/>
+										<xsd:maxLength value="1"/>
+									</xsd:restriction>
+								</xsd:simpleType>
+							</xsd:element>
+							<xsd:element default="           " dfdl:lengthKind="implicit" name="UnitRetailPrice">
+								<xsd:simpleType>
+									<xsd:restriction base="xsd:string">
+										<xsd:minLength value="11"/>
+										<xsd:maxLength value="11"/>
+									</xsd:restriction>
+								</xsd:simpleType>
+							</xsd:element>
+							<xsd:element default="           " dfdl:lengthKind="implicit" name="SellingPrice">
+								<xsd:simpleType>
+									<xsd:restriction base="xsd:string">
+										<xsd:minLength value="11"/>
+										<xsd:maxLength value="11"/>
+									</xsd:restriction>
+								</xsd:simpleType>
+							</xsd:element>
+							<xsd:element default="             " dfdl:lengthKind="implicit" name="ExtendedPrice">
+								<xsd:simpleType>
+									<xsd:restriction base="xsd:string">
+										<xsd:minLength value="13"/>
+										<xsd:maxLength value="13"/>
+									</xsd:restriction>
+								</xsd:simpleType>
+							</xsd:element>
+							<xsd:element default=" " dfdl:lengthKind="implicit" name="ExtendedPriceSign">
+								<xsd:simpleType>
+									<xsd:restriction base="xsd:string">
+										<xsd:minLength value="1"/>
+										<xsd:maxLength value="1"/>
+									</xsd:restriction>
+								</xsd:simpleType>
+							</xsd:element>
+							<xsd:element default="           " dfdl:lengthKind="implicit" name="DiscountAmount">
+								<xsd:simpleType>
+									<xsd:restriction base="xsd:string">
+										<xsd:minLength value="11"/>
+										<xsd:maxLength value="11"/>
+									</xsd:restriction>
+								</xsd:simpleType>
+							</xsd:element>
+							<xsd:element default=" " dfdl:lengthKind="implicit" name="DiscountAmountSign">
+								<xsd:simpleType>
+									<xsd:restriction base="xsd:string">
+										<xsd:minLength value="1"/>
+										<xsd:maxLength value="1"/>
+									</xsd:restriction>
+								</xsd:simpleType>
+							</xsd:element>
+							<xsd:element default=" " dfdl:lengthKind="implicit" name="PriceOverrideFlag">
+								<xsd:simpleType>
+									<xsd:restriction base="xsd:string">
+										<xsd:minLength value="1"/>
+										<xsd:maxLength value="1"/>
+									</xsd:restriction>
+								</xsd:simpleType>
+							</xsd:element>
+							<xsd:element default="             " dfdl:lengthKind="implicit" name="PriceOverrideAmount">
+								<xsd:simpleType>
+									<xsd:restriction base="xsd:string">
+										<xsd:minLength value="13"/>
+										<xsd:maxLength value="13"/>
+									</xsd:restriction>
+								</xsd:simpleType>
+							</xsd:element>
+							<xsd:element default="                  " dfdl:lengthKind="implicit" name="UPC">
+								<xsd:simpleType>
+									<xsd:restriction base="xsd:string">
+										<xsd:minLength value="18"/>
+										<xsd:maxLength value="18"/>
+									</xsd:restriction>
+								</xsd:simpleType>
+							</xsd:element>
+							<xsd:element default="               " dfdl:lengthKind="implicit" name="DocumentIssueNumber">
+								<xsd:simpleType>
+									<xsd:restriction base="xsd:string">
+										<xsd:minLength value="15"/>
+										<xsd:maxLength value="15"/>
+									</xsd:restriction>
+								</xsd:simpleType>
+							</xsd:element>
+							<xsd:element default="    " dfdl:lengthKind="implicit" name="ReasonCode">
+								<xsd:simpleType>
+									<xsd:restriction base="xsd:string">
+										<xsd:minLength value="4"/>
+										<xsd:maxLength value="4"/>
+									</xsd:restriction>
+								</xsd:simpleType>
+							</xsd:element>
+							<xsd:element default=" " dfdl:lengthKind="implicit" name="ScanFlag">
+								<xsd:simpleType>
+									<xsd:restriction base="xsd:string">
+										<xsd:minLength value="1"/>
+										<xsd:maxLength value="1"/>
+									</xsd:restriction>
+								</xsd:simpleType>
+							</xsd:element>
+							<xsd:element default="          " dfdl:lengthKind="implicit" name="SalesPerson1EmployeeID">
+								<xsd:simpleType>
+									<xsd:restriction base="xsd:string">
+										<xsd:minLength value="10"/>
+										<xsd:maxLength value="10"/>
+									</xsd:restriction>
+								</xsd:simpleType>
+							</xsd:element>
+							<xsd:element default="     " dfdl:lengthKind="implicit" name="SalesPerson1CommissionPercent">
+								<xsd:simpleType>
+									<xsd:restriction base="xsd:string">
+										<xsd:minLength value="5"/>
+										<xsd:maxLength value="5"/>
+									</xsd:restriction>
+								</xsd:simpleType>
+							</xsd:element>
+							<xsd:element default="          " dfdl:lengthKind="implicit" name="SalesPerson2EmployeeID">
+								<xsd:simpleType>
+									<xsd:restriction base="xsd:string">
+										<xsd:minLength value="10"/>
+										<xsd:maxLength value="10"/>
+									</xsd:restriction>
+								</xsd:simpleType>
+							</xsd:element>
+							<xsd:element default="     " dfdl:lengthKind="implicit" name="SalesPerson2CommissionPercent">
+								<xsd:simpleType>
+									<xsd:restriction base="xsd:string">
+										<xsd:minLength value="5"/>
+										<xsd:maxLength value="5"/>
+									</xsd:restriction>
+								</xsd:simpleType>
+							</xsd:element>
+							<xsd:element default="          " dfdl:lengthKind="implicit" name="SalesPerson3EmployeeID">
+								<xsd:simpleType>
+									<xsd:restriction base="xsd:string">
+										<xsd:minLength value="10"/>
+										<xsd:maxLength value="10"/>
+									</xsd:restriction>
+								</xsd:simpleType>
+							</xsd:element>
+							<xsd:element default="     " dfdl:lengthKind="implicit" name="SalesPerson3CommissionPercent">
+								<xsd:simpleType>
+									<xsd:restriction base="xsd:string">
+										<xsd:minLength value="5"/>
+										<xsd:maxLength value="5"/>
+									</xsd:restriction>
+								</xsd:simpleType>
+							</xsd:element>
+							<xsd:element default="      " dfdl:lengthKind="implicit" name="TaxArea">
+								<xsd:simpleType>
+									<xsd:restriction base="xsd:string">
+										<xsd:minLength value="6"/>
+										<xsd:maxLength value="6"/>
+									</xsd:restriction>
+								</xsd:simpleType>
+							</xsd:element>
+							<xsd:element default="      " dfdl:lengthKind="implicit" name="TaxAuthority1">
+								<xsd:simpleType>
+									<xsd:restriction base="xsd:string">
+										<xsd:minLength value="6"/>
+										<xsd:maxLength value="6"/>
+									</xsd:restriction>
+								</xsd:simpleType>
+							</xsd:element>
+							<xsd:element default="      " dfdl:lengthKind="implicit" name="TaxCode1">
+								<xsd:simpleType>
+									<xsd:restriction base="xsd:string">
+										<xsd:minLength value="6"/>
+										<xsd:maxLength value="6"/>
+									</xsd:restriction>
+								</xsd:simpleType>
+							</xsd:element>
+							<xsd:element default="      " dfdl:lengthKind="implicit" name="TaxAuthority2">
+								<xsd:simpleType>
+									<xsd:restriction base="xsd:string">
+										<xsd:minLength value="6"/>
+										<xsd:maxLength value="6"/>
+									</xsd:restriction>
+								</xsd:simpleType>
+							</xsd:element>
+							<xsd:element default="      " dfdl:lengthKind="implicit" name="TaxCode2">
+								<xsd:simpleType>
+									<xsd:restriction base="xsd:string">
+										<xsd:minLength value="6"/>
+										<xsd:maxLength value="6"/>
+									</xsd:restriction>
+								</xsd:simpleType>
+							</xsd:element>
+
+							<xsd:element default="      " dfdl:lengthKind="implicit" name="TaxAuthority3">
+								<xsd:simpleType>
+									<xsd:restriction base="xsd:string">
+										<xsd:minLength value="6"/>
+										<xsd:maxLength value="6"/>
+									</xsd:restriction>
+								</xsd:simpleType>
+							</xsd:element>
+							<xsd:element default="      " dfdl:lengthKind="implicit" name="TaxCode3">
+								<xsd:simpleType>
+									<xsd:restriction base="xsd:string">
+										<xsd:minLength value="6"/>
+										<xsd:maxLength value="6"/>
+									</xsd:restriction>
+								</xsd:simpleType>
+							</xsd:element>
+							<xsd:element default="      " dfdl:lengthKind="implicit" name="TaxAuthority4">
+								<xsd:simpleType>
+									<xsd:restriction base="xsd:string">
+										<xsd:minLength value="6"/>
+										<xsd:maxLength value="6"/>
+									</xsd:restriction>
+								</xsd:simpleType>
+							</xsd:element>
+							<xsd:element default="      " dfdl:lengthKind="implicit" name="TaxCode4">
+								<xsd:simpleType>
+									<xsd:restriction base="xsd:string">
+										<xsd:minLength value="6"/>
+										<xsd:maxLength value="6"/>
+									</xsd:restriction>
+								</xsd:simpleType>
+							</xsd:element>
+							<xsd:element default="      " dfdl:lengthKind="implicit" name="TaxAuthority5">
+								<xsd:simpleType>
+									<xsd:restriction base="xsd:string">
+										<xsd:minLength value="6"/>
+										<xsd:maxLength value="6"/>
+									</xsd:restriction>
+								</xsd:simpleType>
+							</xsd:element>
+							<xsd:element default="      " dfdl:lengthKind="implicit" name="TaxCode5">
+								<xsd:simpleType>
+									<xsd:restriction base="xsd:string">
+										<xsd:minLength value="6"/>
+										<xsd:maxLength value="6"/>
+									</xsd:restriction>
+								</xsd:simpleType>
+							</xsd:element>
+							<xsd:element default="      " dfdl:lengthKind="implicit" name="TaxAuthority6">
+								<xsd:simpleType>
+									<xsd:restriction base="xsd:string">
+										<xsd:minLength value="6"/>
+										<xsd:maxLength value="6"/>
+									</xsd:restriction>
+								</xsd:simpleType>
+							</xsd:element>
+							<xsd:element default="      " dfdl:lengthKind="implicit" name="TaxCode6">
+								<xsd:simpleType>
+									<xsd:restriction base="xsd:string">
+										<xsd:minLength value="6"/>
+										<xsd:maxLength value="6"/>
+									</xsd:restriction>
+								</xsd:simpleType>
+							</xsd:element>
+							<xsd:element default="      " dfdl:lengthKind="implicit" name="TaxAuthority7">
+								<xsd:simpleType>
+									<xsd:restriction base="xsd:string">
+										<xsd:minLength value="6"/>
+										<xsd:maxLength value="6"/>
+									</xsd:restriction>
+								</xsd:simpleType>
+							</xsd:element>
+							<xsd:element default="      " dfdl:lengthKind="implicit" name="TaxCode7">
+								<xsd:simpleType>
+									<xsd:restriction base="xsd:string">
+										<xsd:minLength value="6"/>
+										<xsd:maxLength value="6"/>
+									</xsd:restriction>
+								</xsd:simpleType>
+							</xsd:element>
+							<xsd:element default="      " dfdl:lengthKind="implicit" name="TaxAuthority8">
+								<xsd:simpleType>
+									<xsd:restriction base="xsd:string">
+										<xsd:minLength value="6"/>
+										<xsd:maxLength value="6"/>
+									</xsd:restriction>
+								</xsd:simpleType>
+							</xsd:element>
+							<xsd:element default="      " dfdl:lengthKind="implicit" name="TaxCode8">
+								<xsd:simpleType>
+									<xsd:restriction base="xsd:string">
+										<xsd:minLength value="6"/>
+										<xsd:maxLength value="6"/>
+									</xsd:restriction>
+								</xsd:simpleType>
+							</xsd:element>
+							<xsd:element default="           " dfdl:lengthKind="implicit" name="TaxAmount">
+								<xsd:simpleType>
+									<xsd:restriction base="xsd:string">
+										<xsd:maxLength value="11"/>
+										<xsd:minLength value="11"/>
+									</xsd:restriction>
+								</xsd:simpleType>
+							</xsd:element>
+							<xsd:element default=" " dfdl:lengthKind="implicit" name="TaxAmountSign">
+								<xsd:simpleType>
+									<xsd:restriction base="xsd:string">
+										<xsd:maxLength value="1"/>
+										<xsd:minLength value="1"/>
+									</xsd:restriction>
+								</xsd:simpleType>
+							</xsd:element>
+							<xsd:element default="              " dfdl:lengthKind="implicit" name="CustomerNumber">
+								<xsd:simpleType>
+									<xsd:restriction base="xsd:string">
+										<xsd:maxLength value="14"/>
+										<xsd:minLength value="14"/>
+									</xsd:restriction>
+								</xsd:simpleType>
+							</xsd:element>
+							<xsd:element default="      " dfdl:lengthKind="implicit" name="OriginalTransactionStoreNumber">
+								<xsd:simpleType>
+									<xsd:restriction base="xsd:string">
+										<xsd:maxLength value="6"/>
+										<xsd:minLength value="6"/>
+									</xsd:restriction>
+								</xsd:simpleType>
+							</xsd:element>
+							<xsd:element default="        " dfdl:lengthKind="implicit" name="OriginalTransactionDate">
+								<xsd:simpleType>
+									<xsd:restriction base="xsd:string">
+										<xsd:maxLength value="8"/>
+										<xsd:minLength value="8"/>
+									</xsd:restriction>
+								</xsd:simpleType>
+							</xsd:element>
+							<xsd:element default="    " dfdl:lengthKind="implicit" name="OriginalTransactionNumber">
+								<xsd:simpleType>
+									<xsd:restriction base="xsd:string">
+										<xsd:maxLength value="4"/>
+										<xsd:minLength value="4"/>
+									</xsd:restriction>
+								</xsd:simpleType>
+							</xsd:element>
+							<xsd:element default="          " dfdl:lengthKind="implicit" name="OriginalCashierNumber">
+								<xsd:simpleType>
+									<xsd:restriction base="xsd:string">
+										<xsd:maxLength value="10"/>
+										<xsd:minLength value="10"/>
+									</xsd:restriction>
+								</xsd:simpleType>
+							</xsd:element>
+							<xsd:element default="   " dfdl:lengthKind="implicit" name="HomeCurrencyCode">
+								<xsd:simpleType>
+									<xsd:restriction base="xsd:string">
+										<xsd:maxLength value="3"/>
+										<xsd:minLength value="3"/>
+									</xsd:restriction>
+								</xsd:simpleType>
+							</xsd:element>
+							<xsd:element default="               " dfdl:lengthKind="implicit" name="ExchangeRate">
+								<xsd:simpleType>
+									<xsd:restriction base="xsd:string">
+										<xsd:maxLength value="15"/>
+										<xsd:minLength value="15"/>
+									</xsd:restriction>
+								</xsd:simpleType>
+							</xsd:element>
+							<xsd:element default=" " dfdl:lengthKind="implicit" name="ExchangeRateFactor">
+								<xsd:simpleType>
+									<xsd:restriction base="xsd:string">
+										<xsd:maxLength value="1"/>
+										<xsd:minLength value="1"/>
+									</xsd:restriction>
+								</xsd:simpleType>
+							</xsd:element>
+							<xsd:element default="        " dfdl:lengthKind="implicit" name="SalesDate">
+								<xsd:simpleType>
+									<xsd:restriction base="xsd:string">
+										<xsd:maxLength value="8"/>
+										<xsd:minLength value="8"/>
+									</xsd:restriction>
+								</xsd:simpleType>
+							</xsd:element>
+							<xsd:element default="               " dfdl:lengthKind="implicit" name="EGCAuthorizationCode">
+								<xsd:simpleType>
+									<xsd:restriction base="xsd:string">
+										<xsd:maxLength value="15"/>
+										<xsd:minLength value="15"/>
+									</xsd:restriction>
+								</xsd:simpleType>
+							</xsd:element>
+							<xsd:element default=" " dfdl:lengthKind="implicit" name="EGCRequestType">
+								<xsd:simpleType>
+									<xsd:restriction base="xsd:string">
+										<xsd:maxLength value="1"/>
+										<xsd:minLength value="1"/>
+									</xsd:restriction>
+								</xsd:simpleType>
+							</xsd:element>
+						</xsd:sequence>
+					</xsd:complexType>
+				</xsd:element>
+          <xsd:element dfdl:lengthKind="implicit" dfdl:terminator="" maxOccurs="unbounded" minOccurs="0" name="DiscountDetail">
+					<xsd:complexType>
+						<xsd:sequence dfdl:separator="" dfdl:separatorSuppressionPolicy="trailingEmpty">
+							<xsd:element default="      " dfdl:lengthKind="implicit" name="StoreNumber">
+								<xsd:simpleType>
+									<xsd:restriction base="xsd:string">
+										<xsd:minLength value="6"/>
+										<xsd:maxLength value="6"/>
+									</xsd:restriction>
+								</xsd:simpleType>
+							</xsd:element>
+							<xsd:element default="              " dfdl:lengthKind="implicit" name="TransactionDateTime">
+								<xsd:simpleType>
+									<xsd:restriction base="xsd:string">
+										<xsd:minLength value="14"/>
+										<xsd:maxLength value="14"/>
+									</xsd:restriction>
+								</xsd:simpleType>
+							</xsd:element>
+							<xsd:element default="   " dfdl:lengthKind="implicit" name="RegisterNumber">
+								<xsd:simpleType>
+									<xsd:restriction base="xsd:string">
+										<xsd:minLength value="3"/>
+										<xsd:maxLength value="3"/>
+									</xsd:restriction>
+								</xsd:simpleType>
+							</xsd:element>
+							<xsd:element default=" " dfdl:lengthKind="implicit" name="RollOverFlag">
+								<xsd:simpleType>
+									<xsd:restriction base="xsd:string">
+										<xsd:minLength value="1"/>
+										<xsd:maxLength value="1"/>
+									</xsd:restriction>
+								</xsd:simpleType>
+							</xsd:element>
+							<xsd:element default="    " dfdl:lengthKind="implicit" name="TransactionNumber">
+								<xsd:simpleType>
+									<xsd:restriction base="xsd:string">
+										<xsd:minLength value="4"/>
+										<xsd:maxLength value="4"/>
+									</xsd:restriction>
+								</xsd:simpleType>
+							</xsd:element>
+							<xsd:element default="   " dfdl:lengthKind="implicit" name="SequenceNumber">
+								<xsd:simpleType>
+									<xsd:restriction base="xsd:string">
+										<xsd:minLength value="3"/>
+										<xsd:maxLength value="3"/>
+									</xsd:restriction>
+								</xsd:simpleType>
+							</xsd:element>
+							<xsd:element default="   " dfdl:lengthKind="implicit" name="SubSequenceNumber">
+								<xsd:simpleType>
+									<xsd:restriction base="xsd:string">
+										<xsd:minLength value="3"/>
+										<xsd:maxLength value="3"/>
+									</xsd:restriction>
+								</xsd:simpleType>
+							</xsd:element>
+							<xsd:element default="  " dfdl:lengthKind="implicit" name="RecordType">
+								<xsd:simpleType>
+									<xsd:restriction base="xsd:string">
+										<xsd:minLength value="2"/>
+										<xsd:maxLength value="2"/>
+									</xsd:restriction>
+								</xsd:simpleType>
+							</xsd:element>
+							<xsd:element default="  " dfdl:lengthKind="implicit" name="TransactionType">
+								<xsd:simpleType>
+									<xsd:restriction base="xsd:string">
+										<xsd:minLength value="2"/>
+										<xsd:maxLength value="2"/>
+									</xsd:restriction>
+								</xsd:simpleType>
+							</xsd:element>
+							<xsd:element default="     " dfdl:lengthKind="implicit" name="TillID">
+								<xsd:simpleType>
+									<xsd:restriction base="xsd:string">
+										<xsd:minLength value="5"/>
+										<xsd:maxLength value="5"/>
+									</xsd:restriction>
+								</xsd:simpleType>
+							</xsd:element>
+							<xsd:element default=" " dfdl:lengthKind="implicit" name="Status">
+								<xsd:simpleType>
+									<xsd:restriction base="xsd:string">
+										<xsd:minLength value="1"/>
+										<xsd:maxLength value="1"/>
+									</xsd:restriction>
+								</xsd:simpleType>
+							</xsd:element>
+							<xsd:element default="          " dfdl:lengthKind="implicit" name="CashierNumber">
+								<xsd:simpleType>
+									<xsd:restriction base="xsd:string">
+										<xsd:minLength value="10"/>
+										<xsd:maxLength value="10"/>
+									</xsd:restriction>
+								</xsd:simpleType>
+							</xsd:element>
+                            							<xsd:element dfdl:lengthKind="implicit" ibmDfdlExtn:sampleValue="               " name="SKU">
+                  <xsd:simpleType>
+                    <xsd:restriction base="xsd:string">
+                      <xsd:minLength value="15"/>
+                      <xsd:maxLength value="15"/>
+                    </xsd:restriction>
+                  </xsd:simpleType>
+                </xsd:element>
+                            <xsd:element default="         " dfdl:lengthKind="implicit" name="DiscountAmount">
+								<xsd:simpleType>
+									<xsd:restriction base="xsd:string">
+										<xsd:minLength value="9"/>
+										<xsd:maxLength value="9"/>
+									</xsd:restriction>
+								</xsd:simpleType>
+							</xsd:element>
+							<xsd:element default=" " dfdl:lengthKind="implicit" name="DiscountAmountSign1">
+								<xsd:simpleType>
+									<xsd:restriction base="xsd:string">
+										<xsd:minLength value="1"/>
+										<xsd:maxLength value="1"/>
+									</xsd:restriction>
+								</xsd:simpleType>
+							</xsd:element>
+							<xsd:element default="    " dfdl:lengthKind="implicit" name="DiscountReasonType">
+								<xsd:simpleType>
+									<xsd:restriction base="xsd:string">
+										<xsd:minLength value="4"/>
+										<xsd:maxLength value="4"/>
+									</xsd:restriction>
+								</xsd:simpleType>
+							</xsd:element>
+							<xsd:element default="    " dfdl:lengthKind="implicit" name="DiscountReasonCode">
+								<xsd:simpleType>
+									<xsd:restriction base="xsd:string">
+										<xsd:minLength value="4"/>
+										<xsd:maxLength value="4"/>
+									</xsd:restriction>
+								</xsd:simpleType>
+							</xsd:element>
+							<xsd:element default="        " dfdl:lengthKind="implicit" name="SalesDate">
+								<xsd:simpleType>
+									<xsd:restriction base="xsd:string">
+										<xsd:minLength value="8"/>
+										<xsd:maxLength value="8"/>
+									</xsd:restriction>
+								</xsd:simpleType>
+							</xsd:element>
+							<xsd:element default="   " dfdl:lengthKind="implicit" name="HomeCurrencyCode">
+								<xsd:simpleType>
+									<xsd:restriction base="xsd:string">
+										<xsd:minLength value="3"/>
+										<xsd:maxLength value="3"/>
+									</xsd:restriction>
+								</xsd:simpleType>
+							</xsd:element>
+							<xsd:element default="               " dfdl:lengthKind="implicit" name="MCExchangeRate">
+								<xsd:simpleType>
+									<xsd:restriction base="xsd:string">
+										<xsd:minLength value="15"/>
+										<xsd:maxLength value="15"/>
+									</xsd:restriction>
+								</xsd:simpleType>
+							</xsd:element>
+							<xsd:element default=" " dfdl:lengthKind="implicit" name="MultorDivFlag">
+								<xsd:simpleType>
+									<xsd:restriction base="xsd:string">
+										<xsd:minLength value="1"/>
+										<xsd:maxLength value="1"/>
+									</xsd:restriction>
+								</xsd:simpleType>
+							</xsd:element>
+							<xsd:element default="           " dfdl:lengthKind="implicit" name="MCDiscountAmount">
+								<xsd:simpleType>
+									<xsd:restriction base="xsd:string">
+										<xsd:minLength value="11"/>
+										<xsd:maxLength value="11"/>
+									</xsd:restriction>
+								</xsd:simpleType>
+							</xsd:element>
+							<xsd:element default=" " dfdl:lengthKind="implicit" name="DiscountAmountSign2">
+								<xsd:simpleType>
+									<xsd:restriction base="xsd:string">
+										<xsd:minLength value="1"/>
+										<xsd:maxLength value="1"/>
+									</xsd:restriction>
+								</xsd:simpleType>
+							</xsd:element>
+							<xsd:element default="   " dfdl:lengthKind="implicit" ibmDfdlExtn:sampleValue="   " name="CurrencyCode">
+								<xsd:simpleType>
+									<xsd:restriction base="xsd:string">
+										<xsd:minLength value="3"/>
+										<xsd:maxLength value="3"/>
+									</xsd:restriction>
+								</xsd:simpleType>
+							</xsd:element>
+							<xsd:element default="        " dfdl:lengthKind="implicit" name="CouponCode">
+								<xsd:simpleType>
+									<xsd:restriction base="xsd:string">
+										<xsd:minLength value="8"/>
+										<xsd:maxLength value="8"/>
+									</xsd:restriction>
+								</xsd:simpleType>
+							</xsd:element>
+							<xsd:element default=" " dfdl:lengthKind="implicit" name="EGCRequestType">
+								<xsd:simpleType>
+									<xsd:restriction base="xsd:string">
+										<xsd:minLength value="1"/>
+										<xsd:maxLength value="1"/>
+									</xsd:restriction>
+								</xsd:simpleType>
+							</xsd:element>
+							<xsd:element default="                              " dfdl:lengthKind="implicit" name="Competitor">
+								<xsd:simpleType>
+									<xsd:restriction base="xsd:string">
+										<xsd:minLength value="30"/>
+										<xsd:maxLength value="30"/>
+									</xsd:restriction>
+								</xsd:simpleType>
+							</xsd:element>
+							<xsd:element default="            " dfdl:lengthKind="implicit" name="GNCCouponCode">
+								<xsd:simpleType>
+									<xsd:restriction base="xsd:string">
+										<xsd:minLength value="12"/>
+										<xsd:maxLength value="12"/>
+									</xsd:restriction>
+								</xsd:simpleType>
+							</xsd:element>
+						</xsd:sequence>
+					</xsd:complexType>
+				</xsd:element>
+        </xsd:sequence>
+                				                
+
+
+
+
+                				                
+                <xsd:element dfdl:lengthKind="implicit" dfdl:terminator="" maxOccurs="unbounded" minOccurs="0" name="Tax">
+					<xsd:complexType>
+						<xsd:sequence dfdl:separator="" dfdl:separatorSuppressionPolicy="trailingEmpty">
+							<xsd:element default="      " dfdl:lengthKind="implicit" name="StoreNumber">
+								<xsd:simpleType>
+									<xsd:restriction base="xsd:string">
+										<xsd:minLength value="6"/>
+										<xsd:maxLength value="6"/>
+									</xsd:restriction>
+								</xsd:simpleType>
+							</xsd:element>
+							<xsd:element default="              " dfdl:lengthKind="implicit" name="TransactionDateTime">
+								<xsd:simpleType>
+									<xsd:restriction base="xsd:string">
+										<xsd:minLength value="14"/>
+										<xsd:maxLength value="14"/>
+									</xsd:restriction>
+								</xsd:simpleType>
+							</xsd:element>
+							<xsd:element default="   " dfdl:lengthKind="implicit" name="RegisterNumber">
+								<xsd:simpleType>
+									<xsd:restriction base="xsd:string">
+										<xsd:minLength value="3"/>
+										<xsd:maxLength value="3"/>
+									</xsd:restriction>
+								</xsd:simpleType>
+							</xsd:element>
+							<xsd:element default=" " dfdl:lengthKind="implicit" name="RollOverFlag">
+								<xsd:simpleType>
+									<xsd:restriction base="xsd:string">
+										<xsd:minLength value="1"/>
+										<xsd:maxLength value="1"/>
+									</xsd:restriction>
+								</xsd:simpleType>
+							</xsd:element>
+							<xsd:element default="    " dfdl:lengthKind="implicit" name="TransactionNumber">
+								<xsd:simpleType>
+									<xsd:restriction base="xsd:string">
+										<xsd:minLength value="4"/>
+										<xsd:maxLength value="4"/>
+									</xsd:restriction>
+								</xsd:simpleType>
+							</xsd:element>
+							<xsd:element default="   " dfdl:lengthKind="implicit" name="SequenceNumber">
+								<xsd:simpleType>
+									<xsd:restriction base="xsd:string">
+										<xsd:minLength value="3"/>
+										<xsd:maxLength value="3"/>
+									</xsd:restriction>
+								</xsd:simpleType>
+							</xsd:element>
+							<xsd:element default="   " dfdl:lengthKind="implicit" name="SubSequenceNumber">
+								<xsd:simpleType>
+									<xsd:restriction base="xsd:string">
+										<xsd:minLength value="3"/>
+										<xsd:maxLength value="3"/>
+									</xsd:restriction>
+								</xsd:simpleType>
+							</xsd:element>
+							<xsd:element default="  " dfdl:lengthKind="implicit" name="RecordType">
+								<xsd:simpleType>
+									<xsd:restriction base="xsd:string">
+										<xsd:minLength value="2"/>
+										<xsd:maxLength value="2"/>
+									</xsd:restriction>
+								</xsd:simpleType>
+							</xsd:element>
+							<xsd:element default="  " dfdl:lengthKind="implicit" name="TransactionType">
+								<xsd:simpleType>
+									<xsd:restriction base="xsd:string">
+										<xsd:minLength value="2"/>
+										<xsd:maxLength value="2"/>
+									</xsd:restriction>
+								</xsd:simpleType>
+							</xsd:element>
+							<xsd:element default="     " dfdl:lengthKind="implicit" name="TillID">
+								<xsd:simpleType>
+									<xsd:restriction base="xsd:string">
+										<xsd:minLength value="5"/>
+										<xsd:maxLength value="5"/>
+									</xsd:restriction>
+								</xsd:simpleType>
+							</xsd:element>
+							<xsd:element default=" " dfdl:lengthKind="implicit" name="Status">
+								<xsd:simpleType>
+									<xsd:restriction base="xsd:string">
+										<xsd:minLength value="1"/>
+										<xsd:maxLength value="1"/>
+									</xsd:restriction>
+								</xsd:simpleType>
+							</xsd:element>
+							<xsd:element default="          " dfdl:lengthKind="implicit" name="CashierNumber">
+								<xsd:simpleType>
+									<xsd:restriction base="xsd:string">
+										<xsd:minLength value="10"/>
+										<xsd:maxLength value="10"/>
+									</xsd:restriction>
+								</xsd:simpleType>
+							</xsd:element>
+							<xsd:element default="      " dfdl:lengthKind="implicit" name="TaxArea">
+								<xsd:simpleType>
+									<xsd:restriction base="xsd:string">
+										<xsd:minLength value="6"/>
+										<xsd:maxLength value="6"/>
+									</xsd:restriction>
+								</xsd:simpleType>
+							</xsd:element>
+							<xsd:element default="      " dfdl:lengthKind="implicit" name="TaxAuthority">
+								<xsd:simpleType>
+									<xsd:restriction base="xsd:string">
+										<xsd:minLength value="6"/>
+										<xsd:maxLength value="6"/>
+									</xsd:restriction>
+								</xsd:simpleType>
+							</xsd:element>
+							<xsd:element default="      " dfdl:lengthKind="implicit" name="TaxCode1">
+								<xsd:simpleType>
+									<xsd:restriction base="xsd:string">
+										<xsd:minLength value="6"/>
+										<xsd:maxLength value="6"/>
+									</xsd:restriction>
+								</xsd:simpleType>
+							</xsd:element>
+							<xsd:element default="      " dfdl:lengthKind="implicit" name="TaxCode2">
+								<xsd:simpleType>
+									<xsd:restriction base="xsd:string">
+										<xsd:minLength value="6"/>
+										<xsd:maxLength value="6"/>
+									</xsd:restriction>
+								</xsd:simpleType>
+							</xsd:element>
+							<xsd:element default="           " dfdl:lengthKind="implicit" name="TaxAmount">
+								<xsd:simpleType>
+									<xsd:restriction base="xsd:string">
+										<xsd:minLength value="11"/>
+										<xsd:maxLength value="11"/>
+									</xsd:restriction>
+								</xsd:simpleType>
+							</xsd:element>
+							<xsd:element default=" " dfdl:lengthKind="implicit" name="TaxAmountSign">
+								<xsd:simpleType>
+									<xsd:restriction base="xsd:string">
+										<xsd:minLength value="1"/>
+										<xsd:maxLength value="1"/>
+									</xsd:restriction>
+								</xsd:simpleType>
+							</xsd:element>
+							<xsd:element default="        " dfdl:lengthKind="implicit" name="SalesDate">
+								<xsd:simpleType>
+									<xsd:restriction base="xsd:string">
+										<xsd:minLength value="8"/>
+										<xsd:maxLength value="8"/>
+									</xsd:restriction>
+								</xsd:simpleType>
+							</xsd:element>
+							<xsd:element default="   " dfdl:lengthKind="implicit" name="CurrencyCode1">
+								<xsd:simpleType>
+									<xsd:restriction base="xsd:string">
+										<xsd:minLength value="3"/>
+										<xsd:maxLength value="3"/>
+									</xsd:restriction>
+								</xsd:simpleType>
+							</xsd:element>
+							<xsd:element default="               " dfdl:lengthKind="implicit" name="ExchangeRate">
+								<xsd:simpleType>
+									<xsd:restriction base="xsd:string">
+										<xsd:minLength value="15"/>
+										<xsd:maxLength value="15"/>
+									</xsd:restriction>
+								</xsd:simpleType>
+							</xsd:element>
+							<xsd:element default=" " dfdl:lengthKind="implicit" name="ExchangeRateFactor">
+								<xsd:simpleType>
+									<xsd:restriction base="xsd:string">
+										<xsd:minLength value="1"/>
+										<xsd:maxLength value="1"/>
+									</xsd:restriction>
+								</xsd:simpleType>
+							</xsd:element>
+							<xsd:element default="           " dfdl:lengthKind="implicit" name="MCExtendedTaxAmount">
+								<xsd:simpleType>
+									<xsd:restriction base="xsd:string">
+										<xsd:minLength value="11"/>
+										<xsd:maxLength value="11"/>
+									</xsd:restriction>
+								</xsd:simpleType>
+							</xsd:element>
+							<xsd:element default=" " dfdl:lengthKind="implicit" name="TaxSign">
+								<xsd:simpleType>
+									<xsd:restriction base="xsd:string">
+										<xsd:minLength value="1"/>
+										<xsd:maxLength value="1"/>
+									</xsd:restriction>
+								</xsd:simpleType>
+							</xsd:element>
+							<xsd:element default="   " dfdl:lengthKind="implicit" name="CurrencyCode2">
+								<xsd:simpleType>
+									<xsd:restriction base="xsd:string">
+										<xsd:minLength value="3"/>
+										<xsd:maxLength value="3"/>
+									</xsd:restriction>
+								</xsd:simpleType>
+							</xsd:element>
+						</xsd:sequence>
+					</xsd:complexType>
+				</xsd:element>
+				
+                				                                                <xsd:element dfdl:lengthKind="implicit" dfdl:terminator="" maxOccurs="unbounded" minOccurs="0" name="Tender">
+					<xsd:complexType>
+						<xsd:sequence dfdl:separator="" dfdl:separatorSuppressionPolicy="trailingEmpty">
+							<xsd:element default="      " dfdl:lengthKind="implicit" name="StoreNumber">
+								<xsd:simpleType>
+									<xsd:restriction base="xsd:string">
+										<xsd:minLength value="6"/>
+										<xsd:maxLength value="6"/>
+									</xsd:restriction>
+								</xsd:simpleType>
+							</xsd:element>
+							<xsd:element default="              " dfdl:lengthKind="implicit" name="TransactionDateTime">
+								<xsd:simpleType>
+									<xsd:restriction base="xsd:string">
+										<xsd:minLength value="14"/>
+										<xsd:maxLength value="14"/>
+									</xsd:restriction>
+								</xsd:simpleType>
+							</xsd:element>
+							<xsd:element default="   " dfdl:lengthKind="implicit" name="RegisterNumber">
+								<xsd:simpleType>
+									<xsd:restriction base="xsd:string">
+										<xsd:minLength value="3"/>
+										<xsd:maxLength value="3"/>
+									</xsd:restriction>
+								</xsd:simpleType>
+							</xsd:element>
+							<xsd:element default=" " dfdl:lengthKind="implicit" name="RollOverFlag">
+								<xsd:simpleType>
+									<xsd:restriction base="xsd:string">
+										<xsd:minLength value="1"/>
+										<xsd:maxLength value="1"/>
+									</xsd:restriction>
+								</xsd:simpleType>
+							</xsd:element>
+							<xsd:element default="    " dfdl:lengthKind="implicit" name="TransactionNumber">
+								<xsd:simpleType>
+									<xsd:restriction base="xsd:string">
+										<xsd:minLength value="4"/>
+										<xsd:maxLength value="4"/>
+									</xsd:restriction>
+								</xsd:simpleType>
+							</xsd:element>
+							<xsd:element default="   " dfdl:lengthKind="implicit" name="SequenceNumber">
+								<xsd:simpleType>
+									<xsd:restriction base="xsd:string">
+										<xsd:minLength value="3"/>
+										<xsd:maxLength value="3"/>
+									</xsd:restriction>
+								</xsd:simpleType>
+							</xsd:element>
+							<xsd:element default="   " dfdl:lengthKind="implicit" name="SubSequenceNumber">
+								<xsd:simpleType>
+									<xsd:restriction base="xsd:string">
+										<xsd:minLength value="3"/>
+										<xsd:maxLength value="3"/>
+									</xsd:restriction>
+								</xsd:simpleType>
+							</xsd:element>
+							<xsd:element default="  " dfdl:lengthKind="implicit" name="RecordType">
+								<xsd:simpleType>
+									<xsd:restriction base="xsd:string">
+										<xsd:minLength value="2"/>
+										<xsd:maxLength value="2"/>
+									</xsd:restriction>
+								</xsd:simpleType>
+							</xsd:element>
+							<xsd:element default="  " dfdl:lengthKind="implicit" name="TransactionType">
+								<xsd:simpleType>
+									<xsd:restriction base="xsd:string">
+										<xsd:minLength value="2"/>
+										<xsd:maxLength value="2"/>
+									</xsd:restriction>
+								</xsd:simpleType>
+							</xsd:element>
+							<xsd:element default="     " dfdl:lengthKind="implicit" name="TillID">
+								<xsd:simpleType>
+									<xsd:restriction base="xsd:string">
+										<xsd:minLength value="5"/>
+										<xsd:maxLength value="5"/>
+									</xsd:restriction>
+								</xsd:simpleType>
+							</xsd:element>
+							<xsd:element default=" " dfdl:lengthKind="implicit" name="Status">
+								<xsd:simpleType>
+									<xsd:restriction base="xsd:string">
+										<xsd:minLength value="1"/>
+										<xsd:maxLength value="1"/>
+									</xsd:restriction>
+								</xsd:simpleType>
+							</xsd:element>
+							<xsd:element default="          " dfdl:lengthKind="implicit" name="CashierNumber">
+								<xsd:simpleType>
+									<xsd:restriction base="xsd:string">
+										<xsd:minLength value="10"/>
+										<xsd:maxLength value="10"/>
+									</xsd:restriction>
+								</xsd:simpleType>
+							</xsd:element>
+							<xsd:element default="           " dfdl:lengthKind="implicit" name="AmountTendered">
+								<xsd:simpleType>
+									<xsd:restriction base="xsd:string">
+										<xsd:minLength value="11"/>
+										<xsd:maxLength value="11"/>
+									</xsd:restriction>
+								</xsd:simpleType>
+							</xsd:element>
+							<xsd:element default=" " dfdl:lengthKind="implicit" name="AmountTenderedSign">
+								<xsd:simpleType>
+									<xsd:restriction base="xsd:string">
+										<xsd:minLength value="1"/>
+										<xsd:maxLength value="1"/>
+									</xsd:restriction>
+								</xsd:simpleType>
+							</xsd:element>
+							<xsd:element default="             " dfdl:lengthKind="implicit" name="ForeignTender">
+								<xsd:simpleType>
+									<xsd:restriction base="xsd:string">
+										<xsd:minLength value="13"/>
+										<xsd:maxLength value="13"/>
+									</xsd:restriction>
+								</xsd:simpleType>
+							</xsd:element>
+							<xsd:element default="   " dfdl:lengthKind="implicit" name="CurrencyCode">
+								<xsd:simpleType>
+									<xsd:restriction base="xsd:string">
+										<xsd:minLength value="3"/>
+										<xsd:maxLength value="3"/>
+									</xsd:restriction>
+								</xsd:simpleType>
+							</xsd:element>
+							<xsd:element default="               " dfdl:lengthKind="implicit" name="ExchangeRate">
+								<xsd:simpleType>
+									<xsd:restriction base="xsd:string">
+										<xsd:minLength value="15"/>
+										<xsd:maxLength value="15"/>
+									</xsd:restriction>
+								</xsd:simpleType>
+							</xsd:element>
+							<xsd:element default=" " dfdl:lengthKind="implicit" name="ExchangeRateFactor">
+								<xsd:simpleType>
+									<xsd:restriction base="xsd:string">
+										<xsd:minLength value="1"/>
+										<xsd:maxLength value="1"/>
+									</xsd:restriction>
+								</xsd:simpleType>
+							</xsd:element>
+							<xsd:element default="               " dfdl:lengthKind="implicit" name="TenderDocumentNumber">
+								<xsd:simpleType>
+									<xsd:restriction base="xsd:string">
+										<xsd:minLength value="15"/>
+										<xsd:maxLength value="15"/>
+									</xsd:restriction>
+								</xsd:simpleType>
+							</xsd:element>
+							<xsd:element default="                     " dfdl:lengthKind="implicit" name="CreditCardNumber">
+								<xsd:simpleType>
+									<xsd:restriction base="xsd:string">
+										<xsd:minLength value="21"/>
+										<xsd:maxLength value="21"/>
+									</xsd:restriction>
+								</xsd:simpleType>
+							</xsd:element>
+							<xsd:element default="     " dfdl:lengthKind="implicit" name="ExpirationDate">
+								<xsd:simpleType>
+									<xsd:restriction base="xsd:string">
+										<xsd:minLength value="5"/>
+										<xsd:maxLength value="5"/>
+									</xsd:restriction>
+								</xsd:simpleType>
+							</xsd:element>
+							<xsd:element default="      " dfdl:lengthKind="implicit" name="AuthorizationCode">
+								<xsd:simpleType>
+									<xsd:restriction base="xsd:string">
+										<xsd:minLength value="6"/>
+										<xsd:maxLength value="6"/>
+									</xsd:restriction>
+								</xsd:simpleType>
+							</xsd:element>
+							<xsd:element default=" " dfdl:lengthKind="implicit" name="SwipeFlag">
+								<xsd:simpleType>
+									<xsd:restriction base="xsd:string">
+										<xsd:minLength value="1"/>
+										<xsd:maxLength value="1"/>
+									</xsd:restriction>
+								</xsd:simpleType>
+							</xsd:element>
+							<xsd:element default=" " dfdl:lengthKind="implicit" name="ItemSettled">
+								<xsd:simpleType>
+									<xsd:restriction base="xsd:string">
+										<xsd:minLength value="1"/>
+										<xsd:maxLength value="1"/>
+									</xsd:restriction>
+								</xsd:simpleType>
+							</xsd:element>
+							<xsd:element default="                              " dfdl:lengthKind="implicit" name="DriverLicenseNumber">
+								<xsd:simpleType>
+									<xsd:restriction base="xsd:string">
+										<xsd:minLength value="30"/>
+										<xsd:maxLength value="30"/>
+									</xsd:restriction>
+								</xsd:simpleType>
+							</xsd:element>
+							<xsd:element default="        " dfdl:lengthKind="implicit" name="SalesDate">
+								<xsd:simpleType>
+									<xsd:restriction base="xsd:string">
+										<xsd:minLength value="8"/>
+										<xsd:maxLength value="8"/>
+									</xsd:restriction>
+								</xsd:simpleType>
+							</xsd:element>
+							<xsd:element default="     " dfdl:lengthKind="implicit" name="IssuingGCStore">
+								<xsd:simpleType>
+									<xsd:restriction base="xsd:string">
+										<xsd:minLength value="5"/>
+										<xsd:maxLength value="5"/>
+									</xsd:restriction>
+								</xsd:simpleType>
+							</xsd:element>
+							<xsd:element default="               " dfdl:lengthKind="implicit" name="EGCAuthorizationCode">
+								<xsd:simpleType>
+									<xsd:restriction base="xsd:string">
+										<xsd:minLength value="15"/>
+										<xsd:maxLength value="15"/>
+									</xsd:restriction>
+								</xsd:simpleType>
+							</xsd:element>
+						</xsd:sequence>
+					</xsd:complexType>
+				</xsd:element>			
+								
+                			                                                                                    </xsd:sequence>
+		</xsd:complexType>
+	</xsd:element>
+
+</xsd:schema>

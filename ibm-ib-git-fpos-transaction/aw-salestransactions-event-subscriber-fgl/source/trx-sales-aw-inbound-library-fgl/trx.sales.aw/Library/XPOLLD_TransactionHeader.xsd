@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- edited with XMLSpy v2014 sp1 (x64) (http://www.altova.com) by FGL SPORTS LTD (FGL SPORTS LTD) -->
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" elementFormDefault="qualified" attributeFormDefault="unqualified">
+	<xs:complexType name="TransactionHeader">
+		<xs:sequence>
+			<xs:element name="RecordType" type="xs:string" fixed="H" nillable="false"/>
+			<xs:element name="StoreNbr" type="xs:integer" nillable="false"/>
+			<xs:element name="RegisterNbr" type="xs:integer" nillable="false"/>
+			<xs:element name="EntryDateTime" type="xs:string" nillable="false"/>
+			<xs:element name="TransactionSeries" type="xs:string" nillable="true"/>
+			<xs:element name="TransactionNbr" type="xs:integer" nillable="true"/>
+			<xs:element name="CashierNbr" type="xs:string" nillable="true" minOccurs="0"/>
+			<xs:element name="TransactionCategory" type="xs:integer" nillable="true"/>
+			<xs:element name="BankDepositDeclarationFlg" type="xs:string" nillable="true" minOccurs="0"/>
+			<xs:element name="StoreNbrForTaxJurisdictionLkp" type="xs:string" nillable="true" minOccurs="0"/>
+			<xs:element name="SendTaxExceptionForTaxJurisdiction" type="xs:string" nillable="true" minOccurs="0"/>
+			<xs:element name="TransactionVoidFlag" type="xs:integer" nillable="true" minOccurs="0"/>
+			<xs:element name="Unused1" type="xs:decimal" nillable="true" minOccurs="0"/>
+			<xs:element name="Unused2" type="xs:integer" nillable="true" minOccurs="0"/>
+			<xs:element name="PurchasingEmployeeNbr" type="xs:string" nillable="true" minOccurs="0"/>
+			<xs:element name="CloseoutFlg" type="xs:integer" nillable="true" minOccurs="0"/>
+			<xs:element name="TransactionRemark" type="xs:string" nillable="true" minOccurs="0"/>
+			<xs:element name="TaxOverrideFlg" type="xs:string" nillable="true" minOccurs="0"/>
+		</xs:sequence>
+	</xs:complexType>
+</xs:schema>

@@ -1,0 +1,31 @@
+BROKER SCHEMA trx.order.hyb.fastfind
+
+
+CREATE COMPUTE MODULE LogExceptionMessage
+	CREATE FUNCTION Main() RETURNS BOOLEAN
+	BEGIN
+			CREATE LASTCHILD OF OutputRoot  DOMAIN('XML') NAME 'XML';
+			declare ptrException reference to InputExceptionList;
+			WHILE lastmove(ptrException) DO
+			SET OutputRoot.XML.ExcpetionList = InputExceptionList.*[1];
+  			-- now move to the last child which should be the next exceptionlist
+			move ptrException lastchild;
+			END WHILE; 
+			
+			--SET OutputRoot.XML.ExcpetionList = InputExceptionList.*[1];
+            DECLARE schemaName CHARACTER 'trx.order.hyb.fastfind';
+            DECLARE moduleName CHARACTER 'LogExceptionMessage';
+            DECLARE OutputErrorMessage CHARACTER CAST(ASBITSTREAM( OutputRoot.XML.ExcpetionList  OPTIONS FolderBitStream) AS CHAR CCSID CAST(Environment.Properties.CodedCharSetId AS INT) ENCODING CAST(Environment.Properties.Encoding AS INT));
+            CALL core.log.ERROR(schemaName || '.' || moduleName ||'-'||'EXTERNAL_ORDER :'||CAST(Environment.XMLNSC.nsOrder:Exchange.nsOrder:Messages.nsOrder:ArtsCustomerOrders.nsOrder1:CustomerOrderNumber AS CHARACTER)||':'|| OutputErrorMessage); 
+        	SET OutputRoot = InputRoot;
+            RETURN TRUE; 
+  
+	END;         
+END MODULE;
+
+		
+		
+	
+
+	
+

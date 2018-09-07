@@ -1,0 +1,4 @@
+ext{
+   buildAll=true
+   repoName='pmm-taxexemptions-batch-publisher-fgl'
+}

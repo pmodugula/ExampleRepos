@@ -1,0 +1,8 @@
+trx.pickticket.dom.TrxPickTicket#IIBInBoundQueue=RECV.${ORDER_IN}
+trx.pickticket.dom.TrxPickTicket#DOMInBoundQueue=SEND.${ORDER_OUT}
+trx.pickticket.dom.TrxPickTicket#CoreAuditDataSource=AUD${ENVN}${INST}
+trx.pickticket.dom.TrxPickTicket#CoreMessageValidation1=${VALIDATE_MSG_IN}
+trx.pickticket.dom.TrxPickTicket#CoreMessageValidation2=${VALIDATE_MSG_OUT}
+trx.pickticket.dom.TrxPickTicket#CoreAuditEnabled=FALSE
+trx.pickticket.dom.TrxPickTicket#CoreAuditDetailEnabled=FALSE
+trx.pickticket.dom.TrxPickTicket#additionalInstances=${EXTRATHREADS}

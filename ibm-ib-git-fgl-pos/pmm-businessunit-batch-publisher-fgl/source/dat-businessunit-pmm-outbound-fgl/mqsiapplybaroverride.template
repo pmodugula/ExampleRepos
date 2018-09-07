@@ -1,0 +1,9 @@
+dat.businessunit.pmm.initial_load#IIBInboundQueue=RECV.${BU_INIT_IN_DS}
+dat.businessunit.pmm.initial_load#IIBOutboundQueue=SEND.${BU_INIT_IN_IB}
+dat.businessunit.pmm.initial_load#IIBDataSource=FGLRPL${ENVN}${INST}
+dat.businessunit.pmm.initial_load#CoreAuditDataSource=AUD${ENVN}${INST}
+dat.businessunit.pmm.initial_load#additionalInstances=${EXTRATHREADS}
+dat.businessunit.pmm.initial_load#PreProcessorAuditEnabled=False
+dat.businessunit.pmm.initial_load#PostProcessorAuditEnabled=False
+dat.businessunit.pmm.initial_load#CoreDatastageMessageValidation=${DS_VALIDATION}
+dat.businessunit.pmm.initial_load#CoreArtsMessageValidation=${ARTS_VALIDATION}

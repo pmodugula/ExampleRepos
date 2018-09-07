@@ -1,0 +1,237 @@
+
+
+BROKER SCHEMA com.marks.fastfind
+
+/*
+* File name : order_status_update.esql
+* Purpose : To implement order_status_update Flow .
+* Authors : V V Surendra Madduri
+* Create Date : 29th Jun 2015
+*
+* Version History
+* Version Module Name Revision Date Revision Details
+* ============= ============================= =============== ========================
+* 1.0 order_status_update 29th Jun 2015 Inital Version
+*
+* @copyright MWW-FGLSPORTS 2015. All rights reserved.
+*/
+
+
+CREATE FILTER MODULE isOnlineStore
+	CREATE FUNCTION Main() RETURNS BOOLEAN
+	BEGIN
+		DECLARE nsOrderStatus NAMESPACE 'http://MarkS2_lib/service/retrieval/OrderUpdate';
+		SET Environment.Variables.FF_ORDER_NUMBER = Root.XMLNSC.nsOrderStatus:sendSourcings.sourcings.sourcinglist[1].Order.OrderNumber;
+		SET Environment.Variables.OnlineStore = Root.XMLNSC.nsOrderStatus:sendSourcings.sourcings.sourcinglist[1].Order.OriginatingStore.StoreNumber;
+		RETURN Environment.Variables.OnlineStore = '344' OR Environment.Variables.OnlineStore = '1020';
+	END;
+END MODULE;
+
+CREATE FILTER MODULE isWCSOrder
+	CREATE FUNCTION Main() RETURNS BOOLEAN
+	BEGIN
+		RETURN Environment.Variables.ORDER_CREATEDBY= 'DC-6';
+	END;
+END MODULE;
+
+CREATE PROCEDURE getFFOrderStatus(IN OrderStatus REFERENCE, IN EnvRef REFERENCE)
+BEGIN
+	DECLARE FF_ORDER_STATUS CHARACTER '';
+	DECLARE EXTERNAL_ORDER_STATUS CHARACTER '';
+	DECLARE EXTERNAL_STATUS CHARACTER '';
+	DECLARE FF_ORDER_NUMBER CHARACTER '';
+	DECLARE FF_SHIPPING_NUMBER CHARACTER '';
+	DECLARE FF_STATUS_COUNT0 INTEGER 0;
+	DECLARE FF_STATUS_COUNT1 INTEGER 0;
+	DECLARE FF_STATUS_COUNT2 INTEGER 0;
+	DECLARE FF_STATUS_COUNT3 INTEGER 0;
+	DECLARE FF_STATUS_COUNT4 INTEGER 0;
+	DECLARE FF_STATUS_COUNT5 INTEGER 0;
+	DECLARE FF_STATUS_COUNT6 INTEGER 0;
+	DECLARE FF_QUANTITY_ORDER INTEGER 0;
+	DECLARE FF_QUANTITY_SRC INTEGER 0;
+
+	DECLARE RefToSourcing REFERENCE TO OrderStatus.sourcinglist[1];
+	WHILE LASTMOVE(RefToSourcing) DO
+		IF ( FF_STATUS_COUNT0 = 0 ) THEN
+			--GET FASTFIND ORDER NUMBER
+			SET FF_ORDER_NUMBER = RefToSourcing.Order.OrderNumber;
+			SET FF_ORDER_STATUS = RefToSourcing.Order.Status;
+			IF ( FF_ORDER_STATUS = 'PEN' OR FF_ORDER_STATUS = 'PRO' ) THEN
+				SET FF_STATUS_COUNT4 = FF_STATUS_COUNT4 + 1;
+			END IF;
+			IF ( FF_ORDER_STATUS = 'COM' ) THEN
+				SET FF_STATUS_COUNT5 = FF_STATUS_COUNT5 + 1;
+			END IF;
+			DECLARE RefToFulfilment REFERENCE TO RefToSourcing.Order.Fulfillments[1];
+			WHILE LASTMOVE(RefToFulfilment) DO
+				SET FF_ORDER_STATUS = RefToFulfilment.Status;
+				IF ( FF_ORDER_STATUS = 'SHP' OR FF_ORDER_STATUS = 'RED' ) THEN
+					SET FF_STATUS_COUNT2 = FF_STATUS_COUNT2 + 1;
+				END IF;
+				SET FF_SHIPPING_NUMBER = FF_SHIPPING_NUMBER || ',' || RefToFulfilment.SendingStoreShippingTxn.ShippingNumber;
+				MOVE RefToFulfilment NEXTSIBLING;
+			END WHILE;
+
+			DECLARE ORDERLINE_COUNT INTEGER;
+			SET ORDERLINE_COUNT = CARDINALITY(RefToSourcing.Order.OrderLines[]);
+			DECLARE ORDERLINE_INDEX INTEGER 1;
+			DECLARE RefToOrderLines REFERENCE TO RefToSourcing.Order.OrderLines[1];
+			WHILE ( ORDERLINE_INDEX <= ORDERLINE_COUNT ) DO
+				SET FF_QUANTITY_ORDER = FF_QUANTITY_ORDER + CAST (RefToOrderLines.Quantity AS INT);
+				SET EnvRef.PRODUCT[ORDERLINE_INDEX].SEQUENCENUMBER = ORDERLINE_INDEX;
+				SET EnvRef.PRODUCT[ORDERLINE_INDEX].SKU = RefToOrderLines.Product.SKU;
+				SET ORDERLINE_INDEX = ORDERLINE_INDEX + 1;
+				MOVE RefToOrderLines NEXTSIBLING;
+			END WHILE;
+			SET FF_STATUS_COUNT0 = FF_STATUS_COUNT0 + 1;
+		END IF;
+		--SET ORDER STATUS
+		--Order/UnfulfilledSourcings[i]/status
+		SET FF_ORDER_STATUS = RefToSourcing.Status;
+		IF ( FF_ORDER_STATUS = 'ACK' ) THEN
+			SET FF_STATUS_COUNT1 = FF_STATUS_COUNT1 + 1;
+		END IF;
+
+		IF ( FF_ORDER_STATUS = 'CAN' OR FF_ORDER_STATUS = 'USR' ) THEN
+			SET FF_STATUS_COUNT3 = FF_STATUS_COUNT3 + 1;
+			--GET SOURCING QUANTITY
+			--SourcingContainer/Sourcing[i]/OrderLineSourcings[i]/SourcedOrderLine/Quantit
+			DECLARE RefToOrderLineSourcings REFERENCE TO RefToSourcing.OrderLineSourcings[1];
+			WHILE LASTMOVE(RefToOrderLineSourcings) DO
+				IF ( RefToOrderLineSourcings.SourcedOrderLine IS NOT NULL ) THEN
+					SET FF_QUANTITY_SRC = FF_QUANTITY_SRC + CAST (RefToOrderLineSourcings.SourcedOrderLine.Quantity AS INT);
+				ELSE
+					SET FF_QUANTITY_SRC = FF_QUANTITY_SRC + CAST (RefToOrderLineSourcings.OrderLine.Quantity AS INT);
+				END IF;
+				MOVE RefToOrderLineSourcings NEXTSIBLING NAME 'OrderLineSourcings' ;
+			END WHILE;
+		ELSE
+			IF ( FF_ORDER_STATUS = 'RES' ) THEN
+
+			ELSE
+				SET FF_STATUS_COUNT6 = FF_STATUS_COUNT6 + 1;
+			END IF;
+		END IF;
+
+		MOVE RefToSourcing NEXTSIBLING;
+	END WHILE;
+
+	/*
+	R = In Process
+	S = Partially Shipped
+	C = Complete
+	X = Cancelled
+	SX = Shipped/Cancelled
+	*/
+	IF ( FF_STATUS_COUNT4 = 1 AND FF_STATUS_COUNT2 = 0 ) THEN
+	SET FF_ORDER_STATUS = 'R';
+	SET EXTERNAL_ORDER_STATUS = 'In Process';
+ELSE
+	IF ( FF_STATUS_COUNT4 = 1 AND FF_STATUS_COUNT2 >= 1 ) THEN
+		SET FF_ORDER_STATUS = 'S';
+		SET EXTERNAL_ORDER_STATUS = 'Partially Shipped';
+	ELSE
+		IF ( FF_STATUS_COUNT5 = 1 AND FF_STATUS_COUNT3 = 0 ) THEN
+			SET FF_ORDER_STATUS = 'C';
+			SET EXTERNAL_ORDER_STATUS = 'Completed';
+		ELSE
+			IF ( FF_STATUS_COUNT5 = 1 AND FF_STATUS_COUNT2 >= 1 AND FF_STATUS_COUNT3 >= 0) THEN
+				SET FF_ORDER_STATUS = 'SX';
+				SET EXTERNAL_ORDER_STATUS = 'Shipped/Cancelled';
+			ELSE
+				IF ( FF_STATUS_COUNT5 = 1 AND FF_QUANTITY_ORDER = FF_QUANTITY_SRC ) THEN
+					SET FF_ORDER_STATUS = 'X';
+					SET EXTERNAL_ORDER_STATUS = 'Cancelled';
+				END IF;
+			END IF;
+		END IF;
+	END IF;
+END IF;
+
+SET EnvRef.EXTERNAL_ORDER_STATUS = EXTERNAL_ORDER_STATUS;
+SET EnvRef.FF_ORDER_NUMBER = FF_ORDER_NUMBER;
+SET EnvRef.FF_ORDER_STATUS = FF_ORDER_STATUS;
+SET EnvRef.FF_SHIPPING_NUMBER = FF_SHIPPING_NUMBER;
+
+END;
+
+CREATE PROCEDURE getFFOrderLineItemsStatus(IN OrderStatus REFERENCE, IN EnvRef REFERENCE)
+BEGIN
+
+	DECLARE RefToSourcing REFERENCE TO OrderStatus.sourcinglist[1];
+	WHILE LASTMOVE(RefToSourcing) DO
+
+		DECLARE RefToFulfilment REFERENCE TO RefToSourcing.Order.Fulfillments[1];
+		WHILE LASTMOVE(RefToFulfilment) DO
+
+			DECLARE RefToSourcingsBO REFERENCE TO RefToFulfilment.Sourcings[1];
+			WHILE LASTMOVE(RefToSourcingsBO) DO
+				DECLARE RefToOrderLineSourcingsBO REFERENCE TO RefToSourcingsBO.OrderLineSourcings[1];
+				DECLARE ITEM_STATUS CHARACTER RefToSourcingsBO.Status;
+				WHILE LASTMOVE(RefToOrderLineSourcingsBO) DO
+					DECLARE SKUNUMBER CHARACTER RefToOrderLineSourcingsBO.OrderLine.Product.SKU;
+					DECLARE RefToProduct REFERENCE TO EnvRef.PRODUCT[1];
+					DECLARE J INTEGER 1;
+					WHILE LASTMOVE(RefToProduct) DO
+						IF( RefToProduct.SKU = SKUNUMBER ) THEN
+						SET EnvRef.PRODUCT[J].STATUS = ITEM_STATUS;
+					END IF;
+					SET J = J + 1;
+					MOVE RefToProduct NEXTSIBLING;
+				END WHILE;
+				MOVE RefToOrderLineSourcingsBO NEXTSIBLING;
+			END WHILE;
+			MOVE RefToSourcingsBO NEXTSIBLING;
+		END WHILE;
+		MOVE RefToFulfilment NEXTSIBLING;
+	END WHILE;
+
+	MOVE RefToSourcing NEXTSIBLING;
+END WHILE;
+
+END;
+
+CREATE DATABASE MODULE getEXTERNAL_ORDER_DETAILS
+	CREATE FUNCTION Main() RETURNS BOOLEAN
+	BEGIN
+		DECLARE EnvRef REFERENCE TO Environment.Variables;
+		CALL core.log.Info('Module name: getEXTERNAL_ORDER_DETAILS - Order :'||CAST(EnvRef.FF_ORDER_NUMBER AS CHARACTER));
+		DECLARE selectQuery CHARACTER 'SELECT EXTERNAL_ORDERID,CREATENAME FROM ENTERPRISE.SSORDER_CROSSREF WHERE SSORDERID=?';
+		SET EnvRef.EXTERNAL_ORDER_ResultSet[] = PASSTHRU(selectQuery, TRIM(EnvRef.FF_ORDER_NUMBER));
+		SET EnvRef.EXTERNAL_ORDER_NUMBER = EnvRef.EXTERNAL_ORDER_ResultSet[1].EXTERNAL_ORDERID;
+		SET EnvRef.ORDER_CREATEDBY = TRIM ( EnvRef.EXTERNAL_ORDER_ResultSet[1].CREATENAME);
+		RETURN TRUE;
+	END;
+END MODULE;
+
+
+CREATE COMPUTE MODULE hyb_OrderStatusUpdate
+	CREATE FUNCTION Main() RETURNS BOOLEAN
+	BEGIN
+
+
+		SET OutputRoot = InputRoot;
+		SET OutputRoot.MQMD.Format = MQFMT_STRING;
+
+		DECLARE nsOrderStatus NAMESPACE 'http://MarkS2_lib/service/retrieval/OrderUpdate';
+		DECLARE rOrderStatus REFERENCE TO InputRoot.XMLNSC.nsOrderStatus:sendSourcings.sourcings;
+		CALL com.marks.fastfind.getFFOrderStatus(rOrderStatus, Environment.Variables);
+		CALL com.marks.fastfind.getFFOrderLineItemsStatus(rOrderStatus, Environment.Variables);
+
+		DECLARE nsSharedContainer NAMESPACE 'http://www.marks.com/SharedContainer';
+		SET OutputLocalEnvironment.Variables.nsSharedContainer:SharedContainer.EXTERNAL_ORDER_STATUS = Environment.Variables.EXTERNAL_ORDER_STATUS;
+		SET OutputLocalEnvironment.Variables.nsSharedContainer:SharedContainer.FF_ORDER_NUMBER = Environment.Variables.FF_ORDER_NUMBER;
+		SET OutputLocalEnvironment.Variables.nsSharedContainer:SharedContainer.EXTERNAL_ORDER_NUMBER = Environment.Variables.EXTERNAL_ORDER_NUMBER;
+		SET OutputLocalEnvironment.Variables.nsSharedContainer:SharedContainer.FF_ORDER_STATUS = Environment.Variables.FF_ORDER_STATUS;
+		SET OutputLocalEnvironment.Variables.nsSharedContainer:SharedContainer.FF_SHIPPING_NUMBER = Environment.Variables.FF_SHIPPING_NUMBER;
+		SET OutputLocalEnvironment.Variables.nsSharedContainer:SharedContainer.ORDER_CREATE_DATE = InputRoot.XMLNSC.nsOrderStatus:sendSourcings.sourcings.sourcinglist.Order.OrderCreateDate;
+		SET OutputLocalEnvironment.Variables.nsSharedContainer:SharedContainer.ORDER_EXPIRY_DATE = InputRoot.XMLNSC.nsOrderStatus:sendSourcings.sourcings.sourcinglist.Order.OrderExpirationDate;
+		SET OutputLocalEnvironment.Variables.nsSharedContainer:SharedContainer.nsSharedContainer:PRODUCT[] = Environment.Variables.PRODUCT[];
+
+		CALL core.log.Info('Module name: hyb_OrderStatusUpdate - Order Number :'||CAST(Environment.Variables.EXTERNAL_ORDER_NUMBER AS CHARACTER)||'  -- Order Status :'||CAST(Environment.Variables.EXTERNAL_ORDER_STATUS AS CHARACTER));
+		--CALL core.log.Info('Module name: hyb_OrderStatusUpdate - Order Status:'||CAST(Environment.Variables.EXTERNAL_ORDER_STATUS AS CHARACTER));
+
+		RETURN TRUE;
+	END;
+END MODULE;

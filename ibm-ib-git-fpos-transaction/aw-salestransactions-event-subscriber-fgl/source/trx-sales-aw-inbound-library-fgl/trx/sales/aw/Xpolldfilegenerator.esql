@@ -1,0 +1,66 @@
+BROKER SCHEMA trx.sales.aw
+
+PATH core.log;
+
+DECLARE AWStagingDirectoryPath	EXTERNAL CHARACTER '';	
+DECLARE AWDirectoryNamePrefix	EXTERNAL CHARACTER '';
+DECLARE AWTargetDirectoryPath	EXTERNAL CHARACTER '';
+DECLARE XpolldFileNamePrefix	EXTERNAL CHARACTER '';
+DECLARE XpolldFileExtension		EXTERNAL CHARACTER '';
+
+CREATE COMPUTE MODULE XpolldFileGenerator
+	CREATE FUNCTION Main() RETURNS BOOLEAN
+	BEGIN
+		DECLARE	CurrentTimestamp	TIMESTAMP	CURRENT_TIMESTAMP;
+		DECLARE	MMDD				CHARACTER;
+		DECLARE	HHmmss				CHARACTER;
+		DECLARE	XpolldFileName		CHARACTER;
+
+		/*
+			Changes made by RamCharan Vemulakonda (vramcharan)
+			Modified Date: 27-Sep-2016 
+			Optimizing the extraction of DateTime Units for AW directories' and XPOLLD files' naming.
+		*/
+		SET MMDD = CAST(CurrentTimestamp AS CHARACTER FORMAT 'MMdd');
+		SET HHmmss = CAST(CurrentTimestamp AS CHARACTER FORMAT 'HHmmss');
+
+		SET OutputLocalEnvironment.Destination.File.Directory = AWStagingDirectoryPath || '/' || AWDirectoryNamePrefix || '.' || MMDD || '.' || 'IP';
+
+		/*
+			Changes made by RamCharan Vemulakonda (vramcharan)
+			Modified Date: 27-Sep-2016 
+			FPOE-9568: Removing the period (.) between File name prefix 'XPOLLD' and Time Units. Removed the file extension as well as per discussion with Aptos Team.
+		*/
+		SET XpolldFileName	=	XpolldFileNamePrefix || HHmmss;
+
+		IF XpolldFileExtension IS NOT NULL AND XpolldFileExtension <> '' THEN
+			SET XpolldFileName	=	XpolldFileName || '.' || XpolldFileExtension;
+		END IF;
+
+		SET OutputLocalEnvironment.Destination.File.Name = XpolldFileName;
+		
+			/*
+			Changes made by RamCharan Vemulakonda (vramcharan)
+			Modified Date: 27-Sep-2016 
+			FPOE-9568: Set Remote Directory name
+		*/
+		SET OutputLocalEnvironment.Destination.File.Remote.ServerDirectory = AWTargetDirectoryPath || '/' || AWDirectoryNamePrefix || '.' || MMDD || '.' || 'IP';
+
+		SET OutputRoot = InputRoot;
+		
+		-- EAI-6062:Logging changes ----
+		DECLARE i INTEGER;
+		DECLARE rHeader REFERENCE TO InputRoot.DFDL.XPOLLDCSVS.XPOLLDCSV.Header[1];
+		WHILE LASTMOVE(rHeader) DO
+		CALL core.log.Info('XpolldFileGenerator'||' - Store Number:'||CAST(rHeader.StoreNbr AS CHARACTER)||' - Register Number:'||CAST(rHeader.RegisterNbr AS CHARACTER)||' - Transaction Number:'||CAST(rHeader.TransactionNbr AS CHARACTER)||' - Cashier Number:'||CAST(rHeader.CashierNbr AS CHARACTER)||' - Entry Date Time:'||CAST(rHeader.EntryDateTime AS CHARACTER) ||' - Transaction Series:'||CAST(rHeader.TransactionSeries AS CHARACTER)||' - Server Directory:'||CAST(OutputLocalEnvironment.Destination.File.Remote.ServerDirectory AS CHARACTER)||' - Xpolld File Name:'||CAST(OutputLocalEnvironment.Destination.File.Name AS CHARACTER));   
+        SET i = i+1;
+        MOVE rHeader NEXTSIBLING REPEAT NAME;
+        
+        END WHILE;
+--		DECLARE rHeader REFERENCE TO InputRoot.DFDL.XPOLLDCSVS.XPOLLDCSV.Header;
+--		CALL core.log.Info('XpolldFileGenerator'||' - Store Number:'||CAST(rHeader.StoreNbr AS CHARACTER)||' - Register Number:'||CAST(rHeader.RegisterNbr AS CHARACTER)||' - Transaction Number:'||CAST(rHeader.TransactionNbr AS CHARACTER)||' - Cashier Number:'||CAST(rHeader.CashierNbr AS CHARACTER)||' - Entry Date Time:'||CAST(rHeader.EntryDateTime AS CHARACTER) ||' - Transaction Series:'||CAST(rHeader.TransactionSeries AS CHARACTER)||' - Server Directory:'||CAST(OutputLocalEnvironment.Destination.File.Remote.ServerDirectory AS CHARACTER)||' - Xpolld File Name:'||CAST(OutputLocalEnvironment.Destination.File.Name AS CHARACTER));
+		-----
+		RETURN TRUE;
+	END;
+
+END MODULE;

@@ -1,0 +1,161 @@
+<eai:Exchange xmlns:eai="http://www.fgl.com/exchange/" xmlns:arts="http://www.fgl.com/ARTS" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" MajorVersion="2" MinorVersion="0" FixVersion="1">
+	<eai:MessageRouting>
+		<eai:Guid>7EBB66FF65C048D3B372DFBB9DE7D297</eai:Guid>
+		<eai:MessageId>414d512041425146504f53202020202000a1e45820d43625</eai:MessageId>
+		<eai:MessageType>PubSub</eai:MessageType>
+		<eai:SubjectArea>Normal Retail Sales Transactions</eai:SubjectArea>
+		<eai:SbuNumber>3</eai:SbuNumber>
+		<eai:SbuCode>FGL</eai:SbuCode>
+		<eai:SbuName>FGL Sports Ltd.</eai:SbuName>
+		<eai:DataSourceCode>POE</eai:DataSourceCode>
+		<eai:DataSourceCodeName>POE POS FGL</eai:DataSourceCodeName>
+		<eai:MessageIndex>1</eai:MessageIndex>
+		<eai:MessageCount>1</eai:MessageCount>
+		<eai:SubjectAreaRunName>salestransactions-272-20170411-195400</eai:SubjectAreaRunName>
+	</eai:MessageRouting>
+	<eai:Messages>
+		<eai:Count>1</eai:Count>
+		<eai:SourceSystems>
+			<eai:Count>1</eai:Count>
+			<eai:SourceSystem>
+				<eai:Index>1</eai:Index>
+				<eai:SbuNumber>3</eai:SbuNumber>
+				<eai:SbuCode>FGL</eai:SbuCode>
+				<eai:SbuName>FGL Sports Ltd.</eai:SbuName>
+				<eai:MessageSourceCode>CSS</eai:MessageSourceCode>
+				<eai:MessageSourceCodeName>Central Sales Server</eai:MessageSourceCodeName>
+			</eai:SourceSystem>
+		</eai:SourceSystems>
+		<eai:POSLog>
+			<arts:Count>1</arts:Count>
+			<arts:Transaction TypeCode="ReturnTransaction">
+				<arts:BusinessUnit>
+					<arts:Index>1</arts:Index>
+					<arts:BusinessUnitNumber>272</arts:BusinessUnitNumber>
+					<arts:BusinessUnitTypeCode>RT</arts:BusinessUnitTypeCode>
+					<arts:BusinessUnitShortName>SC272</arts:BusinessUnitShortName>
+					<arts:BusinessUnitName>SC RICHMOND CENTRE</arts:BusinessUnitName>
+				</arts:BusinessUnit>
+				<arts:WorkstationID>104</arts:WorkstationID>
+				<arts:SequenceNumber>003098</arts:SequenceNumber>
+				<arts:BeginDateTime>2017-04-11T12:52:12</arts:BeginDateTime>
+				<arts:EndDateTime>2017-04-11T12:53:17</arts:EndDateTime>
+				<arts:OperatorID OperatorName="DESIREE LEPAGE" LastName="LEPAGE" FirstName="DESIREE">002154350</arts:OperatorID>
+				<arts:RetailTransaction>
+					<arts:LineItemCount>4</arts:LineItemCount>
+					<arts:CustomerCount>1</arts:CustomerCount>
+					<arts:AssociateCount>0</arts:AssociateCount>
+					<arts:LineItem VoidFlag="false">
+						<arts:Index>1</arts:Index>
+						<arts:SequenceNumber>1</arts:SequenceNumber>
+						<arts:Return TaxableFlag="true" ItemType="Stock">
+							<arts:TaxCount>2</arts:TaxCount>
+							<arts:RetailPriceModifierCount>0</arts:RetailPriceModifierCount>
+							<arts:Item>
+								<arts:ItemNumber>332032220</arts:ItemNumber>
+								<arts:ItemName>ONEILL W FEATHER TANK - F17S119 02</arts:ItemName>
+								<arts:UPCNumber>628365922289</arts:UPCNumber>
+							</arts:Item>
+							<arts:MerchandiseHierarchy Level="4" ID="7202"/>
+							<arts:RegularSalesUnitPrice>14.99</arts:RegularSalesUnitPrice>
+							<arts:ActualSalesUnitPrice>14.99</arts:ActualSalesUnitPrice>
+							<arts:DiscountAmount>0.00</arts:DiscountAmount>
+							<arts:Quantity>1</arts:Quantity>
+							<arts:Tax TypeCode="Refund" TaxType="GST" SourceSystemTaxExemptionFlag="false">
+								<arts:Index>1</arts:Index>
+								<arts:Amount>0.75</arts:Amount>
+								<arts:Percent>5</arts:Percent>
+							</arts:Tax>
+							<arts:Tax TypeCode="Refund" TaxType="BCPST" SourceSystemTaxExemptionFlag="false">
+								<arts:Index>2</arts:Index>
+								<arts:Amount>0.00</arts:Amount>
+								<arts:Percent>7</arts:Percent>
+								<arts:TaxExemption>
+									<arts:ExemptTaxableAmount>14.99</arts:ExemptTaxableAmount>
+									<arts:ExemptTaxAmount>1.05</arts:ExemptTaxAmount>
+									<arts:ReasonCode>IE00</arts:ReasonCode>
+									<arts:ReasonDescriptionText>Adult Sized Clothing and Footwear for children under 15</arts:ReasonDescriptionText>
+								</arts:TaxExemption>
+							</arts:Tax>
+							<arts:TransactionLink>
+								<arts:BusinessUnit>
+									<arts:Index>1</arts:Index>
+									<arts:BusinessUnitNumber>229</arts:BusinessUnitNumber>
+									<arts:BusinessUnitTypeCode>RT</arts:BusinessUnitTypeCode>
+									<arts:BusinessUnitShortName>SC229</arts:BusinessUnitShortName>
+									<arts:BusinessUnitName>SC 8K SALMON ARM</arts:BusinessUnitName>
+								</arts:BusinessUnit>
+								<arts:WorkstationID>101</arts:WorkstationID>
+								<arts:SequenceNumber>003679</arts:SequenceNumber>
+								<arts:BeginDateTime>2017-04-07T14:32:16</arts:BeginDateTime>
+								<arts:EndDateTime>2017-04-07T14:33:31</arts:EndDateTime>
+								<arts:OperatorID>002133284</arts:OperatorID>
+							</arts:TransactionLink>
+							<arts:SaleReturnTypeCode>RRTN</arts:SaleReturnTypeCode>
+							<arts:SaleReturnTypeDescriptionText>Receipted Return</arts:SaleReturnTypeDescriptionText>
+							<arts:ReasonCode>WRONG SIZE OR COLOUR</arts:ReasonCode>
+							<arts:Description>Wrong Size or Colour</arts:Description>
+						</arts:Return>
+						<arts:LineItemSubtypeCode>Return</arts:LineItemSubtypeCode>
+					</arts:LineItem>
+					<arts:LineItem>
+						<arts:Index>2</arts:Index>
+						<arts:SequenceNumber>2</arts:SequenceNumber>
+						<arts:Tax TypeCode="Refund" TaxType="GST">
+							<arts:Index>1</arts:Index>
+							<arts:Amount>0.75</arts:Amount>
+							<arts:Percent>5</arts:Percent>
+						</arts:Tax>
+						<arts:LineItemSubtypeCode>Tax</arts:LineItemSubtypeCode>
+					</arts:LineItem>
+					<arts:LineItem>
+						<arts:Index>3</arts:Index>
+						<arts:SequenceNumber>3</arts:SequenceNumber>
+						<arts:Tax TypeCode="Sale" TaxType="BCPST">
+							<arts:Index>1</arts:Index>
+							<arts:Amount>0.00</arts:Amount>
+							<arts:Percent>7</arts:Percent>
+						</arts:Tax>
+						<arts:LineItemSubtypeCode>Tax</arts:LineItemSubtypeCode>
+					</arts:LineItem>
+					<arts:LineItem>
+						<arts:Index>4</arts:Index>
+						<arts:SequenceNumber>4</arts:SequenceNumber>
+						<arts:Tender TypeCode="Refund" TenderType="CreditDebit" SubTenderType="Visa">
+							<arts:Amount>15.74</arts:Amount>
+							<arts:Authorization>
+								<arts:AuthorizationCode>102464</arts:AuthorizationCode>
+								<arts:SwipeIndicator>2</arts:SwipeIndicator>
+							</arts:Authorization>
+							<arts:CreditDebit>
+								<arts:PrimaryAccountNumber>NDUxNDAxKioqKioqMTM3Mw==</arts:PrimaryAccountNumber>
+								<arts:ExpirationDate>2020-06</arts:ExpirationDate>
+							</arts:CreditDebit>
+						</arts:Tender>
+						<arts:LineItemSubtypeCode>Tender</arts:LineItemSubtypeCode>
+					</arts:LineItem>
+					<arts:Total TotalType="TransactionGrossAmount">15.74</arts:Total>
+					<arts:Total TotalType="TransactionSubtotal">14.99</arts:Total>
+					<arts:Customer>
+						<arts:Index>1</arts:Index>
+						<arts:AddressCount>1</arts:AddressCount>
+						<arts:TelephoneCount>1</arts:TelephoneCount>
+						<arts:CustomerName>
+							<arts:Name TypeCode="FirstName">Jen!@#ni,fer</arts:Name>
+							<arts:Name TypeCode="LastName">O,he@!*arn</arts:Name>
+						</arts:CustomerName>
+						<arts:Address>
+							<arts:Index>1</arts:Index>
+							<arts:PostalCode>V3Z 0N5</arts:PostalCode>
+						</arts:Address>
+						<arts:Telephone>
+							<arts:Index>1</arts:Index>
+							<arts:FullTelephoneNumber>6048087321</arts:FullTelephoneNumber>
+						</arts:Telephone>
+					</arts:Customer>
+				</arts:RetailTransaction>
+				<arts:TransactionSubtypeCode>RetailTransaction</arts:TransactionSubtypeCode>
+			</arts:Transaction>
+		</eai:POSLog>
+	</eai:Messages>
+</eai:Exchange>

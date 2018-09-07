@@ -1,0 +1,406 @@
+/*
+ * File name: DsToArtsTransform.esql
+ *
+ * Purpose:   ESQL file for DS to ARTS message transformation.
+ *
+ * Version:   Initial Version
+ *
+ * Authors:   Madanlal Tilsiram
+ *                 
+ * Create Date:  25 June 2016
+ * 
+ * @copyright FGL 2016.  All rights reserved.
+ */
+BROKER SCHEMA dat.businessunit.pmm
+
+-- Declaration of Code translation code type constants
+DECLARE PROVINCE_CODE CONSTANT CHARACTER 'ISO 3166-2 COUNTRY SUBDIVISION CODE';
+DECLARE STORE_STATUS_CODE CONSTANT CHARACTER 'STORE STATUS CODE';
+DECLARE CURRENCY_CODE CONSTANT CHARACTER 'CURRENCY CODE';
+DECLARE COUNTRY_CODE CONSTANT CHARACTER 'ISO ALPHA2 COUNTRY CODE';
+DECLARE SBU CONSTANT CHARACTER 'FGL';
+DECLARE DATASOURCE CONSTANT CHARACTER 'PMM';
+DECLARE CMN_CODE_DSCRPT_TXT CONSTANT CHARACTER 'CMN_CODE_DSCRPT_TXT';
+-- Namespace Declaration
+DECLARE eai NAMESPACE 'http://www.fgl.com/exchange/';
+DECLARE arts NAMESPACE 'http://www.fgl.com/ARTS';
+DECLARE xsi NAMESPACE 'http://www.w3.org/2001/XMLSchema-instance';
+DECLARE etl NAMESPACE 'http://www.fgl.com/SourceStagingStorePmmFgl';
+
+/* Module to setup code translation environment variables */
+CREATE COMPUTE MODULE pmm_SetupCodeTranslation
+	CREATE FUNCTION Main() RETURNS BOOLEAN
+	BEGIN
+		DECLARE RefEnv REFERENCE TO Environment;
+		-- condition added by Piyush Vaishnav to tackle double call to common_InitCodeTranslation
+		IF RefEnv.__InitCodeTranslation__ IS NULL OR RefEnv.__InitCodeTranslation__ <> TRUE THEN
+			CALL common.common_translateCodeInit(RefEnv);
+		END IF;
+		DECLARE RefStoreDtls REFERENCE TO InputRoot.XMLNSC.etl:Exchange.etl:Message.etl:Store.etl:StoreDetails;		
+		CALL common.common_TranslateCodeWithSuffix(RefEnv,SBU,DATASOURCE,PROVINCE_CODE,'',RefStoreDtls.etl:BAS_STATE);
+		CALL common.common_TranslateCodeWithSuffix(RefEnv,SBU,DATASOURCE,STORE_STATUS_CODE,'',RefStoreDtls.etl:STORE_STATUS_CODE);
+		CALL common.common_TranslateCodeWithSuffix(RefEnv,SBU,DATASOURCE,CURRENCY_CODE,'',RefStoreDtls.etl:CURRENCY_CODE);
+		CALL common.common_TranslateCodeWithSuffix(RefEnv,SBU,DATASOURCE,COUNTRY_CODE,'',RefStoreDtls.etl:CNTRY_CODE);				
+		SET OutputRoot = InputRoot;
+		RETURN TRUE;
+	END;	
+END MODULE;
+/*
+ * Procedure takes reference as Input and returns common fields code for contact method.
+ * Parameters:
+ * IN:    REFERENCE RefContMthd - reference to ContactMethod element group.
+ */
+CREATE PROCEDURE pmm_getContactMethod(IN RefContMthd REFERENCE)
+BEGIN
+	 DECLARE RefContMthds REFERENCE TO RefContMthd;					
+	 SET RefContMthds.arts:EffectiveDateTime.(XMLNSC.Attribute)xsi:nil = 'true';
+	 SET RefContMthds.arts:ExpirationDateTime.(XMLNSC.Attribute)xsi:nil ='true';		
+	 SET RefContMthds.arts:PrimaryContactFlag = 'Y';
+RETURN ;
+END;
+/* Module to do DS to ARTS message transformation */					   
+CREATE COMPUTE MODULE DsToArtsTransform
+CREATE FUNCTION Main() RETURNS BOOLEAN
+BEGIN
+
+		--Copying Properties and MQMD
+		SET OutputRoot.Properties = InputRoot.Properties;
+     	SET OutputRoot.MQMD = InputRoot.MQMD;
+		-- Declaring References to Input & Output
+	 	DECLARE RefOut,RefExch,RefMsgRtng,RefOutMsgs,RefSrcSys,RefArtBusUnit,RefRetilStr,RefTimePrds,RefBusUnitSits,RefBusUnitSit,RefBusUnitLoctin,RefSite,RefContMthd,RefContMthds,RefBusUntGrps,RefBusUntGrp,RefBsnsUntGrplvl REFERENCE TO OutputRoot;	 
+	 	DECLARE RefInExch REFERENCE TO InputRoot.XMLNSC.etl:Exchange;
+        DECLARE RefInMsgRtng REFERENCE TO RefInExch.etl:MessageRouting;
+        DECLARE RefInMsg REFERENCE TO RefInExch.etl:Message;
+        DECLARE RefInStr REFERENCE TO RefInMsg.etl:Store;
+        DECLARE RefInStrDtls REFERENCE TO RefInStr.etl:StoreDetails;
+	 	DECLARE RefEnv REFERENCE TO Environment;
+	 	
+	 	-- Declaring Variables
+	 	DECLARE schemaName CHARACTER 'dat.businessunit.pmm';
+		DECLARE moduleName CHARACTER 'DsToArtsTransform';	 	
+		-- Logging DebugMessage for the Key Business Fields and Module Start.
+		CALL core.log.DebugMessage(RefEnv, schemaName || '.' || moduleName,  ' [_MODULE - START]' );		
+			
+	    -- Constructing Header of the Output XML
+        CREATE LASTCHILD OF OutputRoot AS RefOut DOMAIN 'XMLNSC';
+        CREATE LASTCHILD OF RefOut AS RefExch NAMESPACE eai NAME 'Exchange';
+	    SET RefExch.(XMLNSC.NamespaceDecl)xmlns:"eai" = eai;
+	    SET RefExch.(XMLNSC.NamespaceDecl)xmlns:"arts" = arts;
+	    SET RefExch.(XMLNSC.NamespaceDecl)xmlns:"xsi" = xsi;
+	    SET RefExch.(XMLNSC.Attribute)MajorVersion = 1;
+	    SET RefExch.(XMLNSC.Attribute)MinorVersion = 3;
+	    SET RefExch.(XMLNSC.Attribute)FixVersion = 0;
+	 
+	 	CREATE LASTCHILD OF RefExch AS RefMsgRtng NAMESPACE eai NAME 'MessageRouting';
+	    SET RefMsgRtng.eai:Guid = RefInMsgRtng.etl:Guid;
+	    SET RefMsgRtng.eai:MessageId = InputRoot.MQMD.MsgId;
+		SET RefMsgRtng.eai:MessageType = 'PubSub';
+		SET RefMsgRtng.eai:SubjectArea = RefInMsgRtng.etl:SubjectArea;
+	    SET RefMsgRtng.eai:SbuNumber = RefInMsgRtng.etl:SBU_NBR;
+	    SET RefMsgRtng.eai:SbuCode = RefInMsgRtng.etl:SBU_CD;
+	    SET RefMsgRtng.eai:SbuName = RefInMsgRtng.etl:SBU_NM;
+	    SET RefMsgRtng.eai:DataSourceCode = RefInMsgRtng.etl:DATA_SOURCE_CD;
+	    SET RefMsgRtng.eai:DataSourceCodeName = RefInMsgRtng.etl:DATA_SOURCE_NM;
+	    SET RefMsgRtng.eai:MessageIndex = RefInMsgRtng.etl:MessageIndex;
+	    SET RefMsgRtng.eai:MessageCount = RefInMsgRtng.etl:MessageCount;
+	    SET RefMsgRtng.eai:SubjectAreaRunName = RefInMsgRtng.etl:SubjectAreaRunName;
+	
+		CREATE LASTCHILD OF RefExch AS RefOutMsgs NAMESPACE eai NAME 'Messages';
+        SET RefOutMsgs.eai:Count = 1;   
+        	CREATE LASTCHILD OF RefOutMsgs AS RefSrcSys NAMESPACE eai NAME 'SourceSystems';         
+	    	SET RefSrcSys.eai:Count = 1;
+	    	SET RefSrcSys.eai:SourceSystem.eai:Index = 1;
+	    	SET RefSrcSys.eai:SourceSystem.eai:SbuNumber = RefInMsgRtng.etl:SBU_NBR;
+	    	SET RefSrcSys.eai:SourceSystem.eai:SbuCode = RefInMsgRtng.etl:SBU_CD;
+	    	SET RefSrcSys.eai:SourceSystem.eai:SbuName = RefInMsgRtng.etl:SBU_NM;
+	    	SET RefSrcSys.eai:SourceSystem.eai:MessageSourceCode = RefInMsgRtng.etl:MessageSourceCode;
+	    	SET RefSrcSys.eai:SourceSystem.eai:MessageSourceCodeName = RefInMsgRtng.etl:MessageSourceCodeName;
+	            
+        CREATE LASTCHILD OF RefOutMsgs AS RefArtBusUnit NAMESPACE eai NAME 'ArtsBusinessUnit';
+        CALL common.mapChangeActionFlagOrActionFromEtlToArts(RefInStr.(XMLNSC.Attribute)Action) INTO RefArtBusUnit.(XMLNSC.Attribute)Action;
+        SET RefArtBusUnit.arts:Index = 1;	        
+	    SET RefArtBusUnit.arts:BusinessUnitId =COALESCE(RefInMsg.etl:ORG_LVL_CHILD,'');	        
+	    SET RefArtBusUnit.arts:BusinessUnitNumber =COALESCE(RefInStrDtls.etl:ORG_LVL_NUMBER,'');
+	    
+	  	CREATE LASTCHILD OF RefArtBusUnit NAMESPACE arts NAME 'BusinessUnitTypeCode';
+ 
+        IF (RefInStrDtls.etl:ORG_IS_STORE = 'T') THEN
+    	CREATE LASTCHILD OF RefArtBusUnit AS RefRetilStr NAMESPACE arts NAME 'RetailStore';
+	        SET RefArtBusUnit.arts:BusinessUnitTypeCode = 'RT';	        
+	       	SET RefRetilStr.arts:RetailStoreManagerName = COALESCE(RefInStrDtls.etl:ORG_MANAGER_NAME,'');
+	       	-- Code translation on STORE_STATUS_CODE
+			CALL common.common_TranslateCodeGet_Code(RefEnv,SBU,DATASOURCE,STORE_STATUS_CODE,RefInStrDtls.etl:STORE_STATUS_CODE) INTO RefRetilStr.arts:RetailStoreStatusCode;				    	 
+			CALL common.common_TranslateCodeGet_Code_Description(RefEnv,SBU,DATASOURCE,STORE_STATUS_CODE,CMN_CODE_DSCRPT_TXT,RefInStrDtls.etl:STORE_STATUS_CODE) INTO RefRetilStr.arts:RetailStoreStatusDescriptionText;
+			
+			SET RefRetilStr.arts:RetailSquareFootage.(XMLNSC.Attribute)xsi:nil='true';
+			IF RefInStrDtls.etl:SQUARE_FOOTAGE <> '' THEN
+	       		SET RefRetilStr.arts:TotalSquareFootage = RefInStrDtls.etl:SQUARE_FOOTAGE;
+	       	ELSE
+	       		SET RefRetilStr.arts:TotalSquareFootage.(XMLNSC.Attribute)xsi:nil='true'; 
+	       	END IF;	       			       
+			SET RefRetilStr.arts:PrimaryDistributionCentreNumber.(XMLNSC.Attribute)xsi:nil='true';
+			SET RefRetilStr.arts:PrimaryDistributionCentreName.(XMLNSC.Attribute)xsi:nil='true';			       			  
+	    ELSE
+	       	SET RefArtBusUnit.arts:BusinessUnitTypeCode = 'DC';
+	       	CREATE LASTCHILD OF RefArtBusUnit NAMESPACE arts NAME 'DistributionCentre';	
+        END IF;
+				   				        		 
+	 	SET RefArtBusUnit.arts:BusinessUnitActiveFlag = COALESCE(RefInStrDtls.etl:ORG_LVL_ACTIVE,'');	 		
+	 	SET RefArtBusUnit.arts:BusinessUnitName = COALESCE(RefInStrDtls.etl:ORG_NAME_FULL,'');	 		
+	 	SET RefArtBusUnit.arts:BusinessUnitShortName = COALESCE(RefInStrDtls.etl:ORG_NAME_SHORT,'');
+ 	     --https://jira.fglsports.com/browse/FPOE-14454 Updated by Prasanth on 2nd December 2016   	        	 
+	 	--SET RefArtBusUnit.arts:BusinessUnitOpenedDate = SUBSTRING(RefInStrDtls.etl:ORG_DATE_OPENED FROM 1 FOR 10);
+	 	
+	 	 IF common.common_valueIsNotNullAndNotBlank(RefInStrDtls.etl:ORG_DATE_OPENED) THEN
+			SET RefArtBusUnit.arts:BusinessUnitOpenedDate = SUBSTRING(RefInStrDtls.etl:ORG_DATE_OPENED FROM 1 FOR 10);
+		ELSE
+			SET RefArtBusUnit.arts:BusinessUnitOpenedDate.(XMLNSC.Attribute)xsi:nil = 'true';
+		END IF;
+			        	        	   
+	 	IF (RefInStrDtls.etl:ORG_DATE_CLOSED <> '') THEN
+	 		SET RefArtBusUnit.arts:BusinessUnitClosedDate = SUBSTRING(RefInStrDtls.etl:ORG_DATE_CLOSED FROM 1 FOR 10);	
+	 	END IF;	        
+	 	SET RefArtBusUnit.arts:OwnershipCode = COALESCE(RefInStrDtls.etl:ORG_TYPE_CODE,'');	        
+	 	SET RefArtBusUnit.arts:OwnershipCodeName = COALESCE(RefInStrDtls.etl:ORG_TYPE_DESC,'');	       
+	 	SET RefArtBusUnit.arts:ClassificationTypeName =COALESCE( RefInStrDtls.etl:LOCATION_TYPE,'');	        
+
+	 	-- Code translation for CURRENCY CODE
+		CALL common.common_TranslateCodeGet_Code(RefEnv,SBU,DATASOURCE,CURRENCY_CODE,RefInStrDtls.etl:CURRENCY_CODE) INTO RefArtBusUnit.arts:CurrencyCode;
+ 			
+		CREATE LASTCHILD OF RefArtBusUnit AS RefBusUnitSits NAMESPACE arts NAME 'BusinessUnitSites';
+		SET RefBusUnitSits.arts:Count =1;
+			CREATE LASTCHILD OF RefBusUnitSits AS RefBusUnitSit NAMESPACE arts NAME 'BusinessUnitSite';
+			SET RefBusUnitSit.arts:Index =1;		
+			 
+			  --https://jira.fglsports.com/browse/FPOE-14454 Updated by Prasanth on 2nd December 2016 
+			  --SET RefBusUnitSit.arts:EffectiveDateTime = RefInStrDtls.etl:ORG_DATE_OPENED;
+			  IF common.common_valueIsNotNullAndNotBlank(RefInStrDtls.etl:ORG_DATE_OPENED) THEN
+			 SET RefBusUnitSit.arts:EffectiveDateTime = RefInStrDtls.etl:ORG_DATE_OPENED;
+		ELSE
+			--SET RefBusUnitSit.arts:EffectiveDateTime='1990-01-01 00:00:00';
+			SET RefBusUnitSit.arts:EffectiveDateTime=SUBSTRING('1990-01-01 00:00:00' BEFORE ' ') || 'T00:00:00';			
+		END IF;			
+				
+		 	IF RefInStrDtls.etl:ORG_DATE_CLOSED <> '' THEN
+		 		SET RefBusUnitSit.arts:ExpirationDateTime = RefInStrDtls.etl:ORG_DATE_CLOSED;
+		 	ELSE
+		 		SET RefBusUnitSit.arts:ExpirationDateTime.(XMLNSC.Attribute)xsi:nil='true';
+		 	END IF;           
+		 	SET RefBusUnitSit.arts:BusinessUnitSiteStatusCode = 'Active';
+      
+	        CREATE LASTCHILD OF RefBusUnitSit AS RefSite  NAMESPACE arts NAME 'Site';       
+		 	SET RefSite.arts:Index =1;
+			SET RefSite.arts:TimeZoneCode = RefInStrDtls.etl:TIMEZONE;
+				DECLARE Index INTEGER 1;		
+				CREATE LASTCHILD OF RefSite AS RefContMthds  NAMESPACE arts NAME 'ContactMethods';
+				CREATE FIRSTCHILD OF RefContMthds NAMESPACE arts NAME 'Count';
+	
+			-- Telephone Number Contact Method is Generated IF BAS_PHONE_NUMB IS NOT NULL
+			IF (RefInStrDtls.etl:BAS_PHONE_NUMB <> '' AND RefInStrDtls.etl:BAS_PHONE_NUMB IS NOT NULL) THEN
+			
+				CREATE LASTCHILD OF RefContMthds  AS RefContMthd  NAMESPACE arts NAME 'ContactMethod';
+				SET RefContMthd.arts:Index =Index;
+		
+				-- Contact Fields are Created using this Procedure
+				CALL pmm_getContactMethod(RefContMthd);	
+					
+				SET RefContMthd.arts:ContactMethodTypeCode = 'Phone';											
+	        	SET RefContMthd.arts:ContactPurposeTypeCode.(XMLNSC.Attribute)xsi:nil='true';       	
+				SET RefContMthd.arts:Telephone.arts:Index =1;			 			 	
+			 	SET RefContMthd.arts:Telephone.arts:PhoneNumberType = 'Phone';	        	
+			 	SET RefContMthd.arts:Telephone.arts:ITUCountryCode = COALESCE(RefInStrDtls.etl:BAS_ISD,'');	        	
+			 	SET RefContMthd.arts:Telephone.arts:AreaCode = COALESCE(RefInStrDtls.etl:BAS_AREA,'');	        
+			 	SET RefContMthd.arts:Telephone.arts:TelephoneNumberText = COALESCE(RefInStrDtls.etl:BAS_PHONE_NUMB,'');
+  	
+				-- Complete Telephone Number is Generated as per the Below Logic 
+				IF (RefInStrDtls.etl:BAS_PHONE_NUMB <> ''  ) THEN
+			       	IF (RefInStrDtls.etl:BAS_AREA <> '' ) THEN
+			       		IF (RefInStrDtls.etl:BAS_ISD <> '') THEN
+			       			SET RefContMthd.arts:Telephone.arts:CompleteTelephoneNumberText =RefInStrDtls.etl:BAS_ISD ||'-'|| RefInStrDtls.etl:BAS_AREA ||'-'|| RefInStrDtls.etl:BAS_PHONE_NUMB ;
+			       		ELSEIF (RefInStrDtls.etl:BAS_ISD = '') THEN
+			       			SET RefContMthd.arts:Telephone.arts:CompleteTelephoneNumberText = RefInStrDtls.etl:BAS_AREA|| '-' ||RefInStrDtls.etl:BAS_PHONE_NUMB ;
+			       		END IF;
+			       	ELSEIF (RefInStrDtls.etl:BAS_AREA = '') THEN
+			       		SET RefContMthd.arts:Telephone.arts:CompleteTelephoneNumberText = RefInStrDtls.etl:BAS_PHONE_NUMB;
+			       	END IF;
+				END IF;            	        
+			           
+		 		SET RefContMthd.arts:Telephone.arts:ExtensionText.(XMLNSC.Attribute)xsi:nil='true';
+
+        	 	SET Index = Index + 1;
+	  		END IF;
+		
+			-- Telephone FAX Number Contact Method is Generated IF BAS_FAX_NUMBER IS NOT NULL
+	  		IF (RefInStrDtls.etl:BAS_FAX_NUMBER <> '' AND RefInStrDtls.etl:BAS_FAX_NUMBER IS NOT NULL ) THEN
+		
+	  			CREATE LASTCHILD OF RefContMthds  AS RefContMthd  NAMESPACE arts NAME 'ContactMethod';	  
+				SET RefContMthd.arts:Index =Index;		
+				-- Contact Fields are Created using this Procedure
+				CALL pmm_getContactMethod(RefContMthd);
+				SET RefContMthd.arts:ContactMethodTypeCode = 'Phone';						
+        		SET RefContMthd.arts:ContactPurposeTypeCode.(XMLNSC.Attribute)xsi:nil='true';        	
+				SET RefContMthd.arts:Telephone.arts:Index =1;			        	
+		 		SET RefContMthd.arts:Telephone.arts:PhoneNumberType = 'Fax';        	
+			 	SET RefContMthd.arts:Telephone.arts:ITUCountryCode = COALESCE(RefInStrDtls.etl:BAS_ISD_FAX,'');	        	
+			 	SET RefContMthd.arts:Telephone.arts:AreaCode = COALESCE(RefInStrDtls.etl:BAS_AREA_FAX,'');	        	
+			 	SET RefContMthd.arts:Telephone.arts:TelephoneNumberText = COALESCE(RefInStrDtls.etl:BAS_FAX_NUMBER,'');       	
+		       
+				IF (RefInStrDtls.etl:BAS_FAX_NUMBER <> ''  ) THEN
+			       	IF (RefInStrDtls.etl:BAS_AREA_FAX <> '' ) THEN
+			       		IF (RefInStrDtls.etl:BAS_ISD_FAX <> '') THEN
+			       			SET RefContMthd.arts:Telephone.arts:CompleteTelephoneNumberText =RefInStrDtls.etl:BAS_ISD_FAX ||'-'|| RefInStrDtls.etl:BAS_AREA_FAX ||'-'|| RefInStrDtls.etl:BAS_FAX_NUMBER ;
+			       		ELSEIF (RefInStrDtls.etl:BAS_ISD_FAX = '') THEN
+			       			SET RefContMthd.arts:Telephone.arts:CompleteTelephoneNumberText = RefInStrDtls.etl:BAS_AREA_FAX|| '-' ||RefInStrDtls.etl:BAS_FAX_NUMBER ;
+			       		END IF;
+			       	ELSEIF (RefInStrDtls.etl:BAS_AREA_FAX = '') THEN
+			       		SET RefContMthd.arts:Telephone.arts:CompleteTelephoneNumberText = RefInStrDtls.etl:BAS_FAX_NUMBER;
+			       	END IF;
+				END IF;
+	        	
+			   SET RefContMthd.arts:Telephone.arts:ExtensionText.(XMLNSC.Attribute)xsi:nil='true';
+		        	
+			   SET Index = Index + 1;			
+			END IF;
+		
+			-- Address Contact Method is Generated if any of Address fields exist
+			IF ((RefInStrDtls.etl:BAS_ADDR_1 <> '')OR (RefInStrDtls.etl:BAS_ADDR_2 <> '' ) OR (RefInStrDtls.etl:BAS_ADDR_3 <> '' ) OR (RefInStrDtls.etl:BAS_CITY <> '' ) OR 
+			(RefInStrDtls.etl:BAS_STATE <> '' ) OR (RefInStrDtls.etl:BAS_ZIP <> '' ) OR (RefInStrDtls.etl:CNTRY_CODE <> '' ) OR (RefInStrDtls.etl:LONGITUDE <> '' )	OR 
+			(RefInStrDtls.etl:LATITUDE <> ''  )) THEN
+		
+				CREATE LASTCHILD OF RefContMthds  AS RefContMthd  NAMESPACE arts NAME 'ContactMethod';
+		
+				SET RefContMthd.arts:Index =Index;					
+				-- Contact Fields are Created using this Procedure
+				CALL pmm_getContactMethod(RefContMthd);
+		
+				SET RefContMthd.arts:ContactMethodTypeCode = 'Address';					
+		        SET RefContMthd.arts:ContactPurposeTypeCode.(XMLNSC.Attribute)xsi:nil='true';
+		       
+				SET RefContMthd.arts:Address.arts:Index =1;		        
+			 	SET RefContMthd.arts:Address.arts:AddressLine1Text = COALESCE (RefInStrDtls.etl:BAS_ADDR_1,'');	        	
+			 	SET RefContMthd.arts:Address.arts:AddressLine2Text = COALESCE (RefInStrDtls.etl:BAS_ADDR_2,'');		        	
+			 	SET RefContMthd.arts:Address.arts:AddressLine3Text = COALESCE (RefInStrDtls.etl:BAS_ADDR_3,'');		        	
+			 	SET RefContMthd.arts:Address.arts:AddressLine4Text.(XMLNSC.Attribute)xsi:nil='true';	        	
+			 	SET RefContMthd.arts:Address.arts:CityName = COALESCE (RefInStrDtls.etl:BAS_CITY,'');			 			        	
+			 	SET RefContMthd.arts:Address.arts:DistrictName.(XMLNSC.Attribute)xsi:nil='true';		        	
+			 	SET RefContMthd.arts:Address.arts:SecondDistrictName.(XMLNSC.Attribute)xsi:nil='true';
+								
+				-- Code translation on PROVINCE CODE, get common code and common code description text values.		        			 	
+			 	IF RefInStrDtls.etl:BAS_STATE <> '' THEN
+			 		CALL common.common_TranslateCodeGet_Code(RefEnv,SBU,DATASOURCE,PROVINCE_CODE,RefInStrDtls.etl:BAS_STATE) INTO RefContMthd.arts:Address.arts:ProvinceStateCode;			 		
+			 		CALL common.common_TranslateCodeGet_Code_Description(RefEnv,SBU,DATASOURCE,PROVINCE_CODE,CMN_CODE_DSCRPT_TXT,RefInStrDtls.etl:BAS_STATE) INTO RefContMthd.arts:Address.arts:ProvinceStateName;
+			 	END IF;
+			 	IF RefContMthd.arts:Address.arts:ProvinceStateCode IS NULL THEN			 	
+			 		SET RefContMthd.arts:Address.arts:ProvinceStateCode.(XMLNSC.Attribute)xsi:nil='true';
+			 	END IF;
+			 	IF RefContMthd.arts:Address.arts:ProvinceStateName IS NULL THEN
+			 		SET RefContMthd.arts:Address.arts:ProvinceStateName.(XMLNSC.Attribute)xsi:nil='true';
+			 	END IF;					
+			 	
+			 	SET RefContMthd.arts:Address.arts:PostalCode = COALESCE (RefInStrDtls.etl:BAS_ZIP,'');			 			        	
+			 	SET RefContMthd.arts:Address.arts:PostalExtensionCode.(XMLNSC.Attribute)xsi:nil='true';
+		        	
+		        -- Code translation on COUNTRY CODE get common code and get CMN.CMN_CODE_DSCRPT_TXT value
+				IF RefInStrDtls.etl:CNTRY_CODE <> '' THEN
+					CALL common.common_TranslateCodeGet_Code(RefEnv,SBU,DATASOURCE,COUNTRY_CODE,RefInStrDtls.etl:CNTRY_CODE) INTO RefContMthd.arts:Address.arts:CountryCode;		        				 		
+			 		CALL common.common_TranslateCodeGet_Code_Description(RefEnv,SBU,DATASOURCE,COUNTRY_CODE,CMN_CODE_DSCRPT_TXT,RefInStrDtls.etl:CNTRY_CODE) INTO RefContMthd.arts:Address.arts:CountryName;			 		
+				END IF;
+		        IF RefContMthd.arts:Address.arts:CountryCode IS NULL THEN
+		        	SET RefContMthd.arts:Address.arts:CountryCode.(XMLNSC.Attribute)xsi:nil='true';
+		        END IF;
+		        IF RefContMthd.arts:Address.arts:CountryName IS NULL THEN
+		        	SET RefContMthd.arts:Address.arts:CountryName.(XMLNSC.Attribute)xsi:nil='true';
+		        END IF;
+		        	
+		        DECLARE vAddr1,vAddr2,vAddr3,vCity,vState,vZip,vCntyName CHARACTER ;		        	
+		        IF (RefInStrDtls.etl:BAS_ADDR_1 <> '') THEN
+		        	SET vAddr1 = RefInStrDtls.etl:BAS_ADDR_1||' ';
+		        END IF;
+		        IF (RefInStrDtls.etl:BAS_ADDR_2 <> '') THEN
+		        	SET vAddr2 = RefInStrDtls.etl:BAS_ADDR_2||' ';
+		        END IF;
+		        IF (RefInStrDtls.etl:BAS_ADDR_3 <> '') THEN
+		       		SET vAddr3 = RefInStrDtls.etl:BAS_ADDR_3||' ';
+		       	END IF;
+		       	IF (RefInStrDtls.etl:BAS_CITY <> '') THEN
+		       		SET vCity = RefInStrDtls.etl:BAS_CITY||' ';
+		       	END IF;
+		       	IF (RefInStrDtls.etl:BAS_STATE <> '') THEN		       		
+		       		SET vState = RefContMthd.arts:Address.arts:ProvinceStateCode||' ';
+		       	END IF;
+		       	IF (RefInStrDtls.etl:BAS_ZIP<> '') THEN
+		       		SET vZip = RefInStrDtls.etl:BAS_ZIP||' ';
+		       	END IF;
+		       	IF (RefInStrDtls.etl:CNTRY_CODE <> '') THEN
+		       		SET vCntyName = RefContMthd.arts:Address.arts:CountryCode;
+		       	END IF;
+        	
+        		SET RefContMthd.arts:Address.arts:CompleteAddressText = COALESCE(vAddr1,'')||COALESCE(vAddr2,'')||COALESCE(vAddr3,'')||COALESCE(vCity,'')||COALESCE(vState,'')||COALESCE(vZip,'')||COALESCE(vCntyName,''); 		 		      	
+        		SET RefContMthd.arts:Address.arts:GPSLatitudeNumber =COALESCE (RefInStrDtls.etl:LATITUDE,'');	 		      	
+	 			SET RefContMthd.arts:Address.arts:GPSLongitudeNumber = COALESCE (RefInStrDtls.etl:LONGITUDE,'');		         	
+	 		
+        	SET Index = Index + 1;	 	
+		END IF;
+		
+		-- E-Mail Contact Method is Generated IF VPC_EMAIL IS NOT NULL
+		IF (RefInStrDtls.etl:VPC_EMAIL <> '' AND RefInStrDtls.etl:VPC_EMAIL IS NOT NULL) THEN			
+			CREATE LASTCHILD OF RefContMthds  AS RefContMthd  NAMESPACE arts NAME 'ContactMethod';			
+			-- Contact Fields are Created using this Procedure			
+			SET RefContMthd.arts:Index =Index;
+			CALL pmm_getContactMethod(RefContMthd);			
+			SET RefContMthd.arts:ContactMethodTypeCode = 'e-mail';						
+			SET RefContMthd.arts:ContactPurposeTypeCode = '';
+			SET RefContMthd.arts:ContactPurposeTypeCode.(XMLNSC.Attribute)xsi:nil='true';      		 		
+	 		SET RefContMthd.arts:EmailAddress = RefInStrDtls.etl:VPC_EMAIL;
+			SET Index = Index + 1;	
+	 	END IF;			 	
+	 	SET RefContMthds.arts:Count = Index - 1;
+	 	SET RefSite.arts:DaylightSavingParticipationFlag = RefInStrDtls.etl:DAYLIGHT_SAVING;	 		
+	 	
+		CREATE LASTCHILD OF RefArtBusUnit AS RefBusUntGrps NAMESPACE arts NAME 'BusinessUnitGroups';
+		SET RefBusUntGrps.arts:Count = 1;
+	 		CREATE LASTCHILD OF RefBusUntGrps AS RefBusUntGrp NAMESPACE arts NAME 'BusinessUnitGroup';
+	 		SET RefBusUntGrp.arts:Index = 1;
+
+	 		DECLARE rStrhirarchyDtl REFERENCE TO RefInStr.etl:StoreHierarchyDetail;
+	 		--DECLARE rStrhirarchies REFERENCE TO RefInStr.etl:StoreHierarchyDetail.etl:Row[1];	 	 		
+        	SET RefBusUntGrp.arts:BusinessUnitGroupFunctionName = 'Business Unit Hierarchy';        	
+	 	
+	 		--DECLARE rStrhirarchyDtls REFERENCE TO rStrhirarchies.etl:StoreHierarchyDetail;	
+	 		CREATE LASTCHILD OF RefBusUntGrp NAMESPACE arts NAME 'Count';
+	 	
+			-- Below Logic to Populate the PMM Hierarchy
+	 		DECLARE Index_A INTEGER 1;
+	 		DECLARE HrchyCounter INTEGER 1;
+			DECLARE PrntBusUntGrpNmbr INTEGER 2 ;
+	 		WHILE (HrchyCounter < 5 ) DO
+			
+				CREATE LASTCHILD OF RefBusUntGrp AS RefBsnsUntGrplvl NAMESPACE arts NAME 'BusinessUnitGroupLevel';
+			 	SET RefBsnsUntGrplvl.arts:Index = Index_A ;
+			 	 	
+			 	IF HrchyCounter = 4  THEN
+			 		SET RefBsnsUntGrplvl.arts:ParentBusinessUnitGroupNumber.(XMLNSC.Attribute)xsi:nil='true';
+			 	ELSE
+			 		SET RefBsnsUntGrplvl.arts:ParentBusinessUnitGroupNumber =COALESCE(rStrhirarchyDtl.etl:Row[PrntBusUntGrpNmbr].etl:ORG_LVL_NUMBER,'');
+			 	END IF;				 	
+			 	SET RefBsnsUntGrplvl.arts:BusinessUnitGroupNumber = COALESCE(rStrhirarchyDtl.etl:Row[HrchyCounter].etl:ORG_LVL_NUMBER,'');		        	
+			 	SET RefBsnsUntGrplvl.arts:BusinessUnitGroupName = COALESCE(rStrhirarchyDtl.etl:Row[HrchyCounter].etl:ORG_NAME_FULL,'');	        	
+			 	SET RefBsnsUntGrplvl.arts:BusinessUnitGroupShortName = COALESCE(rStrhirarchyDtl.etl:Row[HrchyCounter].etl:ORG_NAME_SHORT,'');	        	
+			 	SET RefBsnsUntGrplvl.arts:BusinessUnitGroupLevelNumber =COALESCE(rStrhirarchyDtl.etl:Row[HrchyCounter].etl:ORG_LVL_ID,'');	        	
+			 	SET RefBsnsUntGrplvl.arts:BusinessUnitGroupLevelName = COALESCE(rStrhirarchyDtl.etl:Row[HrchyCounter].etl:ORG_LVL_NAME,'');
+	        
+			 	SET Index_A  = Index_A  + 1 ;
+				SET HrchyCounter = HrchyCounter + 1;
+				IF  (PrntBusUntGrpNmbr < 5 )THEN
+					SET PrntBusUntGrpNmbr = PrntBusUntGrpNmbr+1;	
+				END IF;
+				
+			END WHILE;
+			SET RefBusUntGrp.arts:Count =Index_A  - 1;			
+			-- Logging InfoMessage for the Key Business Fields and transformation complettion status.
+			CALL core.log.InfoMessage(RefEnv, schemaName || '.' || moduleName, ' Transformation completed successfully.');
+			-- Logging DebugMessage for the Key Business Fields and Module End.
+			CALL core.log.DebugMessage(RefEnv, schemaName || '.' || moduleName, ' [_MODULE - END]');		        
+	RETURN TRUE;
+END;	
+END MODULE;

@@ -1,0 +1,284 @@
+<?xml version="1.0" encoding="UTF-8"?><xs:schema attributeFormDefault="unqualified" elementFormDefault="unqualified" targetNamespace="http://com/marks/TxnPost/bo" xmlns:bons0="http://com/marks/TxnPost/bo" xmlns:bons01="http://TrxnPstSvcLib/bo" xmlns:bons1="http://com/marks/TxnPost/bo" xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/" xmlns:tns="http://com/marks/TxnPost/inf" xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/" xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+                                                                                  <xs:import namespace="http://TrxnPstSvcLib/bo" schemaLocation="TrxnPstSvcProcess_QUniform_SubmitSaleTxnInfExport_InlineSchema3.xsd"/>
+            <xs:complexType name="submit-pos-sale-trxn">
+		<xs:annotation>
+			<xs:documentation>Represents the root of a pos sale trxn.</xs:documentation>
+		</xs:annotation>
+		<xs:sequence>
+
+
+			<xs:element minOccurs="1" name="store">
+				<xs:annotation>
+          <xs:documentation>3 digit store number ie. 060</xs:documentation>
+        </xs:annotation>
+				<xs:simpleType>
+					<xs:restriction base="xs:string">
+						<xs:minLength value="3"/>
+					</xs:restriction>
+				</xs:simpleType>
+			</xs:element>
+			<xs:element minOccurs="1" name="consumer-id">
+				<xs:annotation>
+          <xs:documentation>string value indicating consumer using the service</xs:documentation>
+        </xs:annotation>
+				<xs:simpleType>
+					<xs:restriction base="xs:string">
+
+
+
+						<xs:enumeration value="FF"/>
+						<xs:enumeration value="VM"/>
+						<xs:enumeration value="IONS"/>
+						<xs:enumeration value="WEBORDER"/>
+					</xs:restriction>
+				</xs:simpleType>
+			</xs:element>
+			<xs:element minOccurs="1" name="created-date" type="xs:dateTime">
+				<xs:annotation>
+          <xs:documentation>date/time request was created</xs:documentation>
+        </xs:annotation>
+			</xs:element>
+			<xs:element minOccurs="1" name="submitted-date" type="xs:dateTime">
+				<xs:annotation>
+          <xs:documentation>date/time request was submitted</xs:documentation>
+        </xs:annotation>
+			</xs:element>
+			<xs:element maxOccurs="unbounded" name="purchased-items" type="bons0:line-item">
+
+				<xs:annotation>
+          <xs:documentation>array of sale lines</xs:documentation>
+        </xs:annotation>
+			</xs:element>
+
+			<xs:element name="net-amount">
+				<xs:annotation>
+							<xs:documentation>w/o tax</xs:documentation>
+						</xs:annotation>
+				<xs:simpleType>
+					<xs:restriction base="xs:decimal">
+						<xs:fractionDigits value="2"/>
+					</xs:restriction>
+				</xs:simpleType>
+			</xs:element>
+			<xs:element name="total-amount">
+				<xs:annotation>
+          <xs:documentation>total with tax</xs:documentation>
+        </xs:annotation>
+				<xs:simpleType>
+					<xs:restriction base="xs:decimal">
+						<xs:fractionDigits value="2"/>
+					</xs:restriction>
+				</xs:simpleType>
+			</xs:element>
+
+			<xs:element maxOccurs="unbounded" minOccurs="0" name="dc-payments" type="bons0:debit-credit-payment">
+				<xs:annotation>
+          <xs:documentation>debit or credit card payments</xs:documentation>
+        </xs:annotation>
+			</xs:element>
+			<xs:element maxOccurs="unbounded" minOccurs="0" name="ba-payments" type="bons0:business-account-payment">
+				<xs:annotation>
+          <xs:documentation>business account payments</xs:documentation>
+        </xs:annotation>
+			</xs:element>
+			<xs:element maxOccurs="unbounded" minOccurs="0" name="gc-payments" type="bons0:gift-card-payment">
+				<xs:annotation>
+          <xs:documentation>gift card payments</xs:documentation>
+        </xs:annotation>
+			</xs:element>
+			<xs:element maxOccurs="unbounded" minOccurs="0" name="cash-payments" type="bons0:cash-payment">
+			</xs:element>
+			<xs:element minOccurs="0" name="business-account" type="bons0:businessAccount">
+			</xs:element>
+		</xs:sequence>
+	</xs:complexType>
+            <xsd:complexType name="businessAccount">
+		<xsd:sequence>
+			<xsd:element minOccurs="0" name="accountNum" type="xs:string">
+			</xsd:element>
+			<xsd:element minOccurs="0" name="accountName" type="xs:string">
+			</xsd:element>
+			<xsd:element minOccurs="0" name="PONumber" type="xs:string">
+			</xsd:element>
+			<xsd:element minOccurs="0" name="employeeId" type="xs:string">
+			</xsd:element>
+			<xsd:element minOccurs="0" name="firstName" type="xs:string">
+			</xsd:element>
+			<xsd:element minOccurs="0" name="lastName" type="xs:string">
+			</xsd:element>
+		</xsd:sequence>
+	</xsd:complexType>
+            <xsd:complexType name="cash-payment">
+		<xsd:sequence>
+			<xsd:element minOccurs="1" name="amount" type="xs:decimal">
+			</xsd:element>
+		</xsd:sequence>
+	</xsd:complexType>
+            <xsd:complexType name="line-item">
+		<xsd:sequence>
+			<xsd:element minOccurs="1" name="sku" type="xs:string">
+            <xsd:annotation>
+              <xsd:documentation>16 digit sku identifier</xsd:documentation>
+            </xsd:annotation>
+			</xsd:element>
+			<xsd:element minOccurs="1" name="original-price" type="xs:decimal">
+				<xsd:annotation>
+              <xsd:documentation>original retail price (if applicable)</xsd:documentation>
+            </xsd:annotation>
+			</xsd:element>
+
+			<xsd:element minOccurs="0" name="selling-price" type="xs:decimal">
+			</xsd:element>
+			<xsd:element maxOccurs="unbounded" minOccurs="1" name="line-item-detail" type="bons0:line-item-detail">
+			</xsd:element>
+			<xsd:element minOccurs="0" name="regional-tax-exempt-id" type="xs:string">
+				<xsd:annotation>
+              <xsd:documentation>Parameter to indicate if line is regional tax (pst/qst) exempt. POS sets this value as "WAIVED"</xsd:documentation>
+            </xsd:annotation>
+			</xsd:element>
+		</xsd:sequence>
+	</xsd:complexType>
+            <xsd:complexType name="line-item-detail">
+		<xsd:sequence>
+			<xsd:element minOccurs="1" name="sold-price" type="xs:decimal">
+			</xsd:element>
+			<xsd:element minOccurs="1" name="federal-tax-amount" type="xs:decimal">
+			</xsd:element>
+			<xsd:element minOccurs="1" name="provincial-tax-amount" type="xs:decimal">
+			</xsd:element>
+			<xsd:element maxOccurs="unbounded" minOccurs="0" name="reductions" type="bons0:reduction">
+			</xsd:element>
+
+			<xsd:element minOccurs="0" name="FastFindVirtuaGiftCard" type="bons01:FastFindVirtuaGiftCard">
+			</xsd:element>
+		</xsd:sequence>
+	</xsd:complexType>
+            <xsd:complexType name="reduction">
+		<xsd:sequence>
+			<xsd:element minOccurs="0" name="reasonCode" type="xs:string">
+			</xsd:element>
+			<xsd:element minOccurs="0" name="amount" type="xs:decimal">
+			</xsd:element>
+
+			<xsd:element minOccurs="0" name="reductionComment" type="xs:string">
+			</xsd:element>
+		</xsd:sequence>
+	</xsd:complexType>
+            <xsd:complexType name="business-account-payment">
+		<xsd:sequence>
+			<xsd:element minOccurs="1" name="amount" type="xs:decimal">
+			</xsd:element>
+
+
+
+
+
+
+		</xsd:sequence>
+	</xsd:complexType>
+            <xsd:complexType name="gift-card-payment">
+		<xsd:sequence>
+			<xsd:element minOccurs="1" name="id" type="xs:string">
+				<xsd:annotation>
+              <xsd:documentation>gift card id w/o checkdigit</xsd:documentation>
+            </xsd:annotation>
+			</xsd:element>
+			<xsd:element minOccurs="1" name="amount" type="xs:decimal">
+				<xsd:annotation>
+              <xsd:documentation>amount to redeem</xsd:documentation>
+            </xsd:annotation>
+			</xsd:element>
+
+			<xsd:element minOccurs="0" name="comment" type="xs:string">
+            <xsd:annotation>
+              <xsd:documentation>comment that will be appended to gift card history</xsd:documentation>
+            </xsd:annotation>
+			</xsd:element>
+		</xsd:sequence>
+	</xsd:complexType>
+            <xs:complexType name="debit-credit-payment">
+		<xs:annotation>
+			<xs:documentation>Conains card related info collected during payment.</xs:documentation>
+		</xs:annotation>
+		<xs:sequence>
+
+			<xs:element name="card-type">
+				<xs:simpleType>
+					<xs:restriction base="xs:string">
+						<xs:enumeration value="CREDIT"/>
+						<xs:enumeration value="DEBIT"/>
+					</xs:restriction>
+				</xs:simpleType>
+			</xs:element>
+
+			<xs:element minOccurs="1" name="amount" type="xs:decimal"/>
+			<xs:element name="card-name">
+				<xs:simpleType>
+					<xs:restriction base="xs:string"/>
+				</xs:simpleType>
+			</xs:element>
+			<xs:element minOccurs="1" name="card-number" nillable="true">
+				<xs:simpleType>
+					<xs:restriction base="xs:string">
+						<xs:maxLength value="20"/>
+					</xs:restriction>
+				</xs:simpleType>
+			</xs:element>
+
+			<xs:element name="authorization-number" type="xs:string"/>
+			<xs:element minOccurs="0" name="bank-sequence">
+				<xs:simpleType>
+					<xs:restriction base="xs:string">
+						<xs:maxLength value="10"/>
+					</xs:restriction>
+				</xs:simpleType>
+			</xs:element>
+			<xs:element name="terminal-id">
+				<xs:annotation>
+					<xs:documentation>Kiosk's pinpad unique idetifier</xs:documentation>
+				</xs:annotation>
+				<xs:simpleType>
+					<xs:restriction base="xs:string">
+						<xs:maxLength value="10"/>
+					</xs:restriction>
+				</xs:simpleType>
+			</xs:element>
+			<xs:element minOccurs="0" name="expiration-date">
+				<xs:simpleType>
+					<xs:restriction base="xs:string">
+						<xs:maxLength value="8"/>
+					</xs:restriction>
+				</xs:simpleType>
+			</xs:element>
+			<xs:element minOccurs="0" name="authorization-message">
+				<xs:simpleType>
+					<xs:restriction base="xs:string">
+						<xs:maxLength value="50"/>
+					</xs:restriction>
+				</xs:simpleType>
+			</xs:element>
+			<xs:element minOccurs="0" name="authorization-date" type="xs:date"/>
+		</xs:sequence>
+	</xs:complexType>
+            <xs:complexType name="submit-pos-trxn-pst-svc-resp">
+		<xs:annotation>
+			<xs:documentation>Root element for responses sent back to pos trxn posting service consumers.</xs:documentation>
+		</xs:annotation>
+		<xs:sequence>
+			<xs:element name="code">
+				<xs:simpleType>
+					<xs:restriction base="xs:string">
+
+
+
+
+						<xs:enumeration value="OK"/>
+						<xs:enumeration value="ERROR"/>
+					</xs:restriction>
+				</xs:simpleType>
+			</xs:element>
+			<xs:element name="message" type="xs:string"/>
+			<xs:element minOccurs="0" name="id" type="xs:string"/>
+		</xs:sequence>
+	</xs:complexType>
+        </xs:schema>

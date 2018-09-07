@@ -1,0 +1,42 @@
+
+
+
+
+BROKER SCHEMA trx.order.hyb.fastfindDECLARE ns5 NAMESPACE 'http://www.marks.com/2014/01/schemas/ARTS';
+DECLARE ns NAMESPACE 'http://www.marks.com/2014/01/services/FF/';
+
+DECLARE eai NAMESPACE 'http://www.fgl.com/exchange/';
+DECLARE eai1 NAMESPACE 'http://www.fgl.com/ARTS';
+
+
+CREATE COMPUTE MODULE virtual_giftcard_creation_Req
+	CREATE FUNCTION Main() RETURNS BOOLEAN
+	BEGIN
+		CALL core.log.Info(MessageFlowLabel||'Module name: virtual_giftcard_creation_Req - Create GC message begins for -'||'EXTERNAL_ORDER :'||CAST(Environment.XMLNSC.eai:Exchange.eai:Messages.eai:ArtsCustomerOrders.eai1:CustomerOrderNumber AS CHARACTER));
+		DECLARE EnvRef REFERENCE TO Environment.Variables;		SET Environment.Variables.ns:createOrderResponse = InputRoot.SOAP.Body.ns:createOrderResponse;
+		SET OutputRoot.Properties = InputRoot.Properties;
+		SET OutputRoot.Properties.MessageType = '{}:Input_904';
+		DECLARE refOut,refOutBody REFERENCE TO OutputRoot;
+
+		
+		DECLARE refInpCustOrd REFERENCE TO InputRoot.SOAP.Body.ns:createOrderResponse.CustomerOrder;
+		-- Create Dataconect message to send the Activated Gift Card details
+		-------------
+		-- Start
+		-------------
+		SET Environment.Timeout = 6600;
+		CREATE LASTCHILD OF OutputRoot AS refOut DOMAIN 'DFDL';
+		CREATE LASTCHILD OF refOut.Input904 AS refOutBody NAME 'body';
+		SET refOutBody.TransCode = '123456789012';
+		SET refOutBody.UserId = '15041';
+		SET refOutBody.Passwrd = '0415';
+		SET refOutBody.GiftCardValue = CAST(EnvRef.OrderTotalAmount AS DECIMAL);
+		SET refOutBody.GivexNumber = '90'||refInpCustOrd.ns5:CustomerPurchaseOrderNumber;
+
+		CALL core.log.Info(MessageFlowLabel||'Module name: virtual_giftcard_creation_Req - GC message created and calling GC service for -'||'EXTERNAL_ORDER :'||CAST(Environment.XMLNSC.eai:Exchange.eai:Messages.eai:ArtsCustomerOrders.eai1:CustomerOrderNumber AS CHARACTER));
+		-------------
+		-- End
+		-------------
+		RETURN TRUE;
+	END;
+END MODULE;

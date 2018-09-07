@@ -1,0 +1,4 @@
+ext{
+   buildAll=true
+   repoName='dom-pickticket-event-inbound-fgl'
+}

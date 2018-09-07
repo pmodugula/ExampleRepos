@@ -1,0 +1,94 @@
+{
+  "msgType": "transaction",
+  "transactionId": "5517820170103100034",
+  "transactionTypeCode": "SaleTransaction",
+  "majorVersion": 4,
+  "workstationId": "78",
+  "sequenceNumber": "100034",
+  "beginDateTime": "2017-01-03T18:15:28.334-06:00",
+  "endDateTime": "2017-01-03T18:15:28.334-06:00",
+  "operatorId": "0",
+  "sourceSystem": "MC",
+  "retailTransaction": {
+    "productLineItems": [{
+      "lineItemSeqNumber": "1",
+      "itemNumber": "400006142177",
+      "merchandiseHierarchyLevel": "4",
+      "merchandiseHierarchyId": "6C",
+      "regularSalesUnitPrice": 19.99,
+      "actualSalesPrice": 0,
+      "basePrice": 0,
+      "proratedPrice": 0,
+      "discountAmount": 0,
+      "quantity": 4,
+      "priceModifiers": [{
+        "reason": {
+          "reasonCode": "ACCOUNT_DISCOUNT",
+          "reasonUniqueId": 4
+        },
+        "amount": 0,
+        "action": "Subtract",
+            "priceDerivationRuleType": "PROMOTION",
+            "type": "DISCOUNT",
+            "quantity": 4
+          }
+        ],
+      "taxes": [{
+        "type": "PSTBC",
+        "taxAmountPerItem": 5.60000000000000000000
+      },
+        {
+          "type": "GST",
+          "taxAmountPerItem": 4.00000000000000000000
+        }]
+    }],
+    "taxes": [{
+      "type": "PSTBC",
+      "typeCode": "Sale",
+      "amount": 5.60000000000000000000
+    },
+      {
+        "type": "GST",
+        "typeCode": "Sale",
+        "amount": 4.00000000000000000000
+      }],
+    "tenders": [{
+      "amount": 53.74,
+      "subTenderType": "CAD",
+      "tenderType": "CustomerAccount"
+    },
+      {
+        "amount": 35.82,
+        "subTenderType": "Visa",
+        "successfulPedTransactionUuid": "12345",
+        "tenderType": "CreditDebit"
+      }],
+    "allPedTransactions": [{
+      "accountNumber": "492419******3750",
+      "amount": 35.82,
+      "approvalNumber": "347129",
+      "cardName": "VISA",
+      "cashBackAmount": 0,
+      "creditDebitCardType": "Visa",
+      "expiryDate": "2106",
+      "uuid": "12345",
+      "pedTransactionStatus": "APPROVED"
+    }],
+    "customerInformation": {
+      "businessCustomerFlag": "true",
+      "imagewearEmployeeNumber":"10"
+    },
+    "imagewearTransaction": {
+      "type": "NON_IONS",
+      "customerAccount": {
+        "number": "00254537",
+        "addressLine1": "6911 Southpoint Drive",
+        "city": "BURNABY",
+        "provinceState": "BC",
+        "postalCode": "V3N 4X8"
+      },
+      "taxAreaCode": "BC"
+    },
+    "transactionGrossAmount": 79.96000000000000000000
+  }
+}

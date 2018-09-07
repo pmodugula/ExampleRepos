@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- edited with XMLSpy v2014 sp1 (x64) (http://www.altova.com) by FGL SPORTS LTD (FGL SPORTS LTD) -->
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" elementFormDefault="qualified" attributeFormDefault="unqualified">
+	<xs:complexType name="DiscountDetail">
+		<xs:sequence>
+			<xs:element name="RecordType" type="xs:string" fixed="D" nillable="false"/>
+			<xs:element name="LineId" type="xs:integer" nillable="false"/>
+			<xs:element name="LineIdAdjustment" type="xs:integer" minOccurs="0"/>
+			<xs:element name="Unused" type="xs:integer" minOccurs="0" maxOccurs="2"/>
+			<xs:element name="PosDiscountSerialNbr" type="xs:string" minOccurs="0"/>
+			<xs:element name="DiscountAmount" type="xs:decimal"/>
+			<xs:element name="DiscountAmountMultiplicationFactor" type="xs:integer" minOccurs="0"/>
+			<xs:element name="Unused1" type="xs:integer" minOccurs="0"/>
+			<xs:element name="AppliedByLineId" type="xs:integer"/>
+			<xs:element name="DiscountAmountDeduction" type="xs:decimal" minOccurs="0"/>
+		</xs:sequence>
+	</xs:complexType>
+</xs:schema>

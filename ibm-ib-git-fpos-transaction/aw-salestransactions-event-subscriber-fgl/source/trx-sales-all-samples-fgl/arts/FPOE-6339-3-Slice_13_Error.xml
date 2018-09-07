@@ -1,0 +1,139 @@
+<eai:Exchange MinorVersion="0" MajorVersion="2" FixVersion="0" xmlns:eai="http://www.fgl.com/exchange/" xmlns:arts="http://www.fgl.com/ARTS">
+   <eai:MessageRouting>
+      <eai:Guid>AE465D25A18E4E0BB351256A1F747BF0</eai:Guid>
+      <eai:MessageId/>
+      <eai:MessageType>PointToPoint</eai:MessageType>
+      <eai:SubjectArea>Normal Retail Sales Transactions</eai:SubjectArea>
+      <eai:SbuNumber>3</eai:SbuNumber>
+      <eai:SbuCode>FGL</eai:SbuCode>
+      <eai:SbuName>FGL Sports Ltd.</eai:SbuName>
+      <eai:DataSourceCode>POE</eai:DataSourceCode>
+      <eai:DataSourceCodeName>POE POS FGL</eai:DataSourceCodeName>
+      <eai:MessageIndex>1</eai:MessageIndex>
+      <eai:MessageCount>1</eai:MessageCount>
+      <eai:SubjectAreaRunName>salestransactions-371-20160930-131800</eai:SubjectAreaRunName>
+   </eai:MessageRouting>
+   <eai:Messages>
+      <eai:Count>1</eai:Count>
+      <eai:SourceSystems>
+         <eai:Count>1</eai:Count>
+         <eai:SourceSystem>
+            <eai:Index>1</eai:Index>
+            <eai:SbuNumber>3</eai:SbuNumber>
+            <eai:SbuCode>FGL</eai:SbuCode>
+            <eai:SbuName>FGL Sports Ltd.</eai:SbuName>
+            <eai:MessageSourceCode>CSS</eai:MessageSourceCode>
+            <eai:MessageSourceCodeName>Central Sales Server</eai:MessageSourceCodeName>
+         </eai:SourceSystem>
+      </eai:SourceSystems>
+      <eai:POSLog>
+         <arts:Count>1</arts:Count>
+         <arts:Transaction TypeCode="ReturnTransaction">
+            <arts:BusinessUnit>
+               <arts:Index>1</arts:Index>
+               <arts:BusinessUnitNumber>365</arts:BusinessUnitNumber>
+               <arts:BusinessUnitTypeCode>RT</arts:BusinessUnitTypeCode>
+               <arts:BusinessUnitShortName>SC VILLAGE SHOPPING CENTRE</arts:BusinessUnitShortName>
+               <arts:BusinessUnitName>SC371</arts:BusinessUnitName>
+            </arts:BusinessUnit>
+            <arts:WorkstationID>3</arts:WorkstationID>
+            <arts:SequenceNumber>000032</arts:SequenceNumber>
+            <arts:BeginDateTime>2016-09-30T13:16:38+03:00</arts:BeginDateTime>
+            <arts:EndDateTime>2016-09-30T13:17:46+03:00</arts:EndDateTime>
+            <arts:OperatorID OperatorName="ikurganova Cashier" LastName="Cashier" FirstName="ikurganova">000002446</arts:OperatorID>
+            <arts:RetailTransaction>
+               <arts:LineItemCount>3</arts:LineItemCount>
+               <arts:CustomerCount>1</arts:CustomerCount>
+               <arts:AssociateCount>0</arts:AssociateCount>
+               <arts:LineItem VoidFlag="false">
+                  <arts:Index>1</arts:Index>
+                  <arts:SequenceNumber>AA</arts:SequenceNumber>
+                  <arts:Return TaxableFlag="true" ItemType="Stock">
+                     <arts:TaxCount>1</arts:TaxCount>
+                     <arts:RetailPriceModifierCount>0</arts:RetailPriceModifierCount>
+                     <arts:Item>
+                        <arts:ItemNumber>330780651</arts:ItemNumber>
+                        <arts:ItemName>TM R9 DEMO DRIVER MRH-S 9.5 94 14</arts:ItemName>
+                        <arts:UPCNumber>440004588836</arts:UPCNumber>
+                     </arts:Item>
+                     <arts:MerchandiseHierarchy Level="4" ID="9232"/>
+                     <arts:RegularSalesUnitPrice>229.00</arts:RegularSalesUnitPrice>
+                     <arts:ActualSalesUnitPrice>229.00</arts:ActualSalesUnitPrice>
+                     <arts:DiscountAmount>0.00</arts:DiscountAmount>
+                     <arts:Quantity>1</arts:Quantity>
+                     <arts:Tax TypeCode="Return" TaxType="NFHST" SourceSystemTaxExemptionFlag="false">
+                        <arts:Index>1</arts:Index>
+                        <arts:Amount>34.35</arts:Amount>
+                        <arts:Percent>15.00</arts:Percent>
+                     </arts:Tax>
+                     <arts:SerialNumber/>
+                     <arts:TransactionLink ReasonCode="Return" EntryMethod="Scanned">
+                        <arts:BusinessUnit>
+                           <arts:Index>1</arts:Index>
+                           <arts:BusinessUnitNumber>371</arts:BusinessUnitNumber>
+                           <arts:BusinessUnitTypeCode>RT</arts:BusinessUnitTypeCode>
+                           <arts:BusinessUnitShortName>SC VILLAGE SHOPPING CENTRE</arts:BusinessUnitShortName>
+                           <arts:BusinessUnitName>SC371</arts:BusinessUnitName>
+                        </arts:BusinessUnit>
+                        <arts:WorkstationID>106</arts:WorkstationID>
+                        <arts:SequenceNumber>000016</arts:SequenceNumber>
+                        <arts:BeginDateTime>2016-09-30T12:45:08+03:00</arts:BeginDateTime>
+                        <arts:EndDateTime>2016-09-30T12:45:26+03:00</arts:EndDateTime>
+                        <arts:OperatorID>000002446</arts:OperatorID>
+                     </arts:TransactionLink>
+                     <arts:SaleReturnTypeCode>RRTN</arts:SaleReturnTypeCode>
+                     <arts:SaleReturnTypeDescriptionText>Receipted Return</arts:SaleReturnTypeDescriptionText>
+                     <arts:ReasonCode>RT02</arts:ReasonCode>
+                     <arts:Description>Register Error</arts:Description>
+                  </arts:Return>
+               </arts:LineItem>
+               <arts:LineItem>
+                  <arts:Index>2</arts:Index>
+                  <arts:SequenceNumber>3</arts:SequenceNumber>
+                  <arts:Tax TypeCode="Refund" TaxType="NFHST">
+                     <arts:Index>1</arts:Index>
+                     <arts:Amount>34.35</arts:Amount>
+                     <arts:Percent>15.00</arts:Percent>
+                  </arts:Tax>
+               </arts:LineItem>
+               <arts:LineItem>
+                  <arts:Index>3</arts:Index>
+                  <arts:SequenceNumber>4</arts:SequenceNumber>
+                  <arts:Tender TypeCode="Refund" TenderType="Cash" SubTenderType="CAD">
+                     <arts:Amount>263.35</arts:Amount>
+                  </arts:Tender>
+               </arts:LineItem>
+               <arts:Total TotalType="TransactionGrossAmount">263.35</arts:Total>
+               <arts:Total TotalType="TransactionSubtotal">229.00</arts:Total>
+               <arts:LoyaltyAccount>
+                  <arts:LineItemSequenceNumber>1</arts:LineItemSequenceNumber>
+                  <arts:LoyaltyProgram>
+                     <arts:LoyaltyAccountID>6046461234567890</arts:LoyaltyAccountID>
+                     <arts:LoyaltyPointsDetail>
+                        <arts:PointsReturned>229</arts:PointsReturned>
+                     </arts:LoyaltyPointsDetail>
+                  </arts:LoyaltyProgram>
+               </arts:LoyaltyAccount>
+               <arts:Customer>
+                  <arts:Index>1</arts:Index>
+                  <arts:AddressCount>1</arts:AddressCount>
+                  <arts:TelephoneCount>1</arts:TelephoneCount>
+                  <arts:CustomerName>
+                     <arts:Name TypeCode="FirstName">Lia</arts:Name>
+                     <arts:Name TypeCode="LastName">K</arts:Name>
+                  </arts:CustomerName>
+                  <arts:Address>
+                     <arts:Index>1</arts:Index>
+                     <arts:PostalCode>D4F 4S4</arts:PostalCode>
+                  </arts:Address>
+                  <arts:Telephone>
+                     <arts:Index>1</arts:Index>
+                     <arts:FullTelephoneNumber>5465465456</arts:FullTelephoneNumber>
+                  </arts:Telephone>
+               </arts:Customer>
+            </arts:RetailTransaction>
+            <arts:TransactionSubtypeCode>RetailTransaction</arts:TransactionSubtypeCode>
+         </arts:Transaction>
+      </eai:POSLog>
+   </eai:Messages>
+</eai:Exchange>

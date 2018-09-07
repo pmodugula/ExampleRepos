@@ -1,0 +1,8 @@
+dat.product.pmm.publisher#IIBInboundQueue=RECV.${PRD_HRCHY_BATCH_IN_DS}
+dat.product.pmm.publisher#IIBPublication=${PRD_HRCHY_TOPICSTR}
+dat.product.pmm.publisher#CoreAuditDataSource=AUD${ENVN}${INST}
+dat.product.pmm.publisher#additionalInstances=${EXTRATHREADS}
+dat.product.pmm.publisher#PreProcessorAuditEnabled=False
+dat.product.pmm.publisher#PostProcessorAuditEnabled=False
+dat.product.pmm.publisher#CoreArtsMessageValidation=${ARTS_VALIDATION}
+dat.product.pmm.publisher#CoreDsMessageValidation=${DS_VALIDATION}

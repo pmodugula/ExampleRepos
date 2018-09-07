@@ -1,0 +1,55 @@
+
+
+BROKER SCHEMA com.marks.hyb.fastfind
+
+
+DECLARE nsOrderStatus NAMESPACE 'http://MarkS2_lib/processes/fulfillmentprocess';
+DECLARE eai NAMESPACE 'http://www.fgl.com/exchange/';
+CREATE COMPUTE MODULE process_fastfind_order
+	CREATE FUNCTION Main() RETURNS BOOLEAN
+	BEGIN		
+
+
+		RETURN TRUE;
+	END;
+END MODULE;
+
+CREATE COMPUTE MODULE process_fastfind_order_Compute
+	CREATE FUNCTION Main() RETURNS BOOLEAN
+	BEGIN
+		DECLARE refXMLNSC,refOutStreTrans REFERENCE TO OutputRoot;
+		DECLARE soapenv NAMESPACE 'http://schemas.xmlsoap.org/soap/envelope/';
+		DECLARE ff NAMESPACE 'http://www.marks.com/2014/01/services/FF/';
+		DECLARE arts NAMESPACE 'http://www.marks.com/2014/01/schemas/ARTS';
+		DECLARE nsOrderSharedContainer NAMESPACE 'http://www.marks.com/OrderSharedContainer';
+		CREATE LASTCHILD OF OutputRoot AS refXMLNSC DOMAIN 'XMLNSC';
+		SET refXMLNSC.soapenv:Envelope.(XMLNSC.Attribute)xmlns:soapenv = 'http://schemas.xmlsoap.org/soap/envelope/';
+		SET refXMLNSC.soapenv:Envelope.(XMLNSC.Attribute)xmlns:ff = 'http://www.marks.com/2014/01/services/FF/';
+		SET refXMLNSC.soapenv:Envelope.(XMLNSC.Attribute)xmlns:arts = 'http://www.marks.com/2014/01/schemas/ARTS';
+		CALL core.log.Info(MessageFlowLabel||'Module name: process_fastfind_order_Compute - Create the FF process order : start for-'||'EXTERNAL_ORDER :'||CAST(Environment.XMLNSC.nsOrder:Exchange.nsOrder:Messages.nsOrder:ArtsCustomerOrders.nsOrder1:CustomerOrderNumber AS CHARACTER));
+		SET refXMLNSC.soapenv:Envelope.soapenv:Body.ff:processOrderRequest.arts:CustomerOrder = Environment.Variables.nsFFCreateOrder1:CustomerOrder;
+		
+		-- To create the tag store transaction. The tag should be after sourceCorrelationID, in case not present then create after element OrderTotal 
+		IF (LENGTH(OutputRoot.XMLNSC.soapenv:Envelope.soapenv:Body.ff:processOrderRequest.arts:CustomerOrder.arts:SourceCorrelationID) > 0) THEN
+			CREATE NEXTSIBLING OF OutputRoot.XMLNSC.soapenv:Envelope.soapenv:Body.ff:processOrderRequest.arts:CustomerOrder.arts:SourceCorrelationID AS refOutStreTrans NAMESPACE arts NAME 'StoreTransaction';
+			SET refOutStreTrans.arts:StoreTransactionType = 'SALE';
+			SET refOutStreTrans.arts:TransactionID = Environment.Variables.nsOrderSharedContainer:OrderSharedContainer.POS_TRANSACTION_ID;
+			SET refOutStreTrans.arts:TransactionType = 'ISS';
+			SET refOutStreTrans.arts:LiabilityID = Environment.Variables.nsOrderSharedContainer:OrderSharedContainer.VIRTUAL_GIFT_CARD_NUMBER;
+			SET refOutStreTrans.arts:LiabilityType = 'MGC';
+		ELSE
+			CREATE NEXTSIBLING OF OutputRoot.XMLNSC.soapenv:Envelope.soapenv:Body.ff:processOrderRequest.arts:CustomerOrder.arts:OrderTotal AS refOutStreTrans NAMESPACE arts NAME 'StoreTransaction';
+			SET refOutStreTrans.arts:StoreTransactionType = 'SALE';
+			SET refOutStreTrans.arts:TransactionID = Environment.Variables.nsOrderSharedContainer:OrderSharedContainer.POS_TRANSACTION_ID;
+			SET refOutStreTrans.arts:TransactionType = 'ISS';
+			SET refOutStreTrans.arts:LiabilityID = Environment.Variables.nsOrderSharedContainer:OrderSharedContainer.VIRTUAL_GIFT_CARD_NUMBER;
+			SET refOutStreTrans.arts:LiabilityType = 'MGC';
+		END IF;
+		
+		SET refOutStreTrans.arts:LiabilityAmount = Environment.Variables.nsOrderSharedContainer:OrderSharedContainer.LIABILITYAMOUNT;
+		SET OutputLocalEnvironment.Variables.ProcessOrd.Message = CAST(ASBITSTREAM( OutputRoot OPTIONS FolderBitStream) AS CHAR CCSID CAST(Environment.MQMD.CodedCharSetId AS INT) ENCODING CAST(Environment.MQMD.Encoding AS INT));
+		CALL core.log.info(MessageFlowLabel||'Module name: process_fastfind_order_Compute - Create the FF process order : ends for -'||'EXTERNAL_ORDER :'||CAST(Environment.XMLNSC.nsOrder:Exchange.nsOrder:Messages.nsOrder:ArtsCustomerOrders.nsOrder1:CustomerOrderNumber AS CHARACTER));
+		CALL core.log.Debug(MessageFlowLabel||'Module name: process_fastfind_order - Created : '|| OutputLocalEnvironment.Variables.ProcessOrd.Message);
+		RETURN TRUE;
+	END;
+END MODULE;

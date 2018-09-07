@@ -1,0 +1,35 @@
+
+
+BROKER SCHEMA trx.order.hyb.fastfind
+
+DECLARE nsOrder NAMESPACE 'http://www.fgl.com/exchange/';
+DECLARE nsOrder1 NAMESPACE 'http://www.fgl.com/ARTS';
+
+
+CREATE FILTER MODULE virtual_giftcard_creation_GiftCardCreationSuccess_
+	CREATE FUNCTION Main() RETURNS BOOLEAN
+	BEGIN
+		DECLARE refGiftCrdCrt REFERENCE TO Body.Output904.body;
+		
+			----------------------------Changes for LOgging----------------------
+		---CALL core.log.Debug(MessageFlowLabel||'Module name: virtual_giftcard_creation_GiftCardCreationSuccess_:'||CAST ((refGiftCrdCrt.Result) AS CHARACTER));
+              DECLARE GftCardRelt BOOLEAN FALSE;
+              DECLARE GftCardRelt_CHECK INTEGER CAST ((refGiftCrdCrt.Result) AS INTEGER);
+              IF GftCardRelt_CHECK = 0  THEN
+                     SET GftCardRelt = TRUE;
+              CALL core.log.Info(MessageFlowLabel||'Module name:virtual_giftcard_GiftCardCreationSuccess_'||':Virtual Gift Card Created for -'||'EXTERNAL_ORDER :'||CAST(Environment.XMLNSC.nsOrder:Exchange.nsOrder:Messages.nsOrder:ArtsCustomerOrders.nsOrder1:CustomerOrderNumber AS CHARACTER));
+              ELSEIF GftCardRelt_CHECK <> 0 THEN
+                     SET GftCardRelt = FALSE;
+               CALL core.log.Info(MessageFlowLabel||'Module name:virtual_giftcard_creation_GiftCardCreationSuccess_'||' Unable to Create Vitrual Gift Card for -'||'EXTERNAL_ORDER :'||CAST(Environment.XMLNSC.nsOrder:Exchange.nsOrder:Messages.nsOrder:ArtsCustomerOrders.nsOrder1:CustomerOrderNumber AS CHARACTER));
+              END IF;
+              RETURN GftCardRelt;
+		----------------------------------------------
+		
+--		IF (refGiftCrdCrt.Result <> 0) THEN
+--			CALL core.log.Debug(MessageFlowLabel||'Module name: GiftCardCreationSuccess - RETURN FALSE');
+--			RETURN FALSE;
+--		END IF;
+--		RETURN TRUE;
+	END;
+
+END MODULE;

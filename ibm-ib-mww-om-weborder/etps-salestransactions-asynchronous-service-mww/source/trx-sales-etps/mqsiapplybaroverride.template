@@ -1,0 +1,6 @@
+trx.sales.etps.artstocss#IIBInboundQueue=RECV.${SALES_ETPS_IN}
+trx.sales.etps.artstocss#IIBOutboundQueue=SEND.${SALES_ETPS_OUT}
+trx.sales.etps.artstocss#CoreAuditDataSource=AUD${ENVN}${INST}
+trx.sales.etps.artstocss#CoreMessageValidation=${MESSAGE_VALIDATION}
+trx.sales.etps.artstocss#PreProcessorAuditEnabled=False
+trx.sales.etps.artstocss#PostProcessorAuditEnabled=False

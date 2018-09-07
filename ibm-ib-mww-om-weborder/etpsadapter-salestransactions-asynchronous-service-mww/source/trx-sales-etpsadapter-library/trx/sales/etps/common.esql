@@ -1,0 +1,56 @@
+BROKER SCHEMA trx.sales.etps
+
+CREATE PROCEDURE calculateCheckDigit(IN GIFTCARD_NUMBER INTEGER,OUT CHECK_DIGIT_NUMBER INTEGER)
+BEGIN
+	DECLARE INDEX INTEGER 0;
+	SET CHECK_DIGIT_NUMBER = 0;
+	CHECK_DIGIT:WHILE (INDEX < 10) DO
+		DECLARE COMPLETE_GIFTCARD_NUMBER CHARACTER CAST(GIFTCARD_NUMBER AS CHARACTER) || CAST(INDEX AS CHARACTER);
+		DECLARE CHECK_DIGIT_FLAG BOOLEAN ;
+		CALL isValidCheckDigit(COMPLETE_GIFTCARD_NUMBER,CHECK_DIGIT_FLAG);
+		IF( CHECK_DIGIT_FLAG = TRUE ) THEN 
+			SET CHECK_DIGIT_NUMBER = INDEX;
+			LEAVE CHECK_DIGIT;
+		END IF;
+		SET INDEX = INDEX + 1;
+	END WHILE;
+END;
+
+CREATE PROCEDURE isValidCheckDigit(IN COMPLETE_GIFTCARD_NUMBER CHARACTER, OUT CHECK_DIGIT_FLAG BOOLEAN)
+BEGIN
+       
+		DECLARE CURRENT_INDEX INTEGER 0;
+		DECLARE TOTAL INTEGER 0;
+		DECLARE GIFTCARD_LENGTH INTEGER LENGTH(COMPLETE_GIFTCARD_NUMBER);
+        WHILE (CURRENT_INDEX < GIFTCARD_LENGTH ) DO
+			-- Inspect each character from last to first
+			DECLARE LENGTH1 INTEGER GIFTCARD_LENGTH - CURRENT_INDEX;
+			DECLARE LENGTH2 INTEGER 1 ;
+			DECLARE CURRENT_DIGIT INTEGER CAST(SUBSTRING(COMPLETE_GIFTCARD_NUMBER from LENGTH1 for LENGTH2) AS INTEGER);
+			
+			IF(MOD(CURRENT_INDEX, 2) = 0) THEN
+			  -- if the currIndex is evenly divisible by 2 add the digitAtCurrIndex to the running total unchanged
+			  SET TOTAL = TOTAL + CURRENT_DIGIT;
+            ELSE 
+            	-- if the currIndex is NOT evenly divisible by 2 double it.
+            	DECLARE CURRENT_DIGIT_DOUBLED INTEGER CURRENT_DIGIT * 2;
+            	IF( CURRENT_DIGIT_DOUBLED > 9) THEN
+            		-- if the currDigitDoubled is 10 add 1 + 0 to the runningTotal
+					-- if the currDigitDoubled is 12 add 1 + 2 to the runningTotal
+					-- if the currDigitDoubled is 14 add 1 + 4 to the runningTotal . . . and so on . . .
+					SET TOTAL = TOTAL + (CURRENT_DIGIT_DOUBLED/10);  -- quotient  will be the tens digit. a > 9 so we will not get 0 / 10.
+					SET TOTAL = TOTAL + MOD(CURRENT_DIGIT_DOUBLED, 10); -- remainder will be the ones digit.
+        		ELSE
+        			SET TOTAL = TOTAL + CURRENT_DIGIT_DOUBLED;
+        		END IF;
+            END IF;
+            SET CURRENT_INDEX = CURRENT_INDEX + 1;
+	    END WHILE;
+
+        IF(MOD( TOTAL, 10) = 0) THEN
+        	SET CHECK_DIGIT_FLAG = TRUE;
+        ELSE
+        	SET CHECK_DIGIT_FLAG = FALSE;
+        END IF;
+        
+END;

@@ -1,0 +1,154 @@
+/*
+* File name: DsToArtsTransform.esql
+*
+* Purpose: ESQL file for DS to ARTS message transformation.
+*
+* Version: Initial Version
+*
+* Authors: Prasantha Modugula
+*
+* Create Date: 25 July 2016
+*
+* @copyright FGL 2016. All rights reserved.
+*/
+
+BROKER SCHEMA dat.tax.pmm
+PATH common;
+-- Namespace Declaration
+DECLARE eai NAMESPACE 'http://www.fgl.com/exchange/';
+DECLARE arts NAMESPACE 'http://www.fgl.com/ARTS';
+DECLARE xsi NAMESPACE 'http://www.w3.org/2001/XMLSchema-instance';
+DECLARE ds NAMESPACE 'http://www.fgl.com/SourceStagingTaxationRulesPmmFgl';
+
+CREATE COMPUTE MODULE pmm_BuildOutputMessage
+	CREATE FUNCTION Main() RETURNS BOOLEAN
+	BEGIN
+		-- Declaring Variables
+		DECLARE schemaName CHARACTER 'dat.tax.pmm';
+		DECLARE moduleName CHARACTER 'pmm_BuildOutputMessage';
+		DECLARE rEnv REFERENCE TO Environment;
+		-- Logging DebugMessage for the Key Business Fields and Module Start.
+		CALL core.log.DebugMessage(rEnv, schemaName || '.' || moduleName, ' [_MODULE - START]' );
+		--Copying Properties and MQMD
+		SET OutputRoot.Properties = InputRoot.Properties;
+		SET OutputRoot.MQMD = InputRoot.MQMD;
+		-- Declaring References to Input & Output
+		DECLARE rOut,rExch,rMsgRtng,rSrcSys,rOutMsgs,rArtsTxGrp,rTxJsdn,rTxJsdnAuth,rTaxRateRules,rTaxRateRule,rTaxResRuleType,rMerHrchies,rMerHrchylvls,rMerHrchylvl,rMerHrchy REFERENCE TO OutputRoot;
+		DECLARE rInPrdDtl REFERENCE TO InputRoot;
+		DECLARE rInExch REFERENCE TO InputRoot.XMLNSC.ds:Exchange;
+		DECLARE rInMsgRtng REFERENCE TO rInExch.ds:MessageRouting;
+		DECLARE rInMsg REFERENCE TO rInExch.ds:Message;
+		DECLARE rInTaxes REFERENCE TO rInMsg.ds:Taxes;
+		DECLARE rInTaxCd REFERENCE TO rInTaxes.ds:TaxCode;
+		DECLARE rInTaxAuth REFERENCE TO rInTaxes.ds:TaxAuthority;
+		DECLARE rInPrdDtls REFERENCE TO rInTaxes.ds:ProductDetails;
+		
+		
+		-- Constructing Header of the Output XML
+		CREATE LASTCHILD OF OutputRoot AS rOut DOMAIN 'XMLNSC';
+		CREATE LASTCHILD OF rOut AS rExch NAMESPACE eai NAME 'Exchange';
+		SET rExch.(XMLNSC.NamespaceDecl)xmlns:"eai" = eai;
+		SET rExch.(XMLNSC.NamespaceDecl)xmlns:"arts" = arts;
+		SET rExch.(XMLNSC.NamespaceDecl)xmlns:"xsi" = xsi;
+		SET rExch.(XMLNSC.Attribute)MajorVersion = 1;
+		SET rExch.(XMLNSC.Attribute)MinorVersion = 0;
+		SET rExch.(XMLNSC.Attribute)FixVersion = 1;
+
+		CREATE LASTCHILD OF rExch AS rMsgRtng NAMESPACE eai NAME 'MessageRouting';
+		SET rMsgRtng.eai:Guid = rInMsgRtng.ds:Guid;
+		SET rMsgRtng.eai:MessageId = InputRoot.MQMD.MsgId;
+		SET rMsgRtng.eai:MessageType = 'PubSub';
+		SET rMsgRtng.eai:SubjectArea = rInMsgRtng.ds:SubjectArea;
+		SET rMsgRtng.eai:SbuNumber = rInMsgRtng.ds:SBU_NBR;
+		SET rMsgRtng.eai:SbuCode = rInMsgRtng.ds:SBU_CD;
+		SET rMsgRtng.eai:SbuName = rInMsgRtng.ds:SBU_NM;
+		SET rMsgRtng.eai:DataSourceCode = rInMsgRtng.ds:DATA_SOURCE_CD;
+		SET rMsgRtng.eai:DataSourceCodeName = rInMsgRtng.ds:DATA_SOURCE_NM;
+		SET rMsgRtng.eai:MessageIndex = rInMsgRtng.ds:MessageIndex;
+		SET rMsgRtng.eai:MessageCount = rInMsgRtng.ds:MessageCount;
+		SET rMsgRtng.eai:SubjectAreaRunName = rInMsgRtng.ds:SubjectAreaRunName;
+
+		CREATE LASTCHILD OF rExch AS rOutMsgs NAMESPACE eai NAME 'Messages';
+		-- Assign with the value of 'ArtsTaxGroup' count.
+		SET rOutMsgs.eai:Count = 1;
+		CREATE LASTCHILD OF rOutMsgs AS rSrcSys NAMESPACE eai NAME 'SourceSystems';
+		-- Assign Count with count value of 'SourceSystem' occurence.
+		SET rSrcSys.eai:Count = 1;
+		SET rSrcSys.eai:SourceSystem.eai:Index = 1;
+		SET rSrcSys.eai:SourceSystem.eai:SbuNumber = rInMsgRtng.ds:SBU_NBR;
+		SET rSrcSys.eai:SourceSystem.eai:SbuCode = rInMsgRtng.ds:SBU_CD;
+		SET rSrcSys.eai:SourceSystem.eai:SbuName = rInMsgRtng.ds:SBU_NM;
+		SET rSrcSys.eai:SourceSystem.eai:MessageSourceCode = rInMsgRtng.ds:MessageSourceCode;
+		SET rSrcSys.eai:SourceSystem.eai:MessageSourceCodeName = rInMsgRtng.ds:MessageSourceCodeName;
+
+		CREATE LASTCHILD OF rOutMsgs AS rArtsTxGrp NAMESPACE eai NAME 'ArtsTaxGroup';
+		CALL mapChangeActionFlagOrActionFromEtlToArts(rInTaxes.(XMLNSC.Attribute)Action) INTO rArtsTxGrp.(XMLNSC.Attribute)Action;
+		SET rArtsTxGrp.arts:Index = 1;
+		SET rArtsTxGrp.arts:TaxGroupRuleCode = FIELDVALUE(rInTaxCd.ds:TXS_CODE);
+		SET rArtsTxGrp.arts:TaxGroupRuleName = FIELDVALUE(rInTaxCd.ds:TXS_CODE_DESC);
+
+		CREATE LASTCHILD OF rArtsTxGrp AS rTxJsdn NAMESPACE arts NAME 'TaxJurisdiction';
+		SET rTxJsdn.arts:TaxJurisdictionCode = FIELDVALUE(rInTaxAuth.ds:TXS_AUTH_CODE);
+		SET rTxJsdn.arts:TaxJurisdictionName = FIELDVALUE(rInTaxAuth.ds:TXS_AUTH_DESC);
+
+		CREATE LASTCHILD OF rTxJsdn AS rTxJsdnAuth NAMESPACE arts NAME 'TaxAuthority';
+		SET rTxJsdnAuth.arts:TaxAuthorityCode = FIELDVALUE(rInTaxAuth.ds:TXS_AUTH_CODE);
+		SET rTxJsdnAuth.arts:TaxAuthorityName = FIELDVALUE(rInTaxAuth.ds:TXS_AUTH_DESC);
+
+		CREATE LASTCHILD OF rArtsTxGrp AS rTaxRateRules NAMESPACE arts NAME 'TaxRateRules';
+		SET rTaxRateRules.arts:Count = 1;
+		CREATE LASTCHILD OF rTaxRateRules AS rTaxRateRule NAMESPACE arts NAME 'TaxRateRule';
+		SET rTaxRateRule.arts:Index = 1;
+
+		CREATE LASTCHILD OF rTaxRateRule NAMESPACE arts NAME 'TaxResultTypes';
+		SET rTaxRateRule.arts:TaxResultTypes.arts:Count = 1;
+
+		CREATE LASTCHILD OF rTaxRateRule.arts:TaxResultTypes AS rTaxResRuleType NAMESPACE arts NAME 'TaxResultType';
+		SET rTaxResRuleType.arts:Index = 1;
+		SET rTaxResRuleType.arts:TaxResultTypeCode = FIELDVALUE(rInPrdDtls.ds:TaxVariant);
+		SET rTaxResRuleType.arts:TaxResultTypeName = FIELDVALUE(rInPrdDtls.ds:TaxVariant);
+
+		CREATE LASTCHILD OF rArtsTxGrp AS rMerHrchies NAMESPACE arts NAME 'MerchandiseHierarchies';
+		SET rMerHrchies.arts:Count = 1;
+		CREATE LASTCHILD OF rMerHrchies AS rMerHrchy NAMESPACE arts NAME 'MerchandiseHierarchy';
+		SET rMerHrchy.arts:Index = 1;
+
+		CREATE LASTCHILD OF rMerHrchy AS rMerHrchylvls NAMESPACE arts NAME 'MerchandiseHierarchyLevels';
+		SET rMerHrchylvls.arts:Count = 0;
+		SET rMerHrchylvls.arts:MerchandiseHierarchyFunctionName = FIELDVALUE(rInPrdDtls.ds:ProductHierarchyFunctionName);
+
+		DECLARE Index INTEGER 0;
+		MOVE rInPrdDtl TO rInPrdDtls.ds:Row[1];
+		WHILE LASTMOVE(rInPrdDtl) DO
+			CREATE LASTCHILD OF rMerHrchylvls AS rMerHrchylvl NAMESPACE arts NAME 'MerchandiseHierarchyLevel';
+			SET Index = Index + 1;
+			-- Start Index with 1 increment by 1.
+			SET rMerHrchylvl.arts:Index = Index;
+			SET rMerHrchylvl.arts:MerchandiseHierarchyGroupNumber = FIELDVALUE(rInPrdDtl.ds:PRD_LVL_NUMBER);
+			-- Applied the logic: If PRD_LVL_ID is less than to 6 then assign PRD_LVL_ID+1 else xsi:nil='true'.
+			IF rInPrdDtl.ds:PRD_LVL_ID < 6 THEN
+				SET rMerHrchylvl.arts:ParentMerchandiseHierarchyLevelNumber = CAST(rInPrdDtl.ds:PRD_LVL_ID AS INTEGER)+1;
+		--	ELSE
+		--		SET rMerHrchylvl.arts:ParentMerchandiseHierarchyLevelNumber.(XMLNSC.Attribute)xsi:nil='true'; 
+			END IF;
+			-- Check IF rInPrdDtl.ProductHierarchyParentNumber is not null them map to target field else xsi:nil='true';
+			IF common.common_valueIsNotNullAndNotBlank(rInPrdDtl.ds:ProductHierarchyParentNumber) THEN
+				SET rMerHrchylvl.arts:ParentMerchandiseHierarchyGroupNumber = FIELDVALUE(rInPrdDtl.ds:ProductHierarchyParentNumber);
+		--	ELSE
+		--		SET rMerHrchylvl.arts:ParentMerchandiseHierarchyGroupNumber.(XMLNSC.Attribute)xsi:nil='true';
+			END IF;
+
+			SET rMerHrchylvl.arts:MerchandiseHierarchyGroupName = FIELDVALUE(rInPrdDtl.ds:PRD_NAME_FULL);
+			SET rMerHrchylvl.arts:MerchandiseHierarchyLevelNumber = FIELDVALUE(rInPrdDtl.ds:PRD_LVL_ID);
+			SET rMerHrchylvl.arts:MerchandiseHierarchyLevelCode = FIELDVALUE(rInPrdDtl.ds:PRD_LVL_ID);
+			SET rMerHrchylvl.arts:MerchandiseHierarchyLevelName = FIELDVALUE(rInPrdDtl.ds:PRD_LVL_NAME);
+			MOVE rInPrdDtl NEXTSIBLING REPEAT NAME;
+		END WHILE;
+		SET rMerHrchylvls.arts:Count = Index;
+		-- Writing success log.
+		CALL core.log.InfoMessage(rEnv, schemaName || '.' || moduleName, ' Transformation completed successfully.');
+		-- Writing Module End Log. 
+		CALL core.log.DebugMessage(rEnv, schemaName || '.' || moduleName, ' [_MODULE - END]');
+
+	END;
+END MODULE;

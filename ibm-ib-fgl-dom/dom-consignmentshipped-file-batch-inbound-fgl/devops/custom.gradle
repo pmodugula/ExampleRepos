@@ -1,0 +1,4 @@
+ext{
+   buildAll=true
+   repoName='dom-consignmentshipped-file-batch-inbound-fgl'
+}

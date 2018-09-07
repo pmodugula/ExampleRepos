@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ecore:EPackage xmi:version="2.0"
+    xmlns:xmi="http://www.omg.org/XMI" xmlns:ComIbmCompute.msgnode="ComIbmCompute.msgnode" xmlns:ecore="http://www.eclipse.org/emf/2002/Ecore" xmlns:eflow="http://www.ibm.com/wbi/2005/eflow" xmlns:utility="http://www.ibm.com/wbi/2005/eflow_utility" nsURI="trx/consignmentpaid/dom/HybrisToDomsTransform.subflow"
+    nsPrefix="trx_consignmentpaid_dom_HybrisToDomsTransform.subflow">
+  <eClassifiers xmi:type="eflow:FCMComposite" name="FCMComposite_1" useDefaults="true" udpSupport="true">
+    <eSuperTypes href="http://www.ibm.com/wbi/2005/eflow#//FCMBlock"/>
+    <translation xmi:type="utility:TranslatableString" key="HybrisToDomsTransform" bundleName="trx/consignmentpaid/dom/HybrisToDomsTransform" pluginId="trx-consignmentpaid-dom-library"/>
+    <colorGraphic16 xmi:type="utility:GIFFileGraphic" resourceName="platform:/plugin/trx-consignmentpaid-dom-library/icons/full/obj16/HybrisToDomsTransform.gif"/>
+    <colorGraphic32 xmi:type="utility:GIFFileGraphic" resourceName="platform:/plugin/trx-consignmentpaid-dom-library/icons/full/obj30/HybrisToDomsTransform.gif"/>
+    <longDescription xmi:type="utility:ConstantString" string="Subflow for consignment paid processing from hybris to dom"/>
+    <version xmi:type="utility:ConstantString" string="1.0"/>
+    <composition>
+      <nodes xmi:type="eflow:FCMSource" xmi:id="InTerminal.Input" location="10,20">
+        <translation xmi:type="utility:TranslatableString" key="InTerminal.Input" bundleName="trx/consignmentpaid/dom/HybrisToDomsTransform" pluginId="trx-consignmentpaid-dom-library"/>
+      </nodes>
+      <nodes xmi:type="ComIbmCompute.msgnode:FCMComposite_1" xmi:id="FCMComposite_1_6" location="93,20" computeExpression="esql://routine/trx.consignmentpaid.dom#HybrisToDomsTransform.Main" throwExceptionOnDatabaseError="false">
+        <translation xmi:type="utility:ConstantString" string="HybrisToDomsTransform"/>
+      </nodes>
+      <nodes xmi:type="eflow:FCMSink" xmi:id="OutTerminal.Output1" location="244,20">
+        <translation xmi:type="utility:TranslatableString" key="OutTerminal.Output" bundleName="trx/consignmentpaid/dom/HybrisToDomsTransform" pluginId="trx-consignmentpaid-dom-library"/>
+      </nodes>
+      <connections xmi:type="eflow:FCMConnection" xmi:id="FCMConnection_1" targetNode="FCMComposite_1_6" sourceNode="InTerminal.Input" sourceTerminalName="OutTerminal.out" targetTerminalName="InTerminal.in"/>
+      <connections xmi:type="eflow:FCMConnection" xmi:id="FCMConnection_2" targetNode="OutTerminal.Output1" sourceNode="FCMComposite_1_6" sourceTerminalName="OutTerminal.out" targetTerminalName="InTerminal.in"/>
+    </composition>
+    <propertyOrganizer/>
+    <stickyBoard/>
+  </eClassifiers>
+</ecore:EPackage>

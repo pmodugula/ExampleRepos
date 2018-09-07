@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- edited with XMLSpy v2014 sp1 (x64) (http://www.altova.com) by FGL SPORTS LTD (FGL SPORTS LTD) -->
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" elementFormDefault="qualified" attributeFormDefault="unqualified">
+	<xs:complexType name="TransactionLine">
+		<xs:sequence>
+			<xs:element name="RecordType" type="xs:string" fixed="L" nillable="false"/>
+			<xs:element name="LineId" type="xs:integer" nillable="false"/>
+			<xs:element name="LineObject" type="xs:string" nillable="true"/>
+			<xs:element name="LineAction" type="xs:string" nillable="true"/>
+			<xs:element name="ReferenceNbr" type="xs:string" nillable="true" minOccurs="0"/>
+			<xs:element name="LineAmount" type="xs:decimal" nillable="true" minOccurs="0"/>
+			<xs:element name="Unused1" type="xs:integer" nillable="true" minOccurs="0"/>
+			<xs:element name="LineAmountDivider" type="xs:integer" nillable="false" minOccurs="0"/>
+			<xs:element name="Unused2" type="xs:integer" nillable="false" minOccurs="0"/>
+			<xs:element name="VoidingReversalFlg" type="xs:integer" nillable="true" minOccurs="0"/>
+			<xs:element name="LineAmountDeduction" type="xs:decimal" nillable="true" minOccurs="0"/>
+			<xs:element name="LineAmountMultiplicationFactor" type="xs:decimal" nillable="true" minOccurs="0"/>
+			<xs:element name="LineVoidFlg" type="xs:string" nillable="true" minOccurs="0"/>
+			<xs:element name="AttachmentQty" type="xs:integer" nillable="true" minOccurs="0"/>
+			<xs:element name="LineObjectAdjustment" type="xs:integer" nillable="true" minOccurs="0"/>
+			<xs:element name="LkpPosCode" type="xs:string" nillable="true" minOccurs="0"/>
+		</xs:sequence>
+	</xs:complexType>
+</xs:schema>

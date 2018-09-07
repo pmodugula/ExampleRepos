@@ -1,0 +1,201 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<!-- edited with XMLSpy v2014 rel. 2 (http://www.altova.com) by Ron Matyjanka (FGL SPORTS LTD) -->
+<!--
+ * ER/Studio Data Architect XE3 %s XML Schema Generation
+ * Company:		FGL Sports
+ * Project:		FGL Corporate Data Warehouse
+ * Author:		Warren Whale
+ * Version:		1.0
+ * Date Created:	2015-01-23
+-->
+<xs:schema xmlns:arts="http://www.fgl.com/ARTS" xmlns:xs="http://www.w3.org/2001/XMLSchema" targetNamespace="http://www.fgl.com/ARTS" elementFormDefault="qualified">
+	<xs:include schemaLocation="AttributeGroupsV1_00_00.xsd"/>
+	<xs:complexType name="ArtsSizeType">
+		<xs:sequence>
+			<xs:element name="Index" type="xs:long"/>
+			<xs:element name="SbuNumber">
+				<xs:complexType>
+					<xs:simpleContent>
+						<xs:extension base="xs:string">
+							<xs:attributeGroup ref="arts:ElementControlAttributeGroup"/>
+						</xs:extension>
+					</xs:simpleContent>
+				</xs:complexType>
+			</xs:element>
+			<xs:element name="SbuCode">
+				<xs:complexType>
+					<xs:simpleContent>
+						<xs:extension base="xs:string">
+							<xs:attributeGroup ref="arts:ElementControlAttributeGroup"/>
+						</xs:extension>
+					</xs:simpleContent>
+				</xs:complexType>
+			</xs:element>
+			<xs:element name="SbuName">
+				<xs:complexType>
+					<xs:simpleContent>
+						<xs:extension base="xs:string">
+							<xs:attributeGroup ref="arts:ElementControlAttributeGroup"/>
+						</xs:extension>
+					</xs:simpleContent>
+				</xs:complexType>
+			</xs:element>
+			<xs:element name="DataSourceCode">
+				<xs:complexType>
+					<xs:simpleContent>
+						<xs:extension base="xs:string">
+							<xs:attributeGroup ref="arts:ElementControlAttributeGroup"/>
+						</xs:extension>
+					</xs:simpleContent>
+				</xs:complexType>
+			</xs:element>
+			<xs:element name="DataSourceName">
+				<xs:complexType>
+					<xs:simpleContent>
+						<xs:extension base="xs:string">
+							<xs:attributeGroup ref="arts:ElementControlAttributeGroup"/>
+						</xs:extension>
+					</xs:simpleContent>
+				</xs:complexType>
+			</xs:element>
+			<xs:element name="SourceSizeFamilyNumber">
+				<xs:annotation>
+					<xs:documentation>A unique, system assigned identity from the source system,without any implied or embedded business meaning.</xs:documentation>
+				</xs:annotation>
+				<xs:complexType>
+					<xs:simpleContent>
+						<xs:extension base="xs:string">
+							<xs:attributeGroup ref="arts:ElementControlAttributeGroup"/>
+						</xs:extension>
+					</xs:simpleContent>
+				</xs:complexType>
+			</xs:element>
+			<xs:element name="SizeFamilyName">
+				<xs:annotation>
+					<xs:documentation>A name for a size family (i.e., classification or grouping of sizes).
+
+E.G. Source: PMM.PRDDMHEE (Product Dimension Header)
+Data: prd_pdh_name
+Corresponding/mapping: BASAHREE.app_header_desc</xs:documentation>
+				</xs:annotation>
+				<xs:complexType>
+					<xs:simpleContent>
+						<xs:extension base="xs:string">
+							<xs:attributeGroup ref="arts:ElementControlAttributeGroup"/>
+						</xs:extension>
+					</xs:simpleContent>
+				</xs:complexType>
+			</xs:element>
+			<xs:element name="FrenchSizeFamilyName" nillable="true">
+				<xs:complexType>
+					<xs:simpleContent>
+						<xs:extension base="xs:string">
+							<xs:attributeGroup ref="arts:ElementControlAttributeGroup"/>
+						</xs:extension>
+					</xs:simpleContent>
+				</xs:complexType>
+			</xs:element>
+			<xs:element name="Sizes">
+				<xs:complexType>
+					<xs:sequence>
+						<xs:element name="Count" type="xs:long"/>
+						<xs:element name="Size" minOccurs="0" maxOccurs="unbounded">
+							<xs:complexType>
+								<xs:sequence>
+									<xs:element name="Index" type="xs:long"/>
+									<xs:element name="SequenceNumber">
+										<xs:complexType>
+											<xs:simpleContent>
+												<xs:extension base="xs:long">
+													<xs:attributeGroup ref="arts:ElementControlAttributeGroup"/>
+												</xs:extension>
+											</xs:simpleContent>
+										</xs:complexType>
+									</xs:element>
+									<xs:element name="SourceSizeNumber">
+										<xs:annotation>
+											<xs:documentation>A unique, system assigned identity for a [enter name of entity here],without any implied or embedded business meaning.
+
+In addition to this surrogate identifier, a business-specific identifier must be defined (i.e., a set of one or more attributes that uniquely identifies each instance of this entity).
+</xs:documentation>
+										</xs:annotation>
+										<xs:complexType>
+											<xs:simpleContent>
+												<xs:extension base="xs:string">
+													<xs:attributeGroup ref="arts:ElementControlAttributeGroup"/>
+												</xs:extension>
+											</xs:simpleContent>
+										</xs:complexType>
+									</xs:element>
+									<xs:element name="SizeCode">
+										<xs:annotation>
+											<xs:documentation>A code for a Size.
+Source: PMM.PRDDMDEE (Product Dimension Detail)
+Data: prd_pdd_code
+Sample values (MWW PMM Prod, as at 2015-05-08):
+68-1
+1
+1.25
+42005
+1XL       
+2314K1    
+4XL       
+V92       
+VANCOU    
+VANCOV    
+XXT       
+</xs:documentation>
+										</xs:annotation>
+										<xs:complexType>
+											<xs:simpleContent>
+												<xs:extension base="xs:string">
+													<xs:attributeGroup ref="arts:ElementControlAttributeGroup"/>
+													<xs:attribute name="PmmOriginalValue" type="xs:string">
+														<xs:annotation>
+															<xs:documentation>In the case when a record is modified, this attribute holds the original PMM value for the SizeCode. This information is needed by WM when updating a record.</xs:documentation>
+														</xs:annotation>
+													</xs:attribute>
+												</xs:extension>
+											</xs:simpleContent>
+										</xs:complexType>
+									</xs:element>
+									<xs:element name="SizeName" nillable="true">
+										<xs:annotation>
+											<xs:documentation>A name for a Size.
+
+Source: PMM.PRDDMDEE (Product Dimension Detail)
+Data: prd_pdd_name
+
+Sample values (MWW PMM Prod, as at 2015-05-08):
+0	0
+1	1
+1	Black                         </xs:documentation>
+										</xs:annotation>
+										<xs:complexType>
+											<xs:simpleContent>
+												<xs:extension base="xs:string">
+													<xs:attributeGroup ref="arts:ElementControlAttributeGroup"/>
+												</xs:extension>
+											</xs:simpleContent>
+										</xs:complexType>
+									</xs:element>
+									<xs:element name="FrenchSizeName" nillable="true">
+										<xs:complexType>
+											<xs:simpleContent>
+												<xs:extension base="xs:string">
+													<xs:attributeGroup ref="arts:ElementControlAttributeGroup"/>
+												</xs:extension>
+											</xs:simpleContent>
+										</xs:complexType>
+									</xs:element>
+								</xs:sequence>
+								<xs:attributeGroup ref="arts:TypeControlAttributeGroup"/>
+							</xs:complexType>
+						</xs:element>
+					</xs:sequence>
+				</xs:complexType>
+			</xs:element>
+		</xs:sequence>
+		<xs:attributeGroup ref="arts:TypeControlAttributeGroup"/>
+	</xs:complexType>
+</xs:schema>

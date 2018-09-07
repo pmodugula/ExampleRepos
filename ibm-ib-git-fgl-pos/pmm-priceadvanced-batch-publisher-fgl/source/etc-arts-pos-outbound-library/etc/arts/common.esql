@@ -1,0 +1,81 @@
+BROKER SCHEMA etc.arts
+/*
+ * File name: common.esql
+ *
+ * Purpose:   ESQL file for common modules used across bulking applications.
+ *
+ * Version:   Initial Version
+ *
+ * Authors:   Madanlal Tilsiram
+ *                 
+ * Create Date:  11 Aug 2016
+ * 
+ * @copyright FGL 2016.  All rights reserved.
+ */
+
+--DECLARE eai NAMESPACE 'http://www.fgl.com/exchange/';
+
+CREATE COMPUTE MODULE CollectionFailure
+      CREATE FUNCTION Main() RETURNS BOOLEAN
+      BEGIN
+      	DECLARE refIn REFERENCE TO InputRoot;
+		DECLARE refInCollection REFERENCE TO InputRoot.Collection;		
+		DECLARE refOut REFERENCE TO OutputRoot;
+		CALL common.headers_BuildMQMD(refIn,refOut);
+		SET OutputRoot.MQMD.Format = 'MQSTR';        
+		CREATE LASTCHILD OF OutputRoot AS refOut DOMAIN 'XMLNSC';
+		SET refOut.Collection = refInCollection;
+		PROPAGATE TO TERMINAL 'out';
+		RETURN FALSE;
+		END;        
+END MODULE;
+
+CREATE COMPUTE MODULE SplitCollection
+      CREATE FUNCTION Main() RETURNS BOOLEAN
+      BEGIN
+        DECLARE refInMsgIn REFERENCE TO InputRoot.Collection.MsgIn[1];
+        DECLARE refOut REFERENCE TO OutputRoot;
+        DECLARE rOutput1 REFERENCE TO OutputRoot;      
+        
+        WHILE LASTMOVE(refInMsgIn) DO
+        	  -- Build MQMD and set MQMD format to MQSTR
+			  CALL common.headers_BuildMQMD(refInMsgIn,rOutput1);
+			  SET OutputRoot.MQMD = refInMsgIn.MQMD;	
+			  SET OutputRoot.MQRFH2 = refInMsgIn.MQRFH2;
+              CREATE LASTCHILD OF OutputRoot AS refOut DOMAIN 'XMLNSC';
+              SET refOut = refInMsgIn.XMLNSC;     
+              PROPAGATE TO TERMINAL 'out';
+              MOVE refInMsgIn NEXTSIBLING REPEAT NAME;
+        END WHILE;        
+        
+        RETURN FALSE;
+        END;            
+END MODULE;
+
+CREATE COMPUTE MODULE LogCollectionFailureMsg
+	CREATE FUNCTION Main() RETURNS BOOLEAN
+	BEGIN
+		DECLARE moduleName CHARACTER 'LogCollectionsFailureMsg';
+		DECLARE schemaName CHARACTER 'etc.arts';
+		DECLARE RefEnv REFERENCE TO Environment;
+		SET OutputRoot = InputRoot;
+		DECLARE msgId CHARACTER CAST(InputLocalEnvironment.WrittenDestination.MQ.DestinationData.msgId AS CHARACTER);
+		SET Environment.__MsgIdForLog4J__ = SUBSTRING(msgId FROM 3 FOR LENGTH(msgId)-3);
+		CALL core.log.InfoMessage(RefEnv, schemaName || '.' || moduleName, 'A collection of  messages failed while bulking, message sent to collection failure queue - ' || InputLocalEnvironment.WrittenDestination.MQ.DestinationData.queueName);
+		RETURN TRUE;
+	END;
+END MODULE;
+
+CREATE COMPUTE MODULE LogFailure
+	CREATE FUNCTION Main() RETURNS BOOLEAN
+	BEGIN
+		SET OutputRoot = InputRoot;
+		DECLARE moduleName CHARACTER 'LogFailure';
+		DECLARE schemaName CHARACTER 'etc.arts';
+		DECLARE RefEnv REFERENCE TO Environment;
+		DECLARE msgId CHARACTER CAST(InputLocalEnvironment.WrittenDestination.MQ.DestinationData.msgId AS CHARACTER);
+		SET Environment.__MsgIdForLog4J__ = SUBSTRING(msgId FROM 3 FOR LENGTH(msgId)-3);
+      	CALL core.log.InfoMessage(RefEnv, schemaName || '.' || moduleName, 'Message Failed while bulking, message sent to failure queue - ' || InputLocalEnvironment.WrittenDestination.MQ.DestinationData.queueName);		
+		RETURN TRUE;
+	END;
+END MODULE;

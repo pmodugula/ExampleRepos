@@ -1,0 +1,225 @@
+BROKER SCHEMA trx.sales.xbr
+
+/***********************************************************************************************************
+* Authors: Madanlal Tulsiram																			   
+* Create Date: 27-10-2016   																			   
+* Version History:																			   			   
+* Version 	    Name	 				RevisionDate 						Revision Details								   
+* =======	================			============= 		================================================== 
+* 1.0 		Madanlal Tulsiram		 	27/10/2016		 		Initial Version of Arts to Tlog1-Like xml		   
+* 1.1		Greeshma					17/11/2016				Changes to update mappings.
+* 1.2		Piyush Vaishnav				30/11/2016				TransactionDetail. 	
+* 1.3		Greeshma					06/12/2016				Tender/Tax			
+* 1.4		Greeshma					08/12/2016				Discount
+* 1.5		Greeshma					12/12/2016				V13 Mapping doc changes
+* 1.6		Greeshma					22/12/2016				Added Non Merchandise DiscountLine
+* 1.7		Greeshma					07/07/2017				Mapping doc v23-Tender line changes.
+										   							 
+************************************************************************************************************/
+
+-- Namespace Declaration
+DECLARE eai  NAMESPACE 'http://www.fgl.com/exchange/';
+DECLARE arts NAMESPACE  'http://www.fgl.com/ARTS';
+DECLARE xsi  NAMESPACE 'http://www.w3.org/2001/XMLSchema-instance';
+
+CREATE COMPUTE MODULE TLOG1_BuildOutputMessage			
+CREATE FUNCTION Main() RETURNS BOOLEAN
+BEGIN
+		-- Copy Header properties
+		Set OutputRoot.Properties = InputRoot.Properties;
+		
+		Set OutputRoot.MQMD = InputRoot.MQMD;		
+		Set OutputRoot.MQRFH2 = InputRoot.MQRFH2;				
+
+		DECLARE rEnv REFERENCE TO Environment;				
+
+		-- Logging Module Start
+		DECLARE schemaName CHARACTER 'trx.sales.xbr';
+		DECLARE moduleName CHARACTER 'TLOG1_BuildOutputMessage';		
+		CALL core.log.DebugMessage(rEnv, schemaName || '.' || moduleName, ' [_MODULE - START]' );		
+		-- Reference Variable Declaration
+		
+		DECLARE rInput										REFERENCE TO InputRoot;		
+		DECLARE rOut,rOutTLOG1,rOutHeader,rOutMerch,rOutDiscount,rOutTender,rOutTax,rOutNonMerch	REFERENCE TO OutputRoot;				
+		DECLARE rInPOSLog 									REFERENCE TO InputRoot.XMLNSC.eai:Exchange.eai:Messages.eai:POSLog;
+		DECLARE rInTransaction 								REFERENCE TO rInPOSLog.arts:Transaction;		
+		DECLARE rInRtlTrn 									REFERENCE TO rInTransaction.arts:RetailTransaction;
+		DECLARE rInCust										REFERENCE TO rInRtlTrn.arts:Customer;
+		DECLARE rInLineItem 								REFERENCE TO rInRtlTrn.arts:LineItem;
+		DECLARE rInLoyaltyAc    							REFERENCE TO rInRtlTrn.arts:LoyaltyAccount;
+		DECLARE seqNumber,seqNumDiscountRec,SubSeqNumber  	INTEGER 0;
+		DECLARE ReasonCodeDiscount 							BOOLEAN FALSE;
+		DECLARE temp	 									ROW;
+		DECLARE recordType 									CHARACTER '';
+		
+		-- Subscriber Message Model creation
+		SET OutputRoot.Properties.MessageType = '{}:TLOG1';
+		SET OutputRoot.Properties.MessageFormat = '';
+		
+		--Create OutputRoot
+		CREATE LASTCHILD OF OutputRoot AS rOut DOMAIN 'DFDL';
+		CREATE LASTCHILD OF rOut AS rOutTLOG1 NAME 'TLOG1';
+
+		--TLOG1 Header record creation
+		CREATE LASTCHILD OF rOutTLOG1 AS rOutHeader NAME 'TransactionHeader';		
+		CALL trx.sales.xbr.Header(rInTransaction,rEnv,rOutHeader);	  
+		
+		WHILE LASTMOVE(rInLineItem) DO	
+			--TLOG1 Merchandise record creation		
+			IF rInTransaction.arts:TransactionSubtypeCode = 'RetailTransaction' AND rInLineItem.arts:LineItemSubtypeCode IN ('Sale', 'Return') AND (EXISTS(rInLineItem.arts:Sale.arts:Item[]) OR EXISTS(rInLineItem.arts:Return.arts:Item[])) THEN
+				CREATE LASTCHILD OF rOutTLOG1 AS rOutMerch NAME 'TransactionDetail';				
+				SET seqNumber = seqNumber + 1;
+				SET seqNumDiscountRec=seqNumber;
+				CALL trx.sales.xbr.Merchandise(rInTransaction,rEnv, rInLineItem,rOutMerch,seqNumber,ReasonCodeDiscount);
+				
+				-- TLOG1 Merchandise Line Discount record creation				
+				IF rInLineItem.arts:LineItemSubtypeCode = 'Sale' THEN			
+					SET temp.RetailPriceModifiers[] = SELECT * FROM rInLineItem.arts:Sale.arts:RetailPriceModifier[] AS S;
+					SET temp.RetailPriceModSalesMkd[] = SELECT * FROM temp.RetailPriceModifiers[] AS R WHERE R.arts:ReasonCode IN
+												('COUPON SUBTOTAL DISCOUNT','PRICE MATCHING SUBTOTAL DISCOUNT','TEAM SUBTOTAL DISCOUNT','INCORRECT TICKET SUBTOTAL DISCOUNT',
+												'GST EVENT SUBTOTAL DISCOUNT','MANAGER OVERRIDE SUBTOTAL DISCOUNT','EMPLOYEE SUBTOTAL DISCOUNT',
+												'COUPON ITEM DISCOUNT','DAMAGED ITEM DISCOUNT','PRICE MATCHING ITEM DISCOUNT','TEAM ITEM DISCOUNT',
+												'INCORRECT TICKET ITEM DISCOUNT','GST EVENT ITEM DISCOUNT','OTHER ITEM DISCOUNT','MANAGER OVERRIDE ITEM MARKDOWN',
+												'AD PRICE NOT IN SYSTEM ITEM MARKDOWN','PRICE ADJUSTMENT','DM APPROVED','EMPLOYEE ITEM DISCOUNT','PACKAGE ITEM MARKDOWN');
+					DECLARE rLineItemRetPricMod REFERENCE TO temp.RetailPriceModSalesMkd[1];
+					WHILE LASTMOVE(rLineItemRetPricMod)  DO
+						CREATE LASTCHILD OF rOutTLOG1 AS rOutDiscount NAME 'DiscountDetail';
+						SET SubSeqNumber = 	SubSeqNumber + 1;	
+			 			CALL trx.sales.xbr.Discount(rInTransaction,rEnv,rInLineItem,rOutDiscount,seqNumDiscountRec,SubSeqNumber,rLineItemRetPricMod);				
+						MOVE rLineItemRetPricMod NEXTSIBLING REPEAT TYPE NAME;	
+					END WHILE;
+					SET SubSeqNumber = 0;					
+				ELSEIF rInLineItem.arts:LineItemSubtypeCode = 'Return' THEN
+					SET temp.RetailPriceModifiers[] = SELECT * FROM rInLineItem.arts:Return.arts:RetailPriceModifier[] AS S;
+					SET temp.RetailPriceModSalesMkd[] = SELECT * FROM temp.RetailPriceModifiers[] AS R WHERE R.arts:ReasonCode IN
+												('COUPON SUBTOTAL DISCOUNT','PRICE MATCHING SUBTOTAL DISCOUNT','TEAM SUBTOTAL DISCOUNT','INCORRECT TICKET SUBTOTAL DISCOUNT',
+												'GST EVENT SUBTOTAL DISCOUNT','MANAGER OVERRIDE SUBTOTAL DISCOUNT','EMPLOYEE SUBTOTAL DISCOUNT',
+												'COUPON ITEM DISCOUNT','DAMAGED ITEM DISCOUNT','PRICE MATCHING ITEM DISCOUNT','TEAM ITEM DISCOUNT',
+												'INCORRECT TICKET ITEM DISCOUNT','GST EVENT ITEM DISCOUNT','OTHER ITEM DISCOUNT','MANAGER OVERRIDE ITEM MARKDOWN',
+												'AD PRICE NOT IN SYSTEM ITEM MARKDOWN','PRICE ADJUSTMENT','DM APPROVED','EMPLOYEE ITEM DISCOUNT','PACKAGE ITEM MARKDOWN');
+					DECLARE rLineItemRetPricMod REFERENCE TO temp.RetailPriceModSalesMkd[1];
+					WHILE LASTMOVE(rLineItemRetPricMod)  DO
+						CREATE LASTCHILD OF rOutTLOG1 AS rOutDiscount NAME 'DiscountDetail';
+						SET SubSeqNumber = 	SubSeqNumber + 1;
+			 			CALL trx.sales.xbr.Discount(rInTransaction,rEnv,rInLineItem,rOutDiscount,seqNumDiscountRec,SubSeqNumber,rLineItemRetPricMod);				
+						MOVE rLineItemRetPricMod NEXTSIBLING REPEAT TYPE NAME;	
+					END WHILE;	
+					SET SubSeqNumber = 0;
+				END IF;	
+				
+				
+			-- TLOG1 Non Merchandise record creation
+			ELSEIF (rInTransaction.arts:TransactionSubtypeCode = 'RetailTransaction' AND 
+					(EXISTS(rInLineItem.arts:Sale.arts:NonSKUItem[]) OR  
+					 EXISTS(rInLineItem.arts:Return.arts:NonSKUItem[]) OR 
+					 rInLineItem.arts:LineItemSubtypeCode = 'SaleOfGiftCard') OR 
+					 (rInTransaction.(XMLNSC.Attribute)TypeCode = 'TenderExchangeTransaction' AND rInLineItem.arts:LineItemSubtypeCode = 'Tender' AND 
+					 rInLineItem.arts:Tender.(XMLNSC.Attribute)TenderType = 'GiftCard' AND rInLineItem.arts:Tender.(XMLNSC.Attribute)TypeCode = 'Sale')) THEN 
+					
+				CREATE LASTCHILD OF rOutTLOG1 AS rOutNonMerch NAME 'NonMerchandise';
+		  		SET seqNumber = seqNumber + 1;
+		  		SET seqNumDiscountRec=seqNumber;
+		  		
+		  		--Set the recordType based on the lineItemtype
+				IF EXISTS(rInLineItem.arts:Sale.arts:NonSKUItem[]) THEN
+					SET recordType = 'Sale';   
+				ELSEIF EXISTS(rInLineItem.arts:Return.arts:NonSKUItem[]) THEN
+					SET recordType = 'Return'; 
+				ELSEIF rInLineItem.arts:LineItemSubtypeCode = 'SaleOfGiftCard' THEN
+					SET recordType = 'SaleOfGiftCard'; 
+				ELSEIF rInTransaction.(XMLNSC.Attribute)TypeCode = 'TenderExchangeTransaction' AND 
+				 rInLineItem.arts:LineItemSubtypeCode = 'Tender' AND 
+				 rInLineItem.arts:Tender.(XMLNSC.Attribute)TenderType = 'GiftCard' AND 
+				 rInLineItem.arts:Tender.(XMLNSC.Attribute)TypeCode = 'Sale' THEN 
+					SET recordType = 'TenderExchange'; 
+				END IF;
+				CALL trx.sales.xbr.NonMerchandise(rInTransaction,rInLineItem,rEnv,rOutNonMerch,seqNumber,recordType);
+				
+				-- TLOG1 Non-Merchandise Line Discount record creation				
+				IF rInLineItem.arts:LineItemSubtypeCode = 'Sale' THEN			
+					SET temp.RetailPriceModifiers[] = SELECT * FROM rInLineItem.arts:Sale.arts:RetailPriceModifier[] AS S;
+					SET temp.RetailPriceModSalesMkd[] = SELECT * FROM temp.RetailPriceModifiers[] AS R WHERE R.arts:ReasonCode IN
+												('COUPON SUBTOTAL DISCOUNT','PRICE MATCHING SUBTOTAL DISCOUNT','TEAM SUBTOTAL DISCOUNT','INCORRECT TICKET SUBTOTAL DISCOUNT',
+												'GST EVENT SUBTOTAL DISCOUNT','MANAGER OVERRIDE SUBTOTAL DISCOUNT','EMPLOYEE SUBTOTAL DISCOUNT',
+												'COUPON ITEM DISCOUNT','DAMAGED ITEM DISCOUNT','PRICE MATCHING ITEM DISCOUNT','TEAM ITEM DISCOUNT',
+												'INCORRECT TICKET ITEM DISCOUNT','GST EVENT ITEM DISCOUNT','OTHER ITEM DISCOUNT','MANAGER OVERRIDE ITEM MARKDOWN',
+												'AD PRICE NOT IN SYSTEM ITEM MARKDOWN','PRICE ADJUSTMENT','DM APPROVED','EMPLOYEE ITEM DISCOUNT','PACKAGE ITEM MARKDOWN');
+					DECLARE rLineItemRetPricMod REFERENCE TO temp.RetailPriceModSalesMkd[1];
+					WHILE LASTMOVE(rLineItemRetPricMod)  DO
+						CREATE LASTCHILD OF rOutTLOG1 AS rOutDiscount NAME 'DiscountDetail';
+						SET SubSeqNumber = 	SubSeqNumber + 1;	
+			 			CALL trx.sales.xbr.Discount(rInTransaction,rEnv,rInLineItem,rOutDiscount,seqNumDiscountRec,SubSeqNumber,rLineItemRetPricMod);				
+						MOVE rLineItemRetPricMod NEXTSIBLING REPEAT TYPE NAME;	
+					END WHILE;
+					SET SubSeqNumber = 0;					
+				ELSEIF rInLineItem.arts:LineItemSubtypeCode = 'Return' THEN
+					SET temp.RetailPriceModifiers[] = SELECT * FROM rInLineItem.arts:Return.arts:RetailPriceModifier[] AS S;
+					SET temp.RetailPriceModSalesMkd[] = SELECT * FROM temp.RetailPriceModifiers[] AS R WHERE R.arts:ReasonCode IN
+												('COUPON SUBTOTAL DISCOUNT','PRICE MATCHING SUBTOTAL DISCOUNT','TEAM SUBTOTAL DISCOUNT','INCORRECT TICKET SUBTOTAL DISCOUNT',
+												'GST EVENT SUBTOTAL DISCOUNT','MANAGER OVERRIDE SUBTOTAL DISCOUNT','EMPLOYEE SUBTOTAL DISCOUNT',
+												'COUPON ITEM DISCOUNT','DAMAGED ITEM DISCOUNT','PRICE MATCHING ITEM DISCOUNT','TEAM ITEM DISCOUNT',
+												'INCORRECT TICKET ITEM DISCOUNT','GST EVENT ITEM DISCOUNT','OTHER ITEM DISCOUNT','MANAGER OVERRIDE ITEM MARKDOWN',
+												'AD PRICE NOT IN SYSTEM ITEM MARKDOWN','PRICE ADJUSTMENT','DM APPROVED','EMPLOYEE ITEM DISCOUNT','PACKAGE ITEM MARKDOWN');
+					DECLARE rLineItemRetPricMod REFERENCE TO temp.RetailPriceModSalesMkd[1];
+					WHILE LASTMOVE(rLineItemRetPricMod)  DO
+						CREATE LASTCHILD OF rOutTLOG1 AS rOutDiscount NAME 'DiscountDetail';
+						SET SubSeqNumber = 	SubSeqNumber + 1;
+			 			CALL trx.sales.xbr.Discount(rInTransaction,rEnv,rInLineItem,rOutDiscount,seqNumDiscountRec,SubSeqNumber,rLineItemRetPricMod);				
+						MOVE rLineItemRetPricMod NEXTSIBLING REPEAT TYPE NAME;	
+					END WHILE;	
+					SET SubSeqNumber = 0;
+				END IF;	
+					
+			--TLOG1 Tax record creation
+			ELSEIF 	rInLineItem.arts:LineItemSubtypeCode = 'Tax' THEN
+				CREATE LASTCHILD OF rOutTLOG1 AS rOutTax NAME 'Tax';
+				SET seqNumber = seqNumber + 1;		
+				CALL trx.sales.xbr.Tax(rInTransaction,rEnv,rInLineItem,rOutTax,seqNumber);
+			
+			--TLOG1 Transaction Tenders Record creation
+			ELSEIF rInLineItem.arts:LineItemSubtypeCode = 'Tender' THEN
+				DECLARE IsNotGiftCertificate,IsNotExchange,IsNotCTMONEY BOOLEAN TRUE;
+				IF (rInLineItem.arts:Tender.(XMLNSC.Attribute)TenderType = 'GiftCard' AND
+					rInLineItem.arts:Tender.(XMLNSC.Attribute)TypeCode = 'Sale' AND					  
+					rInTransaction.(XMLNSC.Attribute)TypeCode = 'TenderExchangeTransaction') THEN 
+					SET IsNotGiftCertificate=FALSE;
+				END IF;
+				IF(rInLineItem.arts:Tender.(XMLNSC.Attribute)SubTenderType = 'EXCHANGE') THEN 
+					SET IsNotExchange=FALSE;
+				END IF;
+				--EL-728
+				IF(rInLineItem.arts:Tender.(XMLNSC.Attribute)TenderType = 'LoyaltyRedemption' AND
+					rInLineItem.arts:Tender.arts:LoyaltyRedemption.arts:LoyaltyCurrencies.arts:LoyaltyCurrency.arts:LoyaltyCurrencyTypeCode='CTMONEY') THEN
+					SET IsNotCTMONEY=FALSE;
+				END IF;
+				IF (IsNotGiftCertificate AND IsNotExchange AND IsNotCTMONEY) THEN				 
+					CREATE LASTCHILD OF rOutTLOG1 AS rOutTender NAME 'Tender';
+					SET seqNumber = seqNumber + 1;		
+					CALL trx.sales.xbr.Tender(rInTransaction,rInLineItem,rOutTender,seqNumber);
+				END IF;				
+			END IF;
+
+			MOVE rInLineItem NEXTSIBLING REPEAT NAME;
+      	END WHILE;  
+      	
+      	 
+		--NON merchandise TenderControlTransaction
+		IF (rInTransaction.arts:TransactionSubtypeCode = 'TenderControlTransaction' AND rInTransaction.(XMLNSC.Attribute)TypeCode IN ('PayIn', 'PayOut')) THEN
+			CREATE LASTCHILD OF rOutTLOG1 AS rOutNonMerch NAME 'NonMerchandise';
+			SET seqNumber = seqNumber + 1;
+			SET recordType = 'TenderControlTransaction'; 
+			SET rInLineItem =null;
+			CALL trx.sales.xbr.NonMerchandise(rInTransaction,rInLineItem,rEnv,rOutNonMerch,seqNumber,recordType);
+		END IF;			
+		--Tender TenderControlTransaction			 
+  	    IF rInTransaction.arts:TenderControlTransaction.arts:TenderControlTransactionSubtypeCode IN ('PayIn', 'PayOut') THEN			
+				CREATE LASTCHILD OF rOutTLOG1 AS rOutTender NAME 'Tender';
+				SET seqNumber = seqNumber + 1;		
+				CALL trx.sales.xbr.Tender(rInTransaction,rInLineItem,rOutTender,seqNumber);
+		END IF;	 				
+        -- Writing success log.
+		CALL core.log.InfoMessage(rEnv, schemaName || '.' || moduleName, ' Transformation completed successfully.');
+		-- Writing Module End Log.
+		CALL core.log.DebugMessage(rEnv, schemaName || '.' || moduleName, ' [_MODULE - END]' );			
+END;	
+END MODULE;

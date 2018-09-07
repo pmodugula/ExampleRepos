@@ -1,0 +1,13 @@
+trx.pickticket.wms.inbound#IIBInboundQueue=RECV.${WM_IN}
+trx.pickticket.wms.inbound#WMSCaldcInboundQueue=SEND.${CALDC_OUT}
+trx.pickticket.wms.inbound#WMSMisdcInboundQueue=SEND.${MISDC_OUT}
+trx.pickticket.wms.inbound#IIBDataSource=INT${ENVN}${INST}
+trx.pickticket.wms.inbound#WCDCDataSource=${WMCDC}
+trx.pickticket.wms.inbound#WMDCDataSource=${WMMDC}
+trx.pickticket.wms.inbound#CALDCSchemaName=${WMSMSN_CALDC}
+trx.pickticket.wms.inbound#MISDCSchemaName=${WMSMSN_MISDC}
+trx.pickticket.wms.inbound#CoreAuditDataSource=AUD${ENVN}${INST}
+trx.pickticket.wms.inbound#PreProcessorAuditEnabled=FALSE
+trx.pickticket.wms.inbound#PostProcessorAuditEnabled=FALSE
+trx.pickticket.wms.inbound#additionalInstances=${EXTRATHREADS}
+trx.pickticket.wms.inbound#DOMOutboundBackupQueue=${WM_IN_BACKUP}

@@ -1,0 +1,19 @@
+BROKER SCHEMA dat.product.pmm
+
+-- This module sets log parameters as a concatenated string in Environment.__MsgIdForLog4J__. This environment variable is used by core log functions every time a log event is written.
+CREATE COMPUTE MODULE SetLogParams
+	CREATE FUNCTION Main() RETURNS BOOLEAN
+	BEGIN
+		
+		SET OutputRoot = InputRoot;
+		DECLARE ds NAMESPACE 'http://www.fgl.com/SourceStagingProductPmmFgl';
+		DECLARE rInExch REFERENCE TO InputRoot.XMLNSC.ds:Exchange;
+		DECLARE rInMsg REFERENCE TO InputRoot.XMLNSC.ds:Exchange.ds:Message;
+		DECLARE guid CHARACTER rInExch.ds:MessageRouting.ds:Guid;
+		DECLARE businessKey, messageKey CHARACTER rInMsg.ds:Product.ds:ProductDetails.ds:PRD_LVL_NUMBER; 
+		DECLARE subjectAreaRunName CHARACTER rInExch.ds:MessageRouting.ds:SubjectAreaRunName;
+		SET Environment.__MsgIdForLog4J__ = Environment.__MsgIdForLog4J__ || 'GUID: ' || guid || ', Business Key: ' || businessKey  || ', Message Key: ' ||  messageKey || ', Run Name: ' || subjectAreaRunName;
+		RETURN TRUE;
+	END;
+
+END MODULE;

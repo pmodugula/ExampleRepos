@@ -1,0 +1,414 @@
+BROKER SCHEMA dat.price.pmm
+/*
+* Esql Filename : DsToArtsTranform.
+* Date Created : 20/08/2016
+* Description: This esql file contain two module one that initialize code translation and another creates Arts xml for Basic price.
+* Authors : Piyush Vaishnav
+*/
+
+DECLARE PRICE_PRIORITY_CODE CONSTANT CHARACTER 'PRICE PRIORITY CODE';
+DECLARE PRICE_SUB_PRIORITY_TYPE_CODE CONSTANT CHARACTER 'PRICE PRIORITY SUBTYPE CODE';
+DECLARE CURRENCY_CODE CONSTANT CHARACTER 'CURRENCY CODE';
+DECLARE QUANTITY_PRICING_UOM_CODE CONSTANT CHARACTER 'UOM CODE';
+DECLARE CMN_CODE_DSCRPT_TXT CONSTANT CHARACTER 'CMN_CODE_DSCRPT_TXT';
+DECLARE DAY_OF_WEEK CONSTANT CHARACTER 'DAY OF WEEK';
+--Added Datastage namespace declaration.
+DECLARE ds NAMESPACE 'http://www.fgl.com/SourceStagingPriceMaintenancePmmFgl';
+
+-- Map PriceChangePriorityCode and PriceChangePriorityName from Code Translation. 
+-- Updated By Prasanth - JIRA 16503
+/* 
+ * This module initializes Code Translation.
+ */
+--CREATE COMPUTE MODULE pmm_SetupCodeTranslation
+--	CREATE FUNCTION Main() RETURNS BOOLEAN
+--	BEGIN
+--		DECLARE rEnv REFERENCE TO Environment;
+--		DECLARE SBU CHARACTER InputRoot.XMLNSC.ds:Exchange.ds:MessageRouting.ds:SBU_CD;
+--		DECLARE DATA_SOURCE CHARACTER InputRoot.XMLNSC.ds:Exchange.ds:MessageRouting.ds:DATA_SOURCE_CD;
+--		-- condition added by Piyush Vaishnav to tackle double call to common_InitCodeTranslation
+--		IF rEnv.__InitCodeTranslation__ IS NULL OR rEnv.__InitCodeTranslation__ <> TRUE THEN
+--			CALL common.common_translateCodeInit(rEnv);
+--		END IF;
+--		DECLARE rPrice REFERENCE TO InputRoot.XMLNSC.ds:Exchange.ds:Message.ds:Price;
+--		DECLARE rPrcHdr REFERENCE TO rPrice.ds:PriceHeader;
+--		DECLARE rPrcDtl REFERENCE TO rPrice.ds:PriceDetail;
+--		DECLARE rPrcDayOfWeek REFERENCE TO rPrice.ds:PriceDayOfWeek;
+--		CALL common.common_TranslateCodeWithSuffix(rEnv,SBU,DATA_SOURCE,PRICE_PRIORITY_CODE,'',rPrcHdr.ds:PRC_TYPE);
+--		IF NOT common.common_valueIsNullOrBlank(rPrcHdr.ds:PRC_PROMO_LEVEL) THEN
+--			CALL common.common_TranslateCodeWithSuffix(rEnv,SBU,DATA_SOURCE,PRICE_SUB_PRIORITY_TYPE_CODE,'',rPrcHdr.ds:PRC_PROMO_LEVEL);
+--		END IF;
+--		CALL common.common_TranslateCodeWithSuffix(rEnv,SBU,DATA_SOURCE,QUANTITY_PRICING_UOM_CODE,'','EA');
+--		CALL common.common_TranslateCodeWithSuffix(rEnv,SBU,DATA_SOURCE,CURRENCY_CODE,'',rPrcDtl.ds:CURR_CODE);
+--		-- TODO confirm if only one field or multiple
+--        
+--      IF rPrcDayOfWeek.ds:PRC_MONDAY = 'T' THEN
+--         CALL common.common_TranslateCodeWithSuffix(rEnv,SBU,DATA_SOURCE,DAY_OF_WEEK,'','MONDAY');
+--      END IF;
+--      IF rPrcDayOfWeek.ds:PRC_TUESDAY = 'T'  THEN 
+--         CALL common.common_TranslateCodeWithSuffix(rEnv,SBU,DATA_SOURCE,DAY_OF_WEEK,'','TUESDAY');
+--      END IF;
+--      IF rPrcDayOfWeek.ds:PRC_WEDNESDAY = 'T'  THEN 
+--         CALL common.common_TranslateCodeWithSuffix(rEnv,SBU,DATA_SOURCE,DAY_OF_WEEK,'','WEDNESDAY');
+--      END IF;
+--      IF rPrcDayOfWeek.ds:PRC_THURSDAY = 'T'  THEN 
+--         CALL common.common_TranslateCodeWithSuffix(rEnv,SBU,DATA_SOURCE,DAY_OF_WEEK,'','THURSDAY');
+--      END IF;
+--      IF rPrcDayOfWeek.ds:PRC_FRIDAY = 'T'  THEN 
+--         CALL common.common_TranslateCodeWithSuffix(rEnv,SBU,DATA_SOURCE,DAY_OF_WEEK,'','FRIDAY');
+--      END IF;
+--      IF rPrcDayOfWeek.ds:PRC_SATURDAY = 'T'  THEN 
+--         CALL common.common_TranslateCodeWithSuffix(rEnv,SBU,DATA_SOURCE,DAY_OF_WEEK,'','SATURDAY');           
+--      END IF;
+--      IF rPrcDayOfWeek.ds:PRC_SUNDAY = 'T'  THEN 
+--         CALL common.common_TranslateCodeWithSuffix(rEnv,SBU,DATA_SOURCE,DAY_OF_WEEK,'','SUNDAY');             
+--      END IF;
+--
+--				
+--		SET OutputRoot = InputRoot;
+--		RETURN TRUE;
+--	END;
+--END MODULE;
+
+/*
+ * This module creates Arts xml from the DS input message.
+ */
+CREATE COMPUTE MODULE pmm_BuildOutputMessage
+	CREATE FUNCTION Main() RETURNS BOOLEAN
+	BEGIN
+		-- copy message headers
+		SET OutputRoot.Properties = InputRoot.Properties;
+		SET OutputRoot.MQMD = InputRoot.MQMD;
+		-- Namespace Declaration
+		DECLARE eai NAMESPACE 'http://www.fgl.com/exchange/';
+		DECLARE arts NAMESPACE 'http://www.fgl.com/ARTS';
+		DECLARE xsi NAMESPACE 'http://www.w3.org/2001/XMLSchema-instance';
+		-- Declaring References
+		DECLARE rOut,rOutExch,rOutMsgs,rOutMsgRtng,rSrcSys,rOutItmPrcMtnc,rOutPrdSlPrcs,rOutPrdSlPrc,rOutItem,rOutStyle,rOutBsnsUnitGrps,rOutBsnsUnitGrp,
+				rOutBsnsUnitGrpLvl,rOutItmPrcTimePrds,rOutTimePrds,rOutTimePrd REFERENCE TO OutputRoot;
+		DECLARE rInExch REFERENCE TO InputRoot.XMLNSC.ds:Exchange;
+		DECLARE rInMsgRtng REFERENCE TO rInExch.ds:MessageRouting;
+		DECLARE rInMsg REFERENCE TO rInExch.ds:Message;
+		DECLARE rInPrc REFERENCE TO rInMsg.ds:Price;
+		DECLARE rInPrcHdr REFERENCE TO rInPrc.ds:PriceHeader;
+		DECLARE rInPrcDtl REFERENCE TO rInPrc.ds:PriceDetail;
+		DECLARE rInPrcLvlDtl REFERENCE TO rInPrc.ds:PriceLevelDetail;
+		DECLARE rInStoreDetail REFERENCE TO rInPrc.ds:StoreDetails.ds:Row[1];
+
+		DECLARE rEnv REFERENCE TO Environment;
+		DECLARE schemaName CHARACTER 'dat.price.pmm';
+		DECLARE moduleName CHARACTER 'pmm_BuildOutputMessage';
+		
+		-- Variables declaration
+		DECLARE SBU CHARACTER rInExch.ds:MessageRouting.ds:SBU_CD;
+		DECLARE DATA_SOURCE CHARACTER rInExch.ds:MessageRouting.ds:DATA_SOURCE_CD;
+		DECLARE counter INTEGER 0;
+		DECLARE toTime, fromTime CHARACTER '';
+		
+		-- Debug Log for MODULE START 
+		CALL core.log.DebugMessage(rEnv, schemaName || '.' || moduleName,  ' [_MODULE - START]' );
+		
+		CREATE LASTCHILD OF OutputRoot AS rOut DOMAIN 'XMLNSC';
+		CREATE LASTCHILD OF rOut AS rOutExch NAMESPACE eai NAME 'Exchange';
+		SET rOutExch.(XMLNSC.NamespaceDecl)xmlns:"eai" = eai;
+		SET rOutExch.(XMLNSC.NamespaceDecl)xmlns:"arts" = arts;
+		SET rOutExch.(XMLNSC.NamespaceDecl)xmlns:"xsi" = xsi;
+
+		SET rOutExch.(XMLNSC.Attribute)MajorVersion = 1;
+		SET rOutExch.(XMLNSC.Attribute)MinorVersion = 1;
+		SET rOutExch.(XMLNSC.Attribute)FixVersion = 0;
+		
+		CREATE LASTCHILD OF rOutExch AS rOutMsgRtng NAMESPACE eai NAME 'MessageRouting';
+		SET rOutMsgRtng.eai:Guid = rInMsgRtng.ds:Guid;
+		SET rOutMsgRtng.eai:MessageId = InputRoot.MQMD.MsgId;
+		SET rOutMsgRtng.eai:MessageType = 'PubSub';
+		SET rOutMsgRtng.eai:SubjectArea = rInMsgRtng.ds:SubjectArea;
+		SET rOutMsgRtng.eai:SbuNumber = rInMsgRtng.ds:SBU_NBR;
+		SET rOutMsgRtng.eai:SbuCode = rInMsgRtng.ds:SBU_CD;
+		SET rOutMsgRtng.eai:SbuName = rInMsgRtng.ds:SBU_NM;
+		SET rOutMsgRtng.eai:DataSourceCode = rInMsgRtng.ds:DATA_SOURCE_CD;
+		SET rOutMsgRtng.eai:DataSourceCodeName = rInMsgRtng.ds:DATA_SOURCE_NM;		
+		SET rOutMsgRtng.eai:MessageIndex = rInMsgRtng.ds:MessageIndex;
+		SET rOutMsgRtng.eai:MessageCount = rInMsgRtng.ds:MessageCount;
+		SET rOutMsgRtng.eai:SubjectAreaRunName = rInMsgRtng.ds:SubjectAreaRunName;
+		
+		-- Constructing Exchange/Messages	
+		CREATE LASTCHILD OF rOutExch AS rOutMsgs NAMESPACE eai NAME 'Messages';
+		SET rOutMsgs.eai:Count = 1;
+		CREATE LASTCHILD OF rOutMsgs AS rSrcSys NAMESPACE eai NAME 'SourceSystems';
+		SET rSrcSys.eai:Count = 1;
+		SET rSrcSys.eai:SourceSystem.eai:Index = 1;
+		SET rSrcSys.eai:SourceSystem.eai:SbuNumber = rInMsgRtng.ds:SBU_NBR;
+		SET rSrcSys.eai:SourceSystem.eai:SbuCode = rInMsgRtng.ds:SBU_CD;
+		SET rSrcSys.eai:SourceSystem.eai:SbuName = rInMsgRtng.ds:SBU_NM;
+		SET rSrcSys.eai:SourceSystem.eai:MessageSourceCode = rInMsgRtng.ds:MessageSourceCode;
+		SET rSrcSys.eai:SourceSystem.eai:MessageSourceCodeName = rInMsgRtng.ds:MessageSourceCodeName;
+		
+		-- Constructing the payload (Exchange/Messages/ArtsItemPriceMaintenance)
+		CREATE LASTCHILD OF rOutMsgs AS rOutItmPrcMtnc NAMESPACE eai NAME 'ArtsItemPriceMaintenance';
+		CALL common.mapChangeActionFlagOrActionFromEtlToArts(rInPrc.(XMLNSC.Attribute)Action) INTO rOutItmPrcMtnc.(XMLNSC.Attribute)Action;
+		SET rOutItmPrcMtnc.arts:Index = 1;
+		SET rOutItmPrcMtnc.arts:ItemPriceEventNumber = rInPrcHdr.ds:PRC_HDR_NUMBER;
+		SET rOutItmPrcMtnc.arts:ItemPriceEventName = rInPrcHdr.ds:PRC_HDR_NAME;
+		
+		IF rInPrcHdr.ds:PRC_PROMO = 'T' THEN 
+			SET rOutItmPrcMtnc.arts:PriceMaintenanceTypeIndicator = 'TEMPORARY';
+			SET rOutItmPrcMtnc.arts:TemporaryPriceChange.arts:PriceChangeEndDate = SUBSTRING(rInPrcHdr.ds:PRC_HDR_TO_DATE FROM 1 FOR 10);
+			IF NOT common.common_valueIsNullOrBlank(rInPrcHdr.ds:PRC_HDR_TO_DATE) THEN
+				CALL mapToTimeFromEtlToArts(rInPrcHdr.ds:PRC_HDR_TO_TIME) INTO rOutItmPrcMtnc.arts:TemporaryPriceChange.arts:PriceChangeEndTime;
+			ELSE
+				SET rOutItmPrcMtnc.arts:TemporaryPriceChange.arts:PriceChangeEndTime.(XMLNSC.Attribute)xsi:nil = TRUE;
+			END IF;			
+		ELSEIF rInPrcHdr.ds:PRC_PROMO = 'F' THEN
+			SET rOutItmPrcMtnc.arts:PriceMaintenanceTypeIndicator = 'PERMANENT';
+			CREATE LASTCHILD OF rOutItmPrcMtnc NAMESPACE arts NAME 'PermanentPriceChange';
+		ELSE
+			THROW USER EXCEPTION MESSAGE 2951 VALUES('Invalid Message. PRC_PROMO can not be NULL in Price Header');
+		END IF;
+		
+		-- Map PriceChangePriorityCode and PriceChangePriorityName from Code Translation. 
+		-- Updated By Prasanth - JIRA 16503 Global Cache is using for Code tranlation
+		CALL common.common_GlobalCacheCodeTranslationAppToCmn(rEnv,SBU,DATA_SOURCE,PRICE_PRIORITY_CODE,rInPrcHdr.ds:PRC_TYPE,'') INTO rOutItmPrcMtnc.arts:PriceChangePriorityCode;
+		CALL common.common_GlobalCacheDescTranslationAppToCmn(rEnv,SBU,DATA_SOURCE,PRICE_PRIORITY_CODE,CMN_CODE_DSCRPT_TXT,rInPrcHdr.ds:PRC_TYPE,'') INTO rOutItmPrcMtnc.arts:PriceChangePriorityName;
+		
+		--CALL common.common_TranslateCodeGet_Code(rEnv,SBU,DATA_SOURCE,PRICE_PRIORITY_CODE,rInPrcHdr.ds:PRC_TYPE) INTO rOutItmPrcMtnc.arts:PriceChangePriorityCode;
+		--CALL common.common_TranslateCodeGet_Code_Description(rEnv,SBU,DATA_SOURCE,PRICE_PRIORITY_CODE,CMN_CODE_DSCRPT_TXT,rInPrcHdr.ds:PRC_TYPE) INTO rOutItmPrcMtnc.arts:PriceChangePriorityName;
+		-- Map PricePrioritySubtypeCode and PricePrioritySubtypeDescription from Code Translation
+		IF NOT common.common_valueIsNullOrBlank(rInPrcHdr.ds:PRC_PROMO_LEVEL) THEN
+			-- Updated By Prasanth - JIRA 16503 Global Cache is using for Code tranlation
+			CALL common.common_GlobalCacheCodeTranslationAppToCmn(rEnv,SBU,DATA_SOURCE,PRICE_SUB_PRIORITY_TYPE_CODE,rInPrcHdr.ds:PRC_PROMO_LEVEL,'') INTO rOutItmPrcMtnc.arts:PricePrioritySubtypeCode;
+			CALL common.common_GlobalCacheDescTranslationAppToCmn(rEnv,SBU,DATA_SOURCE,PRICE_SUB_PRIORITY_TYPE_CODE,CMN_CODE_DSCRPT_TXT,rInPrcHdr.ds:PRC_PROMO_LEVEL,'') INTO rOutItmPrcMtnc.arts:PricePrioritySubtypeDescriptionText;
+			--CALL common.common_TranslateCodeGet_Code(rEnv,SBU,DATA_SOURCE,PRICE_SUB_PRIORITY_TYPE_CODE,rInPrcHdr.ds:PRC_PROMO_LEVEL) INTO rOutItmPrcMtnc.arts:PricePrioritySubtypeCode;
+			--CALL common.common_TranslateCodeGet_Code_Description(rEnv,SBU,DATA_SOURCE,PRICE_SUB_PRIORITY_TYPE_CODE,CMN_CODE_DSCRPT_TXT,rInPrcHdr.ds:PRC_PROMO_LEVEL) INTO rOutItmPrcMtnc.arts:PricePrioritySubtypeDescriptionText;
+		END IF;
+		
+		SET rOutItmPrcMtnc.arts:ItemPriceEventNotesText = rInPrcHdr.ds:PRC_HDR_NOTES;
+		SET rOutItmPrcMtnc.arts:ItemPriceChangeEffectiveDate = SUBSTRING(rInPrcHdr.ds:PRC_HDR_FROM_DATE FROM 1 FOR 10);		
+		CALL mapFromTimeFromEtlToArts(rInPrcHdr.ds:PRC_HDR_FROM_TIME) INTO rOutItmPrcMtnc.arts:ItemPriceChangeEffectiveTime;				
+		IF NOT common.common_valueIsNullOrBlank(rInPrcHdr.ds:PRC_HDR_TO_DATE) THEN			
+			SET toTime = NULL;
+			CALL mapToTimeFromEtlToArts(rInPrcHdr.ds:PRC_HDR_TO_TIME) INTO toTime;
+			SET rOutItmPrcMtnc.arts:ItemPriceChangeExpiredDateTime = SUBSTRING(rInPrcHdr.ds:PRC_HDR_TO_DATE FROM 1 FOR 10) || 'T' || toTime;
+		ELSE
+			SET rOutItmPrcMtnc.arts:ItemPriceChangeExpiredDateTime.(XMLNSC.Attribute)xsi:nil = TRUE;
+		END IF;
+		
+		-- Map ArtsItemPriceMaintenance/ProductSellingPrices
+		CREATE LASTCHILD OF rOutItmPrcMtnc AS rOutPrdSlPrcs NAMESPACE arts NAME 'ProductSellingPrices';
+		SET rOutPrdSlPrcs.arts:Count = 1;
+		CREATE LASTCHILD OF rOutPrdSlPrcs AS rOutPrdSlPrc NAMESPACE arts NAME 'ProductSellingPrice';
+		SET rOutPrdSlPrc.arts:Index = 1;
+		IF rInPrcDtl.ds:PRD_LVL_ID = 0 THEN
+			SET rOutPrdSlPrc.arts:ItemOrStyleIndicator = 'Item';
+			CREATE LASTCHILD OF rOutPrdSlPrc AS rOutItem NAMESPACE arts NAME 'Item';
+			SET rOutItem.arts:Index = 1;
+			SET rOutItem.arts:ItemNumber = rInPrcDtl.ds:PRD_LVL_NUMBER;
+			SET rOutItem.arts:ItemName = rInPrcDtl.ds:PRD_NAME_FULL;
+		ELSEIF rInPrcDtl.ds:PRD_LVL_ID = 1 THEN
+			SET rOutPrdSlPrc.arts:ItemOrStyleIndicator = 'Style';
+			CREATE LASTCHILD OF rOutPrdSlPrc AS rOutStyle NAMESPACE arts NAME 'Style';
+			SET rOutStyle.arts:Index = 1;
+			SET rOutStyle.arts:StyleNumber = rInPrcDtl.ds:PRD_LVL_NUMBER;
+			SET rOutStyle.arts:StyleName = rInPrcDtl.ds:PRD_NAME_FULL;
+		ELSE
+			THROW USER EXCEPTION MESSAGE 2951 VALUES('Invalid Value for PRD_LVL_ID in Price Detail. It should be either 0 or 1');
+		END IF;
+		-- MapA rtsItemPriceMaintenance/ProductSellingPrices/ProductSellingPrice/.. QuantityPriceingUomCode and QuantityPricing from code translation
+		-- Updated By Prasanth - JIRA 16503 Global Cache is using for Code tranlation
+		CALL common.common_GlobalCacheCodeTranslationAppToCmn(rEnv,SBU,DATA_SOURCE,QUANTITY_PRICING_UOM_CODE,'EA','') INTO rOutPrdSlPrc.arts:QuantityPricingUomCode;
+		CALL common.common_GlobalCacheDescTranslationAppToCmn(rEnv,SBU,DATA_SOURCE,QUANTITY_PRICING_UOM_CODE,CMN_CODE_DSCRPT_TXT,'EA','') INTO rOutPrdSlPrc.arts:QuantityPricing;
+		--CALL common.common_TranslateCodeGet_Code(rEnv,SBU,DATA_SOURCE,QUANTITY_PRICING_UOM_CODE,'EA') INTO rOutPrdSlPrc.arts:QuantityPricingUomCode;
+		--CALL common.common_TranslateCodeGet_Code_Description(rEnv,SBU,DATA_SOURCE,QUANTITY_PRICING_UOM_CODE,CMN_CODE_DSCRPT_TXT,'EA') INTO rOutPrdSlPrc.arts:QuantityPricing;
+		-- Updated By Prasanth - JIRA 16503 Global Cache is using for Code tranlation
+		-- Map ArtsItemPriceMaintenance/ProductSellingPrices/ProductSellingPrice/ .. CurrencyCode and CurrencyName from code translation
+		CALL common.common_GlobalCacheCodeTranslationAppToCmn(rEnv,SBU,DATA_SOURCE,CURRENCY_CODE,rInPrcDtl.ds:CURR_CODE,'') INTO rOutPrdSlPrc.arts:CurrencyCode;
+		CALL common.common_GlobalCacheDescTranslationAppToCmn(rEnv,SBU,DATA_SOURCE,CURRENCY_CODE,CMN_CODE_DSCRPT_TXT,rInPrcDtl.ds:CURR_CODE,'') INTO rOutPrdSlPrc.arts:CurrencyName;
+		--CALL common.common_TranslateCodeGet_Code(rEnv,SBU,DATA_SOURCE,CURRENCY_CODE,rInPrcDtl.ds:CURR_CODE) INTO rOutPrdSlPrc.arts:CurrencyCode;
+		--CALL common.common_TranslateCodeGet_Code_Description(rEnv,SBU,DATA_SOURCE,CURRENCY_CODE,CMN_CODE_DSCRPT_TXT,rInPrcDtl.ds:CURR_CODE) INTO rOutPrdSlPrc.arts:CurrencyName;
+		SET rOutPrdSlPrc.arts:CurrentSaleUnitRetailPriceAmount = rInPrcDtl.ds:PRC_PRICE;
+		-- Map ArtsItemPriceMaintenance/ProductSellingPrices/ProductSellingPrice/CurrentSaleUnitRetailPriceExpirationDateTime
+		IF NOT common.common_valueIsNullOrBlank(rInPrcDtl.ds:PRC_TO_DATE) THEN
+			SET toTime = NULL;
+			CALL mapToTimeFromEtlToArts(rInPrcDtl.ds:PRC_TO_TIME) INTO toTime;
+			SET rOutPrdSlPrc.arts:CurrentSaleUnitRetailPriceExpirationDateTime = SUBSTRING(rInPrcDtl.ds:PRC_TO_DATE FROM 1 FOR 10) || 'T' || toTime;
+		ELSE
+			THROW USER EXCEPTION MESSAGE 2951 VALUES('PRC_TO_DATE in Price Detail should not be NULL');
+		END IF;
+		-- Map CurrentSaleUnitRetailPriceEffectiveDateTime
+		IF NOT common.common_valueIsNullOrBlank(rInPrcDtl.ds:PRC_FROM_DATE) THEN
+			SET fromTime = NULL;
+			CALL mapFromTimeFromEtlToArts(rInPrcDtl.ds:PRC_FROM_TIME) INTO fromTime;
+			SET rOutPrdSlPrc.arts:CurrentSaleUnitRetailPriceEffectiveDateTime = SUBSTRING(rInPrcDtl.ds:PRC_FROM_DATE FROM 1 FOR 10) || 'T' || fromTime;
+		ELSE
+			THROW USER EXCEPTION MESSAGE 2951 VALUES('PRC_FROM_DATE in Price Detail should not be NULL');
+		END IF;
+		
+		-- Map ArtsItemPriceMaintenance/ProductSellingPrices/ProductSellingPrice/BusinessUnitGroups
+		CREATE LASTCHILD OF rOutPrdSlPrc AS rOutBsnsUnitGrps NAMESPACE arts  NAME 'BusinessUnitGroups';
+		SET rOutBsnsUnitGrps.arts:Count = 1;
+		CREATE LASTCHILD OF rOutBsnsUnitGrps AS rOutBsnsUnitGrp NAMESPACE arts NAME 'BusinessUnitGroup';
+		SET rOutBsnsUnitGrp.arts:Index = 1;
+		SET rOutBsnsUnitGrp.arts:BusinessUnitGroupFunctionName = 'Price Maintenance';
+		--SET rOutBsnsUnitGrp.arts:Count = 1;
+		
+		-- Map ArtsItemPriceMaintenance/ProductSellingPrices/ProductSellingPrice/BusinessUnitGroups/BusinessUnitGroup/BusinessUnitGroupLevel[1] from PriceDetail
+		CREATE LASTCHILD OF rOutBsnsUnitGrp AS rOutBsnsUnitGrpLvl NAMESPACE arts NAME 'BusinessUnitGroupLevel';
+		SET rOutBsnsUnitGrpLvl.arts:Index = 1;
+		SET rOutBsnsUnitGrpLvl.arts:ParentBusinessUnitGroupNumber = rInPrcLvlDtl.ds:ParentBusinessUnitGroupNumber;
+		SET rOutBsnsUnitGrpLvl.arts:BusinessUnitGroupNumber = rInPrcLvlDtl.ds:BusinessUnitGroupNumber;
+		SET rOutBsnsUnitGrpLvl.arts:BusinessUnitGroupName = rInPrcLvlDtl.ds:BusinessUnitGroupName;
+		SET rOutBsnsUnitGrpLvl.arts:BusinessUnitGroupLevelNumber = rInPrcLvlDtl.ds:PRC_LEVEL;
+		IF rInPrcLvlDtl.ds:PRC_LEVEL = 1 THEN
+			SET rOutBsnsUnitGrpLvl.arts:BusinessUnitGroupLevelName = 'Chain';
+		ELSEIF rInPrcLvlDtl.ds:PRC_LEVEL = 2 THEN
+			SET rOutBsnsUnitGrpLvl.arts:BusinessUnitGroupLevelName = 'Zone';
+		ELSEIF rInPrcLvlDtl.ds:PRC_LEVEL = 3 THEN
+			SET rOutBsnsUnitGrpLvl.arts:BusinessUnitGroupLevelName = 'Store';
+		ELSE
+			THROW USER EXCEPTION MESSAGE 2951 VALUES('Invalid value of PRC_LEVEL in Price Level Detail. It should be 1, 2 or 3.');
+		END IF;
+		-- Map ArtsItemPriceMaintenance/ProductSellingPrices/ProductSellingPrice/BusinessUnitGroups/BusinessUnitGroup/BusinessUnitGroupLevel[>1] from StoreDetails/Row[*]
+		SET counter = 1;
+		WHILE LASTMOVE(rInStoreDetail) DO
+			CREATE LASTCHILD OF rOutBsnsUnitGrp AS rOutBsnsUnitGrpLvl NAMESPACE arts NAME 'BusinessUnitGroupLevel';
+			SET counter = counter + 1;
+			SET rOutBsnsUnitGrpLvl.arts:Index = counter;
+			SET rOutBsnsUnitGrpLvl.arts:ParentBusinessUnitGroupNumber = rInStoreDetail.ds:ParentBusinessUnitGroupNumber;
+			SET rOutBsnsUnitGrpLvl.arts:BusinessUnitNumber =  rInStoreDetail.ds:ORG_LVL_NUMBER;
+			SET rOutBsnsUnitGrpLvl.arts:BusinessUnitName =  rInStoreDetail.ds:ORG_NAME_FULL;			
+			MOVE rInStoreDetail NEXTSIBLING REPEAT NAME; 
+		END WHILE;
+		-- Map the count field of BusinessUnitGroup from count of BusinessUnitGroupLevel(s)
+		CREATE NEXTSIBLING OF rOutBsnsUnitGrp.arts:BusinessUnitGroupFunctionName NAMESPACE arts NAME 'Count' VALUE counter;
+		
+		SET rOutPrdSlPrc.arts:ProductSellingPriceNumber = rInPrcDtl.ds:PRC_KEY;
+		SET rOutPrdSlPrc.arts:SourcePriceRetrievalNumber = rInPrcDtl.ds:PRC_RETRIEVE_KEY;
+		
+		-- Map ArtsPriceItemMaintenance/ItemPriceEventTimePeriods
+		IF EXISTS(rInPrc.ds:PriceDayOfWeek[]) THEN        
+          CREATE LASTCHILD OF rOutItmPrcMtnc AS rOutItmPrcTimePrds NAMESPACE arts NAME 'ItemPriceEventTimePeriods';
+          CREATE LASTCHILD OF rOutItmPrcTimePrds AS rOutTimePrds NAMESPACE arts NAME 'TimePeriods';                 
+          SET counter = 0;              
+
+          IF rInPrc.ds:PriceDayOfWeek.ds:PRC_MONDAY = 'T' THEN                          
+             CREATE LASTCHILD OF rOutTimePrds AS rOutTimePrd NAMESPACE arts NAME 'TimePeriod';
+             SET counter = counter+1;                 
+             SET rOutTimePrd.arts:Index = counter;
+             CALL common.common_GlobalCacheDescTranslationAppToCmn(rEnv,SBU,DATA_SOURCE,DAY_OF_WEEK,CMN_CODE_DSCRPT_TXT,'MONDAY','') INTO rOutTimePrd.arts:TimePeriodName;              
+             CALL common.common_GlobalCacheCodeTranslationAppToCmn(rEnv,SBU,DATA_SOURCE,DAY_OF_WEEK,'MONDAY','') INTO rOutTimePrd.arts:TimePeriodDayOfWeekCode;
+             CALL common.common_GlobalCacheDescTranslationAppToCmn(rEnv,SBU,DATA_SOURCE,DAY_OF_WEEK,CMN_CODE_DSCRPT_TXT,'MONDAY','') INTO rOutTimePrd.arts:TimePeriodDayOfWeekName;
+             -- Updated By Prasanth - JIRA 16503 Global Cache is using for Code tranlation
+             --CALL common.common_TranslateCodeGet_Code_Description(rEnv,SBU,DATA_SOURCE,DAY_OF_WEEK,CMN_CODE_DSCRPT_TXT,'MONDAY') INTO rOutTimePrd.arts:TimePeriodName;              
+             --CALL common.common_TranslateCodeGet_Code(rEnv,SBU,DATA_SOURCE,DAY_OF_WEEK,'MONDAY') INTO rOutTimePrd.arts:TimePeriodDayOfWeekCode;
+             --CALL common.common_TranslateCodeGet_Code_Description(rEnv,SBU,DATA_SOURCE,DAY_OF_WEEK,CMN_CODE_DSCRPT_TXT,'MONDAY') INTO rOutTimePrd.arts:TimePeriodDayOfWeekName;
+          END IF;
+          IF rInPrc.ds:PriceDayOfWeek.ds:PRC_TUESDAY = 'T' THEN                          
+             CREATE LASTCHILD OF rOutTimePrds AS rOutTimePrd NAMESPACE arts NAME 'TimePeriod';
+             SET counter = counter+1;                 
+             SET rOutTimePrd.arts:Index = counter;
+             CALL common.common_GlobalCacheDescTranslationAppToCmn(rEnv,SBU,DATA_SOURCE,DAY_OF_WEEK,CMN_CODE_DSCRPT_TXT,'TUESDAY','') INTO rOutTimePrd.arts:TimePeriodName;              
+             CALL common.common_GlobalCacheCodeTranslationAppToCmn(rEnv,SBU,DATA_SOURCE,DAY_OF_WEEK,'TUESDAY','') INTO rOutTimePrd.arts:TimePeriodDayOfWeekCode;
+             CALL common.common_GlobalCacheDescTranslationAppToCmn(rEnv,SBU,DATA_SOURCE,DAY_OF_WEEK,CMN_CODE_DSCRPT_TXT,'TUESDAY','') INTO rOutTimePrd.arts:TimePeriodDayOfWeekName;
+            --CALL common.common_TranslateCodeGet_Code_Description(rEnv,SBU,DATA_SOURCE,DAY_OF_WEEK,CMN_CODE_DSCRPT_TXT,'TUESDAY') INTO rOutTimePrd.arts:TimePeriodName;              
+             --CALL common.common_TranslateCodeGet_Code(rEnv,SBU,DATA_SOURCE,DAY_OF_WEEK,'TUESDAY') INTO rOutTimePrd.arts:TimePeriodDayOfWeekCode;
+             --CALL common.common_TranslateCodeGet_Code_Description(rEnv,SBU,DATA_SOURCE,DAY_OF_WEEK,CMN_CODE_DSCRPT_TXT,'TUESDAY') INTO rOutTimePrd.arts:TimePeriodDayOfWeekName;
+          END IF;
+          IF rInPrc.ds:PriceDayOfWeek.ds:PRC_WEDNESDAY = 'T' THEN                          
+             CREATE LASTCHILD OF rOutTimePrds AS rOutTimePrd NAMESPACE arts NAME 'TimePeriod';
+             SET counter = counter+1;                 
+             SET rOutTimePrd.arts:Index = counter;
+             CALL common.common_GlobalCacheDescTranslationAppToCmn(rEnv,SBU,DATA_SOURCE,DAY_OF_WEEK,CMN_CODE_DSCRPT_TXT,'WEDNESDAY','') INTO rOutTimePrd.arts:TimePeriodName;              
+             CALL common.common_GlobalCacheCodeTranslationAppToCmn(rEnv,SBU,DATA_SOURCE,DAY_OF_WEEK,'WEDNESDAY','') INTO rOutTimePrd.arts:TimePeriodDayOfWeekCode;
+             CALL common.common_GlobalCacheDescTranslationAppToCmn(rEnv,SBU,DATA_SOURCE,DAY_OF_WEEK,CMN_CODE_DSCRPT_TXT,'WEDNESDAY','') INTO rOutTimePrd.arts:TimePeriodDayOfWeekName;
+             --CALL common.common_TranslateCodeGet_Code_Description(rEnv,SBU,DATA_SOURCE,DAY_OF_WEEK,CMN_CODE_DSCRPT_TXT,'WEDNESDAY') INTO rOutTimePrd.arts:TimePeriodName;              
+             --CALL common.common_TranslateCodeGet_Code(rEnv,SBU,DATA_SOURCE,DAY_OF_WEEK,'WEDNESDAY') INTO rOutTimePrd.arts:TimePeriodDayOfWeekCode;
+             --CALL common.common_TranslateCodeGet_Code_Description(rEnv,SBU,DATA_SOURCE,DAY_OF_WEEK,CMN_CODE_DSCRPT_TXT,'WEDNESDAY') INTO rOutTimePrd.arts:TimePeriodDayOfWeekName;
+          END IF;
+          IF rInPrc.ds:PriceDayOfWeek.ds:PRC_THURSDAY = 'T' THEN                          
+             CREATE LASTCHILD OF rOutTimePrds AS rOutTimePrd NAMESPACE arts NAME 'TimePeriod';
+             SET counter = counter+1;                 
+             SET rOutTimePrd.arts:Index = counter;
+             CALL common.common_GlobalCacheDescTranslationAppToCmn(rEnv,SBU,DATA_SOURCE,DAY_OF_WEEK,CMN_CODE_DSCRPT_TXT,'THURSDAY','') INTO rOutTimePrd.arts:TimePeriodName;              
+             CALL common.common_GlobalCacheCodeTranslationAppToCmn(rEnv,SBU,DATA_SOURCE,DAY_OF_WEEK,'THURSDAY','') INTO rOutTimePrd.arts:TimePeriodDayOfWeekCode;
+             CALL common.common_GlobalCacheDescTranslationAppToCmn(rEnv,SBU,DATA_SOURCE,DAY_OF_WEEK,CMN_CODE_DSCRPT_TXT,'THURSDAY','') INTO rOutTimePrd.arts:TimePeriodDayOfWeekName;
+             --CALL common.common_TranslateCodeGet_Code_Description(rEnv,SBU,DATA_SOURCE,DAY_OF_WEEK,CMN_CODE_DSCRPT_TXT,'THURSDAY') INTO rOutTimePrd.arts:TimePeriodName;              
+             --CALL common.common_TranslateCodeGet_Code(rEnv,SBU,DATA_SOURCE,DAY_OF_WEEK,'THURSDAY') INTO rOutTimePrd.arts:TimePeriodDayOfWeekCode;
+             --CALL common.common_TranslateCodeGet_Code_Description(rEnv,SBU,DATA_SOURCE,DAY_OF_WEEK,CMN_CODE_DSCRPT_TXT,'THURSDAY') INTO rOutTimePrd.arts:TimePeriodDayOfWeekName;
+          END IF;
+          IF rInPrc.ds:PriceDayOfWeek.ds:PRC_FRIDAY = 'T' THEN                          
+             CREATE LASTCHILD OF rOutTimePrds AS rOutTimePrd NAMESPACE arts NAME 'TimePeriod';
+             SET counter = counter+1;                 
+             SET rOutTimePrd.arts:Index = counter;
+             CALL common.common_GlobalCacheDescTranslationAppToCmn(rEnv,SBU,DATA_SOURCE,DAY_OF_WEEK,CMN_CODE_DSCRPT_TXT,'FRIDAY','') INTO rOutTimePrd.arts:TimePeriodName;              
+             CALL common.common_GlobalCacheCodeTranslationAppToCmn(rEnv,SBU,DATA_SOURCE,DAY_OF_WEEK,'FRIDAY','') INTO rOutTimePrd.arts:TimePeriodDayOfWeekCode;
+             CALL common.common_GlobalCacheDescTranslationAppToCmn(rEnv,SBU,DATA_SOURCE,DAY_OF_WEEK,CMN_CODE_DSCRPT_TXT,'FRIDAY','') INTO rOutTimePrd.arts:TimePeriodDayOfWeekName;
+             --CALL common.common_TranslateCodeGet_Code_Description(rEnv,SBU,DATA_SOURCE,DAY_OF_WEEK,CMN_CODE_DSCRPT_TXT,'FRIDAY') INTO rOutTimePrd.arts:TimePeriodName;              
+             --CALL common.common_TranslateCodeGet_Code(rEnv,SBU,DATA_SOURCE,DAY_OF_WEEK,'FRIDAY') INTO rOutTimePrd.arts:TimePeriodDayOfWeekCode;
+             --CALL common.common_TranslateCodeGet_Code_Description(rEnv,SBU,DATA_SOURCE,DAY_OF_WEEK,CMN_CODE_DSCRPT_TXT,'FRIDAY') INTO rOutTimePrd.arts:TimePeriodDayOfWeekName;
+          END IF;
+          IF rInPrc.ds:PriceDayOfWeek.ds:PRC_SATURDAY = 'T' THEN                          
+             CREATE LASTCHILD OF rOutTimePrds AS rOutTimePrd NAMESPACE arts NAME 'TimePeriod';
+             SET counter = counter+1;                 
+             SET rOutTimePrd.arts:Index = counter;
+             CALL common.common_GlobalCacheDescTranslationAppToCmn(rEnv,SBU,DATA_SOURCE,DAY_OF_WEEK,CMN_CODE_DSCRPT_TXT,'SATURDAY','') INTO rOutTimePrd.arts:TimePeriodName;              
+             CALL common.common_GlobalCacheCodeTranslationAppToCmn(rEnv,SBU,DATA_SOURCE,DAY_OF_WEEK,'SATURDAY','') INTO rOutTimePrd.arts:TimePeriodDayOfWeekCode;
+             CALL common.common_GlobalCacheDescTranslationAppToCmn(rEnv,SBU,DATA_SOURCE,DAY_OF_WEEK,CMN_CODE_DSCRPT_TXT,'SATURDAY','') INTO rOutTimePrd.arts:TimePeriodDayOfWeekName;
+            -- CALL common.common_TranslateCodeGet_Code_Description(rEnv,SBU,DATA_SOURCE,DAY_OF_WEEK,CMN_CODE_DSCRPT_TXT,'SATURDAY') INTO rOutTimePrd.arts:TimePeriodName;              
+            -- CALL common.common_TranslateCodeGet_Code(rEnv,SBU,DATA_SOURCE,DAY_OF_WEEK,'SATURDAY') INTO rOutTimePrd.arts:TimePeriodDayOfWeekCode;
+            -- CALL common.common_TranslateCodeGet_Code_Description(rEnv,SBU,DATA_SOURCE,DAY_OF_WEEK,CMN_CODE_DSCRPT_TXT,'SATURDAY') INTO rOutTimePrd.arts:TimePeriodDayOfWeekName;
+          END IF;
+          IF rInPrc.ds:PriceDayOfWeek.ds:PRC_SUNDAY = 'T' THEN                          
+             CREATE LASTCHILD OF rOutTimePrds AS rOutTimePrd NAMESPACE arts NAME 'TimePeriod';
+             SET counter = counter+1;                 
+             SET rOutTimePrd.arts:Index = counter;
+             CALL common.common_GlobalCacheDescTranslationAppToCmn(rEnv,SBU,DATA_SOURCE,DAY_OF_WEEK,CMN_CODE_DSCRPT_TXT,'SUNDAY','') INTO rOutTimePrd.arts:TimePeriodName;              
+             CALL common.common_GlobalCacheCodeTranslationAppToCmn(rEnv,SBU,DATA_SOURCE,DAY_OF_WEEK,'SUNDAY','') INTO rOutTimePrd.arts:TimePeriodDayOfWeekCode;
+             CALL common.common_GlobalCacheDescTranslationAppToCmn(rEnv,SBU,DATA_SOURCE,DAY_OF_WEEK,CMN_CODE_DSCRPT_TXT,'SUNDAY','') INTO rOutTimePrd.arts:TimePeriodDayOfWeekName;
+             --CALL common.common_TranslateCodeGet_Code_Description(rEnv,SBU,DATA_SOURCE,DAY_OF_WEEK,CMN_CODE_DSCRPT_TXT,'SUNDAY') INTO rOutTimePrd.arts:TimePeriodName;              
+            -- CALL common.common_TranslateCodeGet_Code(rEnv,SBU,DATA_SOURCE,DAY_OF_WEEK,'SUNDAY') INTO rOutTimePrd.arts:TimePeriodDayOfWeekCode;
+            -- CALL common.common_TranslateCodeGet_Code_Description(rEnv,SBU,DATA_SOURCE,DAY_OF_WEEK,CMN_CODE_DSCRPT_TXT,'SUNDAY') INTO rOutTimePrd.arts:TimePeriodDayOfWeekName;
+          END IF;
+          CREATE FIRSTCHILD OF rOutTimePrds NAMESPACE arts NAME 'Count' VALUE counter;
+    END IF; 
+    
+    	-- Writing success log.
+		CALL core.log.InfoMessage(rEnv, schemaName || '.' || moduleName, ' Transformation completed successfully.');
+		-- Writing Module End Log.
+		CALL core.log.DebugMessage(rEnv, schemaName || '.' || moduleName, ' [_MODULE - END]' );
+		
+		RETURN TRUE;
+		END;
+END MODULE;
+
+-- Function to convert *TO_TIME fields from DS which are formatted as number to Time format compatible with ARTS
+CREATE FUNCTION mapToTimeFromEtlToArts(IN timeInPmm CHARACTER) RETURNS CHARACTER
+BEGIN
+	DECLARE timeInArts, timeAsNumber CHARACTER '';			
+	
+	IF NOT common.common_valueIsNullOrBlank(timeInPmm) THEN
+		--Pad 0s in the left and take right 4 digits.
+		SET timeAsNumber = RIGHT(('0000' || timeInPmm), 4);
+		SET timeInArts = SUBSTRING(timeAsNumber FROM 1 FOR 2) || ':' || SUBSTRING(timeAsNumber FROM 3 FOR 2) || ':' || '59';
+	ELSE
+		SET timeInArts = '23:59:59';
+	END IF;
+	RETURN timeInArts;
+END;
+
+-- Function to convert *FROM_TIME fields from DS which are formatted as number to Time format compatible with ARTS
+CREATE FUNCTION mapFromTimeFromEtlToArts(IN timeInPmm CHARACTER) RETURNS CHARACTER
+BEGIN
+	DECLARE timeInArts, timeAsNumber CHARACTER '';			
+	
+	IF NOT common.common_valueIsNullOrBlank(timeInPmm) THEN
+		--Pad 0s in the left and take right 4 digits.
+		SET timeAsNumber = RIGHT(('0000' || timeInPmm), 4);
+		SET timeInArts = SUBSTRING(timeAsNumber FROM 1 FOR 2) || ':' || SUBSTRING(timeAsNumber FROM 3 FOR 2) || ':' || '00';
+	ELSE
+		SET timeInArts = '00:00:00';
+	END IF;
+	RETURN timeInArts;
+END;
+
+
+	

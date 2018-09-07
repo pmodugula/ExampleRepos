@@ -1,0 +1,87 @@
+<eai:Exchange FixVersion="1" MinorVersion="4" MajorVersion="1" xmlns:eai="http://www.fgl.com/exchange/" xmlns:arts="http://www.fgl.com/ARTS">
+	<eai:MessageRouting>
+		<eai:Guid>bffa912a-fa26-4344-afe6-c445defbf9d2</eai:Guid>
+		<eai:MessageId>String</eai:MessageId>
+		<eai:MessageType>PubSub</eai:MessageType>
+		<eai:SubjectArea>Normal Retail Sales Transactions</eai:SubjectArea>
+		<eai:SbuNumber>3</eai:SbuNumber>
+		<eai:SbuCode>FGL</eai:SbuCode>
+		<eai:SbuName>FGL2 Sports Ltd.</eai:SbuName>
+		<eai:DataSourceCode>POE</eai:DataSourceCode>
+		<eai:DataSourceCodeName>POE POS FGL</eai:DataSourceCodeName>
+		<eai:MessageIndex>1</eai:MessageIndex>
+		<eai:MessageCount>1</eai:MessageCount>
+		<eai:SubjectAreaRunName>Sting</eai:SubjectAreaRunName>
+	</eai:MessageRouting>
+	<eai:Messages>
+		<eai:Count>0</eai:Count>
+		<eai:SourceSystems>
+			<eai:Count>0</eai:Count>
+			<eai:SourceSystem>
+				<eai:Index>0</eai:Index>
+				<eai:SbuNumber>3</eai:SbuNumber>
+				<eai:SbuCode>FGL</eai:SbuCode>
+				<eai:SbuName>FGL Sports Ltd.</eai:SbuName>
+				<eai:MessageSourceCode>CSS</eai:MessageSourceCode>
+				<eai:MessageSourceCodeName>String</eai:MessageSourceCodeName>
+			</eai:SourceSystem>
+		</eai:SourceSystems>
+		<eai:POSLog>
+			<arts:Count>0</arts:Count>
+			<arts:Transaction TypeCode="SaleTransaction">
+				<arts:BusinessUnit>
+					<arts:Index>0</arts:Index>
+					<arts:BusinessUnitNumber>256</arts:BusinessUnitNumber>
+					<arts:BusinessUnitTypeCode>RT</arts:BusinessUnitTypeCode>
+					<arts:BusinessUnitShortName>SC FORT MCMURRAY</arts:BusinessUnitShortName>
+					<arts:BusinessUnitName>SC280</arts:BusinessUnitName>
+				</arts:BusinessUnit>
+				<arts:WorkstationID>2</arts:WorkstationID>
+				<arts:SequenceNumber>000460</arts:SequenceNumber>
+				<arts:BeginDateTime>2016-09-21T02:59:54-06:00</arts:BeginDateTime>
+				<arts:EndDateTime>2016-09-21T03:00:48-06:00</arts:EndDateTime>
+				<arts:OperatorID OperatorName="anovakova Manager" LastName="Manager" FirstName="anovakova">000002433</arts:OperatorID>
+				<arts:RetailTransaction>
+					<arts:LineItem VoidFlag="false">
+						<arts:SequenceNumber>1</arts:SequenceNumber>
+						<arts:Sale SourceSystemTaxExemptionFlag="false" TaxableFlag="true" ItemType="Service">
+							<arts:NonSKUItem>
+								<arts:ServiceItemTypeCode>REPAIRS AND ALTERATIONS</arts:ServiceItemTypeCode>
+								<arts:ServiceItemTypeDescriptionText>Repairs And Alterations</arts:ServiceItemTypeDescriptionText>
+							</arts:NonSKUItem>
+							<arts:RegularSalesUnitPrice>100.00</arts:RegularSalesUnitPrice>
+							<arts:ActualSalesUnitPrice>100.00</arts:ActualSalesUnitPrice>
+							<arts:DiscountAmount>0.00</arts:DiscountAmount>
+							<arts:Quantity>1</arts:Quantity>
+							<arts:Associate>
+								<arts:AssociateID LastName="Manager" FirstName="anovakova" OperatorName="anovakova Manager">000002433</arts:AssociateID>
+							</arts:Associate>
+							<arts:Tax TypeCode="Sale" TaxType="GST">
+								<arts:Amount>5.00</arts:Amount>
+								<arts:Percent>5.00</arts:Percent>
+							</arts:Tax>
+							<arts:SerialNumber/>
+						</arts:Sale>
+					</arts:LineItem>
+					<arts:LineItem>
+						<arts:SequenceNumber>2</arts:SequenceNumber>
+						<arts:Tax TypeCode="Sale" TaxType="GST">
+							<arts:Amount>5.00</arts:Amount>
+							<arts:Percent>5.00</arts:Percent>
+						</arts:Tax>
+					</arts:LineItem>
+					<arts:LineItem>
+						<arts:SequenceNumber>3</arts:SequenceNumber>
+						<arts:Tender TypeCode="Sale" SubTenderType="CAD" TenderType="Cash">
+							<arts:Amount>105.00</arts:Amount>
+						</arts:Tender>
+					</arts:LineItem>
+					<arts:Total TotalType="TransactionGrossAmount">105.00</arts:Total>
+					<arts:Total TotalType="TransactionSubtotal">100.00</arts:Total>
+					<arts:Total TotalType="TransactionDiscountTotal">0.00</arts:Total>
+				</arts:RetailTransaction>
+				<arts:TransactionSubtypeCode>RetailTransaction</arts:TransactionSubtypeCode>
+			</arts:Transaction>
+		</eai:POSLog>
+	</eai:Messages>
+</eai:Exchange>

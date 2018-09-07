@@ -1,0 +1,4 @@
+ext{
+   buildAll=true
+   repoName='wms-consignmentpaid-event-inbound-fgl'
+}

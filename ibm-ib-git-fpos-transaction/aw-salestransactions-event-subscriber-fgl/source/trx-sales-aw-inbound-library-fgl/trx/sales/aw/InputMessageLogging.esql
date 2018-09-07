@@ -1,0 +1,23 @@
+BROKER SCHEMA trx.sales.aw
+
+
+CREATE FILTER MODULE InputMessageLogging
+	CREATE FUNCTION Main() RETURNS BOOLEAN
+	BEGIN
+		
+		/*
+			Changes made by Venkatasatish Sajja
+			Modified Date: 23-March-2017 
+			Logging input xpolled file.
+		*/
+		DECLARE RefInxpolled REFERENCE TO Root.XMLNSC.XPOLLD;
+		DECLARE RefEnv REFERENCE TO Environment;
+		DECLARE schemaName CHARACTER 'trx.sales.aw';
+		DECLARE moduleName CHARACTER 'InputMessageLogging';
+		
+		SET RefEnv.Variables.Message = CAST(ASBITSTREAM(RefInxpolled OPTIONS FolderBitStream) AS CHAR CCSID CAST(Root.MQMD.CodedCharSetId AS INT) ENCODING CAST(Root.MQMD.Encoding AS INT));
+		CALL core.log.InfoMessage(RefEnv, schemaName || '.' || moduleName, RefEnv.Variables.Message);
+		RETURN TRUE;
+	END;
+
+END MODULE;

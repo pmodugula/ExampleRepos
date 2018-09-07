@@ -1,0 +1,181 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<eai:Exchange xmlns:arts="http://www.fgl.com/ARTS" xmlns:eai="http://www.fgl.com/exchange/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" MajorVersion="4" MinorVersion="0" FixVersion="0">
+    <eai:MessageRouting>
+        <eai:Guid>String</eai:Guid>
+        <eai:MessageId>String</eai:MessageId>
+        <eai:MessageType>RequestReply</eai:MessageType>
+        <eai:SubjectArea/>
+        <eai:SbuNumber>2</eai:SbuNumber>
+        <eai:SbuCode>MWW</eai:SbuCode>
+        <eai:SbuName>Marks Ltd.</eai:SbuName>
+        <eai:DataSourceCode>ETPS</eai:DataSourceCode>
+        <eai:DataSourceCodeName>Electronic Transaction Posting Service</eai:DataSourceCodeName>
+    </eai:MessageRouting>
+    <eai:Messages>
+        <eai:Count>0</eai:Count>
+        <eai:SourceSystems>
+            <eai:Count>0</eai:Count>
+            <eai:SourceSystem>
+                <eai:Index>0</eai:Index>
+                <eai:SbuNumber>2</eai:SbuNumber>
+                <eai:SbuCode>MWW</eai:SbuCode>
+                <eai:SbuName>Marks Ltd.</eai:SbuName>
+                <eai:MessageSourceCode>FF</eai:MessageSourceCode>
+                <eai:MessageSourceCodeName>FastFind</eai:MessageSourceCodeName>
+            </eai:SourceSystem>
+        </eai:SourceSystems>
+        <eai:POSLog>
+            <arts:Count>0</arts:Count>
+            <arts:DataSource>
+                <arts:SbuNumber>2</arts:SbuNumber>
+                <arts:SbuCode>MWW</arts:SbuCode>
+                <arts:SbuName>Marks Ltd.</arts:SbuName>
+                <arts:DataSourceCode>ETPS</arts:DataSourceCode>
+                <arts:DataSourceName>Electronic Transaction Posting Service</arts:DataSourceName>
+            </arts:DataSource>
+            <arts:Transaction TypeCode="Sale" MajorVersion="4">
+                <arts:RetailStoreID>997</arts:RetailStoreID>
+                <arts:TransactionID>9976220151029100000</arts:TransactionID>
+                <arts:WorkstationID>62</arts:WorkstationID>
+                <arts:SequenceNumber>100000</arts:SequenceNumber>
+                <arts:BeginDateTime>2015-10-29T10:31:29-06:00</arts:BeginDateTime>
+                <arts:EndDateTime>2015-10-29T10:31:29-06:00</arts:EndDateTime>
+                <arts:OperatorID>0</arts:OperatorID>
+                <arts:PinpadNumber>66173973</arts:PinpadNumber>
+                <arts:RetailTransaction>
+                    <arts:LineItem>
+                        <arts:SequenceNumber>1</arts:SequenceNumber>
+                        <arts:Sale>
+                            <arts:ItemID>410008938371</arts:ItemID>
+                            <arts:MerchandiseHierarchy ID="1A" Level="4"/>
+                            <arts:RegularSalesUnitPrice>159.99</arts:RegularSalesUnitPrice>
+                            <arts:ActualSalesUnitPrice>126.99</arts:ActualSalesUnitPrice>
+                            <arts:DiscountAmount>33.00</arts:DiscountAmount>
+                            <arts:Quantity>1</arts:Quantity>
+                            <arts:RetailPriceModifier>
+                                <arts:SequenceNumber xmlns="http://www.fgl.com/ARTS">String</arts:SequenceNumber>
+                                <arts:Amount Action="Subtract">33.00</arts:Amount>
+                                <arts:ReasonCode>19</arts:ReasonCode>
+                            </arts:RetailPriceModifier>
+                            <arts:Tax TaxType="GST">
+                                <arts:Amount>6.35</arts:Amount>
+                            </arts:Tax>
+                            <arts:Tax TaxType="PST">
+                                <arts:Amount>8.89</arts:Amount>
+                            </arts:Tax>
+                        </arts:Sale>
+                    </arts:LineItem>
+                    <arts:LineItem>
+                        <arts:SequenceNumber>2</arts:SequenceNumber>
+                        <arts:Sale>
+                            <arts:ItemID>410011180002</arts:ItemID>
+                            <arts:MerchandiseHierarchy ID="93" Level="4"/>
+                            <arts:RegularSalesUnitPrice>3.75</arts:RegularSalesUnitPrice>
+                            <arts:ActualSalesUnitPrice>3.75</arts:ActualSalesUnitPrice>
+                            <arts:Quantity>1</arts:Quantity>
+                            <arts:Tax TaxType="GST">
+                                <arts:Amount>0.19</arts:Amount>
+                            </arts:Tax>
+                            <arts:Tax TaxType="PST">
+                                <arts:Amount>0.26</arts:Amount>
+                            </arts:Tax>
+                        </arts:Sale>
+                    </arts:LineItem>
+                    <arts:LineItem>
+                        <arts:SequenceNumber>3</arts:SequenceNumber>
+                        <arts:Sale>
+                            <arts:ItemID>400009813265</arts:ItemID>
+                            <arts:MerchandiseHierarchy ID="93" Level="4"/>
+                            <arts:RegularSalesUnitPrice>3.75</arts:RegularSalesUnitPrice>
+                            <arts:ActualSalesUnitPrice>3.75</arts:ActualSalesUnitPrice>
+                            <arts:Quantity>1</arts:Quantity>
+                            <arts:Tax TaxType="GST">
+                                <arts:Amount>0.19</arts:Amount>
+                            </arts:Tax>
+                            <arts:Tax TaxType="PST">
+                                <arts:Amount>0.26</arts:Amount>
+                            </arts:Tax>
+                        </arts:Sale>
+                    </arts:LineItem>
+                    <arts:LineItem>
+                        <arts:SequenceNumber>4</arts:SequenceNumber>
+                        <arts:Sale>
+                            <arts:ItemID>410011179983</arts:ItemID>
+                            <arts:MerchandiseHierarchy ID="93" Level="4"/>
+                            <arts:RegularSalesUnitPrice>3.75</arts:RegularSalesUnitPrice>
+                            <arts:ActualSalesUnitPrice>3.75</arts:ActualSalesUnitPrice>
+                            <arts:Quantity>1</arts:Quantity>
+                            <arts:Tax TaxType="GST">
+                                <arts:Amount>0.19</arts:Amount>
+                            </arts:Tax>
+                            <arts:Tax TaxType="PST">
+                                <arts:Amount>0.26</arts:Amount>
+                            </arts:Tax>
+                        </arts:Sale>
+                    </arts:LineItem>
+                    <arts:LineItem>
+                        <arts:SequenceNumber>5</arts:SequenceNumber>
+                        <arts:Sale>
+                            <arts:ItemID>400009390483</arts:ItemID>
+                            <arts:MerchandiseHierarchy ID="93" Level="4"/>
+                            <arts:RegularSalesUnitPrice>3.75</arts:RegularSalesUnitPrice>
+                            <arts:ActualSalesUnitPrice>3.75</arts:ActualSalesUnitPrice>
+                            <arts:Quantity>1</arts:Quantity>
+                            <arts:Tax TaxType="GST">
+                                <arts:Amount>0.19</arts:Amount>
+                            </arts:Tax>
+                            <arts:Tax TaxType="PST">
+                                <arts:Amount>0.26</arts:Amount>
+                            </arts:Tax>
+                        </arts:Sale>
+                    </arts:LineItem>
+                    <arts:LineItem>
+                        <arts:SequenceNumber>0</arts:SequenceNumber>
+                        <arts:Tender TenderType="CreditDebit" SubTenderType="CREDIT">
+                            <arts:Amount>159.03</arts:Amount>
+                            <arts:Authorization>
+                                <arts:AuthorizationCode>048050</arts:AuthorizationCode>
+                            </arts:Authorization>
+                            <arts:CreditDebit>
+                                <arts:PrimaryAccountNumber>NDQwMCoqKioqKioqKiowOA==</arts:PrimaryAccountNumber>
+                                <arts:ExpirationDate>2001-12</arts:ExpirationDate>
+                                <arts:BankResponseSequenceNumber>0012010130</arts:BankResponseSequenceNumber>
+                            </arts:CreditDebit>
+                        </arts:Tender>
+                    </arts:LineItem>
+                    <arts:LineItem>
+                        <arts:SequenceNumber>0</arts:SequenceNumber>
+                        <arts:Tax TypeCode="Sale" TaxType="GST">
+                            <arts:Amount>7.11</arts:Amount>
+                        </arts:Tax>
+                    </arts:LineItem>
+                    <arts:LineItem>
+                        <arts:SequenceNumber>1</arts:SequenceNumber>
+                        <arts:Tax TypeCode="Sale" TaxType="PST">
+                            <arts:Amount>9.93</arts:Amount>
+                        </arts:Tax>
+                    </arts:LineItem>
+                    <arts:Total TotalType="TransactionSubtotal">141.99</arts:Total>
+                    <arts:Total TotalType="TransactionGrossAmount">159.03</arts:Total>
+                    <arts:Customer>
+                        <arts:Worker>
+                            <arts:WorkerID>2838</arts:WorkerID>
+                            <arts:Name>
+                                <arts:Name TypeCode="FirstName">Bia</arts:Name>
+                                <arts:Name TypeCode="LastName">Karamessinis</arts:Name>
+                                <arts:FullName xmlns="http://www.fgl.com/ARTS">String</arts:FullName>
+                            </arts:Name>
+                        </arts:Worker>
+                        <arts:Address>
+                            <arts:AddressLine xmlns="http://www.fgl.com/ARTS">String</arts:AddressLine>
+                            <arts:State>AB</arts:State>
+                        </arts:Address>
+                        <arts:AccountNumber>00249368</arts:AccountNumber>
+
+                    </arts:Customer>
+
+                </arts:RetailTransaction>
+            </arts:Transaction>
+        </eai:POSLog>
+    </eai:Messages>
+</eai:Exchange>

@@ -1,0 +1,57 @@
+/*
+ * File name: common.esql
+ *
+ * Purpose:   ESQL file for common modules used across dat-priceadvanced-pmm-publisher-fgl application.
+ *
+ * Version:   Initial Version
+ *
+ * Authors:   Madanlal Tilsiram
+ *                 
+ * Create Date:  11 August 2016
+ * 
+ * @copyright FGL 2016.  All rights reserved.
+ */
+BROKER SCHEMA dat.price.pmm
+
+/** Module to store logging parameters to environment **/
+CREATE COMPUTE MODULE SetLogParams
+	CREATE FUNCTION Main() RETURNS BOOLEAN
+	BEGIN
+		SET OutputRoot = InputRoot;
+		
+		DECLARE etl NAMESPACE 'http://www.fgl.com/SourceStagingDealGroupMaintenancePmmFgl';
+		
+		DECLARE RefInExch REFERENCE TO InputRoot.XMLNSC.etl:Exchange;
+		DECLARE RefInMsg REFERENCE TO InputRoot.XMLNSC.etl:Exchange.etl:Message;
+		DECLARE RefInPrcDtl REFERENCE TO RefInMsg.etl:Price.etl:PriceDetail;
+		DECLARE RefInPrcHdr REFERENCE TO RefInMsg.etl:Price.etl:PriceHeader;
+		DECLARE RefInPrcGrpHdr REFERENCE TO RefInMsg.etl:Price.etl:PriceGroupHeader;
+		DECLARE RefEnv REFERENCE TO Environment;
+		-- Log key business fields
+		DECLARE guid CHARACTER COALESCE(RefInExch.etl:MessageRouting.etl:Guid,'nill');
+		DECLARE PRC_HDR_NUMBER CHARACTER COALESCE(RefInPrcHdr.etl:PRC_HDR_NUMBER,'nill');
+		DECLARE PRC_GROUP_NUMBER CHARACTER COALESCE(RefInPrcGrpHdr.etl:PRC_GROUP_NUMBER,'nill');
+		DECLARE PRC_FROM_DATE CHARACTER COALESCE(SUBSTRING(RefInPrcDtl.etl:PRC_FROM_DATE FROM 1 FOR 10),'nill');
+		DECLARE PRC_TO_DATE CHARACTER COALESCE(SUBSTRING(RefInPrcDtl.etl:PRC_FROM_DATE FROM 1 FOR 10),'nill');			
+		DECLARE PRC_FROM_TIME,PRC_TO_TIME,businessKey,messageKey,subjectAreaRunName CHARACTER;		
+		IF RefInPrcDtl.etl:PRC_FROM_TIME = '' OR RefInPrcDtl.etl:PRC_FROM_TIME IS NULL THEN 
+			SET PRC_FROM_TIME ='nill';			
+		ELSE			
+			SET PRC_FROM_TIME = RIGHT('0000'||RefInPrcDtl.etl:PRC_FROM_TIME,4);
+			SET PRC_FROM_TIME = SUBSTRING(PRC_FROM_TIME FROM 1 FOR 2)||':'||SUBSTRING(PRC_FROM_TIME FROM 3 FOR 2)||':00';
+		END IF;				
+		IF RefInPrcDtl.etl:PRC_TO_TIME = '' OR RefInPrcDtl.etl:PRC_TO_TIME IS NULL THEN 
+			SET PRC_TO_TIME = 'nill';			
+		ELSE
+			SET PRC_TO_TIME = RIGHT('0000'||RefInPrcDtl.etl:PRC_TO_TIME,4);
+			SET PRC_TO_TIME = SUBSTRING(PRC_TO_TIME FROM 1 FOR 2)||':'||SUBSTRING(PRC_TO_TIME FROM 3 FOR 2)||':00';
+		END IF;	
+		-- TODO create businesskey by appending required fields.
+		DECLARE businessKey1 CHARACTER  PRC_HDR_NUMBER||'__'||PRC_FROM_DATE||'__'||PRC_FROM_TIME||'__'||PRC_TO_DATE||'__'||PRC_TO_TIME||'__'||PRC_GROUP_NUMBER;--TODO
+		SET businessKey =  PRC_HDR_NUMBER ||'__'||PRC_FROM_DATE ||'__'||PRC_FROM_TIME||'__'||PRC_TO_DATE ||'__'||PRC_TO_TIME||'__'||PRC_GROUP_NUMBER;
+		SET messageKey = COALESCE(RefInMsg.etl:Price.etl:PriceDetail.etl:PRC_KEY,'nill'); 
+		SET subjectAreaRunName = COALESCE(RefInExch.etl:MessageRouting.etl:SubjectAreaRunName,'nill');
+		SET Environment.__MsgIdForLog4J__ = Environment.__MsgIdForLog4J__ || ', GUID: ' || guid || ', Business Key: ' || businessKey  || ', Message Key: ' ||  messageKey || ', Run Name: ' || subjectAreaRunName;		
+		RETURN TRUE;
+	END;
+END MODULE;

@@ -1,0 +1,9 @@
+trx.reserveaction.pmm.TrxInventoryAction#IIBInBoundQueue=RECV.${REQ_IN}
+trx.reserveaction.pmm.TrxInventoryAction#DOMOutBoundQueue=SEND.${RES_OUT}
+trx.reserveaction.pmm.TrxInventoryAction#CoreAuditDataSource=AUD${ENVN}${INST}
+trx.reserveaction.pmm.TrxInventoryAction#FGLPMMDatasource=FGLPMM${ENVN}
+trx.reserveaction.pmm.TrxInventoryAction#CoreAuditEnabled=FALSE
+trx.reserveaction.pmm.TrxInventoryAction#CoreAuditDetailEnabled=FALSE
+trx.reserveaction.pmm.TrxInventoryAction#CoreMessageValidation1=${VALIDATE_MSG_IN}
+trx.reserveaction.pmm.TrxInventoryAction#CoreMessageValidation2=${VALIDATE_MSG_OUT}
+trx.reserveaction.pmm.TrxInventoryAction#additionalInstances=${EXTRATHREADS}

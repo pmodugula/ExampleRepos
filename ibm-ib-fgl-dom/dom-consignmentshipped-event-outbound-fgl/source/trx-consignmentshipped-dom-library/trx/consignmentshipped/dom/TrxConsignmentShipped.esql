@@ -1,0 +1,168 @@
+
+--* File name : TrxConsignmentShipped.esql
+--* Purpose : To implement trx-ConsignmentShipped-dom flow.
+--* Authors : Sunil Dangwal
+--* Create Date : 22nd Aug 2016
+--* Version : 1.0
+--* Revision Date:
+--* @copyright MWW-FGLSPORTS 2015. All Rights Reserved.
+
+BROKER SCHEMA trx.consignmentshipped.dom
+--Declare Constants-----
+DECLARE theSchema CONSTANT CHARACTER 'trx.consignmentshipped.dom';
+--Declare Namespace----
+DECLARE fgl NAMESPACE 'http://www.fglsports.com/schema/hybris/order/v2';
+DECLARE xsi NAMESPACE 'http://www.w3.org/2001/XMLSchema-instance';
+
+CREATE FILTER MODULE dom_Filter
+	DECLARE theModule CONSTANT CHARACTER theSchema||'.'||'dom_Filter';
+	CREATE FUNCTION Main() RETURNS BOOLEAN
+	BEGIN
+		DECLARE rEnv REFERENCE TO Environment;
+		DECLARE MSG_ID CHARACTER rEnv.__MsgIdForLog4J__;
+		CALL core.log.Debug(theModule||' - ID# : '||MSG_ID||' >> BEGIN');
+		DECLARE returnValue BOOLEAN TRUE;
+		--No-op implementation for wms_Filter - for future purposes as required by business/functional requirements
+		CALL core.log.Debug(theModule||' - RETURN '||CAST(returnValue AS CHARACTER));
+		CALL core.log.Debug(theModule||' - ID# : '||MSG_ID||' << END');
+		RETURN returnValue;
+	END;
+END MODULE;
+
+
+
+CREATE COMPUTE MODULE dom_BuildOutputMessage
+	DECLARE theModule CONSTANT CHARACTER theSchema||'.'||'dom_BuildOutputMessage';
+	CREATE FUNCTION Main() RETURNS BOOLEAN
+	BEGIN
+		----begin constant declaration
+		DECLARE CANADA_POST CONSTANT CHARACTER 'CANADA_POST';
+		DECLARE PUROLATOR CONSTANT CHARACTER 'PUROLATOR';
+		DECLARE CONSIGNMENT_SHIPPED CONSTANT CHARACTER 'CONSIGNMENT_SHIPPED';
+		DECLARE E CONSTANT CHARACTER 'E';
+		DECLARE O CONSTANT CHARACTER 'O';
+		DECLARE SC_E_COMM CONSTANT CHARACTER 'SC E-COMM';
+		DECLARE ATM_E_COMM CONSTANT CHARACTER 'ATM E-COMM';
+		DECLARE FOUR_NINE_FOUR CONSTANT CHARACTER '494';
+		DECLARE FOUR_EIGHT_FOUR CONSTANT CHARACTER '484';
+		----end constant declaration
+
+		DECLARE rEnv REFERENCE TO Environment;
+
+		DECLARE rInput REFERENCE TO InputRoot;
+		DECLARE rOutput REFERENCE TO OutputRoot;
+
+		DECLARE MSG_ID CHARACTER rEnv.__MsgIdForLog4J__;
+
+		DECLARE cntShipmentLine INTEGER 1;
+
+		CALL core.log.Info(theModule||' - ID# : '||MSG_ID||' >> BEGIN');
+
+		CALL common.common_CopyMessageHeaders(rInput, rOutput);
+		CALL common.common_CreateLastChildOfOutputRootDomainXmlnsc(rOutput);
+		-----input reference declaration
+
+		DECLARE inrefTOShipment REFERENCE TO rInput.XMLNSC.Shipment;
+		DECLARE ininrefToContainers REFERENCE To inrefTOShipment.Containers;
+		DECLARE inrefToContainer REFERENCE To ininrefToContainers.Container[1];
+		DECLARE refToContainer REFERENCE To ininrefToContainers.Container;
+		DECLARE inrefTOShipmentLines REFERENCE To inrefTOShipment.ShipmentLines;
+		DECLARE inrefTOShipmentLine REFERENCE To inrefTOShipmentLines.ShipmentLine[1];		
+		---build output structure
+		CREATE FIELD rOutput.XMLNSC.fgl:OrderConsignmentShipped;
+		DECLARE outrefToOrderConsignmentShipped REFERENCE TO rOutput.XMLNSC.fgl:OrderConsignmentShipped;
+		SET outrefToOrderConsignmentShipped.(XMLNSC.Attribute)xsi:schemaLocation='http://www.fglsports.com/schema/hybris/order/v2';
+		----logging
+		CALL core.log.Info(theModule||' - ID# : '||MSG_ID||' - TrackingNo :'||'inrefToContainer.(XMLNSC.Attribute)TrackingNo'||COALESCE(inrefToContainer.(XMLNSC.Attribute)TrackingNo,''));
+		CALL core.log.Info(theModule||' - ID# : '||MSG_ID||' - ContainerNo :'||'inrefToContainer.(XMLNSC.Attribute)ContainerNo'||COALESCE(inrefToContainer.(XMLNSC.Attribute)ContainerNo,''));
+		--Mapping Begins--
+
+		SET outrefToOrderConsignmentShipped.(XMLNSC.Attribute)bannerName = inrefTOShipment.(XMLNSC.Attribute)SellerOrganizationCode;
+		SET outrefToOrderConsignmentShipped.fgl:Code = COALESCE(inrefTOShipmentLine.Order.(XMLNSC.Attribute)OrderNo,'');
+        DECLARE ShipmentKey_NO CHARACTER '';
+        SET ShipmentKey_NO = COALESCE(inrefTOShipment.(XMLNSC.Attribute)ShipmentKey,'');
+        CALL core.log.Info(theModule||' - ShipmentKey NO# : '||ShipmentKey_NO);
+
+		DECLARE shipmntKeyChar CHAR '';
+		SET shipmntKeyChar=SUBSTRING(inrefTOShipment.(XMLNSC.Attribute)ShipmentKey FROM 1 FOR 1);
+		CREATE FIELD outrefToOrderConsignmentShipped.fgl:Store ;
+		DECLARE refStore REFERENCE TO outrefToOrderConsignmentShipped.fgl:Store ;
+		IF(shipmntKeyChar = E) THEN
+		SET refStore.fgl:StoreId = FOUR_NINE_FOUR;
+		SET refStore.fgl:Name = SC_E_COMM;
+
+		ELSEIF(shipmntKeyChar = O) THEN
+		SET refStore.fgl:StoreId = FOUR_EIGHT_FOUR;
+		SET refStore.fgl:Name = ATM_E_COMM;
+
+	END IF;
+
+	CREATE FIELD outrefToOrderConsignmentShipped.fgl:OrderShipment;
+	DECLARE outrefToOrderShipment REFERENCE TO outrefToOrderConsignmentShipped.fgl:OrderShipment;
+
+	SET outrefToOrderShipment.fgl:ShipmentKey VALUE = inrefTOShipment.(XMLNSC.Attribute)ShipmentKey;
+	SET outrefToOrderShipment.fgl:ShipmentStatus.fgl:Code = 'SHIPPED' ;
+	SET outrefToOrderShipment.fgl:ShipmentStatus.fgl:CodeLowerCase = 'shipped';
+	SET outrefToOrderShipment.fgl:ShipmentStatusDateTime VALUE = inrefTOShipment.(XMLNSC.Attribute)ActualShipmentDate;
+	SET outrefToOrderShipment.fgl:FulfilmentBusinessUnitNumber VALUE = inrefTOShipment.(XMLNSC.Attribute)FGLNodeID;
+	IF (inrefTOShipment.(XMLNSC.Attribute)SCAC = CANADA_POST) THEN
+		SET outrefToOrderShipment.fgl:CarrierCode VALUE = CANADA_POST;
+	ELSEIF inrefTOShipment.(XMLNSC.Attribute)SCAC = PUROLATOR THEN
+		SET outrefToOrderShipment.fgl:CarrierCode VALUE = PUROLATOR;
+	END IF;
+	----assuming only one container coming in DOM inbound XML
+
+	CREATE FIELD outrefToOrderShipment.fgl:ShipmentContainers;
+
+	DECLARE outrefTOShipmentContainers REFERENCE To outrefToOrderShipment.fgl:ShipmentContainers;
+	--DECLARE REFERENCE To outrefToOrderShipment.fgl:ShipmentContainers.Container;
+    DECLARE I INTEGER 1;
+	WHILE LASTMOVE(inrefToContainer) DO
+		DECLARE refTrackingNo CHAR '';
+		SET refTrackingNo = COALESCE(inrefToContainer.(XMLNSC.Attribute)TrackingNo,'');
+		IF refTrackingNo <> '' THEN
+			CREATE FIELD outrefTOShipmentContainers.fgl:ShipmentContainer[I];
+			DECLARE outrefTOContainer REFERENCE TO outrefTOShipmentContainers.fgl:ShipmentContainer[I];
+			SET outrefTOContainer.fgl:ContainerNumber = COALESCE(inrefToContainer.(XMLNSC.Attribute)ContainerNo,'');
+			SET outrefTOContainer.fgl:ContainerTrackingNumber = refTrackingNo;
+			CREATE FIELD outrefTOContainer.fgl:ContainerEntries;
+			DECLARE outrefTOContainerEntries REFERENCE TO outrefTOContainer.fgl:ContainerEntries;
+			DECLARE inrefTOContainerDetail REFERENCE TO inrefToContainer.ContainerDetails.ContainerDetail[1];
+            DECLARE J INTEGER 1;
+			WHILE LASTMOVE(inrefTOContainerDetail) DO
+				CREATE FIELD outrefTOContainerEntries.fgl:ContainerEntry[J];
+				DECLARE outrefContainerEntry REFERENCE TO outrefTOContainerEntries.fgl:ContainerEntry[J];
+				SET outrefContainerEntry.fgl:ShipmentLineNumber = COALESCE(inrefTOContainerDetail.ShipmentLine.(XMLNSC.Attribute)ShipmentLineNo,'');
+				SET outrefContainerEntry.fgl:CustomerOrderSequenceNumber = GetPrimeLineNumber(inrefTOShipmentLines,inrefTOContainerDetail.ShipmentLine.(XMLNSC.Attribute)ShipmentLineNo);
+				SET outrefContainerEntry.fgl:PackedQuantity = COALESCE(inrefTOContainerDetail.(XMLNSC.Attribute)Quantity,'');
+				SET outrefContainerEntry.fgl:ItemNumber = COALESCE(inrefTOContainerDetail.ShipmentLine.(XMLNSC.Attribute)ItemID,'');
+				MOVE inrefTOContainerDetail NEXTSIBLING REPEAT NAME;
+				SET J = J+1;
+
+			END WHILE;
+			SET I = I+1;
+
+		END IF;
+		
+		MOVE inrefToContainer NEXTSIBLING REPEAT NAME;
+	END WHILE;
+
+	RETURN TRUE;
+END;
+END MODULE;
+
+CREATE FUNCTION GetPrimeLineNumber(IN inrefTOShipmentLines REFERENCE, IN shipmentLineNumber CHAR) RETURNS CHARACTER
+BEGIN
+	DECLARE primeLineNumber CHAR '';
+	DECLARE inrefTOShipmentLine REFERENCE TO inrefTOShipmentLines.ShipmentLine[1];
+	SEARCH:WHILE LASTMOVE(inrefTOShipmentLine) DO
+	IF inrefTOShipmentLine.(XMLNSC.Attribute)ShipmentLineNo = shipmentLineNumber THEN
+		SET primeLineNumber = inrefTOShipmentLine.(XMLNSC.Attribute)PrimeLineNo;
+		LEAVE SEARCH;
+	END IF;
+
+	MOVE inrefTOShipmentLine NEXTSIBLING REPEAT NAME;
+END WHILE;
+
+RETURN primeLineNumber;
+END;

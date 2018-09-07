@@ -1,0 +1,971 @@
+/*
+* File name: DsToArtsTransform.esql
+*
+* Purpose: ESQL file for DS to ARTS message transformation.
+*
+* Version: Initial Version
+*
+* Authors: Sukumar
+*
+* Create Date: 16th Qugust 2016
+*
+* @copyright FGL 2016. All rights reserved.
+*/
+
+BROKER SCHEMA trx.pickticket.wms
+DECLARE theSchema CONSTANT CHARACTER 'trx.pickticket.wms';
+DECLARE CALDCSchemaName EXTERNAL CHARACTER '';
+DECLARE MISDCSchemaName EXTERNAL CHARACTER '';
+
+
+CREATE FILTER MODULE wms_FilterDc
+	DECLARE theModule CONSTANT CHARACTER theSchema||'.'||'wms_FilterDc';
+	CREATE FUNCTION Main() RETURNS BOOLEAN
+	BEGIN
+		DECLARE CONST_FGLNODE_ID1 CONSTANT CHARACTER '3109';
+		DECLARE CONST_FGLNODE_ID2 CONSTANT CHARACTER '7109';
+		DECLARE CONST_FGLNODE_ID3 CONSTANT CHARACTER '3135';
+		DECLARE CONST_FGLNODE_ID4 CONSTANT CHARACTER '7135';
+
+		DECLARE rEnv REFERENCE TO Environment;
+		DECLARE MSG_ID CHARACTER rEnv.__MsgIdForLog4J__;
+		CALL core.log.Info(theModule||' - ID# : '||MSG_ID||' >> BEGIN');
+		
+		DECLARE returnValue BOOLEAN TRUE;
+		
+		IF((Root.XMLNSC.Shipment.(XMLNSC.Attribute)FGLNodeID=CONST_FGLNODE_ID1) OR (Root.XMLNSC.Shipment.(XMLNSC.Attribute)FGLNodeID=CONST_FGLNODE_ID2)) THEN
+
+		SET returnValue=TRUE;
+		ELSEIF((Root.XMLNSC.Shipment.(XMLNSC.Attribute)FGLNodeID=CONST_FGLNODE_ID3) OR (Root.XMLNSC.Shipment.(XMLNSC.Attribute)FGLNodeID=CONST_FGLNODE_ID4)) THEN
+		
+		SET returnValue=FALSE;
+	END IF;
+	CALL core.log.Info(theModule||' - ID# : '||MSG_ID||' - RETURN '||CAST(returnValue AS CHARACTER));
+	CALL core.log.Info(theModule||' - ID# : '||MSG_ID||' << END');
+	RETURN returnValue;
+
+END;
+END MODULE;
+
+CREATE DATABASE MODULE GetControlSequence
+	CREATE FUNCTION Main() RETURNS BOOLEAN
+	BEGIN
+
+		DECLARE schemaName CHARACTER;
+		DECLARE sequenceName CHARACTER;
+		SET schemaName = 'INT_COMMON';
+		SET sequenceName='CS_SESSIONID';
+		DECLARE getBatchControlNumberQuery CHARACTER;
+		SET getBatchControlNumberQuery= 'SELECT '||schemaName||'.'||sequenceName||'.nextval FROM DUAL';
+		DECLARE rEnv REFERENCE TO Environment;
+		SET rEnv.__WmDcCtrlSeq__[] = PASSTHRU(getBatchControlNumberQuery);
+		SET rEnv.__DcControlSequence__ = TRIM(CAST(CAST(rEnv.__WmDcCtrlSeq__[1].NEXTVAL AS DECIMAL) AS CHARACTER));
+		WHILE 0 < CARDINALITY(rEnv.__WmCalDcCtrlSeq__[]) DO
+			DELETE FIELD rEnv.__WmDcCtrlSeq__[<];
+		END WHILE;
+		RETURN TRUE;
+	END;
+END MODULE;
+
+CREATE PROCEDURE GetInstCtrSequence(In rEnv REFERENCE) RETURNS CHARACTER
+BEGIN
+
+	DECLARE schemaName CHARACTER;
+	DECLARE sequenceName CHARACTER;
+	DECLARE PIBCTNSequence CHARACTER;
+
+	SET schemaName = 'INT_COMMON';
+	SET sequenceName='CS_SESSIONID';
+
+	DECLARE getBatchControlNumberQuery CHARACTER;
+
+	SET getBatchControlNumberQuery= 'SELECT '||schemaName||'.'||sequenceName||'.nextval FROM DUAL';
+	SET rEnv.__PIBCTNSequence__[] = PASSTHRU(getBatchControlNumberQuery);
+	SET PIBCTNSequence = TRIM(CAST(CAST(rEnv.__PIBCTNSequence__[1].NEXTVAL AS DECIMAL) AS CHARACTER));
+	WHILE 0 < CARDINALITY(rEnv.__PIBCTNSequence__[]) DO
+		DELETE FIELD rEnv.__PIBCTNSequence__[<];
+	END WHILE;
+
+	RETURN PIBCTNSequence;
+END;
+
+CREATE PROCEDURE GetInstCalDcItem(In rEnv REFERENCE,In ITEMNUMBER CHARACTER)RETURNS CHARACTER
+BEGIN
+
+	DECLARE schemaName CHARACTER;
+	DECLARE selectQuery CHARACTER;
+	DECLARE PDSZPOCalDcValue CHARACTER;
+	SET selectQuery = 'SELECT STSZPO ,STCOLR ,STSDIM ,STSZCD ,STSZDS FROM '||CALDCSchemaName||'.STSTYL00'||' WHERE TRIM(STBRCD)=TRIM(?) AND TRIM(STCO)="FGL" ';
+
+	DECLARE queryResult ROW;
+	SET queryResult = PASSTHRU(selectQuery VALUES ('S'||ITEMNUMBER));
+	SET PDSZPOCalDcValue = queryResult.STSZPO;
+	RETURN PDSZPOCalDcValue;
+
+END;
+
+CREATE PROCEDURE GetInstMisDcItem(In rEnv REFERENCE,In ITEMNUMBER CHARACTER)RETURNS CHARACTER
+BEGIN
+
+	DECLARE schemaName CHARACTER;
+	DECLARE selectQuery CHARACTER;
+	DECLARE PDSZPOMisDcValue CHARACTER;
+
+	SET selectQuery = 'SELECT STSZPO ,STCOLR ,STSDIM ,STSZCD ,STSZDS FROM '||MISDCSchemaName||'.STSTYL00'||' WHERE TRIM(STBRCD)=TRIM(?) AND TRIM(STCO)="FGL" ';
+	DECLARE queryResult ROW;
+	SET queryResult = PASSTHRU(selectQuery VALUES ('S'||ITEMNUMBER));
+
+	SET PDSZPOMisDcValue = queryResult.STSZPO;
+	RETURN PDSZPOMisDcValue;
+
+END;
+
+CREATE PROCEDURE GetPaymentMethodType(IN rInShipmentLine REFERENCE) RETURNS CHARACTER
+BEGIN
+
+	DECLARE paymentMethod REFERENCE TO rInShipmentLine.Order.PaymentMethods.PaymentMethod[1];
+	
+	DECLARE paymentType CHAR;
+	DECLARE count INTEGER 1;
+	WHILE LASTMOVE(paymentMethod) DO
+		DECLARE tempStr CHAR;
+		CASE paymentMethod.(XMLNSC.Attribute)PaymentType
+		WHEN 'CREDIT' THEN
+			SET tempStr = paymentMethod.(XMLNSC.Attribute)CreditCardType || '-' ||paymentMethod.(XMLNSC.Attribute)DisplayCreditCardNo;
+		WHEN 'PAYPAL' THEN
+			SET tempStr = 'PP' || '-' ||paymentMethod.(XMLNSC.Attribute)DisplayPaymentReference1;
+		WHEN 'GIFT' THEN
+			SET tempStr = 'GC';
+		ELSE
+			SET tempStr = '';
+		END CASE;
+
+		IF count = 1 THEN
+			SET paymentType = tempStr;
+		ELSE
+			SET paymentType = paymentType||'/'||tempStr;
+		END IF;
+
+		MOVE paymentMethod NEXTSIBLING REPEAT TYPE NAME;
+		SET count = count+1;
+	END WHILE;
+
+	RETURN paymentType;
+END;
+
+CREATE COMPUTE MODULE DomsToWmsCalDcTransform
+	DECLARE theModule CONSTANT CHARACTER theSchema||'.'||'DomsToWmsTransform';
+	DECLARE I INTEGER 1;
+
+	CREATE FUNCTION Main() RETURNS BOOLEAN
+	BEGIN
+		SET OutputRoot.Properties = InputRoot.Properties;
+		SET OutputRoot.MQMD = InputRoot.MQMD;
+		
+		DECLARE wms NAMESPACE 'http://www.fglsports.com/schema/wmstaging/tables/v1';
+		
+		DECLARE SHIPMENT_LINES_COUNT INTEGER 1;
+		DECLARE SIGNATUREREQUIRED CHARACTER;
+		DECLARE DONOTSAFEDROP CHARACTER;
+		DECLARE CPOADDRESS CHARACTER;
+
+		DECLARE rInShipmentLine,rInInstruction,rAdditionalAttribute,rLineCharge REFERENCE TO InputRoot;
+		
+		DECLARE rInExch REFERENCE TO InputRoot.XMLNSC;
+		DECLARE rInShipment REFERENCE TO rInExch.Shipment;
+		DECLARE rInToAddress REFERENCE TO rInExch.Shipment.ToAddress;
+		DECLARE rInBillToAddress REFERENCE TO rInExch.Shipment.BillToAddress;
+		DECLARE rInShipmentLines REFERENCE TO rInExch.Shipment.ShipmentLines;
+		DECLARE USER_EXCEPTION_MESSAGE_BLANK_VALUE CONSTANT INTEGER 2;
+		DECLARE rOut,rExch,rHeader,rWMBody,rPickTicket,rI1INPT00,rI2INPT00,rI3INPT00 REFERENCE TO OutputRoot;
+		DECLARE rEnv REFERENCE TO Environment;
+		DECLARE theSchema CONSTANT CHARACTER 'trx.pickticket.wms';
+		DECLARE theModule CONSTANT CHARACTER theSchema||'.'||'DomsToWmsTransform';
+		
+		CREATE LASTCHILD OF OutputRoot AS rOut DOMAIN 'XMLNSC';
+		CREATE LASTCHILD OF rOut AS rExch NAMESPACE wms NAME 'WMStaging';
+		SET rExch.(XMLNSC.NamespaceDecl)xmlns:"wms" = wms;
+		CREATE LASTCHILD OF rExch AS rHeader NAMESPACE wms NAME 'WMHeader';
+		CREATE LASTCHILD OF rExch AS rWMBody NAMESPACE wms NAME 'WMBody';
+
+
+		MOVE rInShipmentLine TO rInShipmentLines.ShipmentLine[1];
+
+		CREATE LASTCHILD OF rWMBody AS rPickTicket NAMESPACE wms NAME 'PickTicket';
+
+		CREATE LASTCHILD OF rPickTicket AS rI1INPT00 NAMESPACE wms NAME 'I1INPT00';
+		SET rI1INPT00.PHBCTN =rEnv.__DcControlSequence__;
+		SET rI1INPT00.PHCO='FGL';
+		SET rI1INPT00.PHPCTL =SUBSTRING(FIELDVALUE(rInShipment.(XMLNSC.Attribute)ShipmentKey) FROM 1 FOR 10);
+		SET rI1INPT00.PHWHSE ='035';
+		SET rI1INPT00.PHPKTN =SUBSTRING(FIELDVALUE(rInShipment.(XMLNSC.Attribute)ShipmentKey) FROM 1 FOR 10);
+		SET rI1INPT00.PHPKTS='';
+		IF(FIELDVALUE(rInShipment.(XMLNSC.Attribute)EnterpriseCode)='SPORTCHEK') THEN
+		SET rI1INPT00.PHORDN ='E'||TRIM(FIELDVALUE(rInShipmentLine.Order.(XMLNSC.Attribute)OrderNo));
+		ELSEIF(FIELDVALUE(rInShipment.(XMLNSC.Attribute)EnterpriseCode)='ATMOSPHERE') THEN
+		SET rI1INPT00.PHORDN ='O'||TRIM(FIELDVALUE(rInShipmentLine.Order.(XMLNSC.Attribute)OrderNo));
+	END IF;
+	
+	DECLARE Order_NO CHAR rI1INPT00.PHORDN;
+	DECLARE ShipmentKey_NO CHAR rI1INPT00.PHPKTN;
+	CALL core.log.Info(theModule||' - ORDER NO# : '||Order_NO);
+	CALL core.log.Info(theModule||' - ShipmentKey NO# : '||ShipmentKey_NO);
+
+	SET rI1INPT00.PHSHNM =FIELDVALUE(rInToAddress.(XMLNSC.Attribute)FirstName)||' '||FIELDVALUE(rInToAddress.(XMLNSC.Attribute)LastName);
+	SET rI1INPT00.PHSHA1 =FIELDVALUE(rInToAddress.(XMLNSC.Attribute)AddressLine1);
+	SET rI1INPT00.PHSHA2 =FIELDVALUE(rInToAddress.(XMLNSC.Attribute)AddressLine2);
+	SET rI1INPT00.PHSHCT =FIELDVALUE(rInToAddress.(XMLNSC.Attribute)City);
+	SET rI1INPT00.PHSHST =FIELDVALUE(rInToAddress.(XMLNSC.Attribute)State);
+	SET rI1INPT00.PHSHZP =FIELDVALUE(rInToAddress.(XMLNSC.Attribute)ZipCode);
+	SET rI1INPT00.PHSHCN =FIELDVALUE(rInToAddress.(XMLNSC.Attribute)Country);
+	SET rI1INPT00.PHSONM =FIELDVALUE(rInBillToAddress.(XMLNSC.Attribute)FirstName)||' '||FIELDVALUE(rInBillToAddress.(XMLNSC.Attribute)LastName);
+	SET rI1INPT00.PHSOA1 =FIELDVALUE(rInBillToAddress.(XMLNSC.Attribute)AddressLine1);
+	SET rI1INPT00.PHSOA2 =FIELDVALUE(rInBillToAddress.(XMLNSC.Attribute)AddressLine2);
+	SET rI1INPT00.PHSOCT =FIELDVALUE(rInBillToAddress.(XMLNSC.Attribute)City);
+	SET rI1INPT00.PHSOST =FIELDVALUE(rInBillToAddress.(XMLNSC.Attribute)State);
+	SET rI1INPT00.PHSOZP =FIELDVALUE(rInBillToAddress.(XMLNSC.Attribute)ZipCode);
+	SET rI1INPT00.PHSOCN =FIELDVALUE(rInBillToAddress.(XMLNSC.Attribute)Country);
+	SET rI1INPT00.PHTELN =FIELDVALUE(rInBillToAddress.(XMLNSC.Attribute)DayPhone);
+	SET rI1INPT00.PHDEML =FIELDVALUE(rInBillToAddress.(XMLNSC.Attribute)EMailID);
+
+	IF((UPPER(FIELDVALUE(rInShipment.(XMLNSC.Attribute)SCAC))='PUROLATOR') AND (UPPER(FIELDVALUE(rInShipment.(XMLNSC.Attribute)CarrierServiceCode))='REGULAR SHIPPING'))THEN
+        SET rI1INPT00.PHSVIA ='PG';
+        ELSEIF((UPPER(FIELDVALUE(rInShipment.(XMLNSC.Attribute)SCAC))='PUROLATOR') AND (UPPER(FIELDVALUE(rInShipment.(XMLNSC.Attribute)CarrierServiceCode))='EXPRESS SHIPPING')) THEN
+        SET rI1INPT00.PHSVIA ='PE';
+        ELSEIF((UPPER(FIELDVALUE(rInShipment.(XMLNSC.Attribute)SCAC))='CANADA_POST') AND (UPPER(FIELDVALUE(rInShipment.(XMLNSC.Attribute)CarrierServiceCode))='REGULAR SHIPPING')) THEN
+        SET rI1INPT00.PHSVIA ='967';
+        ELSEIF((UPPER(FIELDVALUE(rInShipment.(XMLNSC.Attribute)SCAC))='CANADA_POST') AND (UPPER(FIELDVALUE(rInShipment.(XMLNSC.Attribute)CarrierServiceCode))='EXPRESS SHIPPING')) THEN
+        SET rI1INPT00.PHSVIA ='908';
+        ELSEIF((UPPER(FIELDVALUE(rInShipment.(XMLNSC.Attribute)SCAC))='CANADA_POST') AND CONTAINS(UPPER(FIELDVALUE(rInShipment.(XMLNSC.Attribute)CarrierServiceCode)),'DELIVERED TONIGHT')) THEN
+        SET rI1INPT00.PHSVIA ='CPDT';   
+    END IF;
+    
+IF FIELDVALUE(rInShipmentLine.Order.(XMLNSC.Attribute)OrderDate) <> '' AND FIELDVALUE(rInShipmentLine.Order.(XMLNSC.Attribute)OrderDate)IS NOT NULL THEN
+
+	DECLARE orderDate CHARACTER FIELDVALUE(rInShipmentLine.Order.(XMLNSC.Attribute)OrderDate);
+	SET orderDate = SUBSTRING(orderDate FROM 1 FOR 10);
+	SET rI1INPT00.PHORDT = REPLACE(orderDate,'-','');
+
+ELSE
+	SET rI1INPT00.PHORDT =CAST(CURRENT_DATE AS CHARACTER FORMAT 'yyyyMMdd');
+END IF;
+
+SET rI1INPT00.PHCCLT ='FGLE';
+SET rI1INPT00.PHPSTF ='10';
+SET rI1INPT00.PHPHLF ='Y';
+SET rI1INPT00.PHTUTS =FIELDVALUE(rInShipment.(XMLNSC.Attribute)TotalQuantity);
+SET rI1INPT00.PHPRVL ='0';
+SET rI1INPT00.PHCFRT ='P';
+SET rI1INPT00.PHMIS1 ='Y';
+SET rI1INPT00.PHMIS8 =FIELDVALUE(rInShipment.(XMLNSC.Attribute)CarrierServiceCode);
+
+IF FIELDVALUE(rInShipmentLine.Order.(XMLNSC.Attribute)OrderDate) <> '' AND FIELDVALUE(rInShipmentLine.Order.(XMLNSC.Attribute)OrderDate)IS NOT NULL THEN
+	DECLARE orderDate CHARACTER FIELDVALUE(rInShipmentLine.Order.(XMLNSC.Attribute)OrderDate);
+	SET rI1INPT00.PHMIS9= LEFT(orderDate,19);
+END IF;
+SET rI1INPT00.PHMS10 =FIELDVALUE(rInToAddress.(XMLNSC.Attribute)AddressLine5);
+
+IF (FIELDVALUE(rInShipmentLine.Order.Extn.(XMLNSC.Attribute)ExtnExtraDeliveryOption)='SIGNATURE_REQUIRED') THEN
+	SET SIGNATUREREQUIRED='1';
+ELSE
+	SET SIGNATUREREQUIRED='0';
+END IF;
+
+IF (FIELDVALUE(rInShipmentLine.Order.Extn.(XMLNSC.Attribute)ExtnExtraDeliveryOption)='DO_NOT_SAFE_DROP') THEN
+	SET DONOTSAFEDROP='1';
+ELSE
+	SET DONOTSAFEDROP='0';
+END IF;
+
+IF (SUBSTRING(FIELDVALUE(rInToAddress.(XMLNSC.Attribute)AddressLine6) FROM 4 FOR 3)='CPO') THEN
+	SET CPOADDRESS='1';
+ELSE
+	SET CPOADDRESS='0';
+END IF;
+
+SET rI1INPT00.PHMS11 = '000'||SIGNATUREREQUIRED||DONOTSAFEDROP||'000000'||CPOADDRESS||'0000';
+SET rI1INPT00.PHNUMD =CARDINALITY(rInShipmentLines.ShipmentLine[]);
+
+DECLARE paymentType CHARACTER;
+CALL GetPaymentMethodType(rInShipmentLine) INTO paymentType;
+
+SET rI1INPT00.PHMIS6 = LEFT(paymentType,10);
+
+IF LENGTH(paymentType)>10 THEN
+	SET rI1INPT00.PHMIS7 = SUBSTRING(paymentType FROM 11 FOR 10);
+ELSE
+	SET rI1INPT00.PHMIS7 = '';
+END IF; 
+
+DECLARE quantity,loopCnt INTEGER 1;
+
+WHILE LASTMOVE(rInShipmentLine) DO
+	SET quantity = CAST(rInShipmentLine.(XMLNSC.Attribute)Quantity AS INTEGER);
+
+	SET loopCnt =1;
+	WHILE loopCnt <= quantity DO
+
+		CREATE LASTCHILD OF rI1INPT00 AS rI2INPT00 NAMESPACE wms NAME 'I2INPT00';
+
+		SET rI2INPT00.PDBCTN=rEnv.__DcControlSequence__;
+		SET rI2INPT00.PDCO = 'FGL'; --Added during review
+		SET rI2INPT00.PDPCTL=SUBSTRING(FIELDVALUE(rInShipment.(XMLNSC.Attribute)ShipmentKey) FROM 1 FOR 10);
+		SET rI2INPT00.PIPKLN=SHIPMENT_LINES_COUNT; -- Changed by reviewer
+		SET rI2INPT00.PDPKLN=SHIPMENT_LINES_COUNT;
+		DECLARE ITEMNUMBER CHARACTER;
+
+
+		SET ITEMNUMBER =TRIM('S'||FIELDVALUE(rInShipmentLine.(XMLNSC.Attribute)ItemID));
+
+		IF loopCnt = 1 THEN
+			SET Environment.Variable.dbResult=
+			THE(SELECT T.STSZPO,T.STCOLR,T.STSDIM,T.STSZCD,T.STSZDS FROM Database.{CALDCSchemaName}.STSTYL00 AS T WHERE TRIM(T.STBRCD)= ITEMNUMBER AND TRIM(T.STCO)='FGL');
+		END IF;
+
+		DECLARE queryResult REFERENCE TO Environment.Variable.dbResult;
+
+
+		SET rI2INPT00.PDSZPO= queryResult.STSZPO;
+		SET rI2INPT00.PDCOLR = queryResult.STCOLR;
+		SET rI2INPT00.PDSDIM = queryResult.STSDIM;
+		SET rI2INPT00.PDSZCD = TRIM(queryResult.STSZCD);
+		SET rI2INPT00.PDSZDS = TRIM(queryResult.STSZDS);
+		
+		
+		DECLARE PDSZPO CHAR rI2INPT00.PDSZPO;
+		DECLARE PDCOLR CHAR rI2INPT00.PDCOLR;
+		DECLARE PDSDIM CHAR rI2INPT00.PDSDIM;
+		DECLARE PDSZCD CHAR rI2INPT00.PDSZCD;
+		DECLARE PDSZDS CHAR rI2INPT00.PDSZDS;
+		
+		CALL core.log.Info(theModule||' - SQL QUERY OUTPUT:');
+		CALL core.log.Info(theModule||' - PDSZPO# : '||PDSZPO);
+		CALL core.log.Info(theModule||' - PDCOLR# : '||PDCOLR);
+		CALL core.log.Info(theModule||' - PDSDIM# : '||PDSDIM);
+		CALL core.log.Info(theModule||' - PDSZCD# : '||PDSZCD);
+		CALL core.log.Info(theModule||' - PDSZDS# : '||PDSZDS);
+		
+		SET rI2INPT00.PDWHSE='035';
+		SET rI2INPT00.PDNUM2= FIELDVALUE(rInShipmentLine.(XMLNSC.Attribute)ShipmentLineNo); --Added by reviewer
+
+		MOVE rAdditionalAttribute TO rInShipmentLine.OrderLine.ItemDetails.AdditionalAttributeList.AdditionalAttribute[1];
+		WHILE LASTMOVE(rAdditionalAttribute) DO
+			IF (FIELDVALUE (rAdditionalAttribute.(XMLNSC.Attribute)Name)='Style Code') THEN
+				SET rI2INPT00.PDSTYL=SUBSTRING(FIELDVALUE (rAdditionalAttribute.(XMLNSC.Attribute)Value) FROM 1 FOR 8);
+				SET rI2INPT00.PDSSFX=SUBSTRING(FIELDVALUE (rAdditionalAttribute.(XMLNSC.Attribute)Value) FROM 9 FOR 15);
+				ELSEIF(FIELDVALUE (rAdditionalAttribute.(XMLNSC.Attribute)Name)='Style Desc') THEN
+				SET rI2INPT00.PDSTYD=FIELDVALUE (rAdditionalAttribute.(XMLNSC.Attribute)Value);
+				ELSEIF(FIELDVALUE (rAdditionalAttribute.(XMLNSC.Attribute)Name)='Color Desc') THEN
+				SET rI2INPT00.PDCOLD=FIELDVALUE (rAdditionalAttribute.(XMLNSC.Attribute)Value);
+			END IF;
+			MOVE rAdditionalAttribute NEXTSIBLING REPEAT NAME;
+		END WHILE;
+
+
+		SET rI2INPT00.PDCOLR=FIELDVALUE(rInShipmentLine.OrderLine.ItemDetails.PrimaryInformation.(XMLNSC.Attribute)ColorCode);
+		SET rI2INPT00.PDINVT='F';
+		SET rI2INPT00.PDPIQT='1';
+		SET rI2INPT00.PDOPQT='1';
+		--Reviewer changed the line below
+		MOVE rLineCharge TO rInShipmentLine.OrderLine.LineCharges.LineCharge[1];
+		--Reviewer added the while loop below 			
+
+
+		DECLARE calcPrice DECIMAL 0;
+		WHILE LASTMOVE(rLineCharge) DO
+			IF rLineCharge.(XMLNSC.Attribute)ChargeName ='DISCOUNT' THEN
+				SET calcPrice=calcPrice - CAST(COALESCE(FIELDVALUE(rLineCharge.(XMLNSC.Attribute)ChargePerUnit),0) AS DECIMAL);
+			ELSE
+				SET calcPrice=calcPrice+ CAST(COALESCE(FIELDVALUE(rLineCharge.(XMLNSC.Attribute)ChargePerUnit),0) AS DECIMAL);
+
+			END IF;
+
+			IF FIELDVALUE(rLineCharge.(XMLNSC.Attribute)ChargeName) ='DISCOUNT' AND FIELDVALUE(rLineCharge.(XMLNSC.Attribute)ChargeCategory) ='DISCOUNT' THEN
+				SET rI2INPT00.PDDDLR= rLineCharge.(XMLNSC.Attribute)ChargePerUnit;
+			END IF;
+			MOVE rLineCharge NEXTSIBLING REPEAT NAME;
+		END WHILE;
+
+		SET rI2INPT00.PDPRC = calcPrice+CAST(COALESCE(FIELDVALUE(rInShipmentLine.OrderLine.LinePriceInfo.(XMLNSC.Attribute)UnitPrice),0) AS DECIMAL);
+
+
+		DECLARE INSTRUCTION_LINES_COUNT INTEGER 1;
+
+		MOVE rInInstruction TO rInShipmentLine.Instructions.Instruction[1];
+		WHILE LASTMOVE(rInInstruction) DO
+			CREATE LASTCHILD OF rI2INPT00 AS rI3INPT00 NAMESPACE wms NAME 'I3INPT00';
+	
+			SET rI3INPT00.PIBCTN='';
+			SET rI3INPT00.PIPCTL=SUBSTRING(FIELDVALUE(rInShipment.(XMLNSC.Attribute)ShipmentKey) FROM 1 FOR 10);
+			SET rI3INPT00.PIPKLN=SHIPMENT_LINES_COUNT;
+			SET rI3INPT00.PIINBR=INSTRUCTION_LINES_COUNT;
+			SET rI3INPT00.PIITYP='';
+			SET rI3INPT00.PIICOD='';
+			SET rI3INPT00.PIIDES='';
+			SET rI3INPT00.PICREX='';
+			SET rI3INPT00.PIRCEX='';
+
+			IF FIELDVALUE(rInInstruction.(XMLNSC.Attribute)InstructionText) <> '' AND FIELDVALUE(rInInstruction.(XMLNSC.Attribute)InstructionText) IS NOT NULL THEN
+				SET rI3INPT00.PIITYP='PV';
+			ELSEIF FIELDVALUE(rInInstruction.(XMLNSC.Attribute)InstructionType) <> '' AND FIELDVALUE(rInInstruction.(XMLNSC.Attribute)InstructionType) IS NOT NULL THEN
+				SET rI3INPT00.PIITYP='AA';
+			END IF;
+			IF FIELDVALUE(rInInstruction.(XMLNSC.Attribute)InstructionText) <> '' AND FIELDVALUE(rInInstruction.(XMLNSC.Attribute)InstructionText) IS NOT NULL THEN
+				SET rI3INPT00.PIICOD='GW';
+			ELSEIF FIELDVALUE(rInInstruction.(XMLNSC.Attribute)InstructionType) <> '' AND FIELDVALUE(rInInstruction.(XMLNSC.Attribute)InstructionType) IS NOT NULL THEN
+				SET rI3INPT00.PIICOD='BB';
+			END IF;
+			IF FIELDVALUE(rInInstruction.(XMLNSC.Attribute)InstructionText) <> '' AND FIELDVALUE(rInInstruction.(XMLNSC.Attribute)InstructionText) IS NOT NULL THEN
+				SET rI3INPT00.PIIDES= SUBSTRING(FIELDVALUE(rInInstruction.(XMLNSC.Attribute)InstructionText) FROM 1 FOR 50);
+			ELSEIF FIELDVALUE(rInInstruction.(XMLNSC.Attribute)InstructionType) <> '' AND FIELDVALUE(rInInstruction.(XMLNSC.Attribute)InstructionType) IS NOT NULL THEN
+				SET rI3INPT00.PIIDES=SUBSTRING( FIELDVALUE(rInInstruction.(XMLNSC.Attribute)InstructionText) FROM 1 FOR 50);
+			END IF;
+			
+			SET INSTRUCTION_LINES_COUNT = INSTRUCTION_LINES_COUNT+1;
+			MOVE rInInstruction NEXTSIBLING REPEAT NAME;
+		END WHILE;
+		SET loopCnt =loopCnt+1;
+		SET SHIPMENT_LINES_COUNT = SHIPMENT_LINES_COUNT+1;
+	END WHILE;
+
+
+	MOVE rInShipmentLine NEXTSIBLING REPEAT NAME;
+END WHILE;
+
+RETURN TRUE;
+END;
+END MODULE;
+
+CREATE COMPUTE MODULE WmsCalDcSequenceTransform
+	DECLARE theModule CONSTANT CHARACTER theSchema||'.'||'WmsMisDcSequenceTransform';
+	DECLARE theSchema CONSTANT CHARACTER 'trx.pickticket.wms';
+
+	CREATE FUNCTION Main() RETURNS BOOLEAN
+	BEGIN
+		SET OutputRoot.Properties = InputRoot.Properties;
+		SET OutputRoot.MQMD = InputRoot.MQMD;
+		-- Namespace Declaration
+		DECLARE wms NAMESPACE 'http://www.fglsports.com/schema/wmstaging/tables/v1';
+		-- Output Reference Variable Declaration
+		DECLARE rOut,rOutWMStaging,rOutHeader,rOutWMBody,rOutPickTicket,rOutI1INPT00,rOutI2INPT00,rOutI3INPT00 REFERENCE TO OutputRoot;
+
+		DECLARE rEnv REFERENCE TO Environment;
+		-- Create a Namespace declaration
+		CREATE LASTCHILD OF OutputRoot AS rOut DOMAIN 'XMLNSC';
+		CREATE LASTCHILD OF rOut AS rOutWMStaging NAMESPACE wms NAME 'WMStaging';
+		SET rOutWMStaging.(XMLNSC.NamespaceDecl)xmlns:"wms" = wms;
+		-- Message Header declaration
+		CREATE LASTCHILD OF rOutWMStaging AS rOutHeader NAMESPACE wms NAME 'WMHeader';
+		CREATE LASTCHILD OF rOutWMStaging AS rOutWMBody NAMESPACE wms NAME 'WMBody';
+		-- Create PickTicket tag
+		CREATE LASTCHILD OF rOutWMBody AS rOutPickTicket NAMESPACE wms NAME 'PickTicket';
+
+		DECLARE rI1INPT00 REFERENCE TO InputRoot.XMLNSC.wms:WMStaging.wms:WMBody.wms:PickTicket.wms:I1INPT00[1];
+		CREATE LASTCHILD OF rOutPickTicket AS rOutI1INPT00 NAMESPACE wms NAME 'I1INPT00';
+
+		SET rOutI1INPT00.PHBCTN=rI1INPT00.PHBCTN;
+		SET rOutI1INPT00.PHCO=rI1INPT00.PHCO;
+		SET rOutI1INPT00.PHPCTL=rI1INPT00.PHPCTL;
+		SET rOutI1INPT00.PHWHSE=rI1INPT00.PHWHSE;
+		SET rOutI1INPT00.PHPKTN=rI1INPT00.PHPKTN;
+		SET rOutI1INPT00.PHPKTS=rI1INPT00.PHPKTS;
+		SET rOutI1INPT00.PHORDN=rI1INPT00.PHORDN;
+		SET rOutI1INPT00.PHSHNM=rI1INPT00.PHSHNM;
+		SET rOutI1INPT00.PHSHA1=rI1INPT00.PHSHA1;
+		SET rOutI1INPT00.PHSHA2=rI1INPT00.PHSHA2;
+		SET rOutI1INPT00.PHSHCT=rI1INPT00.PHSHCT;
+		SET rOutI1INPT00.PHSHST=rI1INPT00.PHSHST;
+		SET rOutI1INPT00.PHSHCN=rI1INPT00.PHSHCN;
+		SET rOutI1INPT00.PHSHZP=rI1INPT00.PHSHZP;
+		SET rOutI1INPT00.PHSONM=rI1INPT00.PHSONM;
+		SET rOutI1INPT00.PHSOA1=rI1INPT00.PHSOA1;
+		SET rOutI1INPT00.PHSOA2=rI1INPT00.PHSOA2;
+		SET rOutI1INPT00.PHSOCT=rI1INPT00.PHSOCT;
+		SET rOutI1INPT00.PHSOST=rI1INPT00.PHSOST;
+		SET rOutI1INPT00.PHSOCN=rI1INPT00.PHSOCN;
+		SET rOutI1INPT00.PHSOZP=rI1INPT00.PHSOZP;
+		SET rOutI1INPT00.PHTELN=rI1INPT00.PHTELN;
+		SET rOutI1INPT00.PHDEML=rI1INPT00.PHDEML;
+		SET rOutI1INPT00.PHSVIA=rI1INPT00.PHSVIA;
+		SET rOutI1INPT00.PHORDT=rI1INPT00.PHORDT;
+		SET rOutI1INPT00.PHCCLT=rI1INPT00.PHCCLT;
+		SET rOutI1INPT00.PHPSTF=rI1INPT00.PHPSTF;
+		SET rOutI1INPT00.PHPHLF=rI1INPT00.PHPHLF;
+		SET rOutI1INPT00.PHPHLF=rI1INPT00.PHPHLF;
+		SET rOutI1INPT00.PHTUTS=rI1INPT00.PHTUTS;
+		SET rOutI1INPT00.PHPRVL=rI1INPT00.PHPRVL;
+		SET rOutI1INPT00.PHCFRT=rI1INPT00.PHCFRT;
+		SET rOutI1INPT00.PHMIS1=rI1INPT00.PHMIS1;
+		SET rOutI1INPT00.PHMIS6=rI1INPT00.PHMIS6;
+		SET rOutI1INPT00.PHMIS7=rI1INPT00.PHMIS7;
+		SET rOutI1INPT00.PHMIS8=rI1INPT00.PHMIS8;
+		SET rOutI1INPT00.PHMIS9=rI1INPT00.PHMIS9;
+		SET rOutI1INPT00.PHMS10=rI1INPT00.PHMS10;
+		SET rOutI1INPT00.PHMS11=rI1INPT00.PHMS11;
+		SET rOutI1INPT00.PHNUMD=rI1INPT00.PHNUMD;
+
+		DECLARE I2COUNT INTEGER ;
+		DECLARE I2 INTEGER 1;
+		SET I2COUNT = CARDINALITY(InputRoot.XMLNSC.wms:WMStaging.wms:WMBody.wms:PickTicket.wms:I1INPT00[1].wms:I2INPT00[]);
+		WHILE(I2 <=I2COUNT)DO
+		DECLARE rI2INPT00 REFERENCE TO InputRoot.XMLNSC.wms:WMStaging.wms:WMBody.wms:PickTicket.wms:I1INPT00[1].wms:I2INPT00[I2];
+		CREATE LASTCHILD OF rOutI1INPT00 AS rOutI2INPT00 NAMESPACE wms NAME 'I2INPT00';
+		SET rOutI2INPT00.PDBCTN=rI2INPT00.PDBCTN;
+		SET rOutI2INPT00.PDCO=rI2INPT00.PDCO;
+		SET rOutI2INPT00.PDNUM2=rI2INPT00.PDNUM2;
+		SET rOutI2INPT00.PDPCTL=rI2INPT00.PDPCTL;
+		SET rOutI2INPT00.PDPKLN=rI2INPT00.PDPKLN;
+		SET rOutI2INPT00.PDSZPO=rI2INPT00.PDSZPO;
+		SET rOutI2INPT00.PDWHSE=rI2INPT00.PDWHSE;
+		SET rOutI2INPT00.PDSTYL=rI2INPT00.PDSTYL;
+		SET rOutI2INPT00.PDSTYD=rI2INPT00.PDSTYD;
+		SET rOutI2INPT00.PDSDIM=rI2INPT00.PDSDIM;
+		SET rOutI2INPT00.PDSSFX=rI2INPT00.PDSSFX;
+		SET rOutI2INPT00.PDCOLD=rI2INPT00.PDCOLD;
+		SET rOutI2INPT00.PDCOLR=rI2INPT00.PDCOLR;
+		SET rOutI2INPT00.PDSZCD=rI2INPT00.PDSZCD;
+		SET rOutI2INPT00.PDSZDS=rI2INPT00.PDSZDS;
+		SET rOutI2INPT00.PDINVT=rI2INPT00.PDINVT;
+		SET rOutI2INPT00.PDOPQT=rI2INPT00.PDOPQT;
+		SET rOutI2INPT00.PDPIQT=rI2INPT00.PDPIQT;
+		SET rOutI2INPT00.PDPRC=rI2INPT00.PDPRC;
+		SET rOutI2INPT00.PDDDLR VALUE =rI2INPT00.PDDDLR;
+
+		DECLARE I3COUNT INTEGER ;
+		DECLARE I3 INTEGER 1;
+		SET I3COUNT = CARDINALITY(InputRoot.XMLNSC.wms:WMStaging.wms:WMBody.wms:PickTicket.wms:I1INPT00[1].wms:I2INPT00[I2].wms:I3INPT00[]);
+		WHILE(I3 <=I3COUNT)DO
+		DECLARE rI3INPT00 REFERENCE TO InputRoot.XMLNSC.wms:WMStaging.wms:WMBody.wms:PickTicket.wms:I1INPT00[1].wms:I2INPT00[I2].wms:I3INPT00[I3];
+		CREATE LASTCHILD OF rOutI2INPT00 AS rOutI3INPT00 NAMESPACE wms NAME 'I3INPT00';
+		DECLARE PIBCTNValue CHARACTER;
+		CALL GetInstCtrSequence(rEnv) INTO PIBCTNValue;
+		SET rOutI3INPT00.PIBCTN=PIBCTNValue;
+		SET rOutI3INPT00.PIPCTL=rI3INPT00.PIPCTL;
+		SET rOutI3INPT00.PIPKLN=rI3INPT00.PIPKLN;
+		SET rOutI3INPT00.PIINBR=rI3INPT00.PIINBR;
+		SET rOutI3INPT00.PIITYP=rI3INPT00.PIITYP;
+		SET rOutI3INPT00.PIICOD=rI3INPT00.PIICOD;
+		SET rOutI3INPT00.PIIDES=rI3INPT00.PIIDES;
+		SET rOutI3INPT00.PICREX=rI3INPT00.PICREX;
+		SET rOutI3INPT00.PIRCEX=rI3INPT00.PIRCEX;
+
+		SET I3= I3+1;
+	END WHILE;
+	SET I2=I2+1;
+
+END WHILE;
+
+RETURN TRUE;
+END;
+END MODULE;
+
+CREATE COMPUTE MODULE DomsToWmsMisDcTransform
+	DECLARE theModule CONSTANT CHARACTER theSchema||'.'||'DomsToWmsMisDcTransform';
+	DECLARE I INTEGER 1;
+
+	CREATE FUNCTION Main() RETURNS BOOLEAN
+	BEGIN
+		SET OutputRoot.Properties = InputRoot.Properties;
+		SET OutputRoot.MQMD = InputRoot.MQMD;
+		DECLARE wms NAMESPACE 'http://www.fglsports.com/schema/wmstaging/tables/v1';
+		
+		DECLARE SHIPMENT_LINES_COUNT INTEGER 1;
+		DECLARE SIGNATUREREQUIRED CHARACTER;
+		DECLARE DONOTSAFEDROP CHARACTER;
+		DECLARE CPOADDRESS CHARACTER;
+
+		DECLARE rInShipmentLine,rInInstruction,rAdditionalAttribute,rLineCharge REFERENCE TO InputRoot;
+		
+		DECLARE rInExch REFERENCE TO InputRoot.XMLNSC;
+		DECLARE rInShipment REFERENCE TO rInExch.Shipment;
+		DECLARE rInToAddress REFERENCE TO rInExch.Shipment.ToAddress;
+		DECLARE rInBillToAddress REFERENCE TO rInExch.Shipment.BillToAddress;
+		DECLARE rInShipmentLines REFERENCE TO rInExch.Shipment.ShipmentLines;
+		DECLARE USER_EXCEPTION_MESSAGE_BLANK_VALUE CONSTANT INTEGER 2;
+		
+		DECLARE rOut,rExch,rHeader,rWMBody,rPickTicket,rI1INPT00,rI2INPT00,rI3INPT00 REFERENCE TO OutputRoot;
+		DECLARE rEnv REFERENCE TO Environment;
+		DECLARE theSchema CONSTANT CHARACTER 'trx.pickticket.wms';
+		DECLARE theModule CONSTANT CHARACTER theSchema||'.'||'DomsToWmsTransform';
+				
+		CREATE LASTCHILD OF OutputRoot AS rOut DOMAIN 'XMLNSC';
+		CREATE LASTCHILD OF rOut AS rExch NAMESPACE wms NAME 'WMStaging';
+		SET rExch.(XMLNSC.NamespaceDecl)xmlns:"wms" = wms;
+		
+		CREATE LASTCHILD OF rExch AS rHeader NAMESPACE wms NAME 'WMHeader';
+		CREATE LASTCHILD OF rExch AS rWMBody NAMESPACE wms NAME 'WMBody';
+		MOVE rInShipmentLine TO rInShipmentLines.ShipmentLine[1];
+		
+		CREATE LASTCHILD OF rWMBody AS rPickTicket NAMESPACE wms NAME 'PickTicket';
+
+		CREATE LASTCHILD OF rPickTicket AS rI1INPT00 NAMESPACE wms NAME 'I1INPT00';
+		SET rI1INPT00.PHBCTN =rEnv.__DcControlSequence__;
+		SET rI1INPT00.PHCO='FGL';
+		SET rI1INPT00.PHPCTL =SUBSTRING(FIELDVALUE(rInShipment.(XMLNSC.Attribute)ShipmentKey) FROM 1 FOR 10);
+		SET rI1INPT00.PHWHSE ='009';
+		SET rI1INPT00.PHPKTN =SUBSTRING(FIELDVALUE(rInShipment.(XMLNSC.Attribute)ShipmentKey) FROM 1 FOR 10);
+		SET rI1INPT00.PHPKTS='';
+		IF(FIELDVALUE(rInShipment.(XMLNSC.Attribute)EnterpriseCode)='SPORTCHEK') THEN
+		SET rI1INPT00.PHORDN ='E'||TRIM(FIELDVALUE(rInShipmentLine.Order.(XMLNSC.Attribute)OrderNo));
+		ELSEIF(FIELDVALUE(rInShipment.(XMLNSC.Attribute)EnterpriseCode)='ATMOSPHERE') THEN
+		SET rI1INPT00.PHORDN ='O'||TRIM(FIELDVALUE(rInShipmentLine.Order.(XMLNSC.Attribute)OrderNo));
+	END IF;
+	
+	
+	DECLARE Order_NO CHAR rI1INPT00.PHORDN;
+	DECLARE ShipmentKey_NO CHAR rI1INPT00.PHPKTN;
+	CALL core.log.Info(theModule||' - ORDER NO# : '||Order_NO);
+	CALL core.log.Info(theModule||' - ShipmentKey NO# : '||ShipmentKey_NO);
+	
+	
+	SET rI1INPT00.PHSHNM =FIELDVALUE(rInToAddress.(XMLNSC.Attribute)FirstName)||' '||FIELDVALUE(rInToAddress.(XMLNSC.Attribute)LastName);
+	SET rI1INPT00.PHSHA1 =FIELDVALUE(rInToAddress.(XMLNSC.Attribute)AddressLine1);
+	SET rI1INPT00.PHSHA2 =FIELDVALUE(rInToAddress.(XMLNSC.Attribute)AddressLine2);
+	SET rI1INPT00.PHSHCT =FIELDVALUE(rInToAddress.(XMLNSC.Attribute)City);
+	SET rI1INPT00.PHSHST =FIELDVALUE(rInToAddress.(XMLNSC.Attribute)State);
+	SET rI1INPT00.PHSHZP =FIELDVALUE(rInToAddress.(XMLNSC.Attribute)ZipCode);
+	SET rI1INPT00.PHSHCN =FIELDVALUE(rInToAddress.(XMLNSC.Attribute)Country);
+	SET rI1INPT00.PHSONM =FIELDVALUE(rInBillToAddress.(XMLNSC.Attribute)FirstName)||' '||FIELDVALUE(rInBillToAddress.(XMLNSC.Attribute)LastName);
+	SET rI1INPT00.PHSOA1 =FIELDVALUE(rInBillToAddress.(XMLNSC.Attribute)AddressLine1);
+	SET rI1INPT00.PHSOA2 =FIELDVALUE(rInBillToAddress.(XMLNSC.Attribute)AddressLine2);
+	SET rI1INPT00.PHSOCT =FIELDVALUE(rInBillToAddress.(XMLNSC.Attribute)City);
+	SET rI1INPT00.PHSOST =FIELDVALUE(rInBillToAddress.(XMLNSC.Attribute)State);
+	SET rI1INPT00.PHSOZP =FIELDVALUE(rInBillToAddress.(XMLNSC.Attribute)ZipCode);
+	SET rI1INPT00.PHSOCN =FIELDVALUE(rInBillToAddress.(XMLNSC.Attribute)Country);
+	SET rI1INPT00.PHTELN =FIELDVALUE(rInBillToAddress.(XMLNSC.Attribute)DayPhone);
+	SET rI1INPT00.PHDEML =FIELDVALUE(rInBillToAddress.(XMLNSC.Attribute)EMailID);
+
+	    IF((UPPER(FIELDVALUE(rInShipment.(XMLNSC.Attribute)SCAC))='PUROLATOR') AND (UPPER(FIELDVALUE(rInShipment.(XMLNSC.Attribute)CarrierServiceCode))='REGULAR SHIPPING'))THEN
+        SET rI1INPT00.PHSVIA ='PG';
+        ELSEIF((UPPER(FIELDVALUE(rInShipment.(XMLNSC.Attribute)SCAC))='PUROLATOR') AND (UPPER(FIELDVALUE(rInShipment.(XMLNSC.Attribute)CarrierServiceCode))='EXPRESS SHIPPING')) THEN
+        SET rI1INPT00.PHSVIA ='PE';
+        ELSEIF((UPPER(FIELDVALUE(rInShipment.(XMLNSC.Attribute)SCAC))='CANADA_POST') AND (UPPER(FIELDVALUE(rInShipment.(XMLNSC.Attribute)CarrierServiceCode))='REGULAR SHIPPING')) THEN
+        SET rI1INPT00.PHSVIA ='967';
+        ELSEIF((UPPER(FIELDVALUE(rInShipment.(XMLNSC.Attribute)SCAC))='CANADA_POST') AND (UPPER(FIELDVALUE(rInShipment.(XMLNSC.Attribute)CarrierServiceCode))='EXPRESS SHIPPING')) THEN
+        SET rI1INPT00.PHSVIA ='908';
+        ELSEIF((UPPER(FIELDVALUE(rInShipment.(XMLNSC.Attribute)SCAC))='CANADA_POST') AND CONTAINS(UPPER(FIELDVALUE(rInShipment.(XMLNSC.Attribute)CarrierServiceCode)),'DELIVERED TONIGHT')) THEN
+        SET rI1INPT00.PHSVIA ='CPDT';   
+    END IF;
+    
+IF FIELDVALUE(rInShipmentLine.Order.(XMLNSC.Attribute)OrderDate) <> '' AND FIELDVALUE(rInShipmentLine.Order.(XMLNSC.Attribute)OrderDate)IS NOT NULL THEN
+	
+	DECLARE orderDate CHARACTER FIELDVALUE(rInShipmentLine.Order.(XMLNSC.Attribute)OrderDate);
+	SET orderDate = SUBSTRING(orderDate FROM 1 FOR 10);
+	SET rI1INPT00.PHORDT = REPLACE(orderDate,'-','');
+
+ELSE
+	SET rI1INPT00.PHORDT =CAST(CURRENT_DATE AS CHARACTER FORMAT 'yyyyMMdd');
+END IF;
+
+SET rI1INPT00.PHCCLT ='FGLE';
+SET rI1INPT00.PHPSTF ='10';
+SET rI1INPT00.PHPHLF ='Y';
+SET rI1INPT00.PHTUTS =FIELDVALUE(rInShipment.(XMLNSC.Attribute)TotalQuantity);
+SET rI1INPT00.PHPRVL ='0';
+
+SET rI1INPT00.PHCFRT ='P';
+SET rI1INPT00.PHMIS1 ='Y';
+SET rI1INPT00.PHMIS8 =FIELDVALUE(rInShipment.(XMLNSC.Attribute)CarrierServiceCode);
+
+IF FIELDVALUE(rInShipmentLine.Order.(XMLNSC.Attribute)OrderDate) <> '' AND FIELDVALUE(rInShipmentLine.Order.(XMLNSC.Attribute)OrderDate)IS NOT NULL THEN
+	
+	DECLARE orderDate CHARACTER FIELDVALUE(rInShipmentLine.Order.(XMLNSC.Attribute)OrderDate);
+	SET rI1INPT00.PHMIS9= LEFT(orderDate,19);
+	
+END IF;
+SET rI1INPT00.PHMS10 =FIELDVALUE(rInToAddress.(XMLNSC.Attribute)AddressLine5);
+
+
+
+IF (FIELDVALUE(rInShipmentLine.Order.Extn.(XMLNSC.Attribute)ExtnExtraDeliveryOption)='SIGNATURE_REQUIRED') THEN
+	SET SIGNATUREREQUIRED='1';
+ELSE
+	SET SIGNATUREREQUIRED='0';
+END IF;
+
+IF (FIELDVALUE(rInShipmentLine.Order.Extn.(XMLNSC.Attribute)ExtnExtraDeliveryOption)='DO_NOT_SAFE_DROP') THEN
+	SET DONOTSAFEDROP='1';
+ELSE
+	SET DONOTSAFEDROP='0';
+END IF;
+
+IF (SUBSTRING(FIELDVALUE(rInToAddress.(XMLNSC.Attribute)AddressLine6) FROM 4 FOR 3)='CPO') THEN
+	SET CPOADDRESS='1';
+ELSE
+	SET CPOADDRESS='0';
+END IF;
+
+SET rI1INPT00.PHMS11 = '000'||SIGNATUREREQUIRED||DONOTSAFEDROP||'000000'||CPOADDRESS||'0000';
+SET rI1INPT00.PHNUMD =CARDINALITY(rInShipmentLines.ShipmentLine[]);
+
+DECLARE paymentType CHARACTER;
+CALL GetPaymentMethodType(rInShipmentLine) INTO paymentType;
+
+SET rI1INPT00.PHMIS6 = LEFT(paymentType,10);
+
+IF LENGTH(paymentType)>10 THEN
+	SET rI1INPT00.PHMIS7 = SUBSTRING(paymentType FROM 11 FOR 10);
+ELSE
+	SET rI1INPT00.PHMIS7 = '';
+END IF; 
+
+DECLARE quantity,loopCnt INTEGER 1; 	
+
+
+WHILE LASTMOVE(rInShipmentLine) DO
+	SET quantity = CAST(rInShipmentLine.(XMLNSC.Attribute)Quantity AS INTEGER);
+	-- Create I1INPT00 tag
+	SET loopCnt =1;
+	WHILE loopCnt <= quantity DO
+
+		CREATE LASTCHILD OF rI1INPT00 AS rI2INPT00 NAMESPACE wms NAME 'I2INPT00';
+
+		SET rI2INPT00.PDBCTN=rEnv.__DcControlSequence__;
+		SET rI2INPT00.PDCO = 'FGL'; --Added during review
+		SET rI2INPT00.PDPCTL=SUBSTRING(FIELDVALUE(rInShipment.(XMLNSC.Attribute)ShipmentKey) FROM 1 FOR 10);
+		SET rI2INPT00.PIPKLN=SHIPMENT_LINES_COUNT; -- Changed by reviewer
+		SET rI2INPT00.PDPKLN=SHIPMENT_LINES_COUNT;
+		DECLARE ITEMNUMBER CHARACTER;
+		DECLARE PDSZPOValue CHARACTER;
+
+		SET ITEMNUMBER ='S'||FIELDVALUE(rInShipmentLine.(XMLNSC.Attribute)ItemID);
+
+		IF loopCnt = 1 THEN
+			SET Environment.Variable.dbResult=
+			THE(SELECT T.STSZPO,T.STCOLR,T.STSDIM,T.STSZCD,T.STSZDS FROM Database.{MISDCSchemaName}.STSTYL00 AS T WHERE TRIM(T.STBRCD)= ITEMNUMBER AND TRIM(T.STCO)='FGL');
+		END IF;
+
+		DECLARE queryResult REFERENCE TO Environment.Variable.dbResult; 		
+        
+
+		SET rI2INPT00.PDSZPO= queryResult.STSZPO;
+		SET rI2INPT00.PDCOLR = queryResult.STCOLR;
+		SET rI2INPT00.PDSDIM = queryResult.STSDIM;
+		SET rI2INPT00.PDSZCD = TRIM(queryResult.STSZCD);
+		SET rI2INPT00.PDSZDS = TRIM(queryResult.STSZDS);
+		
+		DECLARE PDSZPO CHAR rI2INPT00.PDSZPO;
+		DECLARE PDCOLR CHAR rI2INPT00.PDCOLR;
+		DECLARE PDSDIM CHAR rI2INPT00.PDSDIM;
+		DECLARE PDSZCD CHAR rI2INPT00.PDSZCD;
+		DECLARE PDSZDS CHAR rI2INPT00.PDSZDS;
+		
+		CALL core.log.Info(theModule||' - SQL QUERY OUTPUT:');
+		CALL core.log.Info(theModule||' - PDSZPO# : '||PDSZPO);
+		CALL core.log.Info(theModule||' - PDCOLR# : '||PDCOLR);
+		CALL core.log.Info(theModule||' - PDSDIM# : '||PDSDIM);
+		CALL core.log.Info(theModule||' - PDSZCD# : '||PDSZCD);
+		CALL core.log.Info(theModule||' - PDSZDS# : '||PDSZDS);
+
+		SET rI2INPT00.PDWHSE='009';
+			
+			
+		SET rI2INPT00.PDNUM2= FIELDVALUE(rInShipmentLine.(XMLNSC.Attribute)ShipmentLineNo); --Added by reviewer
+
+		MOVE rAdditionalAttribute TO rInShipmentLine.OrderLine.ItemDetails.AdditionalAttributeList.AdditionalAttribute[1];
+		WHILE LASTMOVE(rAdditionalAttribute) DO
+			IF (FIELDVALUE (rAdditionalAttribute.(XMLNSC.Attribute)Name)='Style Code') THEN
+				SET rI2INPT00.PDSTYL=SUBSTRING(FIELDVALUE (rAdditionalAttribute.(XMLNSC.Attribute)Value) FROM 1 FOR 8);
+				SET rI2INPT00.PDSSFX=SUBSTRING(FIELDVALUE (rAdditionalAttribute.(XMLNSC.Attribute)Value) FROM 9 FOR 15);
+				ELSEIF(FIELDVALUE (rAdditionalAttribute.(XMLNSC.Attribute)Name)='Style Desc') THEN
+				SET rI2INPT00.PDSTYD=FIELDVALUE (rAdditionalAttribute.(XMLNSC.Attribute)Value);
+				ELSEIF(FIELDVALUE (rAdditionalAttribute.(XMLNSC.Attribute)Name)='Color Desc') THEN
+				SET rI2INPT00.PDCOLD=FIELDVALUE (rAdditionalAttribute.(XMLNSC.Attribute)Value);
+			END IF;
+			MOVE rAdditionalAttribute NEXTSIBLING REPEAT NAME;
+		END WHILE; 		
+
+
+		SET rI2INPT00.PDCOLR=FIELDVALUE(rInShipmentLine.OrderLine.ItemDetails.PrimaryInformation.(XMLNSC.Attribute)ColorCode);
+		SET rI2INPT00.PDINVT='F';
+		SET rI2INPT00.PDPIQT='1';
+		SET rI2INPT00.PDOPQT='1';
+
+		MOVE rLineCharge TO rInShipmentLine.OrderLine.LineCharges.LineCharge[1];
+
+		DECLARE calcPrice DECIMAL 0;
+		WHILE LASTMOVE(rLineCharge) DO
+			IF rLineCharge.(XMLNSC.Attribute)ChargeName ='DISCOUNT' THEN
+				SET calcPrice=calcPrice - CAST(COALESCE(FIELDVALUE(rLineCharge.(XMLNSC.Attribute)ChargePerUnit),0) AS DECIMAL);
+			ELSE
+				SET calcPrice=calcPrice+ CAST(COALESCE(FIELDVALUE(rLineCharge.(XMLNSC.Attribute)ChargePerUnit),0) AS DECIMAL);
+
+			END IF;
+
+			IF FIELDVALUE(rLineCharge.(XMLNSC.Attribute)ChargeName) ='DISCOUNT' AND FIELDVALUE(rLineCharge.(XMLNSC.Attribute)ChargeCategory) ='DISCOUNT' THEN
+				SET rI2INPT00.PDDDLR= rLineCharge.(XMLNSC.Attribute)ChargePerUnit;
+			END IF;
+			MOVE rLineCharge NEXTSIBLING REPEAT NAME;
+		END WHILE;
+
+		SET rI2INPT00.PDPRC = calcPrice+CAST(COALESCE(FIELDVALUE(rInShipmentLine.OrderLine.LinePriceInfo.(XMLNSC.Attribute)UnitPrice),0) AS DECIMAL);
+
+
+		DECLARE INSTRUCTION_LINES_COUNT INTEGER 1;
+
+		MOVE rInInstruction TO rInShipmentLine.Instructions.Instruction[1];
+		WHILE LASTMOVE(rInInstruction) DO
+			CREATE LASTCHILD OF rI2INPT00 AS rI3INPT00 NAMESPACE wms NAME 'I3INPT00';
+
+			SET rI3INPT00.PIBCTN='';
+			SET rI3INPT00.PIPCTL=SUBSTRING(FIELDVALUE(rInShipment.(XMLNSC.Attribute)ShipmentKey) FROM 1 FOR 10);
+			SET rI3INPT00.PIPKLN=SHIPMENT_LINES_COUNT;
+			SET rI3INPT00.PIINBR=INSTRUCTION_LINES_COUNT;
+			SET rI3INPT00.PIITYP='';
+			SET rI3INPT00.PIICOD='';
+			SET rI3INPT00.PIIDES='';
+			SET rI3INPT00.PICREX='';
+			SET rI3INPT00.PIRCEX='';
+
+			IF FIELDVALUE(rInInstruction.(XMLNSC.Attribute)InstructionText) <> '' AND FIELDVALUE(rInInstruction.(XMLNSC.Attribute)InstructionText) IS NOT NULL THEN
+				SET rI3INPT00.PIITYP='PV';
+			ELSEIF FIELDVALUE(rInInstruction.(XMLNSC.Attribute)InstructionType) <> '' AND FIELDVALUE(rInInstruction.(XMLNSC.Attribute)InstructionType) IS NOT NULL THEN
+				SET rI3INPT00.PIITYP='AA';
+			END IF;
+			IF FIELDVALUE(rInInstruction.(XMLNSC.Attribute)InstructionText) <> '' AND FIELDVALUE(rInInstruction.(XMLNSC.Attribute)InstructionText) IS NOT NULL THEN
+				SET rI3INPT00.PIICOD='GW';
+			ELSEIF FIELDVALUE(rInInstruction.(XMLNSC.Attribute)InstructionType) <> '' AND FIELDVALUE(rInInstruction.(XMLNSC.Attribute)InstructionType) IS NOT NULL THEN
+				SET rI3INPT00.PIICOD='BB';
+			END IF;
+			IF FIELDVALUE(rInInstruction.(XMLNSC.Attribute)InstructionText) <> '' AND FIELDVALUE(rInInstruction.(XMLNSC.Attribute)InstructionText) IS NOT NULL THEN
+				SET rI3INPT00.PIIDES= SUBSTRING(FIELDVALUE(rInInstruction.(XMLNSC.Attribute)InstructionText) FROM 1 FOR 50);
+			ELSEIF FIELDVALUE(rInInstruction.(XMLNSC.Attribute)InstructionType) <> '' AND FIELDVALUE(rInInstruction.(XMLNSC.Attribute)InstructionType) IS NOT NULL THEN
+				SET rI3INPT00.PIIDES=SUBSTRING( FIELDVALUE(rInInstruction.(XMLNSC.Attribute)InstructionText) FROM 1 FOR 50);
+			END IF;
+
+			SET INSTRUCTION_LINES_COUNT = INSTRUCTION_LINES_COUNT+1;
+			MOVE rInInstruction NEXTSIBLING REPEAT NAME;
+		END WHILE;
+		SET loopCnt =loopCnt+1;
+		SET SHIPMENT_LINES_COUNT = SHIPMENT_LINES_COUNT+1;
+	END WHILE;
+
+
+	MOVE rInShipmentLine NEXTSIBLING REPEAT NAME;
+END WHILE;
+
+RETURN TRUE;
+END;
+END MODULE;
+
+CREATE COMPUTE MODULE WmsMisDcSequenceTransform
+	DECLARE theModule CONSTANT CHARACTER theSchema||'.'||'WmsMisDcSequenceTransform';
+	DECLARE theSchema CONSTANT CHARACTER 'trx.pickticket.wms';
+
+	CREATE FUNCTION Main() RETURNS BOOLEAN
+	BEGIN
+		SET OutputRoot.Properties = InputRoot.Properties;
+		SET OutputRoot.MQMD = InputRoot.MQMD;
+
+		DECLARE wms NAMESPACE 'http://www.fglsports.com/schema/wmstaging/tables/v1';
+
+		DECLARE rOut,rOutWMStaging,rOutHeader,rOutWMBody,rOutPickTicket,rOutI1INPT00,rOutI2INPT00,rOutI3INPT00 REFERENCE TO OutputRoot;
+
+		DECLARE rEnv REFERENCE TO Environment;
+		-- Create a Namespace declaration
+		CREATE LASTCHILD OF OutputRoot AS rOut DOMAIN 'XMLNSC';
+		CREATE LASTCHILD OF rOut AS rOutWMStaging NAMESPACE wms NAME 'WMStaging';
+		SET rOutWMStaging.(XMLNSC.NamespaceDecl)xmlns:"wms" = wms;
+
+		CREATE LASTCHILD OF rOutWMStaging AS rOutHeader NAMESPACE wms NAME 'WMHeader';
+		CREATE LASTCHILD OF rOutWMStaging AS rOutWMBody NAMESPACE wms NAME 'WMBody';
+		-- Create PickTicket tag
+		CREATE LASTCHILD OF rOutWMBody AS rOutPickTicket NAMESPACE wms NAME 'PickTicket';
+
+		DECLARE rI1INPT00 REFERENCE TO InputRoot.XMLNSC.wms:WMStaging.wms:WMBody.wms:PickTicket.wms:I1INPT00[1];
+		CREATE LASTCHILD OF rOutPickTicket AS rOutI1INPT00 NAMESPACE wms NAME 'I1INPT00';
+
+		SET rOutI1INPT00.PHBCTN=rI1INPT00.PHBCTN;
+		SET rOutI1INPT00.PHCO=rI1INPT00.PHCO;
+		SET rOutI1INPT00.PHPCTL=rI1INPT00.PHPCTL;
+		SET rOutI1INPT00.PHWHSE=rI1INPT00.PHWHSE;
+		SET rOutI1INPT00.PHPKTN=rI1INPT00.PHPKTN;
+		SET rOutI1INPT00.PHPKTS=rI1INPT00.PHPKTS;
+		SET rOutI1INPT00.PHORDN=rI1INPT00.PHORDN;
+		SET rOutI1INPT00.PHSHNM=rI1INPT00.PHSHNM;
+		SET rOutI1INPT00.PHSHA1=rI1INPT00.PHSHA1;
+		SET rOutI1INPT00.PHSHA2=rI1INPT00.PHSHA2;
+		SET rOutI1INPT00.PHSHCT=rI1INPT00.PHSHCT;
+		SET rOutI1INPT00.PHSHST=rI1INPT00.PHSHST;
+		SET rOutI1INPT00.PHSHCN=rI1INPT00.PHSHCN;
+		SET rOutI1INPT00.PHSHZP=rI1INPT00.PHSHZP;
+		SET rOutI1INPT00.PHSONM=rI1INPT00.PHSONM;
+		SET rOutI1INPT00.PHSOA1=rI1INPT00.PHSOA1;
+		SET rOutI1INPT00.PHSOA2=rI1INPT00.PHSOA2;
+		SET rOutI1INPT00.PHSOCT=rI1INPT00.PHSOCT;
+		SET rOutI1INPT00.PHSOST=rI1INPT00.PHSOST;
+		SET rOutI1INPT00.PHSOCN=rI1INPT00.PHSOCN;
+		SET rOutI1INPT00.PHSOZP=rI1INPT00.PHSOZP;
+		SET rOutI1INPT00.PHTELN=rI1INPT00.PHTELN;
+		SET rOutI1INPT00.PHDEML=rI1INPT00.PHDEML;
+		SET rOutI1INPT00.PHSVIA=rI1INPT00.PHSVIA;
+		SET rOutI1INPT00.PHORDT=rI1INPT00.PHORDT;
+		SET rOutI1INPT00.PHCCLT=rI1INPT00.PHCCLT;
+		SET rOutI1INPT00.PHPSTF=rI1INPT00.PHPSTF;
+		SET rOutI1INPT00.PHPHLF=rI1INPT00.PHPHLF;
+		SET rOutI1INPT00.PHPHLF=rI1INPT00.PHPHLF;
+		SET rOutI1INPT00.PHTUTS=rI1INPT00.PHTUTS;
+		SET rOutI1INPT00.PHPRVL=rI1INPT00.PHPRVL;
+		SET rOutI1INPT00.PHCFRT=rI1INPT00.PHCFRT;
+		SET rOutI1INPT00.PHMIS1=rI1INPT00.PHMIS1;
+		SET rOutI1INPT00.PHMIS6=rI1INPT00.PHMIS6;
+		SET rOutI1INPT00.PHMIS7=rI1INPT00.PHMIS7;
+		SET rOutI1INPT00.PHMIS8=rI1INPT00.PHMIS8;
+		SET rOutI1INPT00.PHMIS9=rI1INPT00.PHMIS9;
+		SET rOutI1INPT00.PHMS10=rI1INPT00.PHMS10;
+		SET rOutI1INPT00.PHMS11=rI1INPT00.PHMS11;
+		SET rOutI1INPT00.PHNUMD=rI1INPT00.PHNUMD;
+
+		DECLARE I2COUNT INTEGER ;
+		DECLARE I2 INTEGER 1;
+		SET I2COUNT = CARDINALITY(InputRoot.XMLNSC.wms:WMStaging.wms:WMBody.wms:PickTicket.wms:I1INPT00[1].wms:I2INPT00[]);
+		WHILE(I2 <=I2COUNT)DO
+		DECLARE rI2INPT00 REFERENCE TO InputRoot.XMLNSC.wms:WMStaging.wms:WMBody.wms:PickTicket.wms:I1INPT00[1].wms:I2INPT00[I2];
+		CREATE LASTCHILD OF rOutI1INPT00 AS rOutI2INPT00 NAMESPACE wms NAME 'I2INPT00';
+		SET rOutI2INPT00.PDBCTN=rI2INPT00.PDBCTN;
+		SET rOutI2INPT00.PDCO=rI2INPT00.PDCO;
+		SET rOutI2INPT00.PDNUM2=rI2INPT00.PDNUM2;
+		SET rOutI2INPT00.PDPCTL=rI2INPT00.PDPCTL;
+		SET rOutI2INPT00.PDPKLN=rI2INPT00.PDPKLN;
+		SET rOutI2INPT00.PDSZPO=rI2INPT00.PDSZPO;
+		SET rOutI2INPT00.PDWHSE=rI2INPT00.PDWHSE;
+		SET rOutI2INPT00.PDSTYL=rI2INPT00.PDSTYL;
+		SET rOutI2INPT00.PDSTYD=rI2INPT00.PDSTYD;
+		SET rOutI2INPT00.PDSDIM=rI2INPT00.PDSDIM;
+		SET rOutI2INPT00.PDSSFX=rI2INPT00.PDSSFX;
+		SET rOutI2INPT00.PDCOLD=rI2INPT00.PDCOLD;
+		SET rOutI2INPT00.PDCOLR=rI2INPT00.PDCOLR;
+		SET rOutI2INPT00.PDSZCD=rI2INPT00.PDSZCD;
+		SET rOutI2INPT00.PDSZDS=rI2INPT00.PDSZDS;
+		SET rOutI2INPT00.PDINVT=rI2INPT00.PDINVT;
+		SET rOutI2INPT00.PDOPQT=rI2INPT00.PDOPQT;
+		SET rOutI2INPT00.PDPIQT=rI2INPT00.PDPIQT;
+		SET rOutI2INPT00.PDPRC =rI2INPT00.PDPRC;
+		SET rOutI2INPT00.PDDDLR VALUE=rI2INPT00.PDDDLR;
+
+		DECLARE I3COUNT INTEGER ;
+		DECLARE I3 INTEGER 1;
+		SET I3COUNT = CARDINALITY(InputRoot.XMLNSC.wms:WMStaging.wms:WMBody.wms:PickTicket.wms:I1INPT00[1].wms:I2INPT00[I2].wms:I3INPT00[]);
+		WHILE(I3 <=I3COUNT)DO
+		DECLARE rI3INPT00 REFERENCE TO InputRoot.XMLNSC.wms:WMStaging.wms:WMBody.wms:PickTicket.wms:I1INPT00[1].wms:I2INPT00[I2].wms:I3INPT00[I3];
+		CREATE LASTCHILD OF rOutI2INPT00 AS rOutI3INPT00 NAMESPACE wms NAME 'I3INPT00';
+		DECLARE PIBCTNValue CHARACTER;
+		CALL GetInstCtrSequence(rEnv) INTO PIBCTNValue;
+		SET rOutI3INPT00.PIBCTN=PIBCTNValue;
+		SET rOutI3INPT00.PIPCTL=rI3INPT00.PIPCTL;
+		SET rOutI3INPT00.PIPKLN=rI3INPT00.PIPKLN;
+		SET rOutI3INPT00.PIINBR=rI3INPT00.PIINBR;
+		SET rOutI3INPT00.PIITYP=rI3INPT00.PIITYP;
+		SET rOutI3INPT00.PIICOD=rI3INPT00.PIICOD;
+		SET rOutI3INPT00.PIIDES=rI3INPT00.PIIDES;
+		SET rOutI3INPT00.PICREX=rI3INPT00.PICREX;
+		SET rOutI3INPT00.PIRCEX=rI3INPT00.PIRCEX;
+
+		SET I3= I3+1;
+	END WHILE;
+	SET I2=I2+1;
+END WHILE;
+
+RETURN TRUE;
+END;
+END MODULE;

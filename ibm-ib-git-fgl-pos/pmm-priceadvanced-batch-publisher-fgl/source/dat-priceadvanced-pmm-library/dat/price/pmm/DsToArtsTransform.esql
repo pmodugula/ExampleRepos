@@ -1,0 +1,500 @@
+/*
+ * File name: DsToArtsTransform.esql
+ *
+ * Purpose:   ESQL file for DS to ARTS message transformation.
+ *
+ * Version:   Initial Version
+ *
+ * Authors:   Madanlal Tulsiram
+ *                 
+ * Create Date:  26 Aug 2016
+ * 
+ * @copyright FGL 2016.  All rights reserved.
+ */
+BROKER SCHEMA dat.price.pmm
+
+-- Constant variable declration
+DECLARE PURCHASE_TYPE_DESCRIPTION CONSTANT CHARACTER 'PURCHASE TYPE DESCRIPTION';
+DECLARE UOM_CODE CONSTANT CHARACTER 'UOM CODE';
+DECLARE CURRENCY_CODE CONSTANT CHARACTER 'CURRENCY CODE';
+DECLARE PRICE_PRIORITY_SUBTYPE_CODE CHARACTER 'PRICE PRIORITY SUBTYPE CODE';
+DECLARE DAY_OF_WEEK CONSTANT CHARACTER 'DAY OF WEEK';
+DECLARE PRICE_PRIORITY_CODE CONSTANT CHARACTER 'PRICE PRIORITY CODE';
+DECLARE SBU CONSTANT CHARACTER 'FGL';
+DECLARE DATASOURCE CONSTANT CHARACTER 'PMM';
+DECLARE CMN_CODE_DSCRPT_TXT CONSTANT CHARACTER 'CMN_CODE_DSCRPT_TXT';
+
+--Added Datastage message namespace declaration.
+DECLARE etl NAMESPACE 'http://www.fgl.com/SourceStagingDealGroupMaintenancePmmFgl';
+
+CREATE COMPUTE MODULE SetupCodeTranslation
+	CREATE FUNCTION Main() RETURNS BOOLEAN
+	BEGIN
+		DECLARE RefEnv REFERENCE TO Environment;
+		-- condition to tackle double call to common_InitCodeTranslation
+		IF RefEnv.__InitCodeTranslation__ IS NULL OR RefEnv.__InitCodeTranslation__ <> TRUE THEN
+			CALL common.common_translateCodeInit(RefEnv);
+		END IF; 
+		DECLARE RefInMsg REFERENCE TO InputRoot.XMLNSC.etl:Exchange.etl:Message;
+		DECLARE RefInPrice REFERENCE TO RefInMsg.etl:Price;
+		DECLARE RefInPrcHdr REFERENCE TO RefInPrice.etl:PriceHeader;
+		DECLARE RefInPrcDyOfWk REFERENCE TO RefInPrice.etl:DayOfWeek;
+		DECLARE RefInPrcGrpCmpnt REFERENCE TO RefInPrice.etl:PriceGroupComponents.etl:Row[1];
+		DECLARE RefInPrcGrpMrkDn REFERENCE TO RefInPrice.etl:PriceGroupMarkdowns.etl:Row[1];		
+		WHILE LASTMOVE(RefInPrcGrpCmpnt) DO				
+			IF RefInPrcGrpCmpnt.etl:PURCHASE_TYPE = 'A'THEN 
+			   CALL common.common_TranslateCodeWithSuffix(RefEnv,SBU,DATASOURCE,PURCHASE_TYPE_DESCRIPTION,'','A');
+			ELSEIF RefInPrcGrpCmpnt.etl:PURCHASE_TYPE = 'M' THEN 
+			   CALL common.common_TranslateCodeWithSuffix(RefEnv,SBU,DATASOURCE,PURCHASE_TYPE_DESCRIPTION,'','M');
+			END IF;
+			MOVE RefInPrcGrpCmpnt NEXTSIBLING REPEAT NAME;
+		END WHILE;
+		CALL common.common_TranslateCodeWithSuffix(RefEnv,SBU,DATASOURCE,UOM_CODE,'','EA');	
+		WHILE LASTMOVE(RefInPrcGrpMrkDn) DO
+		  CALL common.common_TranslateCodeWithSuffix(RefEnv,SBU,DATASOURCE,CURRENCY_CODE,'',RefInPrcGrpMrkDn.etl:PRC_CURR_CODE);		  
+		  MOVE RefInPrcGrpMrkDn NEXTSIBLING REPEAT NAME;			
+		END WHILE;		
+		IF EXISTS(RefInPrice.etl:DayOfWeek[]) THEN
+			IF RefInPrcDyOfWk.etl:PRC_MONDAY = 'T' THEN
+			   CALL common.common_TranslateCodeWithSuffix(RefEnv,SBU,DATASOURCE,DAY_OF_WEEK,'','MONDAY');
+			END IF;
+			IF RefInPrcDyOfWk.etl:PRC_TUESDAY = 'T'  THEN 
+			   CALL common.common_TranslateCodeWithSuffix(RefEnv,SBU,DATASOURCE,DAY_OF_WEEK,'','TUESDAY');
+			END IF;
+			IF RefInPrcDyOfWk.etl:PRC_WEDNESDAY = 'T'  THEN 
+			   CALL common.common_TranslateCodeWithSuffix(RefEnv,SBU,DATASOURCE,DAY_OF_WEEK,'','WEDNESDAY');
+			END IF;
+			IF RefInPrcDyOfWk.etl:PRC_THURSDAY = 'T'  THEN 
+			   CALL common.common_TranslateCodeWithSuffix(RefEnv,SBU,DATASOURCE,DAY_OF_WEEK,'','THURSDAY');
+			END IF;
+			IF RefInPrcDyOfWk.etl:PRC_FRIDAY = 'T'  THEN 
+			   CALL common.common_TranslateCodeWithSuffix(RefEnv,SBU,DATASOURCE,DAY_OF_WEEK,'','FRIDAY');
+			END IF;
+			IF RefInPrcDyOfWk.etl:PRC_SATURDAY = 'T'  THEN 
+			   CALL common.common_TranslateCodeWithSuffix(RefEnv,SBU,DATASOURCE,DAY_OF_WEEK,'','SATURDAY');		  
+			END IF;
+			IF RefInPrcDyOfWk.etl:PRC_SUNDAY = 'T'  THEN 
+			   CALL common.common_TranslateCodeWithSuffix(RefEnv,SBU,DATASOURCE,DAY_OF_WEEK,'','SUNDAY');		  
+			END IF;
+		END IF;
+		CALL common.common_TranslateCodeWithSuffix(RefEnv,SBU,DATASOURCE,PRICE_PRIORITY_SUBTYPE_CODE,'',RefInPrcHdr.etl:PRC_PROMO_LEVEL);
+		CALL common.common_TranslateCodeWithSuffix(RefEnv,SBU,DATASOURCE,PRICE_PRIORITY_CODE,'',RefInPrice.etl:PriceDetail.etl:PRC_TYPE);
+		SET OutputRoot = InputRoot;
+		RETURN TRUE;
+	END;
+END MODULE;
+
+/***** Biuld Output Message  *****/
+
+CREATE COMPUTE MODULE DsToArtsTransform
+	CREATE FUNCTION Main() RETURNS BOOLEAN
+	BEGIN
+		-- copy message headers
+		SET OutputRoot.Properties = InputRoot.Properties;
+		SET OutputRoot.MQMD = InputRoot.MQMD;
+		
+		-- Namespace Declaration
+		DECLARE eai NAMESPACE 'http://www.fgl.com/exchange/';
+		DECLARE arts NAMESPACE 'http://www.fgl.com/ARTS';
+		DECLARE xsi NAMESPACE 'http://www.w3.org/2001/XMLSchema-instance';
+		-- Message References and Variables Declaration
+		DECLARE RefOut,RefOutExch,RefOutMsgRtng,RefOutMsgs,RefOutSrcSys,RefOutPrcDvnRule,RefOutPrcDvnRuleMnce,RefOutMixMtchRwrd,RefOutItmRwrdDerRule,
+				RefOutRwrdDerRuleCmpnents,RefOutRwrdDerRuleCmpnent,RefOutMrchdiseHrchylvls,RefOutMrchdiseHrchylvl,RefOutMrchdiseHierarchy,RefOutMrchdiseHierarchies,
+				RefOutBsnsUntGrps,RefOutBsnsUntGrp,RefOutBsnsUntGrplvl,RefOutRwdDrvnRlTmPrds,RefOutTmPrds,RefOutTmPrd,RefOutExMrchdiseHierarchies,
+				RefOutExMrchdiseHierarchy,RefOutExMrchdiseHrchylvls,RefOutExMrchdiseHrchylvl REFERENCE TO OutputRoot;		
+		DECLARE RefInGrpCmpnts,RefInGrpCmpnt,RefInPrcStrDtl,RefInPrcGrpPrd,RefInExPrcGrpPrd REFERENCE TO InputRoot;
+		DECLARE RefInExch REFERENCE TO InputRoot.XMLNSC.etl:Exchange;
+		DECLARE RefInMsgRtng REFERENCE TO RefInExch.etl:MessageRouting;		
+		DECLARE RefInMsg REFERENCE TO RefInExch.etl:Message;
+		DECLARE RefInPrc REFERENCE TO RefInMsg.etl:Price;
+		DECLARE RefInPrcHdr REFERENCE TO RefInPrc.etl:PriceHeader;
+		DECLARE RefInPrcDtl REFERENCE TO RefInPrc.etl:PriceDetail;
+		DECLARE RefInPrcGrpHdr REFERENCE TO RefInPrc.etl:PriceGroupHeader;
+		DECLARE RefInPrcGrpCmpnts REFERENCE TO RefInPrc.etl:PriceGroupComponents;
+		DECLARE RefInPrcGrpMrkDwns REFERENCE TO RefInPrc.etl:PriceGroupMarkdowns;
+		DECLARE RefInPrcStrDtls REFERENCE TO RefInPrc.etl:StoreDetails;
+		DECLARE RefInPrcGrpPrds REFERENCE TO RefInPrc.etl:PriceGroupProducts;
+		DECLARE RefInExPrcGrpPrds REFERENCE TO RefInPrc.etl:ExcludedPriceGroupProducts;
+		DECLARE RefInPrcLvlDtl REFERENCE TO RefInPrc.etl:PriceLevelDetail;
+		DECLARE RefInPrcDyOfWk REFERENCE TO RefInPrc.etl:DayOfWeek;					
+			
+		DECLARE RefEnv REFERENCE TO Environment;		
+	 	DECLARE schemaName CHARACTER 'dat.price.pmm';
+		DECLARE moduleName CHARACTER 'DsToArtsTransform';	 	
+		-- Logging DebugMessage for the Key Business Fields and Module Start.
+		CALL core.log.DebugMessage(RefEnv, schemaName || '.' || moduleName,  ' [_MODULE - START]' );
+		
+		-- Constructing Header of the Output XML
+		CREATE LASTCHILD OF OutputRoot AS RefOut DOMAIN 'XMLNSC';
+		CREATE LASTCHILD OF RefOut AS RefOutExch NAMESPACE eai NAME 'Exchange';
+		SET RefOutExch.(XMLNSC.NamespaceDecl)xmlns:"eai" = eai;
+		SET RefOutExch.(XMLNSC.NamespaceDecl)xmlns:"arts" = arts;
+		SET RefOutExch.(XMLNSC.NamespaceDecl)xmlns:"xsi" = xsi;
+		SET RefOutExch.(XMLNSC.Attribute)MajorVersion = 1;  
+		SET RefOutExch.(XMLNSC.Attribute)MinorVersion = 1;
+		SET RefOutExch.(XMLNSC.Attribute)FixVersion = 0;
+		
+		-- MessageRouting Mapping 
+		CREATE LASTCHILD OF RefOutExch AS RefOutMsgRtng NAMESPACE eai NAME 'MessageRouting';
+		SET RefOutMsgRtng.eai:Guid = RefInMsgRtng.etl:Guid;
+		SET RefOutMsgRtng.eai:MessageId = InputRoot.MQMD.MsgId;
+		SET RefOutMsgRtng.eai:MessageType = 'PubSub';
+		SET RefOutMsgRtng.eai:SubjectArea = RefInMsgRtng.etl:SubjectArea;
+		SET RefOutMsgRtng.eai:SbuNumber = RefInMsgRtng.etl:SBU_NBR;
+		SET RefOutMsgRtng.eai:SbuCode = RefInMsgRtng.etl:SBU_CD;
+		SET RefOutMsgRtng.eai:SbuName = RefInMsgRtng.etl:SBU_NM;
+		SET RefOutMsgRtng.eai:DataSourceCode = RefInMsgRtng.etl:DATA_SOURCE_CD;
+		SET RefOutMsgRtng.eai:DataSourceCodeName = RefInMsgRtng.etl:DATA_SOURCE_NM;
+		SET RefOutMsgRtng.eai:MessageIndex =  RefInMsgRtng.etl:MessageIndex;
+		SET RefOutMsgRtng.eai:MessageCount =  RefInMsgRtng.etl:MessageCount;
+		SET RefOutMsgRtng.eai:SubjectAreaRunName = RefInMsgRtng.etl:SubjectAreaRunName;
+		
+		-- Messages and SourceSystems Mapping
+		CREATE LASTCHILD OF RefOutExch AS RefOutMsgs NAMESPACE eai NAME 'Messages';		
+		CREATE LASTCHILD OF RefOutMsgs AS RefOutSrcSys NAMESPACE eai NAME 'SourceSystems';		
+		SET RefOutSrcSys.eai:Count = 1;
+		SET RefOutSrcSys.eai:SourceSystem.eai:Index = 1;
+		SET RefOutSrcSys.eai:SourceSystem.eai:SbuNumber = RefInMsgRtng.etl:SBU_NBR;
+		SET RefOutSrcSys.eai:SourceSystem.eai:SbuCode = RefInMsgRtng.etl:SBU_CD;
+		SET RefOutSrcSys.eai:SourceSystem.eai:SbuName = RefInMsgRtng.etl:SBU_NM;
+		SET RefOutSrcSys.eai:SourceSystem.eai:MessageSourceCode = RefInMsgRtng.etl:MessageSourceCode;
+		SET RefOutSrcSys.eai:SourceSystem.eai:MessageSourceCodeName = RefInMsgRtng.etl:MessageSourceCodeName;
+		
+		-- Price Derivation Rule Mapping 
+		CREATE FIRSTCHILD OF RefOutMsgs NAMESPACE eai NAME 'Count' VALUE 1;
+		CREATE LASTCHILD OF RefOutMsgs AS RefOutPrcDvnRule NAMESPACE eai NAME 'ArtsPriceDerivationRule';				
+		CALL common.mapChangeActionFlagOrActionFromEtlToArts(RefInMsg.etl:Price.(XMLNSC.Attribute)Action) INTO RefOutPrcDvnRule.(XMLNSC.Attribute)Action;		
+		SET RefOutPrcDvnRule.arts:Index = 1;
+		CREATE LASTCHILD OF RefOutPrcDvnRule AS RefOutPrcDvnRuleMnce NAMESPACE arts NAME 'PriceDerivationRuleMaintenance';
+		SET RefOutPrcDvnRuleMnce.arts:PriceDerivationRuleEventNumber = RefInPrcHdr.etl:PRC_HDR_NUMBER;
+		SET RefOutPrcDvnRuleMnce.arts:PriceDerivationRuleEventName = RefInPrcHdr.etl:PRC_HDR_NAME;							
+		IF RefInPrcDtl.etl:PRC_FROM_DATE <> NULL OR RefInPrcDtl.etl:PRC_FROM_DATE <> '' THEN
+			DECLARE PrcFromDate CHARACTER SUBSTRING(RefInPrcDtl.etl:PRC_FROM_DATE FROM 1 FOR 10);						
+			IF RefInPrcDtl.etl:PRC_FROM_TIME IS NULL OR RefInPrcDtl.etl:PRC_FROM_TIME = '' THEN
+				SET RefOutPrcDvnRule.arts:EffectiveDateTime = CAST(PrcFromDate ||'T00:00:00' AS CHARACTER FORMAT 'YYYY-MM-DD''T''hh:mm:ss');
+			ELSE
+			    DECLARE PrcFrmTime CHARACTER RIGHT('0000'||RefInPrcDtl.etl:PRC_FROM_TIME,4);
+			    SET PrcFrmTime = SUBSTRING(PrcFrmTime FROM 1 FOR 2)||':'||SUBSTRING(PrcFrmTime FROM 3 FOR 2)||':00';
+				SET RefOutPrcDvnRule.arts:EffectiveDateTime = CAST(PrcFromDate ||'T'|| PrcFrmTime AS CHARACTER FORMAT 'YYYY-MM-DD''T''hh:mm:ss');
+			END IF;
+		END IF;
+		IF RefInPrcDtl.etl:PRC_TO_DATE <> NULL OR RefInPrcDtl.etl:PRC_TO_DATE <> '' THEN
+			  DECLARE PrcToDate CHARACTER SUBSTRING(RefInPrcDtl.etl:PRC_TO_DATE FROM 1 FOR 10);	
+			      
+		    IF RefInPrcDtl.etl:PRC_TO_TIME IS NULL OR RefInPrcDtl.etl:PRC_TO_TIME = '' THEN
+				SET RefOutPrcDvnRule.arts:ExpirationDateTime = CAST(PrcToDate ||'T23:59:59' AS CHARACTER FORMAT 'YYYY-MM-DD''T''hh:mm:ss');
+		    ELSE
+		    	DECLARE PrcToTime CHARACTER RIGHT('0000'||RefInPrcDtl.etl:PRC_TO_TIME,4);
+		    	SET PrcToTime = SUBSTRING(PrcToTime FROM 1 FOR 2)||':'||SUBSTRING(PrcToTime FROM 3 FOR 2)||':59';
+				SET RefOutPrcDvnRule.arts:ExpirationDateTime = CAST(PrcToDate ||'T'|| PrcToTime AS CHARACTER FORMAT 'YYYY-MM-DD''T''hh:mm:ss');
+			END IF;
+		END IF;	
+		SET RefOutPrcDvnRule.arts:PriceDerivationRuleNumber = RefInPrcGrpHdr.etl:PRC_GROUP_NUMBER;
+		SET RefOutPrcDvnRule.arts:PriceDerivationRuleName = RefInPrcGrpHdr.etl:PRC_GROUP_NAME;		
+
+		-- Check Price@Action is I or U or D. If it is D populate PriceDerivationRuleTypeCode with xsi:nil='true' otherwise map source field.
+		IF RefInPrc.(XMLNSC.Attribute)Action IN ('I','U') THEN 
+		  -- Condition to Populate PriceDerivationRuleTypeCode with MIXANDMATCH REWARD (or) ITEM REWARD		  			
+		   DECLARE SumOfPrcGrpQty INTEGER 0;
+		   DECLARE I INTEGER 0;
+		   DECLARE RefInGrpCmpnt REFERENCE TO  RefInPrcGrpCmpnts.etl:Row[1];
+		   WHILE LASTMOVE(RefInGrpCmpnt) DO
+		   	SET I = I + 1;
+		   	DECLARE PrcGrpQty INTEGER RefInGrpCmpnt.etl:PRC_GROUP_QTY;
+		   	SET SumOfPrcGrpQty = SumOfPrcGrpQty + PrcGrpQty;
+		   MOVE RefInGrpCmpnt NEXTSIBLING REPEAT NAME;	
+		   END WHILE;
+		  IF SumOfPrcGrpQty > 1  THEN
+			SET RefOutPrcDvnRule.arts:PriceDerivationRuleTypeCode = 'MIX AND MATCH REWARD';					  	 		  			
+			CREATE LASTCHILD OF RefOutPrcDvnRule AS RefOutMixMtchRwrd NAMESPACE arts NAME 'MixAndMatchReward';	
+			-- Sum of all PriceGroupcomponents/Row[]/PRC_GROUP_QTY values and map total Count value MixAndMatchlimitCount.
+			SET RefOutMixMtchRwrd.arts:MixAndMatchLimitCount = SumOfPrcGrpQty;						  
+		  ELSEIF SumOfPrcGrpQty = 1  THEN			
+			  SET RefOutPrcDvnRule.arts:PriceDerivationRuleTypeCode = 'ITEM REWARD';
+			  CREATE LASTCHILD OF RefOutPrcDvnRule AS RefOutItmRwrdDerRule NAMESPACE arts NAME 'ItemRewardDerivationRule';	          
+	          -- If purchase-type is 'M' then map respective min_retail to minimumretailamount
+	          IF RefInPrcGrpCmpnts.etl:Row[1].etl:PURCHASE_TYPE ='M' THEN
+	          	SET  RefOutItmRwrdDerRule.arts:MinimumRetailAmount = RefInPrcGrpCmpnts.etl:Row[1].etl:MIN_RETAIL;
+	          ELSE 
+	          	SET  RefOutItmRwrdDerRule.arts:MinimumRetailAmount=0;
+	          END IF;  	  		  	  		  	  	         
+		  END IF;
+		END IF;
+	    -- Check if Price@Action is D then don't populate any value for PriceDerivationruleTypeCode.
+		IF RefInPrc.(XMLNSC.Attribute)Action = 'D' THEN		 
+		     SET RefOutPrcDvnRule.arts:PriceDerivationRuleTypeCode.(XMLNSC.Attribute)xsi:nil='true';
+		     CREATE LASTCHILD OF RefOutPrcDvnRule AS RefOutItmRwrdDerRule NAMESPACE arts NAME 'ItemRewardDerivationRule';         
+	         SET RefOutItmRwrdDerRule.arts:MinimumRetailAmount =0;
+		END IF;
+						
+	    CREATE LASTCHILD OF RefOutPrcDvnRule AS RefOutRwrdDerRuleCmpnents NAMESPACE arts NAME 'RewardDerivationRuleComponents';
+		-- Looping 	PriceGroupComponent/Row field
+		DECLARE RewardDerivationRuleComponentCount INTEGER 1;
+		MOVE RefInGrpCmpnt TO RefInPrcGrpCmpnts.etl:Row[1];
+		WHILE LASTMOVE(RefInGrpCmpnt) DO	
+			-- Looping Markdown Row		
+		   DECLARE RefInPrcGrpMrkDwn REFERENCE TO RefInPrcGrpMrkDwns.etl:Row[1];
+		   WHILE LASTMOVE(RefInPrcGrpMrkDwn) DO	
+	       --  Map markdown records where PriceComponent/PRC_GROUP_SEQ is equal to PriceMarkDown/PRC_GROUP_SEQ	 
+	       IF  RefInPrcGrpMrkDwn.etl:PRC_GROUP_SEQ = RefInGrpCmpnt.etl:PRC_GROUP_SEQ THEN       	   	 	       
+				CREATE LASTCHILD OF RefOutRwrdDerRuleCmpnents AS RefOutRwrdDerRuleCmpnent NAMESPACE arts NAME 'RewardDerivationRuleComponent';	
+				SET RefOutRwrdDerRuleCmpnent.arts:Index = RewardDerivationRuleComponentCount;
+				SET RefOutRwrdDerRuleCmpnent.arts:RewardDerivationRuleNumber = RefInGrpCmpnt.etl:PRC_GROUP_SEQ;	
+							
+				SET RefOutRwrdDerRuleCmpnent.arts:PriceModificationPercent = RefInPrcGrpMrkDwn.etl:PRC_PROMO_PCT_OFF;				
+				-- if the PRC_PROMO_PCT_OFF field value is null then create xsi:nil='true' attribute
+				IF RefInPrcGrpMrkDwn.etl:PRC_PROMO_PCT_OFF='' OR RefInPrcGrpMrkDwn.etl:PRC_PROMO_PCT_OFF IS NULL THEN 
+				 SET RefOutRwrdDerRuleCmpnent.arts:PriceModificationPercent.(XMLNSC.Attribute)xsi:nil='true';
+				END IF;
+				
+				SET RefOutRwrdDerRuleCmpnent.arts:PriceModificationAmount = RefInPrcGrpMrkDwn.etl:PRC_PROMO_AMT_OFF;					
+				-- if the PRC_PROMO_AMT_OFF field value is null then create xsi:nil='true' attribute
+				IF RefInPrcGrpMrkDwn.etl:PRC_PROMO_AMT_OFF='' OR RefInPrcGrpMrkDwn.etl:PRC_PROMO_AMT_OFF IS NULL THEN
+				 SET RefOutRwrdDerRuleCmpnent.arts:PriceModificationAmount.(XMLNSC.Attribute)xsi:nil='true'; 
+				END IF;
+				
+				SET RefOutRwrdDerRuleCmpnent.arts:NewPriceAmount = RefInPrcGrpMrkDwn.etl:PRC_PROMO_AMT;				
+				-- if the PRC_PROMO_AMT field value is null then create xsi:nil='true' attribute
+				IF RefInPrcGrpMrkDwn.etl:PRC_PROMO_AMT ='' OR RefInPrcGrpMrkDwn.etl:PRC_PROMO_AMT IS NULL THEN 
+				 SET RefOutRwrdDerRuleCmpnent.arts:NewPriceAmount.(XMLNSC.Attribute)xsi:nil='true';
+				END IF;
+				
+				SET RefOutRwrdDerRuleCmpnent.arts:ComponentLimitCount = RefInGrpCmpnt.etl:PRC_GROUP_QTY;				
+				-- If PRC_GROUP_QTY field value is null then create xsi:nil='true' attribute
+				IF RefInGrpCmpnt.etl:PRC_GROUP_QTY ='' OR RefInGrpCmpnt.etl:PRC_GROUP_QTY IS NULL THEN 
+				 SET RefOutRwrdDerRuleCmpnent.arts:ComponentLimitCount.(XMLNSC.Attribute)xsi:nil='true';
+				END IF;				
+				--	Code translation for PurchaseTypeCode and PurchaseTypeDescriptionText				
+				IF RefInGrpCmpnt.etl:PURCHASE_TYPE = 'A' THEN					
+				  CALL common.common_TranslateCodeGet_Code(RefEnv,SBU,DATASOURCE,PURCHASE_TYPE_DESCRIPTION,'A') INTO  RefOutRwrdDerRuleCmpnent.arts:PurchaseTypeCode;	
+				  CALL common.common_TranslateCodeGet_Code_Description(RefEnv,SBU,DATASOURCE,PURCHASE_TYPE_DESCRIPTION,CMN_CODE_DSCRPT_TXT,'A') INTO  RefOutRwrdDerRuleCmpnent.arts:PurchaseTypeDescriptionText;				 
+				ELSEIF RefInGrpCmpnt.etl:PURCHASE_TYPE = 'M' THEN
+				  CALL common.common_TranslateCodeGet_Code(RefEnv,SBU,DATASOURCE,PURCHASE_TYPE_DESCRIPTION,'M') INTO  RefOutRwrdDerRuleCmpnent.arts:PurchaseTypeCode;
+				  CALL common.common_TranslateCodeGet_Code_Description(RefEnv,SBU,DATASOURCE,PURCHASE_TYPE_DESCRIPTION,CMN_CODE_DSCRPT_TXT,'M') INTO  RefOutRwrdDerRuleCmpnent.arts:PurchaseTypeDescriptionText;
+				END IF;																			
+				--	Code translation for PriceModificationUomCode
+				CALL common.common_TranslateCodeGet_Code(RefEnv,SBU,DATASOURCE,UOM_CODE,'EA') INTO  RefOutRwrdDerRuleCmpnent.arts:PriceModificationUomCode;				
+  				--	Code translation for PriceModificationUomName
+  				CALL common.common_TranslateCodeGet_Code_Description(RefEnv,SBU,DATASOURCE,UOM_CODE,CMN_CODE_DSCRPT_TXT,'EA') INTO  RefOutRwrdDerRuleCmpnent.arts:PriceModificationUomName;										
+						
+				--	 Code translation for PriceModificationCurrencyCode
+				CALL common.common_TranslateCodeGet_Code(RefEnv,SBU,DATASOURCE,CURRENCY_CODE,RefInPrcGrpMrkDwn.etl:PRC_CURR_CODE) INTO RefOutRwrdDerRuleCmpnent.arts:PriceModificationCurrencyCode;					
+				--	 Code translation for PriceModificationCurrencyName
+				CALL common.common_TranslateCodeGet_Code_Description(RefEnv,SBU,DATASOURCE,CURRENCY_CODE,CMN_CODE_DSCRPT_TXT,RefInPrcGrpMrkDwn.etl:PRC_CURR_CODE) INTO RefOutRwrdDerRuleCmpnent.arts:PriceModificationCurrencyName;
+			      				
+	    	 -- MerchandiseHierarchies Mapping 
+				CREATE LASTCHILD OF RefOutRwrdDerRuleCmpnent AS RefOutMrchdiseHierarchies NAMESPACE arts NAME 'MerchandiseHierarchies';						
+				CREATE LASTCHILD OF RefOutMrchdiseHierarchies AS RefOutMrchdiseHierarchy NAMESPACE arts NAME 'MerchandiseHierarchy';				
+				SET RefOutMrchdiseHierarchy.arts:Index = 1;
+		
+				CREATE LASTCHILD OF RefOutMrchdiseHierarchy AS RefOutMrchdiseHrchylvls NAMESPACE arts NAME 'MerchandiseHierarchyLevels';
+				CREATE FIRSTCHILD OF RefOutMrchdiseHierarchies NAMESPACE arts NAME 'Count' VALUE CARDINALITY(RefOutRwrdDerRuleCmpnent.arts:MerchandiseHierarchies.arts:MerchandiseHierarchy[]);				
+				SET RefOutMrchdiseHrchylvls.arts:MerchandiseHierarchyFunctionName = RefInPrcGrpPrds.etl:ProductHierarchyFunctionName;				
+		
+				DECLARE MerchandiseHierarchyLevelCount INTEGER 1;
+				MOVE RefInPrcGrpPrd TO RefInPrcGrpPrds.etl:Row[1];
+				WHILE LASTMOVE(RefInPrcGrpPrd) DO		
+				  -- Map PricegroupProdcut where PriceComponent/PRC_GROUP_SEQ is equal to PriceGroupProduct/PRC_GROUP_SEQ
+				  IF RefInGrpCmpnt.etl:PRC_GROUP_SEQ = RefInPrcGrpPrd.etl:PRC_GROUP_SEQ THEN 
+				  	
+					CREATE LASTCHILD OF RefOutMrchdiseHrchylvls AS RefOutMrchdiseHrchylvl NAMESPACE arts NAME 'MerchandiseHierarchyLevel';					
+					
+					SET RefOutMrchdiseHrchylvl.arts:Index = MerchandiseHierarchyLevelCount;				
+					SET RefOutMrchdiseHrchylvl.arts:MerchandiseHierarchyGroupNumber = RefInPrcGrpPrd.etl:PRD_LVL_NUMBER;					
+					-- When PRD_LVL_ID=6 then create xsi:nil=true attribute
+					IF RefInPrcGrpPrd.etl:PRD_LVL_ID=6 THEN
+						SET RefOutMrchdiseHrchylvl.arts:ParentMerchandiseHierarchyLevelNumber.(XMLNSC.Attribute)xsi:nil = 'true';
+					ELSE
+					    SET RefOutMrchdiseHrchylvl.arts:ParentMerchandiseHierarchyLevelNumber = CAST(RefInPrcGrpPrd.etl:PRD_LVL_ID AS INTEGER) + 1;
+					END IF;
+									
+					-- When ProductHierarchyParentNumber is null create xsi;nil='true' attribute
+					IF RefInPrcGrpPrd.etl:ProductHierarchyParentNumber <>'' THEN 
+					  SET RefOutMrchdiseHrchylvl.arts:ParentMerchandiseHierarchyGroupNumber = RefInPrcGrpPrd.etl:ProductHierarchyParentNumber;
+					ELSE 
+					   SET RefOutMrchdiseHrchylvl.arts:ParentMerchandiseHierarchyGroupNumber.(XMLNSC.Attribute)xsi:nil='true';
+					END IF;
+					SET RefOutMrchdiseHrchylvl.arts:MerchandiseHierarchyGroupName = RefInPrcGrpPrd.etl:PRD_NAME_FULL;						
+					SET RefOutMrchdiseHrchylvl.arts:MerchandiseHierarchyLevelNumber = RefInPrcGrpPrd.etl:PRD_LVL_ID;				
+					SET RefOutMrchdiseHrchylvl.arts:MerchandiseHierarchyLevelCode = RefInPrcGrpPrd.etl:PRD_LVL_ID;									
+					SET RefOutMrchdiseHrchylvl.arts:MerchandiseHierarchyLevelName = RefInPrcGrpPrd.etl:PRD_LVL_NAME;
+				    SET MerchandiseHierarchyLevelCount = MerchandiseHierarchyLevelCount + 1;
+				  END IF;				  
+					MOVE RefInPrcGrpPrd NEXTSIBLING REPEAT NAME;
+				END WHILE;
+				CREATE FIRSTCHILD OF RefOutMrchdiseHrchylvls NAMESPACE arts NAME 'Count' VALUE MerchandiseHierarchyLevelCount - 1;
+				SET MerchandiseHierarchyLevelCount =1;
+							     				
+	    	 -- ExcludedMerchandiseHierarchies Mapping 
+				CREATE LASTCHILD OF RefOutRwrdDerRuleCmpnent AS RefOutExMrchdiseHierarchies NAMESPACE arts NAME 'ExcludedMerchandiseHierarchies';						
+				CREATE LASTCHILD OF RefOutExMrchdiseHierarchies AS RefOutExMrchdiseHierarchy NAMESPACE arts NAME 'MerchandiseHierarchy';				
+				SET RefOutExMrchdiseHierarchy.arts:Index = 1;
+		
+				CREATE LASTCHILD OF RefOutExMrchdiseHierarchy AS RefOutExMrchdiseHrchylvls NAMESPACE arts NAME 'MerchandiseHierarchyLevels';				
+				CREATE FIRSTCHILD OF RefOutExMrchdiseHierarchies NAMESPACE arts NAME 'Count' VALUE CARDINALITY(RefOutRwrdDerRuleCmpnent.arts:ExcludedMerchandiseHierarchies.arts:MerchandiseHierarchy[]);				
+				SET RefOutExMrchdiseHrchylvls.arts:MerchandiseHierarchyFunctionName = RefInExPrcGrpPrds.etl:ProductHierarchyFunctionName;				
+		
+				DECLARE ExcludedMerchandiseHierarchyLevelCount INTEGER 1;
+				MOVE RefInExPrcGrpPrd TO RefInExPrcGrpPrds.etl:Row[1];
+				WHILE LASTMOVE(RefInExPrcGrpPrd) DO		
+				  -- Map PricegroupProdcut where PriceComponent/PRC_GROUP_SEQ is equal to PriceGroupProduct/PRC_GROUP_SEQ
+				  IF RefInGrpCmpnt.etl:PRC_GROUP_SEQ = RefInExPrcGrpPrd.etl:PRC_GROUP_SEQ THEN 
+				  	
+					CREATE LASTCHILD OF RefOutExMrchdiseHrchylvls AS RefOutExMrchdiseHrchylvl NAMESPACE arts NAME 'MerchandiseHierarchyLevel';					
+					SET RefOutExMrchdiseHrchylvl.arts:Index = ExcludedMerchandiseHierarchyLevelCount;				
+					SET RefOutExMrchdiseHrchylvl.arts:MerchandiseHierarchyGroupNumber = RefInExPrcGrpPrd.etl:PRD_LVL_NUMBER;
+					
+					-- When PRD_LVL_ID=6 then create xsi:nil=true attribute.
+					IF RefInExPrcGrpPrd.etl:PRD_LVL_ID=6 THEN
+						SET RefOutExMrchdiseHrchylvl.arts:ParentMerchandiseHierarchyLevelNumber.(XMLNSC.Attribute)xsi:nil = 'true';
+					ELSE
+					    SET RefOutExMrchdiseHrchylvl.arts:ParentMerchandiseHierarchyLevelNumber = CAST(RefInExPrcGrpPrd.etl:PRD_LVL_ID AS INTEGER) + 1;
+					END IF;
+									
+					-- When ProductHierarchyParentNumber is null create xsi;nil='true' attribute.
+					IF RefInExPrcGrpPrd.etl:ProductHierarchyParentNumber <>'' THEN 
+					  SET RefOutExMrchdiseHrchylvl.arts:ParentMerchandiseHierarchyGroupNumber = RefInExPrcGrpPrd.etl:ProductHierarchyParentNumber;
+					ELSE 
+					   SET RefOutMrchdiseHrchylvl.arts:ParentMerchandiseHierarchyGroupNumber.(XMLNSC.Attribute)xsi:nil='true';
+					END IF;
+					SET RefOutExMrchdiseHrchylvl.arts:MerchandiseHierarchyGroupName = RefInExPrcGrpPrd.etl:PRD_NAME_FULL;						
+					SET RefOutExMrchdiseHrchylvl.arts:MerchandiseHierarchyLevelNumber = RefInExPrcGrpPrd.etl:PRD_LVL_ID;				
+					SET RefOutExMrchdiseHrchylvl.arts:MerchandiseHierarchyLevelCode = RefInExPrcGrpPrd.etl:PRD_LVL_ID;									
+					SET RefOutExMrchdiseHrchylvl.arts:MerchandiseHierarchyLevelName = RefInExPrcGrpPrd.etl:PRD_LVL_NAME;
+				    SET ExcludedMerchandiseHierarchyLevelCount = ExcludedMerchandiseHierarchyLevelCount + 1;
+				  END IF;				  
+					MOVE RefInExPrcGrpPrd NEXTSIBLING REPEAT NAME;
+				END WHILE;
+				CREATE FIRSTCHILD OF RefOutExMrchdiseHrchylvls NAMESPACE arts NAME 'Count' VALUE ExcludedMerchandiseHierarchyLevelCount - 1;
+				-- Remove ExcludedMerchandiseHierarchies group when no MerchandiseHierarchyLevel generated[has to be done as it will fail arts validation for some cases]. 				
+				IF ExcludedMerchandiseHierarchyLevelCount < 2 THEN
+					DELETE FIELD RefOutExMrchdiseHierarchies;
+				END IF;										
+		        SET RewardDerivationRuleComponentCount = RewardDerivationRuleComponentCount + 1;
+			  END IF;
+		   MOVE RefInPrcGrpMrkDwn NEXTSIBLING REPEAT NAME;
+	       END WHILE;
+		MOVE RefInGrpCmpnt NEXTSIBLING REPEAT  NAME;
+		END WHILE;
+		CREATE FIRSTCHILD OF RefOutRwrdDerRuleCmpnents NAMESPACE arts NAME 'Count' VALUE RewardDerivationRuleComponentCount - 1;
+
+		-- BusinessUnitGroups Mapping 	
+		CREATE LASTCHILD OF RefOutPrcDvnRule AS RefOutBsnsUntGrps NAMESPACE arts NAME 'BusinessUnitGroups';
+		SET RefOutBsnsUntGrps.arts:Count = 1; 
+		CREATE LASTCHILD OF RefOutBsnsUntGrps AS RefOutBsnsUntGrp NAMESPACE arts NAME 'BusinessUnitGroup';		
+		SET RefOutBsnsUntGrp.arts:Index = 1;
+		SET RefOutBsnsUntGrp.arts:BusinessUnitGroupFunctionName = 'Price Maintenance';
+		CREATE LASTCHILD OF RefOutBsnsUntGrp NAMESPACE arts NAME 'Count';		
+		CREATE LASTCHILD OF RefOutBsnsUntGrp AS RefOutBsnsUntGrplvl NAMESPACE arts NAME 'BusinessUnitGroupLevel';		
+		SET RefOutBsnsUntGrplvl.arts:Index = 1;		
+		SET RefOutBsnsUntGrplvl.arts:ParentBusinessUnitGroupNumber = RefInPrcLvlDtl.etl:ParentBusinessUnitGroupNumber;
+		SET RefOutBsnsUntGrplvl.arts:BusinessUnitGroupNumber = RefInPrcLvlDtl.etl:BusinessUnitGroupNumber;
+		SET RefOutBsnsUntGrplvl.arts:BusinessUnitGroupName = RefInPrcLvlDtl.etl:BusinessUnitGroupName;
+		SET RefOutBsnsUntGrplvl.arts:BusinessUnitGroupLevelNumber =RefInPrcLvlDtl.etl:PRC_LEVEL;		
+		CASE (RefInPrcLvlDtl.etl:PRC_LEVEL) 
+			WHEN 1 THEN 
+ 			SET RefOutBsnsUntGrplvl.arts:BusinessUnitGroupLevelName = 'Chain';
+ 			WHEN 2 THEN 
+ 			SET RefOutBsnsUntGrplvl.arts:BusinessUnitGroupLevelName = 'Zone';
+ 			WHEN 3 THEN 
+ 			SET RefOutBsnsUntGrplvl.arts:BusinessUnitGroupLevelName = 'Store';
+		END CASE; 		
+		DECLARE BusinessUnitGroupLevelCount INTEGER 2;
+		MOVE RefInPrcStrDtl TO RefInPrcStrDtls.etl:Row;
+		WHILE LASTMOVE(RefInPrcStrDtl) DO
+			CREATE LASTCHILD OF RefOutBsnsUntGrp AS RefOutBsnsUntGrplvl NAMESPACE arts NAME 'BusinessUnitGroupLevel';
+			SET RefOutBsnsUntGrplvl.arts:Index = BusinessUnitGroupLevelCount;			
+			SET RefOutBsnsUntGrplvl.arts:ParentBusinessUnitGroupNumber = RefInPrcStrDtl.etl:ParentBusinessUnitGroupNumber;	
+			SET RefOutBsnsUntGrplvl.arts:BusinessUnitNumber = RefInPrcStrDtl.etl:ORG_LVL_NUMBER;	
+			SET RefOutBsnsUntGrplvl.arts:BusinessUnitName= RefInPrcStrDtl.etl:ORG_NAME_FULL;		
+			SET BusinessUnitGroupLevelCount = BusinessUnitGroupLevelCount + 1 ;
+			MOVE RefInPrcStrDtl NEXTSIBLING REPEAT NAME;
+		END WHILE;		
+		SET RefOutBsnsUntGrp.arts:Count = BusinessUnitGroupLevelCount - 1;
+		
+		IF EXISTS(RefInPrc.etl:DayOfWeek[]) THEN		
+			CREATE LASTCHILD OF RefOutPrcDvnRule AS RefOutRwdDrvnRlTmPrds NAMESPACE arts NAME 'RewardDerivationRuleTimePeriods';
+			CREATE LASTCHILD OF RefOutRwdDrvnRlTmPrds AS RefOutTmPrds NAMESPACE arts NAME 'TimePeriods';			
+			DECLARE TimePeriodCount INTEGER 1;			
+
+			IF RefInPrcDyOfWk.etl:PRC_MONDAY = 'T' THEN		   		   
+			   CREATE LASTCHILD OF RefOutTmPrds AS RefOutTmPrd NAMESPACE arts NAME 'TimePeriod';			
+			   SET RefOutTmPrd.arts:Index = TimePeriodCount;
+			   CALL common.common_TranslateCodeGet_Code_Description(RefEnv,SBU,DATASOURCE,DAY_OF_WEEK,CMN_CODE_DSCRPT_TXT,'MONDAY') INTO RefOutTmPrd.arts:TimePeriodName;		   
+			   CALL common.common_TranslateCodeGet_Code(RefEnv,SBU,DATASOURCE,DAY_OF_WEEK,'MONDAY') INTO RefOutTmPrd.arts:TimePeriodDayOfWeekCode;
+			   CALL common.common_TranslateCodeGet_Code_Description(RefEnv,SBU,DATASOURCE,DAY_OF_WEEK,CMN_CODE_DSCRPT_TXT,'MONDAY') INTO RefOutTmPrd.arts:TimePeriodDayOfWeekName;
+			   SET TimePeriodCount = TimePeriodCount + 1;
+			END IF;
+			IF RefInPrcDyOfWk.etl:PRC_TUESDAY = 'T'  THEN 
+			   CREATE LASTCHILD OF RefOutTmPrds AS RefOutTmPrd NAMESPACE arts NAME 'TimePeriod';			
+			   SET RefOutTmPrd.arts:Index = TimePeriodCount;				
+			   CALL common.common_TranslateCodeGet_Code_Description(RefEnv,SBU,DATASOURCE,DAY_OF_WEEK,CMN_CODE_DSCRPT_TXT,'TUESDAY') INTO RefOutTmPrd.arts:TimePeriodName;	
+			   CALL common.common_TranslateCodeGet_Code(RefEnv,SBU,DATASOURCE,DAY_OF_WEEK,'TUESDAY') INTO RefOutTmPrd.arts:TimePeriodDayOfWeekCode;
+			   CALL common.common_TranslateCodeGet_Code_Description(RefEnv,SBU,DATASOURCE,DAY_OF_WEEK,CMN_CODE_DSCRPT_TXT,'TUESDAY') INTO RefOutTmPrd.arts:TimePeriodDayOfWeekName;
+			   SET TimePeriodCount = TimePeriodCount + 1;
+			END IF;
+			IF RefInPrcDyOfWk.etl:PRC_WEDNESDAY = 'T'  THEN 
+				CREATE LASTCHILD OF RefOutTmPrds AS RefOutTmPrd NAMESPACE arts NAME 'TimePeriod';			
+				SET RefOutTmPrd.arts:Index = TimePeriodCount;
+			   CALL common.common_TranslateCodeGet_Code_Description(RefEnv,SBU,DATASOURCE,DAY_OF_WEEK,CMN_CODE_DSCRPT_TXT,'WEDNESDAY') INTO RefOutTmPrd.arts:TimePeriodName;
+			   CALL common.common_TranslateCodeGet_Code(RefEnv,SBU,DATASOURCE,DAY_OF_WEEK,'WEDNESDAY') INTO RefOutTmPrd.arts:TimePeriodDayOfWeekCode;
+			   CALL common.common_TranslateCodeGet_Code_Description(RefEnv,SBU,DATASOURCE,DAY_OF_WEEK,CMN_CODE_DSCRPT_TXT,'WEDNESDAY') INTO RefOutTmPrd.arts:TimePeriodDayOfWeekName;
+			   SET TimePeriodCount = TimePeriodCount + 1;
+			END IF;
+			IF RefInPrcDyOfWk.etl:PRC_THURSDAY = 'T'  THEN
+			   CREATE LASTCHILD OF RefOutTmPrds AS RefOutTmPrd NAMESPACE arts NAME 'TimePeriod';			
+			   SET RefOutTmPrd.arts:Index = TimePeriodCount;
+			   CALL common.common_TranslateCodeGet_Code_Description(RefEnv,SBU,DATASOURCE,DAY_OF_WEEK,CMN_CODE_DSCRPT_TXT,'THURSDAY') INTO RefOutTmPrd.arts:TimePeriodName;
+			   CALL common.common_TranslateCodeGet_Code(RefEnv,SBU,DATASOURCE,DAY_OF_WEEK,'THURSDAY') INTO RefOutTmPrd.arts:TimePeriodDayOfWeekCode;
+			   CALL common.common_TranslateCodeGet_Code_Description(RefEnv,SBU,DATASOURCE,DAY_OF_WEEK,CMN_CODE_DSCRPT_TXT,'THURSDAY') INTO RefOutTmPrd.arts:TimePeriodDayOfWeekName;
+			   SET TimePeriodCount = TimePeriodCount + 1;
+			END IF;
+			IF RefInPrcDyOfWk.etl:PRC_FRIDAY = 'T'  THEN 
+			   CREATE LASTCHILD OF RefOutTmPrds AS RefOutTmPrd NAMESPACE arts NAME 'TimePeriod';			
+			   SET RefOutTmPrd.arts:Index = TimePeriodCount;
+			   CALL common.common_TranslateCodeGet_Code_Description(RefEnv,SBU,DATASOURCE,DAY_OF_WEEK,CMN_CODE_DSCRPT_TXT,'FRIDAY') INTO RefOutTmPrd.arts:TimePeriodName;
+			   CALL common.common_TranslateCodeGet_Code(RefEnv,SBU,DATASOURCE,DAY_OF_WEEK,'FRIDAY') INTO RefOutTmPrd.arts:TimePeriodDayOfWeekCode;
+			   CALL common.common_TranslateCodeGet_Code_Description(RefEnv,SBU,DATASOURCE,DAY_OF_WEEK,CMN_CODE_DSCRPT_TXT,'FRIDAY') INTO RefOutTmPrd.arts:TimePeriodDayOfWeekName;
+			   SET TimePeriodCount = TimePeriodCount + 1;
+			END IF;
+			IF RefInPrcDyOfWk.etl:PRC_SATURDAY = 'T'  THEN 		   
+			   CREATE LASTCHILD OF RefOutTmPrds AS RefOutTmPrd NAMESPACE arts NAME 'TimePeriod';			
+			   SET RefOutTmPrd.arts:Index = TimePeriodCount;
+			   CALL common.common_TranslateCodeGet_Code_Description(RefEnv,SBU,DATASOURCE,DAY_OF_WEEK,CMN_CODE_DSCRPT_TXT,'SATURDAY') INTO RefOutTmPrd.arts:TimePeriodName;
+			   CALL common.common_TranslateCodeGet_Code(RefEnv,SBU,DATASOURCE,DAY_OF_WEEK,'SATURDAY') INTO RefOutTmPrd.arts:TimePeriodDayOfWeekCode;
+			   CALL common.common_TranslateCodeGet_Code_Description(RefEnv,SBU,DATASOURCE,DAY_OF_WEEK,CMN_CODE_DSCRPT_TXT,'SATURDAY') INTO RefOutTmPrd.arts:TimePeriodDayOfWeekName;
+			   SET TimePeriodCount = TimePeriodCount + 1;
+			END IF;
+			IF RefInPrcDyOfWk.etl:PRC_SUNDAY = 'T'  THEN 		   
+			   CREATE LASTCHILD OF RefOutTmPrds AS RefOutTmPrd NAMESPACE arts NAME 'TimePeriod';			
+			   SET RefOutTmPrd.arts:Index = TimePeriodCount;
+			   CALL common.common_TranslateCodeGet_Code_Description(RefEnv,SBU,DATASOURCE,DAY_OF_WEEK,CMN_CODE_DSCRPT_TXT,'SUNDAY') INTO RefOutTmPrd.arts:TimePeriodName;
+			   CALL common.common_TranslateCodeGet_Code(RefEnv,SBU,DATASOURCE,DAY_OF_WEEK,'SUNDAY') INTO RefOutTmPrd.arts:TimePeriodDayOfWeekCode;
+			   CALL common.common_TranslateCodeGet_Code_Description(RefEnv,SBU,DATASOURCE,DAY_OF_WEEK,CMN_CODE_DSCRPT_TXT,'SUNDAY') INTO RefOutTmPrd.arts:TimePeriodDayOfWeekName;
+			   SET TimePeriodCount = TimePeriodCount + 1;	  
+			END IF;
+			CREATE FIRSTCHILD OF RefOutTmPrds NAMESPACE arts NAME 'Count' VALUE TimePeriodCount - 1;
+		END IF;		
+		-- Code translation - Get common code on PRICE SUB-PRIORITY TYPE CODE - Exchange/Message/Price/PriceHeader/PRC_PROMO_LEVEL		
+		IF RefInPrcHdr.etl:PRC_PROMO_LEVEL <> '' OR RefInPrcHdr.etl:PRC_PROMO_LEVEL IS NOT NULL THEN
+			CALL common.common_TranslateCodeGet_Code(RefEnv,SBU,DATASOURCE,PRICE_PRIORITY_SUBTYPE_CODE,RefInPrcHdr.etl:PRC_PROMO_LEVEL) INTO RefOutPrcDvnRule.arts:PricePrioritySubtypeCode;
+		END IF;
+		-- Code translation - Get common code description on PRICE SUB-PRIORITY TYPE CODE - Exchange/Message/Price/PriceHeader/PRC_PROMO_LEVEL
+		IF RefInPrcHdr.etl:PRC_PROMO_DESC <> '' OR RefInPrcHdr.etl:PRC_PROMO_LEVEL IS NOT NULL THEN
+			CALL common.common_TranslateCodeGet_Code_Description(RefEnv,SBU,DATASOURCE,PRICE_PRIORITY_SUBTYPE_CODE,CMN_CODE_DSCRPT_TXT,RefInPrcHdr.etl:PRC_PROMO_LEVEL) INTO RefOutPrcDvnRule.arts:PricePrioritySubtypeDescriptionText;
+		END IF;
+		-- Code translation - Get common code on PRICE PRIORITY CODE - Exchange/Message/Price/PriceDetail/PRC_TYPE.		
+		CALL common.common_TranslateCodeGet_Code(RefEnv,SBU,DATASOURCE,PRICE_PRIORITY_CODE,RefInPrcDtl.etl:PRC_TYPE) INTO RefOutPrcDvnRule.arts:PricePriorityCode;
+		-- Code translation - Get common code description on PRICE PRIORITY CODE - Exchange/Message/Price/PriceDetail/PRC_TYPE.
+		CALL common.common_TranslateCodeGet_Code_Description(RefEnv,SBU,DATASOURCE,PRICE_PRIORITY_CODE,CMN_CODE_DSCRPT_TXT,RefInPrcDtl.etl:PRC_TYPE) INTO RefOutPrcDvnRule.arts:PricePriorityCodeDescription;
+	
+		SET RefOutPrcDvnRule.arts:PriceModificationNumber = RefInPrcDtl.etl:PRC_KEY;
+		SET RefOutPrcDvnRule.arts:SourcePriceRetrievalNumber = RefInPrcDtl.etl:PRC_RETRIEVE_KEY;
+												
+		-- Logging InfoMessage for the Key Business Fields and transformation complettion status.
+		CALL core.log.InfoMessage(RefEnv, schemaName || '.' || moduleName, ' Transformation completed successfully.');
+		-- Logging DebugMessage for the Key Business Fields and Module End.
+		CALL core.log.DebugMessage(RefEnv, schemaName || '.' || moduleName, ' [_MODULE - END]');
+		RETURN TRUE;
+	END;
+END MODULE;

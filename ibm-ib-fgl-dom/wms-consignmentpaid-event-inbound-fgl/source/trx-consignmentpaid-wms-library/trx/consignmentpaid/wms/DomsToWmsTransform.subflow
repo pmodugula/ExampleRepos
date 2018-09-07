@@ -1,0 +1,89 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ecore:EPackage xmi:version="2.0"
+    xmlns:xmi="http://www.omg.org/XMI" xmlns:ComIbmCompute.msgnode="ComIbmCompute.msgnode" xmlns:ComIbmFilter.msgnode="ComIbmFilter.msgnode" xmlns:ecore="http://www.eclipse.org/emf/2002/Ecore" xmlns:eflow="http://www.ibm.com/wbi/2005/eflow" xmlns:trx_consignmentpaid_wms_GetCalDcControlSequence.subflow="trx/consignmentpaid/wms/GetCalDcControlSequence.subflow" xmlns:trx_consignmentpaid_wms_GetMisDcControlSequence.subflow="trx/consignmentpaid/wms/GetMisDcControlSequence.subflow" xmlns:utility="http://www.ibm.com/wbi/2005/eflow_utility" nsURI="trx/consignmentpaid/wms/DomsToWmsTransform.subflow"
+    nsPrefix="trx_consignmentpaid_wms_DomsToWmsTransform.subflow">
+  <eClassifiers xmi:type="eflow:FCMComposite" name="FCMComposite_1" useDefaults="true" udpSupport="true">
+    <eSuperTypes href="http://www.ibm.com/wbi/2005/eflow#//FCMBlock"/>
+    <eStructuralFeatures xmi:type="ecore:EAttribute" xmi:id="Property.CALDCSchemaName" name="CALDCSchemaName">
+      <eType xmi:type="ecore:EDataType" href="http://www.eclipse.org/emf/2002/Ecore#//EString"/>
+    </eStructuralFeatures>
+    <eStructuralFeatures xmi:type="ecore:EAttribute" xmi:id="Property.MISDCSchemaName" name="MISDCSchemaName">
+      <eType xmi:type="ecore:EDataType" href="http://www.eclipse.org/emf/2002/Ecore#//EString"/>
+    </eStructuralFeatures>
+    <eStructuralFeatures xmi:type="ecore:EAttribute" xmi:id="Property.IIBDataSource" name="IIBDataSource">
+      <eType xmi:type="ecore:EDataType" href="http://www.eclipse.org/emf/2002/Ecore#//EString"/>
+    </eStructuralFeatures>
+    <eStructuralFeatures xmi:type="ecore:EAttribute" xmi:id="Property.WCDCDataSource" name="WCDCDataSource">
+      <eType xmi:type="ecore:EDataType" href="http://www.eclipse.org/emf/2002/Ecore#//EString"/>
+    </eStructuralFeatures>
+    <eStructuralFeatures xmi:type="ecore:EAttribute" xmi:id="Property.WMDCDataSource" name="WMDCDataSource">
+      <eType xmi:type="ecore:EDataType" href="http://www.eclipse.org/emf/2002/Ecore#//EString"/>
+    </eStructuralFeatures>
+    <translation xmi:type="utility:TranslatableString" key="DomsToWmsTransform" bundleName="trx/consignmentpaid/wms/DomsToWmsTransform" pluginId="trx-consignmentpaid-wms-library"/>
+    <colorGraphic16 xmi:type="utility:GIFFileGraphic" resourceName="platform:/plugin/trx-consignmentpaid-wms-library/icons/full/obj16/DomsToWmsTransform.gif"/>
+    <colorGraphic32 xmi:type="utility:GIFFileGraphic" resourceName="platform:/plugin/trx-consignmentpaid-wms-library/icons/full/obj30/DomsToWmsTransform.gif"/>
+    <composition>
+      <nodes xmi:type="eflow:FCMSource" xmi:id="InTerminal.Input" location="10,20">
+        <translation xmi:type="utility:TranslatableString" key="InTerminal.Input" bundleName="trx/consignmentpaid/wms/DomsToWmsTransform" pluginId="trx-consignmentpaid-wms-library"/>
+      </nodes>
+      <nodes xmi:type="eflow:FCMSink" xmi:id="OutTerminal.Output" location="567,20">
+        <translation xmi:type="utility:TranslatableString" key="OutTerminal.CalDc" bundleName="trx/consignmentpaid/wms/DomsToWmsTransform" pluginId="trx-consignmentpaid-wms-library"/>
+      </nodes>
+      <nodes xmi:type="ComIbmCompute.msgnode:FCMComposite_1" xmi:id="FCMComposite_1_1" location="384,20" computeExpression="esql://routine/trx.consignmentpaid.wms#DomsToWmsCalDcTransform.Main">
+        <translation xmi:type="utility:ConstantString" string="BuildOutputMessageCalDc"/>
+      </nodes>
+      <nodes xmi:type="eflow:FCMSink" xmi:id="OutTerminal.Output1" location="567,101">
+        <translation xmi:type="utility:TranslatableString" key="OutTerminal.MisDc" bundleName="trx/consignmentpaid/wms/DomsToWmsTransform" pluginId="trx-consignmentpaid-wms-library"/>
+      </nodes>
+      <nodes xmi:type="ComIbmFilter.msgnode:FCMComposite_1" xmi:id="FCMComposite_1_4" location="93,20" filterExpression="esql://routine/trx.consignmentpaid.wms#wms_FilterDc.Main" throwExceptionOnDatabaseError="false">
+        <translation xmi:type="utility:ConstantString" string="FilterWMSDc"/>
+      </nodes>
+      <nodes xmi:type="trx_consignmentpaid_wms_GetCalDcControlSequence.subflow:FCMComposite_1" xmi:id="FCMComposite_1_6" location="202,20">
+        <translation xmi:type="utility:ConstantString" string="GetCalDcControlSequence"/>
+      </nodes>
+      <nodes xmi:type="trx_consignmentpaid_wms_GetMisDcControlSequence.subflow:FCMComposite_1" xmi:id="FCMComposite_1_7" location="201,101">
+        <translation xmi:type="utility:ConstantString" string="GetMisDcControlSequence"/>
+      </nodes>
+      <nodes xmi:type="ComIbmCompute.msgnode:FCMComposite_1" xmi:id="FCMComposite_1_2" location="383,101" computeExpression="esql://routine/trx.consignmentpaid.wms#DomsToWmsMisDcTransform.Main">
+        <translation xmi:type="utility:ConstantString" string="BuildOutputMessageMisDc"/>
+      </nodes>
+      <connections xmi:type="eflow:FCMConnection" xmi:id="FCMConnection_4" targetNode="FCMComposite_1_1" sourceNode="FCMComposite_1_6" sourceTerminalName="OutTerminal.Output" targetTerminalName="InTerminal.in"/>
+      <connections xmi:type="eflow:FCMConnection" xmi:id="FCMConnection_9" targetNode="FCMComposite_1_4" sourceNode="InTerminal.Input" sourceTerminalName="OutTerminal.out" targetTerminalName="InTerminal.in"/>
+      <connections xmi:type="eflow:FCMConnection" xmi:id="FCMConnection_10" targetNode="FCMComposite_1_7" sourceNode="FCMComposite_1_4" sourceTerminalName="OutTerminal.true" targetTerminalName="InTerminal.Input"/>
+      <connections xmi:type="eflow:FCMConnection" xmi:id="FCMConnection_12" targetNode="FCMComposite_1_6" sourceNode="FCMComposite_1_4" sourceTerminalName="OutTerminal.false" targetTerminalName="InTerminal.Input"/>
+      <connections xmi:type="eflow:FCMConnection" xmi:id="FCMConnection_6" targetNode="OutTerminal.Output" sourceNode="FCMComposite_1_1" sourceTerminalName="OutTerminal.out" targetTerminalName="InTerminal.in"/>
+      <connections xmi:type="eflow:FCMConnection" xmi:id="FCMConnection_1" targetNode="FCMComposite_1_2" sourceNode="FCMComposite_1_7" sourceTerminalName="OutTerminal.Output" targetTerminalName="InTerminal.in"/>
+      <connections xmi:type="eflow:FCMConnection" xmi:id="FCMConnection_2" targetNode="OutTerminal.Output1" sourceNode="FCMComposite_1_2" sourceTerminalName="OutTerminal.out" targetTerminalName="InTerminal.in"/>
+    </composition>
+    <propertyOrganizer>
+      <propertyDescriptor groupName="Group.Basic" configurable="true" userDefined="true" describedAttribute="Property.CALDCSchemaName">
+        <propertyName xmi:type="utility:TranslatableString" key="Property.CALDCSchemaName" bundleName="trx/consignmentpaid/wms/DomsToWmsTransform" pluginId="trx-consignmentpaid-wms-library"/>
+        <propertyDescriptor groupName="Group.Basic" configurable="true" userDefined="true" describedAttribute="Property.MISDCSchemaName">
+          <propertyName xmi:type="utility:TranslatableString" key="Property.MISDCSchemaName" bundleName="trx/consignmentpaid/wms/DomsToWmsTransform" pluginId="trx-consignmentpaid-wms-library"/>
+          <propertyDescriptor groupName="Group.Basic" configurable="true" describedAttribute="Property.IIBDataSource">
+            <propertyName xmi:type="utility:TranslatableString" key="Property.IIBDataSource" bundleName="trx/pickticket/wms/GetCalDcControlSequence" pluginId="trx-pickticket-wms-library"/>
+            <propertyDescriptor groupName="Group.Basic" configurable="true" describedAttribute="Property.WCDCDataSource">
+              <propertyName xmi:type="utility:TranslatableString" key="Property.WCDCDataSource" bundleName="trx/consignmentpaid/wms/DomsToWmsTransform" pluginId="trx-consignmentpaid-wms-library"/>
+              <propertyDescriptor groupName="Group.Basic" configurable="true" describedAttribute="Property.WMDCDataSource">
+                <propertyName xmi:type="utility:TranslatableString" key="Property.WMDCDataSource" bundleName="trx/consignmentpaid/wms/DomsToWmsTransform" pluginId="trx-consignmentpaid-wms-library"/>
+              </propertyDescriptor>
+            </propertyDescriptor>
+          </propertyDescriptor>
+        </propertyDescriptor>
+      </propertyDescriptor>
+    </propertyOrganizer>
+    <attributeLinks promotedAttribute="Property.IIBDataSource" overriddenNodes="FCMComposite_1_6">
+      <overriddenAttribute href="trx/consignmentpaid/wms/GetCalDcControlSequence.subflow#Property.IIBDataSource"/>
+    </attributeLinks>
+    <attributeLinks promotedAttribute="Property.IIBDataSource" overriddenNodes="FCMComposite_1_7">
+      <overriddenAttribute href="trx/consignmentpaid/wms/GetMisDcControlSequence.subflow#Property.IIBDataSource"/>
+    </attributeLinks>
+    <attributeLinks promotedAttribute="Property.WCDCDataSource" overriddenNodes="FCMComposite_1_1">
+      <overriddenAttribute href="ComIbmCompute.msgnode#Property.dataSource"/>
+    </attributeLinks>
+    <attributeLinks promotedAttribute="Property.WMDCDataSource" overriddenNodes="FCMComposite_1_2">
+      <overriddenAttribute href="ComIbmCompute.msgnode#Property.dataSource"/>
+    </attributeLinks>
+    <stickyBoard/>
+  </eClassifiers>
+</ecore:EPackage>

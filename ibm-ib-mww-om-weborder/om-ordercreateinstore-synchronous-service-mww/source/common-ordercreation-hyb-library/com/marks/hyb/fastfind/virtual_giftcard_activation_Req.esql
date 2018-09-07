@@ -1,0 +1,70 @@
+BROKER SCHEMA com.marks.hyb.fastfind
+
+CREATE COMPUTE MODULE virtual_giftcard_activation_Req
+	CREATE FUNCTION Main() RETURNS BOOLEAN
+	BEGIN
+		DECLARE EnvRef REFERENCE TO Environment.Variables;
+		SET Environment.Variables.ns:createOrderResponse = InputRoot.SOAP.Body.ns:createOrderResponse;
+		SET OutputRoot.Properties = InputRoot.Properties;
+		SET OutputRoot.Properties.MessageType = '{}:Input_906';
+		DECLARE refOut,refOutBody REFERENCE TO OutputRoot;
+
+		DECLARE eai NAMESPACE 'http://www.fgl.com/exchange/';
+		DECLARE arts NAMESPACE 'http://www.fgl.com/ARTS';
+		DECLARE refInpCustOrd REFERENCE TO Environment.XMLNSC.eai:Exchange.eai:Messages.eai:ArtsCustomerOrders;
+		DECLARE intVal INTEGER;
+		DECLARE aftrPadVal CHARACTER;
+		-- Create Dataconect message to send the Activated Gift Card details
+		-------------
+		-- Start
+		-------------
+		SET Environment.Timeout = 6600;
+		CREATE LASTCHILD OF OutputRoot AS refOut DOMAIN 'DFDL';
+		CREATE LASTCHILD OF refOut.Input906 AS refOutBody NAME 'body';
+		SET refOutBody.TransCode = SUBSTRING(FIELDVALUE(Environment.XMLNSC.eai:Exchange.nsOrder:Messages.nsOrder:Transaction.nsOrder1:Transaction.nsOrder1:TransactionID)FROM 1 FOR 5)||SUBSTRING(FIELDVALUE(Environment.XMLNSC.eai:Exchange.nsOrder:Messages.nsOrder:Transaction.nsOrder1:Transaction.nsOrder1:TransactionID)FROM 14);
+		SET refOutBody.UserId = '15041';
+		SET refOutBody.Passwrd = '0415';
+		SET intVal = CAST(InputRoot.DFDL.Output904.body.GivxNumb AS INTEGER);
+		SET EnvRef.GiftCardNumbFull = intVal;
+		SET aftrPadVal = CAST(intVal AS CHARACTER FORMAT '*0####################');
+		CALL core.log.Debug(MessageFlowLabel||'Module name: virtual_giftcard_activation_Req - Givex Number for activation :'||aftrPadVal);
+		SET refOutBody.GivexNumb = aftrPadVal; 
+		SET refOutBody.Amount = InputRoot.DFDL.Output904.body.CertBal;
+		SET refOutBody.TotlChkNumb = '0';
+		SET refOutBody.GovtId = '0';
+		
+		SET OutputLocalEnvironment.Variables.VritualGCAct.Message = CAST(ASBITSTREAM( OutputRoot OPTIONS FolderBitStream) AS CHAR CCSID CAST(Environment.MQMD.CodedCharSetId AS INT) ENCODING CAST(Environment.MQMD.Encoding AS INT));
+		CALL core.log.info(MessageFlowLabel||'Module name: virtual_giftcard_activation_Req - Create GC activate message created for - '||'EXTERNAL_ORDER:' ||CAST(Environment.XMLNSC.nsOrder:Exchange.nsOrder:Messages.nsOrder:ArtsCustomerOrders.nsOrder1:CustomerOrderNumber AS CHARACTER) || OutputLocalEnvironment.Variables.VritualGCAct.Message);
+		-------------
+		-- End
+		-------------
+		RETURN TRUE;
+	END;
+END MODULE;
+
+CREATE FILTER MODULE virtual_giftcard_activation_GiftCardCreationSuccess_
+	CREATE FUNCTION Main() RETURNS BOOLEAN
+	BEGIN
+		DECLARE refGiftCrdCrt REFERENCE TO Body.Output906.body;
+		--------------------Changes for Logging ----------------------------
+		CALL core.log.Debug(MessageFlowLabel||'Module name:virtual_giftcard_activation_GiftCardCreationSuccess_:'||CAST ((refGiftCrdCrt.Result) AS CHARACTER));
+              DECLARE GftCardRelt BOOLEAN FALSE;
+              DECLARE GftCardRelt_CHECK INTEGER CAST ((refGiftCrdCrt.Result) AS INTEGER);
+              IF GftCardRelt_CHECK = 0  THEN
+                     SET GftCardRelt = TRUE;
+             CALL core.log.Info(MessageFlowLabel||'Module name:virtual_giftcard_activation_GiftCardCreationSuccess_'||': Activated Virtual Gift Card for -'||'EXTERNAL_ORDER:' ||CAST(Environment.XMLNSC.nsOrder:Exchange.nsOrder:Messages.nsOrder:ArtsCustomerOrders.nsOrder1:CustomerOrderNumber AS CHARACTER));
+              ELSEIF GftCardRelt_CHECK <> 0 THEN
+                     SET GftCardRelt = FALSE;
+             CALL core.log.Info(MessageFlowLabel||'Module name:virtual_giftcard_activation_GiftCardCreationSuccess_'||' : Unable to Activate Virtual Gift Card for -'||'EXTERNAL_ORDER:' ||CAST(Environment.XMLNSC.nsOrder:Exchange.nsOrder:Messages.nsOrder:ArtsCustomerOrders.nsOrder1:CustomerOrderNumber AS CHARACTER));
+              END IF;
+              --CALL core.log.Info(MessageFlowLabel||'Module name:virtual_giftcard_activation_GiftCardCreationSuccess_'||' - GivexMsgIdFormat :'||CAST(refGiftCrdCrt.GivexMsgIdFormat AS CHARACTER)||' - TransactionCode :'||CAST(refGiftCrdCrt.TransactionCode AS CHARACTER)||' - GivxTransRef :'||CAST(refGiftCrdCrt.GivxTransRef AS CHARACTER)||' - CertExpDate :'||CAST(refGiftCrdCrt.CertExpDate AS CHARACTER )||' - CertBal :'||CAST(refGiftCrdCrt.CertBal AS CHARACTER));
+              RETURN GftCardRelt;
+      ------------------------------------------------------        
+--		IF (CAST(refGiftCrdCrt.Result AS DECIMAL) = 0) THEN
+--			CALL core.log.Debug(MessageFlowLabel||'Module name: virtual_giftcard_activation_GiftCardCreationSuccess_ - RETURN TRUE');
+--			RETURN TRUE;
+--		END IF;
+--		CALL core.log.Debug(MessageFlowLabel||'Module name: virtual_giftcard_activation_GiftCardCreationSuccess_ - RETURN FALSE');
+--		RETURN FALSE;
+	END;
+END MODULE;

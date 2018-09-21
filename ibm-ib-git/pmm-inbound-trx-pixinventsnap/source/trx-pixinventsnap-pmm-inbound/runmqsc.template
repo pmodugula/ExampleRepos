@@ -1,0 +1,6 @@
+** Sender from trx-pixinventsnap-wms-outbound (in configuration\WM_PIX_TRAN_TYPE.sql)
+DEFINE QALIAS(RECV.${PIX_IN}) TARGET(${PIX_IN}) DEFPSIST(YES) REPLACE
+DEFINE QLOCAL(${PIX_IN_BO}) MAXDEPTH(200000) DEFPSIST(YES) DESCR('trx-pixinventsnap-pmm-inbound backout queue') REPLACE
+DEFINE QLOCAL(${PIX_IN}) BOTHRESH(5) MAXDEPTH(200000) DEFPSIST(YES) BOQNAME(${PIX_IN_BO}) REPLACE
+** Sender to etc-pmm-inbound-router
+DEFINE QALIAS(SEND.${PIX_OUT}) TARGET(${../source/etc-pmm-inbound-router/template-default.properties:ROUTER_IN}) DEFPSIST(YES) REPLACE

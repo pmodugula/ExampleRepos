@@ -1,0 +1,187 @@
+BROKER SCHEMA doc.ship.pmm
+PATH core.log, core.audit;
+DECLARE theSchema CONSTANT CHARACTER 'doc.invoice.pmm';
+--DECLARE SPACE CONSTANT CHARACTER ' ';
+DECLARE _DROP CONSTANT CHARACTER 'DROP';
+DECLARE ShippingInvoice CONSTANT CHARACTER 'ShippingInvoice';
+DECLARE FGLPMMTableName EXTERNAL CHARACTER '';
+DECLARE MWWPMMTableName EXTERNAL CHARACTER '';
+DECLARE nsEai,nsArts,nsPmm,nsEaiStaging CHARACTER NULL;
+
+CREATE FILTER MODULE pmm_Filter
+	CREATE FUNCTION Main() RETURNS BOOLEAN
+	BEGIN
+		DECLARE theModule CONSTANT CHARACTER theSchema||'.'||'pmm_Filter';
+		DECLARE rEnv REFERENCE TO Environment;
+		DECLARE MSG_ID CHARACTER rEnv.__MsgIdForLog4J__;
+		CALL core.log.Debug(theModule||' - ID# : '||MSG_ID||' >> BEGIN');
+		DECLARE returnValue BOOLEAN TRUE;
+		CALL core.log.Debug(theModule||' - ID# : '||MSG_ID||' - RETURN '||CAST(returnValue AS CHARACTER));
+		CALL core.log.Debug(theModule||' - ID# : '||MSG_ID||' << END');
+		RETURN returnValue;
+	END;
+END MODULE;
+
+CREATE COMPUTE MODULE pmm_ConvertArtsShippingInvoiceToPmmStaging
+	DECLARE theModule CHARACTER theSchema||'.'||'pmm_ConvertArtsShippingInvoiceToPmmStaging';
+	DECLARE FGL CONSTANT CHARACTER 'FGL';
+	DECLARE MWW CONSTANT CHARACTER 'MWW';
+	CREATE FUNCTION Main() RETURNS BOOLEAN
+	BEGIN
+		DECLARE rEnv REFERENCE TO Environment;
+		DECLARE MSG_ID CHARACTER rEnv.__MsgIdForLog4J__;
+		CALL core.log.Debug(theModule||' - ID# : '||MSG_ID||' >> BEGIN');
+
+		DECLARE rInput REFERENCE TO InputRoot;
+		DECLARE rOutput,refEx,rPmm,rMessageRouting,rAuditMessages,rMessage,rSourceSystems REFERENCE TO OutputRoot;
+		CALL common.common_CopyMessageHeaders(rInput, rOutput);
+		CALL common.common_CreateLastChildOfOutputRootDomainXmlnsc(rOutput);
+		--CALL common.common_CreateExchangeXml(rOutput, '1', '00', '00');
+		IF nsEai IS NULL THEN CALL common.eai_getNamespace() INTO nsEai;
+		END IF;
+		DECLARE eai NAMESPACE nsEai;
+		IF nsEaiStaging IS NULL THEN CALL common.eaiStagingPmm_getNamespace() INTO nsEaiStaging;
+		END IF;
+		DECLARE eaiStaging NAMESPACE nsEaiStaging;
+		IF nsArts IS NULL THEN CALL common.arts_getNamespace() INTO nsArts;
+		END IF;
+		DECLARE arts NAMESPACE nsArts;
+		IF nsPmm IS NULL THEN CALL common.pmm_getNamespace()INTO nsPmm;
+		END IF;
+		DECLARE pmm NAMESPACE nsPmm;
+
+		CREATE LASTCHILD OF OutputRoot.XMLNSC AS refEx NAMESPACE eaiStaging NAME 'Exchange' ;
+		DECLARE rExchange REFERENCE TO rOutput.XMLNSC.eaiStaging:Exchange;
+		SET rExchange.(XMLNSC.NamespaceDecl)xmlns:"eai" = eaiStaging;
+		SET rExchange.(XMLNSC.NamespaceDecl)xmlns:"pmm" = nsPmm;
+
+		CREATE LASTCHILD OF refEx AS rMessageRouting NAMESPACE eaiStaging NAME 'MessageRouting' ;
+		--DECLARE rMessageRouting REFERENCE TO rOutput.XMLNSC.eaiStaging:Exchange.eaiStaging:MessageRouting;
+
+		DECLARE rInputMessageRouting REFERENCE TO rInput.XMLNSC.eai:Exchange.eai:MessageRouting;
+		DECLARE rInputAuditMessages REFERENCE TO rInput.XMLNSC.eai:Exchange.eai:MessageRouting.eai:AuditMessages;
+		DECLARE rInputSourceSystems REFERENCE TO rInput.XMLNSC.eai:Exchange.eai:Messages.eai:SourceSystems;
+
+		SET rMessageRouting.eaiStaging:Guid = rInputMessageRouting.eai:Guid;
+		SET theModule = theModule||'- GUID -'||CAST(rMessageRouting.eaiStaging:Guid AS CHARACTER);
+
+		SET rMessageRouting.eaiStaging:MessageId = rInputMessageRouting.eai:MessageId;
+		SET rMessageRouting.eaiStaging:MessageType = rInputMessageRouting.eai:MessageType;
+		SET rMessageRouting.eaiStaging:SubjectArea = rInputMessageRouting.eai:SubjectArea;
+		SET rMessageRouting.eaiStaging:SbuNumber= rInputMessageRouting.eai:SbuNumber;
+		SET rMessageRouting.eaiStaging:SbuCode= rInputMessageRouting.eai:SbuCode;
+		SET rMessageRouting.eaiStaging:SbuName = rInputMessageRouting.eai:SbuName;
+		SET rMessageRouting.eaiStaging:DataSourceCode= rInputMessageRouting.eai:DataSourceCode;
+		SET rMessageRouting.eaiStaging:DataSourceName = rInputMessageRouting.eai:DataSourceCodeName;
+
+		CREATE LASTCHILD OF rMessageRouting AS rAuditMessages NAMESPACE eaiStaging NAME 'AuditMessages' ;
+
+		SET rAuditMessages.eaiStaging:Count = rInputAuditMessages.eai:Count;
+		SET rAuditMessages.eaiStaging:SystemTransition.eaiStaging:Index = rInputAuditMessages.eai:SystemTransition.eai:Index;
+		SET rAuditMessages.eaiStaging:SystemTransition.eaiStaging:Timestamp = rInputAuditMessages.eai:SystemTransition.eai:Timestamp;
+		SET rAuditMessages.eaiStaging:SystemTransition.eaiStaging:Protocol = rInputAuditMessages.eai:SystemTransition.eai:Protocol;
+		SET rAuditMessages.eaiStaging:SystemTransition.eaiStaging:ProtocolDetails = rInputAuditMessages.eai:SystemTransition.eai:ProtocolDetails;
+
+		CREATE LASTCHILD OF refEx AS rMessage NAMESPACE eaiStaging NAME 'Message' ;
+		--DECLARE rMessage REFERENCE TO rOutput.XMLNSC.eaiStaging:Exchange.eaiStaging:Message;
+
+		SET rMessage.eaiStaging:Count = rInput.XMLNSC.eai:Exchange.eai:Messages.eai:Count;
+
+		CREATE LASTCHILD OF rMessage AS rSourceSystems NAMESPACE eaiStaging NAME 'SourceSystems' ;
+		--DECLARE rSourceSystems REFERENCE TO rOutput.XMLNSC.eaiStaging:Exchange.eaiStaging:Message.eaiStaging:SourceSystems;
+
+		SET rSourceSystems.eaiStaging:Count=1;
+		SET rSourceSystems.eaiStaging:SourceSystem.eaiStaging:Index=1;
+		SET rSourceSystems.eaiStaging:SourceSystem.eaiStaging:SbuNumber= rInputSourceSystems.eai:SourceSystem.eai:SbuNumber;
+		SET rSourceSystems.eaiStaging:SourceSystem.eaiStaging:SbuCode= rInputSourceSystems.eai:SourceSystem.eai:SbuCode;
+		SET rSourceSystems.eaiStaging:SourceSystem.eaiStaging:SbuName = rInputSourceSystems.eai:SourceSystem.eai:SbuName;
+		SET rSourceSystems.eaiStaging:SourceSystem.eaiStaging:MessageSourceCode= rInputSourceSystems.eai:SourceSystem.eai:MessageSourceCode;
+		SET rSourceSystems.eaiStaging:SourceSystem.eaiStaging:MessageSourceCodeName = rInputSourceSystems.eai:SourceSystem.eai:MessageSourceCodeName;
+
+
+		DECLARE rEai REFERENCE TO InputRoot.XMLNSC.eai:Exchange.eai:Messages.eai:ShippingInvoiceBatch;
+		CALL core.log.Debug(theModule||' - ID# : '||MSG_ID||' - rEai IS NOT NULL: '||CAST(rEai IS NOT NULL AS CHARACTER));
+		DECLARE shippingInvCount INTEGER CARDINALITY(rEai.arts:ShippingInvoices.arts:ShippingInvoice[]);
+
+
+		DECLARE SBU_CD CHARACTER rInputMessageRouting.eai:SbuCode;
+		DECLARE PMMTableName CHARACTER NULL;
+		IF FGL=SBU_CD THEN
+			SET PMMTableName = FGLPMMTableName;
+		ELSEIF MWW=SBU_CD THEN
+			SET PMMTableName = MWWPMMTableName;
+		END IF;
+		--IF nsPmm IS NULL THEN CALL common.pmm_getNamespace()INTO nsPmm;END IF; DECLARE pmm NAMESPACE nsPmm;
+		--SET rExchange.eaiStaging:Message.eaiStaging:{ShippingInvoice}.pmm:{PMMTableName}._flag = 1;
+		DECLARE I INTEGER 1;
+		DECLARE iShippingInvoice REFERENCE TO rEai.arts:ShippingInvoices.arts:ShippingInvoice[I];
+		
+		CALL core.log.Info(theModule ||' - ID# : '||MSG_ID||' - SBU : /eai:Exchange/eai:MessageRouting/eai:SbuCode - '||COALESCE(rInputMessageRouting.eai:SbuCode,''));
+		CALL core.log.Info(theModule ||' - ID# : '||MSG_ID||' - CartonNumber : /eai:Exchange/eai:Messages/eai:ShippingInvoiceBatch/arts:ShippingInvoices/arts:ShippingInvoice/arts:CartonNumber - '||COALESCE(iShippingInvoice.arts:CartonNumber,''));
+		CALL core.log.Info(theModule ||' - ID# : '||MSG_ID||' - Package Barcode : /eai:Exchange/eai:Messages/eai:ShippingInvoiceBatch/arts:ShippingInvoices/arts:ShippingInvoice/arts:PackageBarcode - '|| COALESCE(iShippingInvoice.arts:PackageBarcode,''));
+		CALL core.log.Info(theModule ||' - ID# : '||MSG_ID||' - Units Packed :  /eai:Exchange/eai:Messages/eai:ShippingInvoiceBatch/arts:ShippingInvoices/arts:ShippingInvoice/arts:UnitsPacked -'|| COALESCE(iShippingInvoice.arts:UnitsPacked,''));
+		CALL core.log.Info(theModule ||' - ID# : '||MSG_ID||' - Batch Number :  /eai:Exchange/eai:Messages/eai:ShippingInvoiceBatch/arts:ShippingInvoices/arts:ShippingInvoice/arts:BatchControlNumber -'|| COALESCE(iShippingInvoice.arts:BatchControlNumber,''));
+		CALL core.log.Info(theModule ||' - ID# : '||MSG_ID||' - Bill of Lading :  /eai:Exchange/eai:Messages/eai:ShippingInvoiceBatch/arts:ShippingInvoices/arts:ShippingInvoice/arts:BillOfLading - '|| COALESCE(iShippingInvoice.arts:BillOfLading,''));
+		CALL core.log.Info(theModule ||' - ID# : '||MSG_ID||' - Pallet ID :  /eai:Exchange/eai:Messages/eai:ShippingInvoiceBatch/arts:ShippingInvoices/arts:ShippingInvoice/arts:PalletId -'|| COALESCE(iShippingInvoice.arts:PalletId,''));
+		CALL core.log.Info(theModule ||' - ID# : '||MSG_ID||' - DistributionNumber :  /eai:Exchange/eai:Messages/eai:ShippingInvoiceBatch/arts:ShippingInvoices/arts:ShippingInvoice/arts:DistributionNumber -'|| COALESCE(iShippingInvoice.arts:DistributionNumber,''));
+		
+		WHILE I <= shippingInvCount DO
+
+			CREATE LASTCHILD OF rExchange.eaiStaging:Message.eaiStaging:{ShippingInvoice} AS rPmm NAMESPACE pmm NAME PMMTableName;
+			
+			SET rPmm.pmm:BATCH_NUMBER = iShippingInvoice.arts:BatchControlNumber;
+			SET rPmm.pmm:BATCH_TYPE = rEai.arts:BatchType;
+			SET rPmm.pmm:BATCH_MODE = rEai.arts:BatchMode;
+			SET rPmm.pmm:SHIPMENT_DATE = CAST(iShippingInvoice.arts:ShipmentDate AS DATE FORMAT 'yyyyMMdd');
+			SET rPmm.pmm:BILL_OF_LADING = TRIM(iShippingInvoice.arts:BillOfLading);
+			SET rPmm.pmm:TRAILER_NUMBER = iShippingInvoice.arts:TrailerNumber;
+			SET rPmm.pmm:MANIFEST_NUMBER = TRIM(iShippingInvoice.arts:ManifestNumber);
+			SET rPmm.pmm:SHIPMENT_NUMBER = iShippingInvoice.arts:ShipmentNumber;
+			SET rPmm.pmm:PALLET_NUMBER = iShippingInvoice.arts:PalletId;
+			SET rPmm.pmm:TRACKING_NUMBER = iShippingInvoice.arts:TrackingNumber;
+			SET rPmm.pmm:CARTON_NUMBER = iShippingInvoice.arts:CartonNumber;
+			SET rPmm.pmm:SKU_NUMBER = SUBSTRING(iShippingInvoice.arts:PackageBarcode FROM 2 FOR 16);
+			SET rPmm.pmm:SKU_TYPE = SUBSTRING(iShippingInvoice.arts:PackageBarcode FROM 1 FOR 1);
+			SET rPmm.pmm:SHIPPED_QTY = iShippingInvoice.arts:UnitsPacked;
+			SET rPmm.pmm:PHYSICAL_WH_NUMBER = rEai.arts:Warehouse;
+			IF MWW=SBU_CD THEN
+				SET rPmm.pmm:SHIP_VIA = rEai.arts:ShippedVia;
+				SET rPmm.pmm:STORE_VENDOR_NUMBER = SUBSTRING(iShippingInvoice.arts:DestinationStore FROM 2 FOR 10);
+				SET rPmm.pmm:DISTRIBUTION_NUMBER = SUBSTRING(iShippingInvoice.arts:DistributionNumber FROM 3 FOR 20);
+			ELSEIF FGL=SBU_CD THEN
+				SET rPmm.pmm:STORE_VENDOR_NUMBER = iShippingInvoice.arts:DestinationStore ;
+				SET rPmm.pmm:DISTRIBUTION_NUMBER = iShippingInvoice.arts:DistributionNumber;
+			END IF;
+
+			IF FGL=SBU_CD THEN
+				DECLARE DISTRIBUTION_TYPE CHARACTER iShippingInvoice.arts:DistributionType; --FGL
+				IF('1'=DISTRIBUTION_TYPE) THEN
+				SET rPmm.pmm:DISTRIBUTION_TYPE = 'T';
+				ELSEIF('2'=DISTRIBUTION_TYPE) THEN
+				SET rPmm.pmm:DISTRIBUTION_TYPE = 'A';
+			END IF;
+
+		ELSE --IF MWW=SBU_CD THEN --DON'T REMOVE THIS LOGIC as we're calling out that we *expect* to be Mark's (if we're not FGL) --We should probably have a hard check for 'known' SBUs earlier in the flow and throw an exception here (that we never expect to have to throw)
+			SET rPmm.pmm:DISTRIBUTION_TYPE = SUBSTRING(iShippingInvoice.arts:DistributionNumber FROM 1 FOR 2); --Mark's --CDH-2412 Alex Russell, 25-Sep 2015
+			--ELSE
+			--Throw exception?! (see above comment/s)
+		END IF;
+		SET rPmm.pmm:PICKED_BY = iShippingInvoice.arts:PickedBy;
+		SET rPmm.pmm:PACKED_BY = iShippingInvoice.arts:PackedBy;
+		--DELETE FIELD rExchange.eaiStaging:Message.eaiStaging:{ShippingInvoice}.pmm:{PMMTableName}._flag;
+		CALL core.log.Info(theModule ||' - ID# : '||MSG_ID||' - SBU : /eai:Exchange/eai:Messages/eai:SbuCode - '||COALESCE(rSourceSystems.eaiStaging:SourceSystem.eaiStaging:SbuCode,''));
+		CALL core.log.Info( theModule||' - ID# : '||MSG_ID||' - CartonNumber : - eai:Exchange/eai:Messages/eai:ShippingInvoice/pmm:{PMMTableName}/pmm:CARTON_NUMBER - '||COALESCE(rPmm.pmm:CARTON_NUMBER, ''));
+		CALL core.log.Info( theModule||' - ID# : '||MSG_ID||' - Package Barcode : - eai:Exchange/eai:Messages/eai:ShippingInvoice/pmm:{PMMTableName}/pmm:SKU_TYPE - '||COALESCE(rPmm.pmm:SKU_TYPE,'')||COALESCE(rPmm.pmm:SKU_NUMBER,''));
+		CALL core.log.Info( theModule||' - ID# : '||MSG_ID||' - Units Packed : - eai:Exchange/eai:Messages/eai:ShippingInvoice/pmm:{PMMTableName}/pmm:SHIPPED_QTY - '||COALESCE(rPmm.pmm:SHIPPED_QTY,''));
+		CALL core.log.Info(theModule||' - ID# : '||MSG_ID||' - Batch Number : - eai:Exchange/eai:Messages/eai:ShippingInvoice/pmm:{PMMTableName}/pmm:BATCH_NUMBER - '|| COALESCE(rPmm.pmm:BATCH_NUMBER,''));
+		CALL core.log.Info(theModule||' - ID# : '||MSG_ID||' - Bill of Lading : - eai:Exchange/eai:Messages/eai:ShippingInvoice/pmm:{PMMTableName}/pmm:BILL_OF_LADING - '|| COALESCE(rPmm.pmm:BILL_OF_LADING,''));
+		CALL core.log.Info( theModule||' - ID# : '||MSG_ID||' - Pallet ID : - eai:Exchange/eai:Messages/eai:ShippingInvoice/pmm:{PMMTableName}/pmm:PALLET_NUMBER - '|| COALESCE(rPmm.pmm:PALLET_NUMBER,''));
+		CALL core.log.Info( theModule||' - ID# : '||MSG_ID||' - Distribution Number : - eai:Exchange/eai:Messages/eai:ShippingInvoice/pmm:{PMMTableName}/pmm:DISTRIBUTION_NUMBER - '|| COALESCE(rPmm.pmm:DISTRIBUTION_NUMBER,''));
+		CALL core.log.Debug(theModule||' - ID# : '||MSG_ID||' << END');
+		SET I = I+1;
+
+	END WHILE;
+
+	RETURN TRUE;
+END;
+END MODULE;

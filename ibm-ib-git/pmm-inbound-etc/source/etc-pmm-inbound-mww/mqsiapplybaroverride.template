@@ -1,0 +1,16 @@
+etc.pmm.inbound#IIBInboundQueue=RECV.${PMM_IN}
+etc.pmm.inbound#IIBDataSource=STG${ENVN}
+etc.pmm.inbound#PMMDataSource=${PMMDS}
+etc.pmm.inbound#PMMSchemaName=${PMMSN}
+etc.pmm.inbound#PMMSequenceName=${PMMSEQ}
+etc.pmm.inbound#PMMTableNameInventorySnapshotComplete=MWW_MANH_INV_SNAP_BATCH
+etc.pmm.inbound#PMMTableNameInventorySnapshot=MWW_MANH_INV_SNAPSHOT
+etc.pmm.inbound#PMMTableNameDistributionAdjustment=MWW_MANH_PICK_EXCEPTION
+etc.pmm.inbound#PMMTableNameInventoryAdjustment=MWW_MANH_INV_ADJ
+etc.pmm.inbound#PMMTableNamePixReceipt=MWW_MANH_RECEIPT
+etc.pmm.inbound#PMMTableNameShippingInvoice=MWW_MANH_SHIPMENT
+etc.pmm.inbound#CoreAuditDataSource=AUD${ENVN}${INST}
+etc.pmm.inbound#CoreMessageValidation=${VALIDATE_MSG}
+etc.pmm.inbound#CoreAuditEnabled=FALSE
+etc.pmm.inbound#MaxMsgsInOneUnitOfWork=${PMMBULK}
+etc.pmm.inbound#additionalInstances=5

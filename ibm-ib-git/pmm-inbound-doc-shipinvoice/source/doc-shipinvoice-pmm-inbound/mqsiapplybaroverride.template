@@ -1,0 +1,11 @@
+doc.ship.pmm.inbound#IIBInboundQueue=RECV.${SHIPINVOICE_IN}
+doc.ship.pmm.inbound#IIBInboundQueue=RECV.${SHIPINVOICE_IN}
+doc.ship.pmm.inbound#IIBDataSource=STG${ENVN}${INST}
+doc.ship.pmm.inbound#PMMOutboundQueue=SEND.${SHIPINVOICE_OUT}
+doc.ship.pmm.inbound#CoreAuditDataSource=AUD${ENVN}${INST}
+doc.ship.pmm.inbound#CoreMessageValidation1=${VALIDATE_MSG_IN}
+doc.ship.pmm.inbound#CoreMessageValidation2=${VALIDATE_MSG_OUT}
+doc.ship.pmm.inbound#FGLPMMTableName=FGL_WMS_SHIPMENT
+doc.ship.pmm.inbound#MWWPMMTableName=MWW_MANH_SHIPMENT
+doc.ship.pmm.inbound#CoreAuditEnabled=FALSE
+doc.ship.pmm.inbound#CoreAuditDetailEnabled=FALSE

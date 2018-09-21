@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ecore:EPackage xmi:version="2.0"
+    xmlns:xmi="http://www.omg.org/XMI" xmlns:ComIbmDatabase.msgnode="ComIbmDatabase.msgnode" xmlns:common_retry_then_throw.subflow="common/retry_then_throw.subflow" xmlns:ecore="http://www.eclipse.org/emf/2002/Ecore" xmlns:eflow="http://www.ibm.com/wbi/2005/eflow" xmlns:utility="http://www.ibm.com/wbi/2005/eflow_utility" nsURI="etc/pmm/insert/InventorySnapshot.subflow"
+    nsPrefix="etc_pmm_insert_InventorySnapshot.subflow">
+  <eClassifiers xmi:type="eflow:FCMComposite" name="FCMComposite_1" useDefaults="true" udpSupport="true">
+    <eSuperTypes href="http://www.ibm.com/wbi/2005/eflow#//FCMBlock"/>
+    <eStructuralFeatures xmi:type="ecore:EAttribute" xmi:id="Property.IIBDataSource" name="IIBDataSource">
+      <eType xmi:type="ecore:EDataType" href="http://www.eclipse.org/emf/2002/Ecore#//EString"/>
+    </eStructuralFeatures>
+    <eStructuralFeatures xmi:type="ecore:EAttribute" xmi:id="Property.PMMDataSource" name="PMMDataSource">
+      <eType xmi:type="ecore:EDataType" href="http://www.eclipse.org/emf/2002/Ecore#//EString"/>
+    </eStructuralFeatures>
+    <translation xmi:type="utility:TranslatableString" key="InventorySnapshot" bundleName="etc/pmm/insert/InventorySnapshot" pluginId="etc-pmm-library"/>
+    <colorGraphic16 xmi:type="utility:GIFFileGraphic" resourceName="platform:/plugin/etc-pmm-library/icons/full/obj16/InventorySnapshot.gif"/>
+    <colorGraphic32 xmi:type="utility:GIFFileGraphic" resourceName="platform:/plugin/etc-pmm-library/icons/full/obj30/InventorySnapshot.gif"/>
+    <composition>
+      <nodes xmi:type="eflow:FCMSource" xmi:id="InTerminal.Input" location="10,60">
+        <translation xmi:type="utility:TranslatableString" key="InTerminal.Input" bundleName="etc/pmm/insert/InventorySnapshot" pluginId="etc-pmm-library"/>
+      </nodes>
+      <nodes xmi:type="ComIbmDatabase.msgnode:FCMComposite_1" xmi:id="FCMComposite_1_1" location="239,101" statement="esql://routine/etc.pmm.insert#pmm_InsertIntoInventorySnapshot.Main">
+        <translation xmi:type="utility:ConstantString" string="InsertIntoInventorySnapshot"/>
+      </nodes>
+      <nodes xmi:type="eflow:FCMSink" xmi:id="OutTerminal.Output" location="428,60">
+        <translation xmi:type="utility:TranslatableString" key="OutTerminal.Output" bundleName="etc/pmm/insert/InventorySnapshot" pluginId="etc-pmm-library"/>
+      </nodes>
+      <nodes xmi:type="common_retry_then_throw.subflow:FCMComposite_1" xmi:id="FCMComposite_1_2" location="244,20" rotation="RIGHT_TO_LEFT">
+        <translation xmi:type="utility:ConstantString" string="CommonRetryThenThrow"/>
+      </nodes>
+      <nodes xmi:type="ComIbmDatabase.msgnode:FCMComposite_1" xmi:id="FCMComposite_1_3" location="93,60" statement="esql://routine/etc.pmm#pmm_GetRecordSequence.Main">
+        <translation xmi:type="utility:ConstantString" string="GetRecordSequence"/>
+      </nodes>
+      <connections xmi:type="eflow:FCMConnection" xmi:id="FCMConnection_1" targetNode="OutTerminal.Output" sourceNode="FCMComposite_1_1" sourceTerminalName="OutTerminal.out" targetTerminalName="InTerminal.in"/>
+      <connections xmi:type="eflow:FCMConnection" xmi:id="FCMConnection_2" targetNode="FCMComposite_1_1" sourceNode="FCMComposite_1_2" sourceTerminalName="OutTerminal.Output" targetTerminalName="InTerminal.in"/>
+      <connections xmi:type="eflow:FCMConnection" xmi:id="FCMConnection_3" targetNode="FCMComposite_1_2" sourceNode="FCMComposite_1_1" sourceTerminalName="OutTerminal.failure" targetTerminalName="InTerminal.Input"/>
+      <connections xmi:type="eflow:FCMConnection" xmi:id="FCMConnection_4" targetNode="FCMComposite_1_1" sourceNode="FCMComposite_1_3" sourceTerminalName="OutTerminal.out" targetTerminalName="InTerminal.in"/>
+      <connections xmi:type="eflow:FCMConnection" xmi:id="FCMConnection_5" targetNode="FCMComposite_1_3" sourceNode="InTerminal.Input" sourceTerminalName="OutTerminal.out" targetTerminalName="InTerminal.in"/>
+    </composition>
+    <propertyOrganizer>
+      <propertyDescriptor groupName="Group.Basic" configurable="true" describedAttribute="Property.IIBDataSource">
+        <propertyName xmi:type="utility:TranslatableString" key="Property.IIBDataSource" bundleName="etc/pmm/insert/InventorySnapshot" pluginId="etc-pmm-library"/>
+        <propertyDescriptor groupName="Group.Basic" configurable="true" describedAttribute="Property.PMMDataSource">
+          <propertyName xmi:type="utility:TranslatableString" key="Property.PMMDataSource" bundleName="etc/pmm/insert/InventorySnapshot" pluginId="etc-pmm-library"/>
+        </propertyDescriptor>
+      </propertyDescriptor>
+    </propertyOrganizer>
+    <attributeLinks promotedAttribute="Property.IIBDataSource" overriddenNodes="FCMComposite_1_3">
+      <overriddenAttribute href="ComIbmDatabase.msgnode#Property.dataSource"/>
+    </attributeLinks>
+    <attributeLinks promotedAttribute="Property.PMMDataSource" overriddenNodes="FCMComposite_1_1">
+      <overriddenAttribute href="ComIbmDatabase.msgnode#Property.dataSource"/>
+    </attributeLinks>
+    <stickyBoard/>
+  </eClassifiers>
+</ecore:EPackage>

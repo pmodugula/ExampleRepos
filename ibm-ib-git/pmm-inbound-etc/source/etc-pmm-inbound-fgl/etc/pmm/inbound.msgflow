@@ -1,0 +1,205 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ecore:EPackage xmi:version="2.0"
+    xmlns:xmi="http://www.omg.org/XMI" xmlns:ComIbmCompute.msgnode="ComIbmCompute.msgnode" xmlns:ComIbmFlowOrder.msgnode="ComIbmFlowOrder.msgnode" xmlns:ComIbmMQGet.msgnode="ComIbmMQGet.msgnode" xmlns:ComIbmMQInput.msgnode="ComIbmMQInput.msgnode" xmlns:ComIbmPassthru.msgnode="ComIbmPassthru.msgnode" xmlns:core_message__postprocessor.subflow="core/message/_postprocessor.subflow" xmlns:core_message__preprocessor.subflow="core/message/_preprocessor.subflow" xmlns:ecore="http://www.eclipse.org/emf/2002/Ecore"
+    xmlns:eflow="http://www.ibm.com/wbi/2005/eflow" xmlns:etc_pmm__inbound.subflow="etc/pmm/_inbound.subflow" xmlns:utility="http://www.ibm.com/wbi/2005/eflow_utility" nsURI="etc/pmm/inbound.msgflow"
+    nsPrefix="etc_pmm_inbound.msgflow">
+  <eClassifiers xmi:type="eflow:FCMComposite" name="FCMComposite_1">
+    <eSuperTypes href="http://www.ibm.com/wbi/2005/eflow#//FCMBlock"/>
+    <eStructuralFeatures xmi:type="ecore:EAttribute" xmi:id="Property.MaxMsgsInDatabaseCommit" name="MaxMsgsInDatabaseCommit" lowerBound="1" defaultValueLiteral="1">
+      <eType xmi:type="ecore:EDataType" href="http://www.eclipse.org/emf/2002/Ecore#//EInt"/>
+    </eStructuralFeatures>
+    <eStructuralFeatures xmi:type="ecore:EAttribute" xmi:id="Property.IIBInboundQueue" name="IIBInboundQueue" lowerBound="1" defaultValueLiteral="RECV.FGL.PMM.PMM_IN.IBM_IB.DV">
+      <eType xmi:type="ecore:EDataType" href="http://www.eclipse.org/emf/2002/Ecore#//EString"/>
+    </eStructuralFeatures>
+    <eStructuralFeatures xmi:type="ecore:EAttribute" xmi:id="Property.IIBDataSource" name="IIBDataSource" defaultValueLiteral="STGDEV">
+      <eType xmi:type="ecore:EDataType" href="http://www.eclipse.org/emf/2002/Ecore#//EString"/>
+    </eStructuralFeatures>
+    <eStructuralFeatures xmi:type="ecore:EAttribute" xmi:id="Property.PMMDataSource" name="PMMDataSource" defaultValueLiteral="FGLPMMDEV">
+      <eType xmi:type="ecore:EDataType" href="http://www.eclipse.org/emf/2002/Ecore#//EString"/>
+    </eStructuralFeatures>
+    <eStructuralFeatures xmi:type="ecore:EAttribute" xmi:id="Property.PMMSchemaName" name="PMMSchemaName" lowerBound="1" defaultValueLiteral="FGLPRD">
+      <eType xmi:type="ecore:EDataType" href="http://www.eclipse.org/emf/2002/Ecore#//EString"/>
+    </eStructuralFeatures>
+    <eStructuralFeatures xmi:type="ecore:EAttribute" xmi:id="Property.PMMSequenceName" name="PMMSequenceName" lowerBound="1" defaultValueLiteral="IIB_AUDIT_DETAIL_SEQ">
+      <eType xmi:type="ecore:EDataType" href="http://www.eclipse.org/emf/2002/Ecore#//EString"/>
+    </eStructuralFeatures>
+    <eStructuralFeatures xmi:type="ecore:EAttribute" xmi:id="Property.PMMTableNameInventorySnapshotComplete" name="PMMTableNameInventorySnapshotComplete" lowerBound="1" defaultValueLiteral="FGL_WMS_INV_SNAP_BATCH">
+      <eType xmi:type="ecore:EDataType" href="http://www.eclipse.org/emf/2002/Ecore#//EString"/>
+    </eStructuralFeatures>
+    <eStructuralFeatures xmi:type="ecore:EAttribute" xmi:id="Property.PMMTableNameInventorySnapshot" name="PMMTableNameInventorySnapshot" lowerBound="1" defaultValueLiteral="FGL_WMS_INV_SNAPSHOT">
+      <eType xmi:type="ecore:EDataType" href="http://www.eclipse.org/emf/2002/Ecore#//EString"/>
+    </eStructuralFeatures>
+    <eStructuralFeatures xmi:type="ecore:EAttribute" xmi:id="Property.PMMTableNameDistributionAdjustment" name="PMMTableNameDistributionAdjustment" lowerBound="1" defaultValueLiteral="FGL_WMS_PICK_EXCEPTION">
+      <eType xmi:type="ecore:EDataType" href="http://www.eclipse.org/emf/2002/Ecore#//EString"/>
+    </eStructuralFeatures>
+    <eStructuralFeatures xmi:type="ecore:EAttribute" xmi:id="Property.PMMTableNameInventoryAdjustment" name="PMMTableNameInventoryAdjustment" lowerBound="1" defaultValueLiteral="FGL_WMS_INV_ADJ">
+      <eType xmi:type="ecore:EDataType" href="http://www.eclipse.org/emf/2002/Ecore#//EString"/>
+    </eStructuralFeatures>
+    <eStructuralFeatures xmi:type="ecore:EAttribute" xmi:id="Property.PMMTableNamePixReceipt" name="PMMTableNamePixReceipt" lowerBound="1" defaultValueLiteral="FGL_WMS_RECEIPT">
+      <eType xmi:type="ecore:EDataType" href="http://www.eclipse.org/emf/2002/Ecore#//EString"/>
+    </eStructuralFeatures>
+    <eStructuralFeatures xmi:type="ecore:EAttribute" xmi:id="Property.PMMTableNameShippingInvoice" name="PMMTableNameShippingInvoice" lowerBound="1" defaultValueLiteral="FGL_WMS_SHIPMENT">
+      <eType xmi:type="ecore:EDataType" href="http://www.eclipse.org/emf/2002/Ecore#//EString"/>
+    </eStructuralFeatures>
+    <eStructuralFeatures xmi:type="ecore:EAttribute" xmi:id="Property.PMMTableNameDockCheckIn" name="PMMTableNameDockCheckIn" lowerBound="1" defaultValueLiteral="FGL_WMS_DOCK_CHECKIN">
+      <eType xmi:type="ecore:EDataType" href="http://www.eclipse.org/emf/2002/Ecore#//EString"/>
+    </eStructuralFeatures>
+    <eStructuralFeatures xmi:type="ecore:EAttribute" xmi:id="Property.CoreAuditDataSource" name="CoreAuditDataSource" defaultValueLiteral="AUDDEV">
+      <eType xmi:type="ecore:EDataType" href="http://www.eclipse.org/emf/2002/Ecore#//EString"/>
+    </eStructuralFeatures>
+    <eStructuralFeatures xmi:type="ecore:EAttribute" xmi:id="Property.CoreMessageValidation" name="CoreMessageValidation" lowerBound="1" defaultValueLiteral="false">
+      <eType xmi:type="ecore:EDataType" href="http://www.eclipse.org/emf/2002/Ecore#//EBoolean"/>
+    </eStructuralFeatures>
+    <eStructuralFeatures xmi:type="ecore:EAttribute" xmi:id="Property.CoreAuditEnabled" name="CoreAuditEnabled" lowerBound="1">
+      <eType xmi:type="ecore:EDataType" href="http://www.eclipse.org/emf/2002/Ecore#//EBoolean"/>
+    </eStructuralFeatures>
+    <translation xmi:type="utility:TranslatableString" key="inbound" bundleName="etc/pmm/inbound" pluginId="etc-pmm-inbound-fgl"/>
+    <colorGraphic16 xmi:type="utility:GIFFileGraphic" resourceName="platform:/plugin/etc-pmm-inbound-fgl/icons/full/obj16/inbound.gif"/>
+    <colorGraphic32 xmi:type="utility:GIFFileGraphic" resourceName="platform:/plugin/etc-pmm-inbound-fgl/icons/full/obj30/inbound.gif"/>
+    <composition>
+      <nodes xmi:type="ComIbmMQInput.msgnode:FCMComposite_1" xmi:id="FCMComposite_1_1" location="10,20">
+        <translation xmi:type="utility:ConstantString" string="RECV.FGL.PMM.PMM_IN"/>
+      </nodes>
+      <nodes xmi:type="ComIbmFlowOrder.msgnode:FCMComposite_1" xmi:id="FCMComposite_1_3" location="195,182">
+        <translation xmi:type="utility:ConstantString" string="FlowOrder"/>
+      </nodes>
+      <nodes xmi:type="core_message__preprocessor.subflow:FCMComposite_1" xmi:id="FCMComposite_1_4" location="688,20" CoreAuditEnabled="false">
+        <translation xmi:type="utility:ConstantString" string="CoreMessagePreProcessor"/>
+      </nodes>
+      <nodes xmi:type="core_message__postprocessor.subflow:FCMComposite_1" xmi:id="FCMComposite_1_5" location="997,20" CoreAuditEnabled="false">
+        <translation xmi:type="utility:ConstantString" string="CoreMessagePostProcessor"/>
+      </nodes>
+      <nodes xmi:type="ComIbmCompute.msgnode:FCMComposite_1" xmi:id="FCMComposite_1_6" location="290,182" computeExpression="esql://routine/etc.pmm#pmm_TryToBulkMsgsInOneCommit.Main" throwExceptionOnDatabaseError="false">
+        <translation xmi:type="utility:ConstantString" string="TryToBulkMsgsInOneCommit"/>
+      </nodes>
+      <nodes xmi:type="ComIbmPassthru.msgnode:FCMComposite_1" xmi:id="FCMComposite_1_8" location="697,182">
+        <translation xmi:type="utility:ConstantString" string="PassThroughForDebug"/>
+      </nodes>
+      <nodes xmi:type="ComIbmMQGet.msgnode:FCMComposite_1" xmi:id="FCMComposite_1_9" location="488,182">
+        <translation xmi:type="utility:ConstantString" string="RECV.FGL.PMM.PMM_IN-Bulk"/>
+      </nodes>
+      <nodes xmi:type="etc_pmm__inbound.subflow:FCMComposite_1" xmi:id="FCMComposite_1_10" location="867,101">
+        <translation xmi:type="utility:ConstantString" string="EtcPmmInbound"/>
+      </nodes>
+      <connections xmi:type="eflow:FCMConnection" xmi:id="FCMConnection_1" targetNode="FCMComposite_1_4" sourceNode="FCMComposite_1_9" sourceTerminalName="OutTerminal.out" targetTerminalName="InTerminal.CatchInput"/>
+      <connections xmi:type="eflow:FCMConnection" xmi:id="FCMConnection_2" targetNode="FCMComposite_1_4" sourceNode="FCMComposite_1_9" sourceTerminalName="OutTerminal.warning" targetTerminalName="InTerminal.CatchInput"/>
+      <connections xmi:type="eflow:FCMConnection" xmi:id="FCMConnection_3" targetNode="FCMComposite_1_8" sourceNode="FCMComposite_1_9" sourceTerminalName="OutTerminal.noMessage" targetTerminalName="InTerminal.in"/>
+      <connections xmi:type="eflow:FCMConnection" xmi:id="FCMConnection_4" targetNode="FCMComposite_1_4" sourceNode="FCMComposite_1_1" sourceTerminalName="OutTerminal.failure" targetTerminalName="InTerminal.FailureInput"/>
+      <connections xmi:type="eflow:FCMConnection" xmi:id="FCMConnection_5" targetNode="FCMComposite_1_4" sourceNode="FCMComposite_1_1" sourceTerminalName="OutTerminal.catch" targetTerminalName="InTerminal.Input"/>
+      <connections xmi:type="eflow:FCMConnection" xmi:id="FCMConnection_6" targetNode="FCMComposite_1_5" sourceNode="FCMComposite_1_4" sourceTerminalName="OutTerminal.Output" targetTerminalName="InTerminal.Input"/>
+      <connections xmi:type="eflow:FCMConnection" xmi:id="FCMConnection_7" targetNode="FCMComposite_1_5" sourceNode="FCMComposite_1_4" sourceTerminalName="OutTerminal.FailureOutput" targetTerminalName="InTerminal.Input2"/>
+      <connections xmi:type="eflow:FCMConnection" xmi:id="FCMConnection_8" targetNode="FCMComposite_1_3" sourceNode="FCMComposite_1_1" sourceTerminalName="OutTerminal.out" targetTerminalName="InTerminal.in"/>
+      <connections xmi:type="eflow:FCMConnection" xmi:id="FCMConnection_9" targetNode="FCMComposite_1_4" sourceNode="FCMComposite_1_3" sourceTerminalName="OutTerminal.first" targetTerminalName="InTerminal.CatchInput"/>
+      <connections xmi:type="eflow:FCMConnection" xmi:id="FCMConnection_10" targetNode="FCMComposite_1_6" sourceNode="FCMComposite_1_3" sourceTerminalName="OutTerminal.second" targetTerminalName="InTerminal.in"/>
+      <connections xmi:type="eflow:FCMConnection" xmi:id="FCMConnection_11" targetNode="FCMComposite_1_9" sourceNode="FCMComposite_1_6" sourceTerminalName="OutTerminal.out" targetTerminalName="InTerminal.in"/>
+      <connections xmi:type="eflow:FCMConnection" xmi:id="FCMConnection_12" targetNode="FCMComposite_1_10" sourceNode="FCMComposite_1_4" sourceTerminalName="OutTerminal.CatchOutput" targetTerminalName="InTerminal.Input"/>
+      <connections xmi:type="eflow:FCMConnection" xmi:id="FCMConnection_13" targetNode="FCMComposite_1_5" sourceNode="FCMComposite_1_10" sourceTerminalName="OutTerminal.Output" targetTerminalName="InTerminal.Input1"/>
+      <connections xmi:type="eflow:FCMConnection" xmi:id="FCMConnection_14" targetNode="FCMComposite_1_5" sourceNode="FCMComposite_1_10" sourceTerminalName="OutTerminal.Output1" targetTerminalName="InTerminal.Input1"/>
+    </composition>
+    <propertyOrganizer>
+      <propertyDescriptor groupName="Group.Basic" configurable="true" userDefined="true" describedAttribute="Property.MaxMsgsInDatabaseCommit">
+        <propertyName xmi:type="utility:TranslatableString" key="Property.MaxMsgsInDatabaseCommit" bundleName="etc/pmm/inbound" pluginId="etc-pmm-inbound-fgl"/>
+        <propertyDescriptor groupName="Group.Basic" propertyEditor="com.ibm.etools.mft.ibmnodes.editors.mq.MQQueueNameEditor" configurable="true" describedAttribute="Property.IIBInboundQueue">
+          <propertyName xmi:type="utility:TranslatableString" key="Property.IIBInboundQueue" bundleName="etc/pmm/inbound" pluginId="etc-pmm-inbound-fgl"/>
+          <propertyDescriptor groupName="Group.Basic" configurable="true" describedAttribute="Property.IIBDataSource">
+            <propertyName xmi:type="utility:TranslatableString" key="Property.IIBDataSource" bundleName="etc/pmm/insert/InventoryAdjustment" pluginId="etc-pmm-library"/>
+            <propertyDescriptor groupName="Group.Basic" configurable="true" describedAttribute="Property.PMMDataSource">
+              <propertyName xmi:type="utility:TranslatableString" key="Property.PMMDataSource" bundleName="etc/pmm/insert/InventorySnapshotComplete" pluginId="etc-pmm-library"/>
+              <propertyDescriptor groupName="Group.Basic" configurable="true" userDefined="true" describedAttribute="Property.PMMSchemaName">
+                <propertyName xmi:type="utility:TranslatableString" key="Property.PMMSchemaName" bundleName="etc/pmm/_inbound" pluginId="etc-pmm-library"/>
+                <propertyDescriptor groupName="Group.Basic" configurable="true" userDefined="true" describedAttribute="Property.PMMSequenceName">
+                  <propertyName xmi:type="utility:TranslatableString" key="Property.PMMSequenceName" bundleName="etc/pmm/_inbound" pluginId="etc-pmm-library"/>
+                  <propertyDescriptor groupName="Group.Basic" configurable="true" userDefined="true" describedAttribute="Property.PMMTableNameInventorySnapshotComplete">
+                    <propertyName xmi:type="utility:TranslatableString" key="Property.PMMTableNameInventorySnapshotComplete" bundleName="etc/pmm/_inbound" pluginId="etc-pmm-library"/>
+                    <propertyDescriptor groupName="Group.Basic" configurable="true" userDefined="true" describedAttribute="Property.PMMTableNameInventorySnapshot">
+                      <propertyName xmi:type="utility:TranslatableString" key="Property.PMMTableNameInventorySnapshot" bundleName="etc/pmm/_inbound" pluginId="etc-pmm-library"/>
+                      <propertyDescriptor groupName="Group.Basic" configurable="true" userDefined="true" describedAttribute="Property.PMMTableNameDistributionAdjustment">
+                        <propertyName xmi:type="utility:TranslatableString" key="Property.PMMTableNameDistributionAdjustment" bundleName="etc/pmm/_inbound" pluginId="etc-pmm-library"/>
+                        <propertyDescriptor groupName="Group.Basic" configurable="true" userDefined="true" describedAttribute="Property.PMMTableNameInventoryAdjustment">
+                          <propertyName xmi:type="utility:TranslatableString" key="Property.PMMTableNameInventoryAdjustment" bundleName="etc/pmm/_inbound" pluginId="etc-pmm-library"/>
+                          <propertyDescriptor groupName="Group.Basic" configurable="true" userDefined="true" describedAttribute="Property.PMMTableNamePixReceipt">
+                            <propertyName xmi:type="utility:TranslatableString" key="Property.PMMTableNamePixReceipt" bundleName="etc/pmm/_inbound" pluginId="etc-pmm-library"/>
+                            <propertyDescriptor groupName="Group.Basic" configurable="true" userDefined="true" describedAttribute="Property.PMMTableNameShippingInvoice">
+                              <propertyName xmi:type="utility:TranslatableString" key="Property.PMMTableNameShippingInvoice" bundleName="etc/pmm/_inbound" pluginId="etc-pmm-library"/>
+                              <propertyDescriptor groupName="Group.Basic" configurable="true" userDefined="true" describedAttribute="Property.PMMTableNameDockCheckIn">
+                                <propertyName xmi:type="utility:TranslatableString" key="Property.PMMTableNameDockCheckIn" bundleName="etc/pmm/_inbound" pluginId="etc-pmm-library"/>
+                                <propertyDescriptor groupName="Group.Basic" configurable="true" describedAttribute="Property.CoreAuditDataSource">
+                                  <propertyName xmi:type="utility:TranslatableString" key="Property.CoreAuditDataSource" bundleName="core/audit/_audit" pluginId="core-audit-handler-library"/>
+                                  <propertyDescriptor groupName="Group.Basic" configurable="true" userDefined="true" describedAttribute="Property.CoreMessageValidation">
+                                    <propertyName xmi:type="utility:TranslatableString" key="Property.CoreMessageValidation" bundleName="core/message/_validation" pluginId="core-message-processor-library"/>
+                                    <propertyDescriptor groupName="Group.Basic" configurable="true" userDefined="true" describedAttribute="Property.CoreAuditEnabled">
+                                      <propertyName xmi:type="utility:TranslatableString" key="Property.CoreAuditEnabled" bundleName="core/audit/_audit" pluginId="core-audit-handler-library"/>
+                                    </propertyDescriptor>
+                                  </propertyDescriptor>
+                                </propertyDescriptor>
+                              </propertyDescriptor>
+                            </propertyDescriptor>
+                          </propertyDescriptor>
+                        </propertyDescriptor>
+                      </propertyDescriptor>
+                    </propertyDescriptor>
+                  </propertyDescriptor>
+                </propertyDescriptor>
+              </propertyDescriptor>
+            </propertyDescriptor>
+          </propertyDescriptor>
+        </propertyDescriptor>
+      </propertyDescriptor>
+    </propertyOrganizer>
+    <attributeLinks promotedAttribute="Property.IIBInboundQueue" overriddenNodes="FCMComposite_1_1">
+      <overriddenAttribute href="ComIbmMQInput.msgnode#Property.queueName"/>
+    </attributeLinks>
+    <attributeLinks promotedAttribute="Property.IIBInboundQueue" overriddenNodes="FCMComposite_1_9">
+      <overriddenAttribute href="ComIbmMQGet.msgnode#Property.queueName"/>
+    </attributeLinks>
+    <attributeLinks promotedAttribute="Property.IIBDataSource" overriddenNodes="FCMComposite_1_10">
+      <overriddenAttribute href="etc/pmm/_inbound.subflow#Property.IIBDataSource"/>
+    </attributeLinks>
+    <attributeLinks promotedAttribute="Property.PMMDataSource" overriddenNodes="FCMComposite_1_10">
+      <overriddenAttribute href="etc/pmm/_inbound.subflow#Property.PMMDataSource"/>
+    </attributeLinks>
+    <attributeLinks promotedAttribute="Property.PMMSchemaName" overriddenNodes="FCMComposite_1_10">
+      <overriddenAttribute href="etc/pmm/_inbound.subflow#Property.PMMSchemaName"/>
+    </attributeLinks>
+    <attributeLinks promotedAttribute="Property.PMMSequenceName" overriddenNodes="FCMComposite_1_10">
+      <overriddenAttribute href="etc/pmm/_inbound.subflow#Property.PMMSequenceName"/>
+    </attributeLinks>
+    <attributeLinks promotedAttribute="Property.PMMTableNameInventorySnapshotComplete" overriddenNodes="FCMComposite_1_10">
+      <overriddenAttribute href="etc/pmm/_inbound.subflow#Property.PMMTableNameInventorySnapshotComplete"/>
+    </attributeLinks>
+    <attributeLinks promotedAttribute="Property.PMMTableNameInventorySnapshot" overriddenNodes="FCMComposite_1_10">
+      <overriddenAttribute href="etc/pmm/_inbound.subflow#Property.PMMTableNameInventorySnapshot"/>
+    </attributeLinks>
+    <attributeLinks promotedAttribute="Property.PMMTableNameDistributionAdjustment" overriddenNodes="FCMComposite_1_10">
+      <overriddenAttribute href="etc/pmm/_inbound.subflow#Property.PMMTableNameDistributionAdjustment"/>
+    </attributeLinks>
+    <attributeLinks promotedAttribute="Property.PMMTableNameInventoryAdjustment" overriddenNodes="FCMComposite_1_10">
+      <overriddenAttribute href="etc/pmm/_inbound.subflow#Property.PMMTableNameInventoryAdjustment"/>
+    </attributeLinks>
+    <attributeLinks promotedAttribute="Property.PMMTableNamePixReceipt" overriddenNodes="FCMComposite_1_10">
+      <overriddenAttribute href="etc/pmm/_inbound.subflow#Property.PMMTableNamePixReceipt"/>
+    </attributeLinks>
+    <attributeLinks promotedAttribute="Property.PMMTableNameShippingInvoice" overriddenNodes="FCMComposite_1_10">
+      <overriddenAttribute href="etc/pmm/_inbound.subflow#Property.PMMTableNameShippingInvoice"/>
+    </attributeLinks>
+    <attributeLinks promotedAttribute="Property.PMMTableNameDockCheckIn" overriddenNodes="FCMComposite_1_10">
+      <overriddenAttribute href="etc/pmm/_inbound.subflow#Property.PMMTableNameDockCheckIn"/>
+    </attributeLinks>
+    <attributeLinks promotedAttribute="Property.CoreAuditDataSource" overriddenNodes="FCMComposite_1_4">
+      <overriddenAttribute href="core/message/_preprocessor.subflow#Property.CoreAuditDataSource"/>
+    </attributeLinks>
+    <attributeLinks promotedAttribute="Property.CoreAuditDataSource" overriddenNodes="FCMComposite_1_5">
+      <overriddenAttribute href="core/message/_postprocessor.subflow#Property.CoreAuditDataSource"/>
+    </attributeLinks>
+    <attributeLinks promotedAttribute="Property.CoreMessageValidation" overriddenNodes="FCMComposite_1_10">
+      <overriddenAttribute href="etc/pmm/_inbound.subflow#Property.CoreMessageValidation"/>
+    </attributeLinks>
+    <attributeLinks promotedAttribute="Property.CoreAuditEnabled" overriddenNodes="FCMComposite_1_5">
+      <overriddenAttribute href="core/message/_postprocessor.subflow#Property.CoreAuditEnabled"/>
+    </attributeLinks>
+    <attributeLinks promotedAttribute="Property.CoreAuditEnabled" overriddenNodes="FCMComposite_1_4">
+      <overriddenAttribute href="core/message/_preprocessor.subflow#Property.CoreAuditEnabled"/>
+    </attributeLinks>
+    <stickyBoard/>
+  </eClassifiers>
+</ecore:EPackage>

@@ -1,0 +1,139 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ecore:EPackage xmi:version="2.0"
+    xmlns:xmi="http://www.omg.org/XMI" xmlns:ComIbmMQInput.msgnode="ComIbmMQInput.msgnode" xmlns:ComIbmMQOutput.msgnode="ComIbmMQOutput.msgnode" xmlns:core_message__postprocessor.subflow="core/message/_postprocessor.subflow" xmlns:core_message__preprocessor.subflow="core/message/_preprocessor.subflow" xmlns:ecore="http://www.eclipse.org/emf/2002/Ecore" xmlns:eflow="http://www.ibm.com/wbi/2005/eflow" xmlns:trx_pix_pmm__inbound.subflow="trx/pix/pmm/_inbound.subflow" xmlns:utility="http://www.ibm.com/wbi/2005/eflow_utility" nsURI="trx/pix/pmm/inbound.msgflow"
+    nsPrefix="trx_pix_pmm_inbound.msgflow">
+  <eClassifiers xmi:type="eflow:FCMComposite" name="FCMComposite_1">
+    <eSuperTypes href="http://www.ibm.com/wbi/2005/eflow#//FCMBlock"/>
+    <eStructuralFeatures xmi:type="ecore:EAttribute" xmi:id="Property.IIBInboundQueue" name="IIBInboundQueue" lowerBound="1" defaultValueLiteral="RECV.ALL.PMM.PIXINVENTSNAP_IN.IBM_IB.DV">
+      <eType xmi:type="ecore:EDataType" href="http://www.eclipse.org/emf/2002/Ecore#//EString"/>
+    </eStructuralFeatures>
+    <eStructuralFeatures xmi:type="ecore:EAttribute" xmi:id="Property.CoreAuditDataSource" name="CoreAuditDataSource" defaultValueLiteral="AUDDEV">
+      <eType xmi:type="ecore:EDataType" href="http://www.eclipse.org/emf/2002/Ecore#//EString"/>
+    </eStructuralFeatures>
+    <eStructuralFeatures xmi:type="ecore:EAttribute" xmi:id="Property.PMMOutboundQueue" name="PMMOutboundQueue" defaultValueLiteral="SEND.ALL.PMM.PIXINVENTSNAP_OUT.IBM_IB.DV">
+      <eType xmi:type="ecore:EDataType" href="http://www.eclipse.org/emf/2002/Ecore#//EString"/>
+    </eStructuralFeatures>
+    <eStructuralFeatures xmi:type="ecore:EAttribute" xmi:id="Property.CoreMessageValidation1" name="CoreMessageValidation1" lowerBound="1" defaultValueLiteral="true">
+      <eType xmi:type="ecore:EDataType" href="http://www.eclipse.org/emf/2002/Ecore#//EBoolean"/>
+    </eStructuralFeatures>
+    <eStructuralFeatures xmi:type="ecore:EAttribute" xmi:id="Property.CoreMessageValidation2" name="CoreMessageValidation2" lowerBound="1" defaultValueLiteral="true">
+      <eType xmi:type="ecore:EDataType" href="http://www.eclipse.org/emf/2002/Ecore#//EBoolean"/>
+    </eStructuralFeatures>
+    <eStructuralFeatures xmi:type="ecore:EAttribute" xmi:id="Property.FGLPMMTableName" name="FGLPMMTableName" lowerBound="1" defaultValueLiteral="FGL_WMS_INV_SNAPSHOT">
+      <eType xmi:type="ecore:EDataType" href="http://www.eclipse.org/emf/2002/Ecore#//EString"/>
+    </eStructuralFeatures>
+    <eStructuralFeatures xmi:type="ecore:EAttribute" xmi:id="Property.IIBDataSource" name="IIBDataSource">
+      <eType xmi:type="ecore:EDataType" href="http://www.eclipse.org/emf/2002/Ecore#//EString"/>
+    </eStructuralFeatures>
+    <eStructuralFeatures xmi:type="ecore:EAttribute" xmi:id="Property.MWWPMMTableName" name="MWWPMMTableName" lowerBound="1" defaultValueLiteral="MWW_MANH_INV_SNAPSHOT">
+      <eType xmi:type="ecore:EDataType" href="http://www.eclipse.org/emf/2002/Ecore#//EString"/>
+    </eStructuralFeatures>
+    <eStructuralFeatures xmi:type="ecore:EAttribute" xmi:id="Property.CoreAuditEnabled" name="CoreAuditEnabled" lowerBound="1" defaultValueLiteral="false">
+      <eType xmi:type="ecore:EDataType" href="http://www.eclipse.org/emf/2002/Ecore#//EBoolean"/>
+    </eStructuralFeatures>
+    <eStructuralFeatures xmi:type="ecore:EAttribute" xmi:id="Property.CoreAuditDetailEnabled" name="CoreAuditDetailEnabled" lowerBound="1" defaultValueLiteral="false">
+      <eType xmi:type="ecore:EDataType" href="http://www.eclipse.org/emf/2002/Ecore#//EBoolean"/>
+    </eStructuralFeatures>
+    <translation xmi:type="utility:TranslatableString" key="inbound" bundleName="trx/pix/pmm/inbound" pluginId="trx-pixinventsnap-pmm-inbound"/>
+    <colorGraphic16 xmi:type="utility:GIFFileGraphic" resourceName="platform:/plugin/trx-pixinventsnap-pmm-inbound/icons/full/obj16/inbound.gif"/>
+    <colorGraphic32 xmi:type="utility:GIFFileGraphic" resourceName="platform:/plugin/trx-pixinventsnap-pmm-inbound/icons/full/obj30/inbound.gif"/>
+    <composition>
+      <nodes xmi:type="ComIbmMQInput.msgnode:FCMComposite_1" xmi:id="FCMComposite_1_1" location="10,20" queueName="RECV.MWW.PMM.INV_SNAP_IN.IBM_IB">
+        <translation xmi:type="utility:ConstantString" string="RECV.ALL.PMM.PIXINVENTSNAP_IN"/>
+      </nodes>
+      <nodes xmi:type="core_message__preprocessor.subflow:FCMComposite_1" xmi:id="FCMComposite_1_5" location="222,20">
+        <translation xmi:type="utility:ConstantString" string="CoreMessagePreProcessor"/>
+      </nodes>
+      <nodes xmi:type="core_message__postprocessor.subflow:FCMComposite_1" xmi:id="FCMComposite_1_6" location="800,20">
+        <translation xmi:type="utility:ConstantString" string="CoreMessagePostProcessor"/>
+      </nodes>
+      <nodes xmi:type="ComIbmMQOutput.msgnode:FCMComposite_1" xmi:id="FCMComposite_1_4" location="578,99">
+        <translation xmi:type="utility:ConstantString" string="SEND.ALL.PMM.PIXINVENTSNAP_OUT"/>
+      </nodes>
+      <nodes xmi:type="trx_pix_pmm__inbound.subflow:FCMComposite_1" xmi:id="FCMComposite_1_7" location="390,99">
+        <translation xmi:type="utility:ConstantString" string="TrxPixInventSnapPmmInbound"/>
+      </nodes>
+      <connections xmi:type="eflow:FCMConnection" xmi:id="FCMConnection_1" targetNode="FCMComposite_1_5" sourceNode="FCMComposite_1_1" sourceTerminalName="OutTerminal.failure" targetTerminalName="InTerminal.FailureInput"/>
+      <connections xmi:type="eflow:FCMConnection" xmi:id="FCMConnection_2" targetNode="FCMComposite_1_5" sourceNode="FCMComposite_1_1" sourceTerminalName="OutTerminal.out" targetTerminalName="InTerminal.CatchInput"/>
+      <connections xmi:type="eflow:FCMConnection" xmi:id="FCMConnection_3" targetNode="FCMComposite_1_5" sourceNode="FCMComposite_1_1" sourceTerminalName="OutTerminal.catch" targetTerminalName="InTerminal.Input"/>
+      <connections xmi:type="eflow:FCMConnection" xmi:id="FCMConnection_4" targetNode="FCMComposite_1_6" sourceNode="FCMComposite_1_5" sourceTerminalName="OutTerminal.Output" targetTerminalName="InTerminal.Input"/>
+      <connections xmi:type="eflow:FCMConnection" xmi:id="FCMConnection_7" targetNode="FCMComposite_1_6" sourceNode="FCMComposite_1_5" sourceTerminalName="OutTerminal.FailureOutput" targetTerminalName="InTerminal.Input2"/>
+      <connections xmi:type="eflow:FCMConnection" xmi:id="FCMConnection_9" targetNode="FCMComposite_1_6" sourceNode="FCMComposite_1_4" sourceTerminalName="OutTerminal.out" targetTerminalName="InTerminal.Input1"/>
+      <connections xmi:type="eflow:FCMConnection" xmi:id="FCMConnection_12" targetNode="FCMComposite_1_7" sourceNode="FCMComposite_1_5" sourceTerminalName="OutTerminal.CatchOutput" targetTerminalName="InTerminal.Input"/>
+      <connections xmi:type="eflow:FCMConnection" xmi:id="FCMConnection_13" targetNode="FCMComposite_1_6" sourceNode="FCMComposite_1_7" sourceTerminalName="OutTerminal.OutputNoMessage" targetTerminalName="InTerminal.Input1"/>
+      <connections xmi:type="eflow:FCMConnection" xmi:id="FCMConnection_14" targetNode="FCMComposite_1_4" sourceNode="FCMComposite_1_7" sourceTerminalName="OutTerminal.Output" targetTerminalName="InTerminal.in"/>
+    </composition>
+    <propertyOrganizer>
+      <propertyDescriptor groupName="Group.TrxPixInventSnapPmm" propertyEditor="com.ibm.etools.mft.ibmnodes.editors.mq.MQQueueNameEditor" configurable="true" describedAttribute="Property.IIBInboundQueue">
+        <propertyName xmi:type="utility:TranslatableString" key="Property.IIBInboundQueue" bundleName="trx/pix/pmm/inbound" pluginId="trx-pixinventsnap-pmm-inbound"/>
+        <propertyDescriptor groupName="Group.TrxPixInventSnapPmm" configurable="true" describedAttribute="Property.CoreAuditDataSource">
+          <propertyName xmi:type="utility:TranslatableString" key="Property.CoreAuditDataSource" bundleName="core/audit/_audit" pluginId="core-audit-handler-library"/>
+          <propertyDescriptor groupName="Group.TrxPixInventSnapPmm" propertyEditor="com.ibm.etools.mft.ibmnodes.editors.mq.MQQueueNameEditor" configurable="true" describedAttribute="Property.PMMOutboundQueue">
+            <propertyName xmi:type="utility:TranslatableString" key="Property.PMMOutboundQueue" bundleName="trx/pix/pmm/inbound" pluginId="trx-pixinventsnap-pmm-inbound"/>
+            <propertyDescriptor groupName="Group.TrxPixInventSnapPmm" configurable="true" userDefined="true" describedAttribute="Property.CoreMessageValidation1">
+              <propertyName xmi:type="utility:TranslatableString" key="Property.CoreMessageValidation1" bundleName="trx/pix/pmm/_inbound" pluginId="trx-pixinventsnap-pmm-library"/>
+              <propertyDescriptor groupName="Group.TrxPixInventSnapPmm" configurable="true" userDefined="true" describedAttribute="Property.CoreMessageValidation2">
+                <propertyName xmi:type="utility:TranslatableString" key="Property.CoreMessageValidation2" bundleName="trx/pix/pmm/_inbound" pluginId="trx-pixinventsnap-pmm-library"/>
+                <propertyDescriptor groupName="Group.TrxPixInventSnapPmm" configurable="true" userDefined="true" describedAttribute="Property.FGLPMMTableName">
+                  <propertyName xmi:type="utility:TranslatableString" key="Property.FGLPMMTableName" bundleName="trx/pix/pmm/_inbound" pluginId="trx-pixinventsnap-pmm-library"/>
+                  <propertyDescriptor groupName="Group.TrxPixInventSnapPmm" configurable="true" describedAttribute="Property.IIBDataSource">
+                    <propertyName xmi:type="utility:TranslatableString" key="Property.IIBDataSource" bundleName="common/translate_code_cmn_to_app" pluginId="common-library"/>
+                    <propertyDescriptor groupName="Group.TrxPixInventSnapPmm" configurable="true" userDefined="true" describedAttribute="Property.MWWPMMTableName">
+                      <propertyName xmi:type="utility:TranslatableString" key="Property.MWWPMMTableName" bundleName="trx/pix/pmm/_inbound" pluginId="trx-pixinventsnap-pmm-library"/>
+                      <propertyDescriptor groupName="Group.TrxPixInventSnapPmm" configurable="true" userDefined="true" describedAttribute="Property.CoreAuditEnabled">
+                        <propertyName xmi:type="utility:TranslatableString" key="Property.CoreAuditEnabled" bundleName="core/audit/_audit" pluginId="core-audit-handler-library"/>
+                        <propertyDescriptor groupName="Group.TrxPixInventSnapPmm" configurable="true" userDefined="true" describedAttribute="Property.CoreAuditDetailEnabled">
+                          <propertyName xmi:type="utility:TranslatableString" key="Property.CoreAuditDetailEnabled" bundleName="core/audit/_audit_detail" pluginId="core-audit-handler-library"/>
+                        </propertyDescriptor>
+                      </propertyDescriptor>
+                    </propertyDescriptor>
+                  </propertyDescriptor>
+                </propertyDescriptor>
+              </propertyDescriptor>
+            </propertyDescriptor>
+          </propertyDescriptor>
+        </propertyDescriptor>
+      </propertyDescriptor>
+    </propertyOrganizer>
+    <attributeLinks promotedAttribute="Property.IIBInboundQueue" overriddenNodes="FCMComposite_1_1">
+      <overriddenAttribute href="ComIbmMQInput.msgnode#Property.queueName"/>
+    </attributeLinks>
+    <attributeLinks promotedAttribute="Property.CoreAuditDataSource" overriddenNodes="FCMComposite_1_5">
+      <overriddenAttribute href="core/message/_preprocessor.subflow#Property.CoreAuditDataSource"/>
+    </attributeLinks>
+    <attributeLinks promotedAttribute="Property.CoreAuditDataSource" overriddenNodes="FCMComposite_1_6">
+      <overriddenAttribute href="core/message/_postprocessor.subflow#Property.CoreAuditDataSource"/>
+    </attributeLinks>
+    <attributeLinks promotedAttribute="Property.CoreAuditDataSource" overriddenNodes="FCMComposite_1_7">
+      <overriddenAttribute href="trx/pix/pmm/_inbound.subflow#Property.CoreAuditDataSource"/>
+    </attributeLinks>
+    <attributeLinks promotedAttribute="Property.PMMOutboundQueue" overriddenNodes="FCMComposite_1_4">
+      <overriddenAttribute href="ComIbmMQOutput.msgnode#Property.queueName"/>
+    </attributeLinks>
+    <attributeLinks promotedAttribute="Property.CoreMessageValidation1" overriddenNodes="FCMComposite_1_7">
+      <overriddenAttribute href="trx/pix/pmm/_inbound.subflow#Property.CoreMessageValidation1"/>
+    </attributeLinks>
+    <attributeLinks promotedAttribute="Property.CoreMessageValidation2" overriddenNodes="FCMComposite_1_7">
+      <overriddenAttribute href="trx/pix/pmm/_inbound.subflow#Property.CoreMessageValidation2"/>
+    </attributeLinks>
+    <attributeLinks promotedAttribute="Property.FGLPMMTableName" overriddenNodes="FCMComposite_1_7">
+      <overriddenAttribute href="trx/pix/pmm/_inbound.subflow#Property.FGLPMMTableName"/>
+    </attributeLinks>
+    <attributeLinks promotedAttribute="Property.IIBDataSource" overriddenNodes="FCMComposite_1_7">
+      <overriddenAttribute href="trx/pix/pmm/_inbound.subflow#Property.IIBDataSource"/>
+    </attributeLinks>
+    <attributeLinks promotedAttribute="Property.MWWPMMTableName" overriddenNodes="FCMComposite_1_7">
+      <overriddenAttribute href="trx/pix/pmm/_inbound.subflow#Property.MWWPMMTableName"/>
+    </attributeLinks>
+    <attributeLinks promotedAttribute="Property.CoreAuditEnabled" overriddenNodes="FCMComposite_1_6">
+      <overriddenAttribute href="core/message/_postprocessor.subflow#Property.CoreAuditEnabled"/>
+    </attributeLinks>
+    <attributeLinks promotedAttribute="Property.CoreAuditEnabled" overriddenNodes="FCMComposite_1_5">
+      <overriddenAttribute href="core/message/_preprocessor.subflow#Property.CoreAuditEnabled"/>
+    </attributeLinks>
+    <attributeLinks promotedAttribute="Property.CoreAuditDetailEnabled" overriddenNodes="FCMComposite_1_7">
+      <overriddenAttribute href="trx/pix/pmm/_inbound.subflow#Property.CoreAuditDetailEnabled"/>
+    </attributeLinks>
+    <stickyBoard/>
+  </eClassifiers>
+</ecore:EPackage>

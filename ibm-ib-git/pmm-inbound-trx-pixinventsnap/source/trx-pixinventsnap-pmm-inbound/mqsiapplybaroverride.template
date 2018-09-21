@@ -1,0 +1,11 @@
+trx.pix.pmm.inbound#IIBInboundQueue = RECV.${PIX_IN}
+trx.pix.pmm.inbound#CoreAuditDataSource = AUD${ENVN}${INST}
+trx.pix.pmm.inbound#PMMOutboundQueue = SEND.${PIX_OUT}
+trx.pix.pmm.inbound#FGLPMMTableName = FGL_WMS_INV_SNAPSHOT
+trx.pix.pmm.inbound#MWWPMMTableName = MWW_MANH_INV_SNAPSHOT
+trx.pix.pmm.inbound#CoreMessageValidation1 = ${VALIDATE_MSG_IN}
+trx.pix.pmm.inbound#CoreMessageValidation2 = ${VALIDATE_MSG_OUT}
+trx.pix.pmm.inbound#IIBDataSource = STG${ENVN}${INST}
+trx.pix.pmm.inbound#additionalInstances = 9
+trx.pix.pmm.inbound#CoreAuditEnabled=FALSE
+trx.pix.pmm.inbound#CoreAuditDetailEnabled=FALSE

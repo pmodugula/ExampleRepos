@@ -1,0 +1,22 @@
+BROKER SCHEMA etc.pmm
+
+CREATE COMPUTE MODULE pmm_ForEachShippingInvoice
+	CREATE FUNCTION Main() RETURNS BOOLEAN
+	BEGIN
+		DECLARE rEnv REFERENCE TO Environment;
+		DECLARE ShippingInvoice CONSTANT CHARACTER 'ShippingInvoice';
+		IF nsEai IS NULL THEN CALL common.eaiStagingPmm_getNamespace() INTO nsEai;END IF;DECLARE eai NAMESPACE nsEai;
+		IF nsPmm IS NULL THEN CALL common.pmm_getNamespace() INTO nsPmm;END IF;DECLARE pmm NAMESPACE nsPmm;
+		DECLARE I INTEGER 1;
+		DECLARE PMMTableName CHARACTER;
+		CALL etc.pmm.getPMMTableName(rEnv, ShippingInvoice) INTO PMMTableName;
+		DECLARE J INTEGER CARDINALITY(InputRoot.XMLNSC.eai:Exchange.eai:Message.eai:{ShippingInvoice}.pmm:{PMMTableName}[]);
+		WHILE I <= J DO
+			SET rEnv.__Exchange_Message_ShippingInvoice_Index__ = I;
+			SET OutputRoot = InputRoot;
+			PROPAGATE;
+			SET I = I + 1;
+		END WHILE;
+		RETURN FALSE;
+	END;
+END MODULE;

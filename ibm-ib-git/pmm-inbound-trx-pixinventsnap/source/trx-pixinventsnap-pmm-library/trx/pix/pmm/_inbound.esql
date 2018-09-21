@@ -1,0 +1,202 @@
+BROKER SCHEMA trx.pix.pmm
+
+DECLARE theSchema CONSTANT CHARACTER 'trx.pix.pmm';
+
+DECLARE _DROP CONSTANT CHARACTER 'DROP';
+DECLARE _TRUE CHARACTER 'true';
+DECLARE PixInventorySnapshot CONSTANT CHARACTER 'PixInventorySnapshot';
+DECLARE InventorySnapshot CONSTANT CHARACTER 'InventorySnapshot';
+DECLARE FGLPMMTableName EXTERNAL CHARACTER '';
+DECLARE MWWPMMTableName EXTERNAL CHARACTER '';
+DECLARE nsEai,nsPmm,nsEaiStaging,nsXsi CHARACTER NULL;
+
+CREATE FILTER MODULE pmm_Filter
+	DECLARE theModule CONSTANT CHARACTER theSchema||'.'||'pmm_Filter';
+	CREATE FUNCTION Main() RETURNS BOOLEAN
+	BEGIN
+		DECLARE rEnv REFERENCE TO Environment;
+		DECLARE MSG_ID CHARACTER rEnv.__MsgIdForLog4J__;
+		CALL core.log.Debug(theModule||' - ID# : '||MSG_ID||' >> BEGIN');
+		DECLARE returnValue BOOLEAN TRUE;
+		CALL core.log.Debug(theModule||' - ID# : '||MSG_ID||' - RETURN '||CAST(returnValue AS CHARACTER));
+		CALL core.log.Debug(theModule||' - ID# : '||MSG_ID||' << END');
+		RETURN returnValue;
+	END;
+END MODULE;
+
+CREATE COMPUTE MODULE pmm_ConvertArtsInventorySnapshotToPmmStaging
+	DECLARE theModule CONSTANT CHARACTER theSchema||'.'||'pmm_ConvertArtsInventorySnapshotToPmmStaging';
+	CREATE FUNCTION Main() RETURNS BOOLEAN
+	BEGIN
+		DECLARE rEnv REFERENCE TO Environment;
+		DECLARE MSG_ID CHARACTER rEnv.__MsgIdForLog4J__;
+		CALL core.log.Debug(theModule||' - ID# : '||MSG_ID||' >> BEGIN');
+		DECLARE rInput REFERENCE TO InputRoot;
+		DECLARE rOutput,refEx REFERENCE TO OutputRoot;
+		CALL common.common_CopyMessageHeaders(rInput, rOutput);
+		CALL common.common_CreateLastChildOfOutputRootDomainXmlnsc(rOutput);
+		--CALL common.common_CreateExchangeXml(rOutput, '1', '00', '00');
+		IF nsEai IS NULL THEN CALL common.eai_getNamespace() INTO nsEai;
+		END IF;
+		DECLARE eai NAMESPACE nsEai;
+		IF nsEaiStaging IS NULL THEN CALL common.eaiStagingPmm_getNamespace() INTO nsEaiStaging;
+		END IF;
+		DECLARE eaiStaging NAMESPACE nsEaiStaging;
+		IF nsPmm IS NULL THEN CALL common.pmm_getNamespace()INTO nsPmm;
+		END IF;
+		DECLARE pmm NAMESPACE nsPmm;
+		IF nsXsi IS NULL THEN CALL common.xsi_getNamespace() INTO nsXsi;
+		END IF;
+		DECLARE xsi NAMESPACE nsXsi;
+		CREATE LASTCHILD OF OutputRoot.XMLNSC AS refEx NAMESPACE eaiStaging NAME 'Exchange' ;
+		DECLARE rExchange REFERENCE TO rOutput.XMLNSC.eaiStaging:Exchange;
+		SET rExchange.(XMLNSC.NamespaceDecl)xmlns:"eai" = eaiStaging;
+		SET rExchange.(XMLNSC.NamespaceDecl)xmlns:"pmm" = nsPmm;
+		SET rExchange.(XMLNSC.NamespaceDecl)xmlns:"xsi" = nsXsi;
+		SET rExchange.eaiStaging:MessageRouting.eaiStaging:Guid = rInput.XMLNSC.eai:Exchange.eai:MessageRouting.eai:Guid;
+		SET rExchange.eaiStaging:MessageRouting.eaiStaging:MessageId = rInput.XMLNSC.eai:Exchange.eai:MessageRouting.eai:MessageId;
+		SET rExchange.eaiStaging:MessageRouting.eaiStaging:MessageType = rInput.XMLNSC.eai:Exchange.eai:MessageRouting.eai:MessageType;
+		SET rExchange.eaiStaging:MessageRouting.eaiStaging:SubjectArea = rInput.XMLNSC.eai:Exchange.eai:MessageRouting.eai:SubjectArea;
+		SET rExchange.eaiStaging:MessageRouting.eaiStaging:SbuNumber= rInput.XMLNSC.eai:Exchange.eai:MessageRouting.eai:SbuNumber;
+		SET rExchange.eaiStaging:MessageRouting.eaiStaging:SbuCode= rInput.XMLNSC.eai:Exchange.eai:MessageRouting.eai:SbuCode;
+		SET rExchange.eaiStaging:MessageRouting.eaiStaging:SbuName = rInput.XMLNSC.eai:Exchange.eai:MessageRouting.eai:SbuName;
+		SET rExchange.eaiStaging:MessageRouting.eaiStaging:DataSourceCode= rInput.XMLNSC.eai:Exchange.eai:MessageRouting.eai:DataSourceCode;
+		SET rExchange.eaiStaging:MessageRouting.eaiStaging:DataSourceName = rInput.XMLNSC.eai:Exchange.eai:MessageRouting.eai:DataSourceCodeName;
+		SET rExchange.eaiStaging:Message.eaiStaging:Count = rInput.XMLNSC.eai:Exchange.eai:Messages.eai:Count;
+
+		SET rExchange.eaiStaging:MessageRouting.eaiStaging:AuditMessages.eaiStaging:Count = rInput.XMLNSC.eai:Exchange.eai:MessageRouting.eai:AuditMessages.eai:Count;
+		SET rExchange.eaiStaging:MessageRouting.eaiStaging:AuditMessages.eaiStaging:SystemTransition.eaiStaging:Index = rInput.XMLNSC.eai:Exchange.eai:MessageRouting.eai:AuditMessages.eai:SystemTransition.eai:Index;
+		SET rExchange.eaiStaging:MessageRouting.eaiStaging:AuditMessages.eaiStaging:SystemTransition.eaiStaging:Timestamp = rInput.XMLNSC.eai:Exchange.eai:MessageRouting.eai:AuditMessages.eai:SystemTransition.eai:Timestamp;
+		SET rExchange.eaiStaging:MessageRouting.eaiStaging:AuditMessages.eaiStaging:SystemTransition.eaiStaging:Protocol = rInput.XMLNSC.eai:Exchange.eai:MessageRouting.eai:AuditMessages.eai:SystemTransition.eai:Protocol;
+		SET rExchange.eaiStaging:MessageRouting.eaiStaging:AuditMessages.eaiStaging:SystemTransition.eaiStaging:ProtocolDetails = rInput.XMLNSC.eai:Exchange.eai:MessageRouting.eai:AuditMessages.eai:SystemTransition.eai:ProtocolDetails;
+
+		SET rExchange.eaiStaging:Message.eaiStaging:Count = rInput.XMLNSC.eai:Exchange.eai:Messages.eai:Count;
+		SET rExchange.eaiStaging:Message.eaiStaging:SourceSystems.eaiStaging:Count=1;
+		SET rExchange.eaiStaging:Message.eaiStaging:SourceSystems.eaiStaging:SourceSystem.eaiStaging:Index=1;
+		SET rExchange.eaiStaging:Message.eaiStaging:SourceSystems.eaiStaging:SourceSystem.eaiStaging:SbuNumber= rInput.XMLNSC.eai:Exchange.eai:Messages.eai:SourceSystems.eai:SourceSystem.eai:SbuNumber;
+		SET rExchange.eaiStaging:Message.eaiStaging:SourceSystems.eaiStaging:SourceSystem.eaiStaging:SbuCode= rInput.XMLNSC.eai:Exchange.eai:Messages.eai:SourceSystems.eai:SourceSystem.eai:SbuCode;
+		SET rExchange.eaiStaging:Message.eaiStaging:SourceSystems.eaiStaging:SourceSystem.eaiStaging:SbuName = rInput.XMLNSC.eai:Exchange.eai:Messages.eai:SourceSystems.eai:SourceSystem.eai:SbuName;
+		SET rExchange.eaiStaging:Message.eaiStaging:SourceSystems.eaiStaging:SourceSystem.eaiStaging:MessageSourceCode= rInput.XMLNSC.eai:Exchange.eai:Messages.eai:SourceSystems.eai:SourceSystem.eai:MessageSourceCode;
+		SET rExchange.eaiStaging:Message.eaiStaging:SourceSystems.eaiStaging:SourceSystem.eaiStaging:MessageSourceCodeName = rInput.XMLNSC.eai:Exchange.eai:Messages.eai:SourceSystems.eai:SourceSystem.eai:MessageSourceCodeName;
+
+
+		DECLARE rEai REFERENCE TO InputRoot.XMLNSC.eai:Exchange.eai:Messages.eai:PixInventorySnapshot;
+		CALL core.log.Debug(theModule||' - ID# : '||MSG_ID||' - rEai IS NOT NULL: '||CAST(rEai IS NOT NULL AS CHARACTER));
+
+		CALL core.log.Info(theModule||' - ID# : '||MSG_ID||' - Transaction Number -'||'eai:Exchange/eai:Messages/eai:PixInventorySnapshott/eai:TransactionNumber - '||CAST(rEai.eai:TransactionNumber AS CHARACTER));
+		CALL core.log.Info(theModule||' - ID# : '||MSG_ID||' - Sequence Number :'||'eai:Exchange/eai:Messages/eai:PixInventorySnapshot/eai:TransactionSequence - '||CAST(rEai.eai:TransactionSequence AS CHARACTER));
+		CALL core.log.Info(theModule||' - ID# : '||MSG_ID||' - Package Barcode- SkuNumber :'||'eai:Exchange/eai:Messages/eai:PixInventorySnapshot/eai:SkuNumber - '||CAST(rEai.eai:SkuNumber AS CHARACTER));
+		CALL core.log.Info(theModule||' - ID# : '||MSG_ID||' - Package Barcode-Skutype :'||'eai:Exchange/eai:Messages/eai:PixInventorySnapshot/eai:SkuType - '||CAST(rEai.eai:SkuType AS CHARACTER));
+		CALL core.log.Info(theModule||' - ID# : '||MSG_ID||' - Inventory Qty :'||'eai:Exchange/eai:Messages/eai:PixInventorySnapshot/eai:ActualQuantit - '||CAST(rEai.eai:ActualQuantit AS CHARACTER));
+
+		DECLARE SBU_CD CHARACTER rInput.XMLNSC.eai:Exchange.eai:MessageRouting.eai:SbuCode; --SBU_CD;
+		DECLARE PMMTableName CHARACTER NULL;
+		IF 'FGL'=SBU_CD THEN
+			SET PMMTableName = FGLPMMTableName;
+		ELSEIF 'MWW'=SBU_CD THEN
+			SET PMMTableName = MWWPMMTableName;
+		END IF;
+		SET rExchange.eaiStaging:Message.eaiStaging:{InventorySnapshot}.pmm:{PMMTableName}._flag = 1;
+		DECLARE rPmm REFERENCE TO rExchange.eaiStaging:Message.eaiStaging:{InventorySnapshot}.pmm:{PMMTableName};
+		IF 'MWW'=SBU_CD THEN
+			SET rPmm.pmm:RECORD_SEQUENCE = COALESCE(rEai.eai:TransactionSequence,'');
+			SET rPmm.pmm:TRANSACTION_NUMBER = COALESCE(rEai.eai:TransactionNumber,'');
+			SET rPmm.pmm:TRANSACTION_SEQUENCE = COALESCE(rEai.eai:TransactionSequence,'');
+			SET rPmm.pmm:TRANSACTION_TYPE = COALESCE(rEai.eai:TransactionType,'');
+			SET rPmm.pmm:TRANSACTION_CODE = COALESCE(rEai.eai:TransactionCode,'');
+			SET rPmm.pmm:ACTION_CODE = COALESCE(rEai.eai:ActionCode,'');
+			SET rPmm.pmm:REASON_CODE = COALESCE(rEai.eai:ReasonCode,'');
+			SET rPmm.pmm:SNAPSHOT_DATE = COALESCE(rEai.eai:SnapshotDate,'');
+			SET rPmm.pmm:PHYSICAL_WH_NUMBER = COALESCE(rEai.eai:PhysicalWarehouseNumber,'');
+			SET rPmm.pmm:INVENTORY_TYPE = COALESCE(rEai.eai:InventoryType,'');
+			SET rPmm.pmm:SKU_NUMBER = COALESCE(rEai.eai:SkuNumber,'');
+			SET rPmm.pmm:SKU_TYPE = COALESCE(rEai.eai:SkuType,'');
+			SET rPmm.pmm:ACTUAL_QTY = COALESCE(rEai.eai:ActualQuantity,'');
+			SET rPmm.pmm:SNAPSHOT_USER = COALESCE(rEai.eai:SnapshotUser,'');
+			--SET rPmm.pmm:PROCESSED = COALESCE(rEai.eai:Processed,'F'); --Note: Hardcoded as 'F'
+		ELSEIF 'FGL'=SBU_CD THEN
+			IF LENGTH(rEai.eai:TransactionSequence) > 0 THEN
+				SET rPmm.pmm:RECORD_SEQUENCE = TRIM(COALESCE(rEai.eai:TransactionSequence,''));
+			ELSE
+				SET rPmm.pmm:RECORD_SEQUENCE.(XMLNSC.Attribute)xsi:nil = _TRUE;
+			END IF;
+			IF LENGTH(rEai.eai:TransactionSequence) > 0 THEN
+				SET rPmm.pmm:TRANSACTION_NUMBER = TRIM(COALESCE(rEai.eai:TransactionNumber,''));
+			ELSE
+				SET rPmm.pmm:TRANSACTION_NUMBER.(XMLNSC.Attribute)xsi:nil = _TRUE;
+			END IF;
+			IF LENGTH(rEai.eai:TransactionSequence) > 0 THEN
+				SET rPmm.pmm:TRANSACTION_SEQUENCE = TRIM(COALESCE(rEai.eai:TransactionSequence,''));
+			ELSE
+				SET rPmm.pmm:TRANSACTION_SEQUENCE.(XMLNSC.Attribute)xsi:nil = _TRUE;
+			END IF;
+			IF LENGTH(rEai.eai:TransactionType) > 0 THEN
+				SET rPmm.pmm:TRANSACTION_TYPE = TRIM(COALESCE(rEai.eai:TransactionType,''));
+			ELSE
+				SET rPmm.pmm:TRANSACTION_TYPE.(XMLNSC.Attribute)xsi:nil = _TRUE;
+			END IF;
+			IF LENGTH(rEai.eai:TransactionCode) > 0 THEN
+				SET rPmm.pmm:TRANSACTION_CODE = TRIM(COALESCE(rEai.eai:TransactionCode,''));
+			ELSE
+				SET rPmm.pmm:TRANSACTION_CODE.(XMLNSC.Attribute)xsi:nil = _TRUE;
+			END IF;
+			IF LENGTH(rEai.eai:ActionCode) > 0 THEN
+				SET rPmm.pmm:ACTION_CODE = TRIM(COALESCE(rEai.eai:ActionCode,''));
+			ELSE
+				SET rPmm.pmm:ACTION_CODE.(XMLNSC.Attribute)xsi:nil = _TRUE;
+			END IF;
+			IF LENGTH(rEai.eai:ReasonCode) > 0 THEN
+				SET rPmm.pmm:REASON_CODE = TRIM(COALESCE(rEai.eai:ReasonCode,''));
+			ELSE
+				SET rPmm.pmm:REASON_CODE.(XMLNSC.Attribute)xsi:nil = _TRUE;
+			END IF;
+			IF LENGTH(rEai.eai:SnapshotDate) > 0 THEN
+				SET rPmm.pmm:SNAPSHOT_DATE = TRIM(COALESCE(rEai.eai:SnapshotDate,''));
+			ELSE
+				SET rPmm.pmm:SNAPSHOT_DATE.(XMLNSC.Attribute)xsi:nil = _TRUE;
+			END IF;
+			IF LENGTH(rEai.eai:PhysicalWarehouseNumber) > 0 THEN
+				SET rPmm.pmm:PHYSICAL_WH_NUMBER = TRIM(COALESCE(rEai.eai:PhysicalWarehouseNumber,''));
+			ELSE
+				SET rPmm.pmm:PHYSICAL_WH_NUMBER.(XMLNSC.Attribute)xsi:nil = _TRUE;
+			END IF;
+			IF LENGTH(rEai.eai:InventoryType) > 0 THEN
+				SET rPmm.pmm:INVENTORY_TYPE = TRIM(COALESCE(rEai.eai:InventoryType,''));
+			ELSE
+				SET rPmm.pmm:INVENTORY_TYPE.(XMLNSC.Attribute)xsi:nil = _TRUE;
+			END IF;
+			IF LENGTH(rEai.eai:SkuNumber) > 0 THEN
+				SET rPmm.pmm:SKU_NUMBER = TRIM(COALESCE(rEai.eai:SkuNumber,''));
+			ELSE
+				SET rPmm.pmm:SKU_NUMBER.(XMLNSC.Attribute)xsi:nil = _TRUE;
+			END IF;
+			IF LENGTH(rEai.eai:SkuType) > 0 THEN
+				SET rPmm.pmm:SKU_TYPE = TRIM(COALESCE(rEai.eai:SkuType,''));
+			ELSE
+				SET rPmm.pmm:SKU_TYPE.(XMLNSC.Attribute)xsi:nil = _TRUE;
+			END IF;
+			IF LENGTH(rEai.eai:ActualQuantity) > 0 THEN
+				SET rPmm.pmm:ACTUAL_QTY = TRIM(COALESCE(rEai.eai:ActualQuantity,''));
+			ELSE
+				SET rPmm.pmm:ACTUAL_QTY.(XMLNSC.Attribute)xsi:nil = _TRUE;
+			END IF;
+			IF LENGTH(rEai.eai:SnapshotUser) > 0 THEN
+				SET rPmm.pmm:SNAPSHOT_USER = TRIM(COALESCE(rEai.eai:SnapshotUser,''));
+			ELSE
+				SET rPmm.pmm:SNAPSHOT_USER.(XMLNSC.Attribute)xsi:nil = _TRUE;
+			END IF;
+			SET rPmm.pmm:PROCESSED.(XMLNSC.Attribute)xsi:nil = _TRUE;
+		END IF;
+		DELETE FIELD rExchange.eaiStaging:Message.eaiStaging:{InventorySnapshot}.pmm:{PMMTableName}._flag;
+
+		CALL core.log.Info(theModule||' - ID# : '||MSG_ID||' - Transaction Number -'||'eaiStaging:Exchange/eaiStaging:Message/eaiStaging:InventorySnapshot/pmm:MWW_MANH_PICK_EXCEPTION/pmm:TRANSACTION_NUMBER - '||CAST(rPmm.pmm:TRANSACTION_NUMBER AS CHARACTER));
+		CALL core.log.Info(theModule||' - ID# : '||MSG_ID||' - Sequence Number :'||'eaiStaging:Exchange/eaiStaging:Message/eaiStaging:InventorySnapshot/pmm:MWW_MANH_PICK_EXCEPTION/pmm:TRANSACTION_SEQUENCE - '||CAST(rPmm.pmm:TRANSACTION_SEQUENCE AS CHARACTER));
+		CALL core.log.Info(theModule||' - ID# : '||MSG_ID||' - Package Barcode- SkuNumber :'||'eaiStaging:Exchange/eaiStaging:Message/eaiStaging:InventorySnapshot/pmm:MWW_MANH_PICK_EXCEPTION/rPmm.pmm:SKU_NUMBER - '||CAST(rPmm.pmm:SKU_NUMBER AS CHARACTER));
+		CALL core.log.Info(theModule||' - ID# : '||MSG_ID||' - Package Barcode-Skutype :'||'eaiStaging:Exchange/eaiStaging:Message/eaiStaging:InventorySnapshot/pmm:MWW_MANH_PICK_EXCEPTION/pmm:SKU_TYPE - '||CAST(rPmm.pmm:SKU_TYPE AS CHARACTER));
+		CALL core.log.Info(theModule||' - ID# : '||MSG_ID||' - Inventory Qty :'||'eaiStaging:Exchange/eai:Message/eaiStaging:InventorySnapshot/pmm:MWW_MANH_PICK_EXCEPTION/pmm:ACTUAL_QTY - '||CAST(rPmm.pmm:ACTUAL_QTY AS CHARACTER));
+
+		CALL core.log.Debug(theModule||' - ID# : '||MSG_ID||' << END');
+
+		RETURN TRUE;
+	END;
+END MODULE;

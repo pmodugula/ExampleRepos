@@ -1,0 +1,5 @@
+etc.pmm.inbound_router#IIBInboundQueue=RECV.${ROUTER_IN}
+etc.pmm.inbound_router#FGLOutboundQueue=SEND.${ROUTER_OUT_FGL}
+etc.pmm.inbound_router#MWWOutboundQueue=SEND.${ROUTER_OUT_MWW}
+etc.pmm.inbound_router#CoreAuditDataSource=AUD${ENVN}${INST}
+etc.pmm.inbound_router#CoreAuditEnabled=FALSE

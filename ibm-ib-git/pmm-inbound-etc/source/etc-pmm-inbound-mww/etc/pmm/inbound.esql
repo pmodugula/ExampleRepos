@@ -1,0 +1,77 @@
+BROKER SCHEMA etc.pmm
+PATH core.log;
+
+DECLARE MaxMsgsInOneUnitOfWork EXTERNAL INTEGER 1;
+
+--Refactored as a core concept, to try and make the bulking mechanism more user-friendly i.e. human readable..
+--Added 'handshake' between pmm_BulkMsgsInOneUnitOfWork and pmm_DoneThisUnitOfWork so that this Compute module can RETURN FALSE but will
+--still make sense in the debugger as the debugger will see that the flow passed out of pmm_DoneThisUnitOfWork previously
+CREATE COMPUTE MODULE pmm_ProcessMsgsInOneUnitOfWork
+	DECLARE theModule CONSTANT CHARACTER 'etc.pmm.pmm_ProcessMsgsInOneUnitOfWork';
+	DECLARE doneThisUnitOfWork CONSTANT CHARACTER 'etc.pmm.doneThisUnitOfWork';
+	DECLARE msgNumber CONSTANT CHARACTER 'etc.pmm.msgNumber';
+	DECLARE msgNumberMax CONSTANT CHARACTER 'etc.pmm.MaxMsgsInOneUnitOfWork';
+	CREATE FUNCTION Main() RETURNS BOOLEAN
+	BEGIN
+		DECLARE rEnv REFERENCE TO Environment;
+		CALL TraceMessage(rEnv, theModule, '>> BEGIN');
+		
+		SET Environment.{doneThisUnitOfWork} = FALSE;
+		
+		DECLARE iMsgNumber INTEGER 1;
+		DECLARE jMsgNumberMax INTEGER MaxMsgsInOneUnitOfWork;
+		CALL core.log.Debug(msgNumberMax||'=>"jMsgNumberMax"');
+		WHILE iMsgNumber <= jMsgNumberMax AND FALSE=Environment.{doneThisUnitOfWork} DO
+			SET Environment.{msgNumber} = iMsgNumber;
+			CALL DebugMessage(rEnv, theModule, 'iMsgNumber='||CAST(iMsgNumber AS CHARACTER)||',jMsgNumberMax='||CAST(jMsgNumberMax AS CHARACTER));
+			SET OutputRoot = InputRoot;
+			IF 1 < iMsgNumber THEN
+				DELETE FIELD OutputRoot.XMLNSC;
+			END IF;
+			IF iMsgNumber < jMsgNumberMax AND FALSE=Environment.{doneThisUnitOfWork} THEN
+				CALL core.log.Debug(theModule||' >> PROPAGATE');
+				PROPAGATE;--/*FINALIZE DEFAULT */DELETE NONE;
+				CALL core.log.Debug(theModule||' << PROPAGATE');
+			END IF;
+			SET iMsgNumber = iMsgNumber + 1;
+		END WHILE;
+
+		CALL TraceMessage(rEnv, theModule, '<< END');
+		RETURN TRUE;
+	END;
+END MODULE;
+
+CREATE FILTER MODULE pmm_FilterMsgOne
+	DECLARE theModule CONSTANT CHARACTER 'etc.pmm.pmm_FilterMsgOne';
+	DECLARE msgNumber CONSTANT CHARACTER 'etc.pmm.msgNumber';
+	CREATE FUNCTION Main() RETURNS BOOLEAN
+	BEGIN
+		DECLARE rEnv REFERENCE TO Environment;
+		CALL TraceMessage(rEnv, theModule, '>> BEGIN');
+		
+		DECLARE iMsgNumber INTEGER COALESCE(CAST(Environment.{msgNumber} AS INTEGER), 1);
+		CALL core.log.Debug(msgNumber||'='||CAST(iMsgNumber AS CHARACTER));
+		DECLARE returnValue BOOLEAN 1=iMsgNumber;
+		CALL core.log.Debug(theModule||' - RETURN '||CAST(returnValue AS CHARACTER));
+
+		CALL TraceMessage(rEnv, theModule, '<< END');
+		RETURN returnValue;
+	END;
+END MODULE;
+
+--Adding 'handshake' between pmm_DoneThisUnitOfWork and pmm_ProcessMsgsInOneUnitOfWork (refer to pmm_ProcessMsgsInOneUnitOfWork for additional comments)
+CREATE COMPUTE MODULE pmm_DoneThisUnitOfWork
+	DECLARE theModule CONSTANT CHARACTER 'etc.pmm.pmm_DoneThisUnitOfWork';
+	DECLARE doneThisUnitOfWork CONSTANT CHARACTER 'etc.pmm.doneThisUnitOfWork';
+	CREATE FUNCTION Main() RETURNS BOOLEAN
+	BEGIN
+		DECLARE rEnv REFERENCE TO Environment;
+		CALL TraceMessage(rEnv, theModule, '>> BEGIN');
+		
+		SET Environment.{doneThisUnitOfWork} = TRUE;
+		CALL core.log.Debug(doneThisUnitOfWork||'='||CAST(Environment.{doneThisUnitOfWork} AS CHARACTER));
+		
+		CALL TraceMessage(rEnv, theModule, '<< END');
+		RETURN TRUE;
+	END;
+END MODULE;

@@ -1,0 +1,4 @@
+ext{
+   buildAll=true
+   repoName='pmm-inbound-trx-pixinventsnap'
+}

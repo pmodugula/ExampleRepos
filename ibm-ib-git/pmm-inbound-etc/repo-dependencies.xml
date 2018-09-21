@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<dependencies>
+	<core>2.2.1</core>
+	<wms-library>development</wms-library>
+	<message-schemas>development</message-schemas>
+	<build>development</build>
+	<cygmin64>1.0.1</cygmin64>
+	<folders>
+		<folder type="cygmin64">cygmin64</folder>
+		<folder type="build">build</folder>
+		<folder type="build">deployment</folder>
+		<folder type="build">resources</folder>
+		<folder type="core">common-library</folder>
+		<folder type="core">common-library-java</folder>
+		<folder type="core">core-cache-library</folder>
+		<folder type="core">core-audit-handler-library</folder>
+		<folder type="core">core-audit-handler-library-java</folder>
+		<folder type="core">core-log-handler-library</folder>
+		<folder type="core">core-message-processor-library</folder>
+		<folder type="core">core-testing-handler-library</folder>
+		<folder type="message-schemas">message-schemas</folder>
+		
+	</folders>
+	<schemas>
+		<xsd>
+			<source>xsd/staging/PMMStagingMessageV1_00_00.xsd</source>
+			<target>etc-pmm-library</target>
+			<dependencies>
+				<dependency>xsd/staging/Library/AttributeGroupsV1_00_00.xsd</dependency>
+				<dependency>xsd/staging/Library/DQResultsV1_00_00.xsd</dependency>
+				<dependency>xsd/staging/Library/PMMStagingTypeV0_01_00.xsd</dependency>
+				<dependency>xsd/lib/MessageTestingV1_00_00.xsd</dependency>
+				<dependency>xsd/staging/Library/StagingMessageRoutingV1_00_00.xsd</dependency>
+				<dependency>xsd/staging/Library/StagingSourceSystemsTypeV1_00_00.xsd</dependency>
+				<dependency>xsd/staging/Library/PMMStaging/MWW_MANH_INV_SNAP_BATCH.xsd</dependency>
+				<dependency>xsd/staging/Library/PMMStaging/MWW_MANH_INV_SNAPSHOT.xsd</dependency>
+				<dependency>xsd/staging/Library/PMMStaging/MWW_MANH_PICK_EXCEPTION.xsd</dependency>
+				<dependency>xsd/staging/Library/PMMStaging/MWW_MANH_INV_ADJ.xsd</dependency>
+				<dependency>xsd/staging/Library/PMMStaging/MWW_MANH_RECEIPT.xsd</dependency>
+				<dependency>xsd/staging/Library/PMMStaging/MWW_MANH_SHIPMENT.xsd</dependency>
+				<dependency>xsd/staging/Library/PMMStaging/FGL_WMS_INV_SNAP_BATCH.xsd</dependency>
+				<dependency>xsd/staging/Library/PMMStaging/FGL_WMS_INV_SNAPSHOT.xsd</dependency>
+				<dependency>xsd/staging/Library/PMMStaging/FGL_WMS_PICK_EXCEPTION.xsd</dependency>
+				<dependency>xsd/staging/Library/PMMStaging/FGL_WMS_INV_ADJ.xsd</dependency>
+				<dependency>xsd/staging/Library/PMMStaging/FGL_WMS_RECEIPT.xsd</dependency>
+				<dependency>xsd/staging/Library/PMMStaging/FGL_WMS_SHIPMENT.xsd</dependency>
+				<dependency>xsd/staging/Library/PMMStaging/FGL_WMS_DOCK_CHECKIN.xsd</dependency>
+			</dependencies>
+		</xsd>
+	</schemas>
+</dependencies>

@@ -1,0 +1,171 @@
+BROKER SCHEMA etc.pmm
+
+DECLARE theSchema CONSTANT CHARACTER 'etc.pmm';
+
+DECLARE _DROP CONSTANT CHARACTER 'DROP';
+
+DECLARE nsEai CHARACTER NULL;
+DECLARE nsArts CHARACTER NULL;
+DECLARE nsPmm CHARACTER NULL;
+DECLARE PMMSchemaName EXTERNAL CHARACTER ''; --Mark's=PMM FGL=INT_PMM
+DECLARE PMMSequenceName EXTERNAL CHARACTER ''; --Mark's=IIB_SQNC_MWW_PMM_REC_SEQ FGL=IIB_SQNC_FGL_PMM_REC_SEQ
+DECLARE PMMTableNameInventorySnapshotComplete EXTERNAL CHARACTER ''; --Mark's=MWW_MANH_INV_SNAP_BATCH FGL=FGL_WMS_INV_SNAP_BATCH
+DECLARE PMMTableNameInventorySnapshot EXTERNAL CHARACTER ''; --Mark's=MWW_MANH_INV_SNAPSHOT FGL=FGL_WMS_INV_SNAPSHOT
+DECLARE PMMTableNameDistributionAdjustment EXTERNAL CHARACTER ''; --Mark's=MWW_MANH_PICK_EXCEPTION FGL=FGL_WMS_PICK_EXCEPTION
+DECLARE PMMTableNameInventoryAdjustment EXTERNAL CHARACTER ''; --Mark's=MWW_MANH_INV_ADJ FGL=FGL_WMS_INV_ADJ
+DECLARE PMMTableNamePixReceipt EXTERNAL CHARACTER ''; --Mark's=MWW_MANH_RECEIPT FGL=FGL_WMS_RECEIPT
+DECLARE PMMTableNameShippingInvoice EXTERNAL CHARACTER ''; --Mark's=MWW_MANH_SHIPMENT FGL=FGL_WMS_SHIPMENT
+DECLARE PMMTableNameDockCheckIn EXTERNAL CHARACTER '';
+
+
+CREATE PROCEDURE getESBUser() RETURNS CHARACTER
+BEGIN
+	RETURN 'ESBUSER';
+END;
+
+DECLARE InventorySnapshotComplete CONSTANT CHARACTER 'InventorySnapshotComplete';
+DECLARE InventorySnapshot CONSTANT CHARACTER 'InventorySnapshot';
+DECLARE DistributionAdjustment CONSTANT CHARACTER 'DistributionAdjustment';
+DECLARE InventoryAdjustment CONSTANT CHARACTER 'InventoryAdjustment'; 
+DECLARE PixReceipt CONSTANT CHARACTER 'PixReceipt';
+DECLARE ShippingInvoice CONSTANT CHARACTER 'ShippingInvoice';
+DECLARE DockCheckIn CONSTANT CHARACTER 'DockCheckIn';
+
+
+
+CREATE COMPUTE MODULE pmm_SetUserDefinedProperties
+	CREATE FUNCTION Main() RETURNS BOOLEAN
+	BEGIN
+		DECLARE rEnv REFERENCE TO Environment;
+		CALL etc.pmm.setPMMSchemaName(rEnv, PMMSchemaName);
+		CALL etc.pmm.setPMMSequenceName(rEnv, PMMSequenceName);
+		CALL etc.pmm.setPMMTableName(rEnv, InventorySnapshotComplete, PMMTableNameInventorySnapshotComplete);
+		CALL etc.pmm.setPMMTableName(rEnv, InventorySnapshot, PMMTableNameInventorySnapshot);
+		CALL etc.pmm.setPMMTableName(rEnv, DistributionAdjustment, PMMTableNameDistributionAdjustment);
+		CALL etc.pmm.setPMMTableName(rEnv, InventoryAdjustment, PMMTableNameInventoryAdjustment);
+		CALL etc.pmm.setPMMTableName(rEnv, PixReceipt, PMMTableNamePixReceipt);
+		CALL etc.pmm.setPMMTableName(rEnv, ShippingInvoice, PMMTableNameShippingInvoice);
+		CALL etc.pmm.setPMMTableName(rEnv, DockCheckIn, PMMTableNameDockCheckIn);
+		SET OutputRoot = InputRoot;
+		RETURN TRUE;
+	END;
+END MODULE;
+CREATE PROCEDURE setPMMSchemaName(IN rEnv REFERENCE, IN PMMSchemaName CHARACTER)
+BEGIN
+	SET rEnv.__PMMSchemaName__ = PMMSchemaName;
+END;
+CREATE PROCEDURE getPMMSchemaName(IN rEnv REFERENCE) RETURNS CHARACTER
+BEGIN
+	RETURN rEnv.__PMMSchemaName__;
+END;
+CREATE PROCEDURE setPMMSequenceName(IN rEnv REFERENCE, IN PMMSequenceName CHARACTER)
+BEGIN
+	SET rEnv.__PMMSequenceName__ = PMMSequenceName;
+END;
+CREATE PROCEDURE getPMMSequenceName(IN rEnv REFERENCE) RETURNS CHARACTER
+BEGIN
+	RETURN rEnv.__PMMSequenceName__;
+END;
+CREATE PROCEDURE setPMMTableName(IN rEnv REFERENCE, IN theTableName CHARACTER, IN theTableValue CHARACTER)
+BEGIN
+	SET rEnv.__PMMTableName__.{theTableName} = theTableValue; -- theNameName
+END;
+CREATE PROCEDURE getPMMTableName(IN rEnv REFERENCE, IN theTableName CHARACTER) RETURNS CHARACTER
+BEGIN
+	RETURN rEnv.__PMMTableName__.{theTableName};
+END;
+
+CREATE FILTER MODULE pmm_FilterSubjectAreaIsSupported
+	DECLARE theModule CONSTANT CHARACTER theSchema||'.pmm_FilterSubjectAreaIsSupported';
+	--DECLARE USER_EXCEPTION_CATALOG_EXTERNAL_DATA_CONTENT_ISSUE CONSTANT CHARACTER 'ExternalDataContentIssue';
+	DECLARE USER_EXCEPTION_MESSAGE_COULD_NOT_DETERMINE_SUBJECT_AREA CONSTANT INTEGER 2;
+	CREATE FUNCTION Main() RETURNS BOOLEAN
+	BEGIN
+		IF nsEai IS NULL THEN CALL common.eaiStagingPmm_getNamespace() INTO nsEai;END IF;DECLARE eai NAMESPACE nsEai;
+		IF nsPmm IS NULL THEN CALL common.pmm_getNamespace() INTO nsPmm;END IF;DECLARE pmm NAMESPACE nsPmm;
+		DECLARE rStaging REFERENCE TO Root.XMLNSC.eai:Exchange.eai:Message.eai:*[<];
+		DECLARE theLabel CHARACTER NULL;
+		CALL etc.pmm.getSubjectAreaLabel(rStaging) INTO theLabel;
+		DECLARE returnValue BOOLEAN theLabel IS NOT NULL; --IS NULL;
+		IF FALSE=returnValue THEN
+			DECLARE subjectArea CHARACTER '<undefined>';
+			IF 0<CARDINALITY(rStaging.*[]) THEN
+				SET subjectArea = COALESCE(rStaging.*[1], subjectArea);
+			ELSEIF 0<CARDINALITY(rStaging.:*[]) THEN
+				SET subjectArea = COALESCE(rStaging.:*[1], subjectArea);
+			ELSEIF 0<CARDINALITY(rStaging.*:*[]) THEN
+				SET subjectArea = COALESCE(rStaging.*:*[1], subjectArea);
+			END IF;
+			DECLARE rEnv REFERENCE TO Environment;
+			--CDH-2175 Alex Russell, 2-Sep 2015
+			--CDH-2175 This is a technical issue - defect fix is to FAIL the message (even though originally we decided that if the message could never be played we would DROP it)
+			--CDH-2175 We will have to find a way to isolate these FAILures in the Audit so we can:
+			--CDH-2175 a. see the message (good - we couldn't do this is we DROPped it) and
+			--CDH-2175 b. delete the message after we've seen it (so we can achieve a defect fix if necessary - e.g. look at MessageRouting section to find root cause)  
+			--CALL core.audit.AuditState(rEnv, _DROP);
+			DECLARE Comment CHARACTER 'Subject Area '''||subjectArea||''' is not supported';
+			CALL core.audit.AuditStateComment(rEnv, Comment);
+			THROW USER EXCEPTION CATALOG 'ExternalDataContentIssue' MESSAGE USER_EXCEPTION_MESSAGE_COULD_NOT_DETERMINE_SUBJECT_AREA VALUES(theModule, Comment);
+		END IF;
+		RETURN returnValue;
+	END;
+END MODULE;
+
+CREATE PROCEDURE setPMMRecordSequence(IN rEnv REFERENCE, IN RecordSequence INTEGER)
+BEGIN
+	SET rEnv.__PMMRecordSequence__ = RecordSequence;
+END;
+CREATE PROCEDURE getPMMRecordSequence(IN rEnv REFERENCE) RETURNS INTEGER
+BEGIN
+	RETURN rEnv.__PMMRecordSequence__;
+END;
+CREATE DATABASE MODULE pmm_GetRecordSequence
+	DECLARE selectIIB_AUDIT_SEQ_NEXTVAL CONSTANT CHARACTER '';
+	CREATE FUNCTION Main() RETURNS BOOLEAN
+	BEGIN
+		DECLARE rEnv REFERENCE TO Environment;
+		DECLARE PMMSequenceName CHARACTER;
+		CALL etc.pmm.getPMMSequenceName(rEnv) INTO PMMSequenceName;
+		SET rEnv.__PmmRecordSeq__[] = PASSTHRU('SELECT IIB.'||PMMSequenceName||'.nextval FROM DUAL');
+		CALL etc.pmm.setPMMRecordSequence(rEnv, CAST(CAST(rEnv.__PmmRecordSeq__[1].NEXTVAL AS DECIMAL) AS INTEGER));
+		WHILE 0 < CARDINALITY(rEnv.__PmmRecordSeq__[]) DO
+			DELETE FIELD rEnv.__PmmRecordSeq__[<];
+		END WHILE;
+		RETURN TRUE;
+	END;
+END MODULE;
+
+CREATE PROCEDURE getSubjectAreaLabel(IN ref REFERENCE) RETURNS CHARACTER
+BEGIN
+	DECLARE theLabel CHARACTER NULL;
+	IF InventorySnapshotComplete=FIELDNAME(ref) THEN
+		SET theLabel = 'A:'||InventorySnapshotComplete;
+	ELSEIF InventorySnapshot=FIELDNAME(ref) THEN
+		SET theLabel = 'B:'||InventorySnapshot;
+	ELSEIF DistributionAdjustment=FIELDNAME(ref) THEN
+		SET theLabel = 'C:'||DistributionAdjustment;
+	ELSEIF InventoryAdjustment=FIELDNAME(ref) THEN
+		SET theLabel = 'D:'||InventoryAdjustment;
+	ELSEIF PixReceipt=FIELDNAME(ref) THEN
+		SET theLabel = 'E:'||PixReceipt;
+	ELSEIF ShippingInvoice=FIELDNAME(ref) THEN
+		SET theLabel = 'F:'||ShippingInvoice;
+	ELSEIF DockCheckIn=FIELDNAME(ref) THEN
+		SET theLabel = 'G:'||DockCheckIn;
+	END IF;
+	RETURN theLabel;
+END;
+
+CREATE COMPUTE MODULE pmm_SetupRouteToLabel
+	CREATE FUNCTION Main() RETURNS BOOLEAN
+	BEGIN
+		IF nsEai IS NULL THEN CALL common.eaiStagingPmm_getNamespace() INTO nsEai;END IF;DECLARE eai NAMESPACE nsEai;
+		IF nsPmm IS NULL THEN CALL common.pmm_getNamespace() INTO nsPmm;END IF;DECLARE pmm NAMESPACE nsPmm;
+		DECLARE rStaging REFERENCE TO InputRoot.XMLNSC.eai:Exchange.eai:Message.eai:*[<];
+		--DECLARE rStaging REFERENCE TO InputRoot.XMLNSC.eai:Exchange.eai:Message.eai:*[3];
+		DECLARE I INTEGER CARDINALITY(OutputLocalEnvironment.Destination.RouterList.DestinationData[])+1;
+		CALL etc.pmm.getSubjectAreaLabel(rStaging) INTO OutputLocalEnvironment.Destination.RouterList.DestinationData[I]."label";
+		SET OutputRoot = InputRoot;
+		RETURN TRUE;
+	END;
+END MODULE;

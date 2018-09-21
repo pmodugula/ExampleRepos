@@ -1,0 +1,29 @@
+BROKER SCHEMA ${__any__}.${__object__}.${__sys__}
+
+DECLARE Publish CONSTANT CHARACTER 'Publish';
+DECLARE IIBPublication EXTERNAL CHARACTER '';
+DECLARE _DROP CONSTANT CHARACTER 'DROP';
+
+CREATE COMPUTE MODULE ${__sys__}_BuildRFH2
+	CREATE FUNCTION Main() RETURNS BOOLEAN
+	BEGIN
+		DECLARE rInput REFERENCE TO InputRoot;
+		DECLARE rOutput REFERENCE TO OutputRoot;
+		CALL common.common_CopyEntireMessage(rInput, rOutput);
+		CALL common.headers_BuildMQRFH2(rInput, rOutput);
+		SET OutputRoot.MQRFH2.psc.Command = Publish;
+		SET OutputRoot.MQRFH2.psc.Topic = IIBPublication;
+		RETURN TRUE;
+	END;
+END MODULE;
+
+CREATE COMPUTE MODULE ${__sys__}_AuditNoMatch
+	CREATE FUNCTION Main() RETURNS BOOLEAN
+	BEGIN
+		DECLARE rEnv REFERENCE TO Environment;
+		CALL core.audit.AuditState(rEnv, _DROP);
+		CALL core.audit.AuditStateComment(rEnv, 'Publication node propagated out of terminal ''NoMatch''');
+		SET OutputRoot = InputRoot;
+		RETURN TRUE;
+	END;
+END MODULE;

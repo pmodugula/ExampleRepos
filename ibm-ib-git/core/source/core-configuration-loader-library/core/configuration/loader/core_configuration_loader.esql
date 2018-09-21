@@ -1,0 +1,154 @@
+BROKER SCHEMA core.configuration.loader
+
+DECLARE CoreConfLoaderType EXTERNAL CHARACTER '';
+DECLARE CoreConfLoaderName EXTERNAL CHARACTER '';
+DECLARE CoreConfLoaderInst EXTERNAL CHARACTER '';
+DECLARE CoreConfLoaderEnvn EXTERNAL CHARACTER '';
+
+CREATE COMPUTE MODULE PickupUserDefinedProperties
+	CREATE FUNCTION Main() RETURNS BOOLEAN
+	BEGIN
+		SET OutputRoot = InputRoot;
+		
+		DECLARE rEnv REFERENCE TO Environment;
+		IF (0 = CARDINALITY(rEnv.Configuration[])) THEN
+			CREATE LASTCHILD OF rEnv TYPE Name NAME 'Configuration';
+		END IF;
+		DECLARE rConf REFERENCE TO rEnv.Configuration;
+
+		IF (rConf.Loader.Type IS NULL AND CoreConfLoaderType IS NOT NULL AND '' <> CoreConfLoaderType) THEN
+			SET rConf.Loader.Type = CoreConfLoaderType;
+		END IF;
+		IF (rConf.Loader.Name IS NULL AND CoreConfLoaderName IS NOT NULL AND '' <> CoreConfLoaderName) THEN
+			SET rConf.Loader.Name = CoreConfLoaderName;
+		END IF;
+		IF (rConf.Loader.Inst IS NULL AND CoreConfLoaderInst IS NOT NULL AND '' <> CoreConfLoaderInst) THEN
+			SET rConf.Loader.Inst = CoreConfLoaderInst;
+		END IF;
+		IF (rConf.Loader.Envn IS NULL AND CoreConfLoaderEnvn IS NOT NULL AND '' <> CoreConfLoaderEnvn) THEN
+			SET rConf.Loader.Envn = CoreConfLoaderEnvn;
+		END IF;
+		
+		RETURN TRUE;
+	END;
+END MODULE;
+
+CREATE COMPUTE MODULE PickupMessageConfiguration
+	CREATE FUNCTION Main() RETURNS BOOLEAN
+	BEGIN
+		SET OutputRoot = InputRoot;
+		
+		DECLARE rEnv REFERENCE TO Environment;
+		IF (0 = CARDINALITY(rEnv.Configuration[])) THEN
+			CREATE LASTCHILD OF rEnv TYPE Name NAME 'Configuration';
+		END IF;
+		DECLARE rConf REFERENCE TO rEnv.Configuration;
+
+		IF (InputRoot.MQRFH2.CoreConfLoaderType IS NOT NULL AND '' <> InputRoot.MQRFH2.CoreConfLoaderType) THEN
+			SET rConf.Loader.Type = InputRoot.MQRFH2.CoreConfLoaderType;
+		ELSEIF (InputRoot.XMLNSC.Configuration.Loader.Type IS NOT NULL AND '' <> InputRoot.XMLNSC.Configuration.Loader.Type) THEN
+			SET rConf.Loader.Type = InputRoot.XMLNSC.Configuration.Loader.Type;
+		END IF;
+		
+		IF (InputRoot.MQRFH2.CoreConfLoaderName IS NOT NULL AND '' <> InputRoot.MQRFH2.CoreConfLoaderName) THEN
+			SET rConf.Loader.Name = InputRoot.MQRFH2.CoreConfLoaderName;
+		ELSEIF (InputRoot.XMLNSC.Configuration.Loader.Name IS NOT NULL AND '' <> InputRoot.XMLNSC.Configuration.Loader.Name) THEN
+			SET rConf.Loader.Name = InputRoot.XMLNSC.Configuration.Loader.Name;
+		END IF;
+		
+		IF (InputRoot.MQRFH2.CoreConfLoaderInst IS NOT NULL AND '' <> InputRoot.MQRFH2.CoreConfLoaderInst) THEN
+			SET rConf.Loader.Inst = InputRoot.MQRFH2.CoreConfLoaderInst;
+		ELSEIF (InputRoot.XMLNSC.Configuration.Loader.Inst IS NOT NULL AND '' <> InputRoot.XMLNSC.Configuration.Loader.Inst) THEN
+			SET rConf.Loader.Inst = InputRoot.XMLNSC.Configuration.Loader.Inst;
+		END IF;
+		IF (rConf.Loader.Inst IS NOT NULL AND '' <> rConf.Loader.Inst) THEN
+			IF ('0' = rConf.Loader.Inst) THEN
+				SET rConf.Loader.Inst = '';
+			ELSEIF ('1' = rConf.Loader.Inst) THEN
+				SET rConf.Loader.Inst = '';
+			END IF;
+		END IF;
+			
+		IF (InputRoot.MQRFH2.CoreConfLoaderEnvn IS NOT NULL AND '' <> InputRoot.MQRFH2.CoreConfLoaderEnvn) THEN
+			SET rConf.Loader.Envn = InputRoot.MQRFH2.CoreConfLoaderEnvn;
+		ELSEIF (InputRoot.XMLNSC.Configuration.Loader.Envn IS NOT NULL AND '' <> InputRoot.XMLNSC.Configuration.Loader.Envn) THEN
+			SET rConf.Loader.Envn = InputRoot.XMLNSC.Configuration.Loader.Envn;
+		END IF;
+		
+		RETURN TRUE;
+	END;
+END MODULE;
+
+CREATE FILTER MODULE ConfTypeNotSet
+	CREATE FUNCTION Main() RETURNS BOOLEAN
+	BEGIN
+		DECLARE rConf REFERENCE TO Environment.Configuration;
+		RETURN rConf.Loader.Type IS NULL OR '' = rConf.Loader.Type;
+	END;
+END MODULE;
+
+CREATE FILTER MODULE LoadedSuccessfully
+	CREATE FUNCTION Main() RETURNS BOOLEAN
+	BEGIN
+		RETURN 0 < CARDINALITY(Root.XMLNSC.Configuration.*[]);
+	END;
+END MODULE;
+
+CREATE COMPUTE MODULE SetLabel
+	CREATE FUNCTION Main() RETURNS BOOLEAN
+	BEGIN
+		DECLARE I INTEGER 1;
+		DECLARE J INTEGER CARDINALITY(InputRoot.*[]);
+		WHILE I < J DO
+			SET OutputRoot.*[I] = InputRoot.*[I];
+			SET I = I + 1;
+		END WHILE;
+		DECLARE rConf REFERENCE TO Environment.Configuration;
+		IF (rConf.Loader.Type IS NOT NULL AND '' <> rConf.Loader.Type) THEN
+			SET OutputLocalEnvironment.Destination.RouterList.DestinationData."label" = rConf.Loader.Type;
+			CREATE LASTCHILD OF OutputRoot DOMAIN 'XMLNSC';
+			CREATE LASTCHILD OF OutputRoot.XMLNSC TYPE Name NAME rConf.Loader.Name;
+		END IF;
+		RETURN TRUE;
+	END;
+END MODULE;
+
+CREATE COMPUTE MODULE SetDirectoryAndFile
+	CREATE FUNCTION Main() RETURNS BOOLEAN
+	BEGIN
+		SET OutputRoot = InputRoot;
+		DECLARE rConf REFERENCE TO Environment.Configuration;
+		IF (rConf.Loader.Name IS NOT NULL AND '' <> rConf.Loader.Name) THEN
+			SET rConf.File.Name = rConf.Loader.Name;
+		ELSEIF (rConf.__Name__ IS NOT NULL AND '' <> rConf.__Name__) THEN
+			SET rConf.File.Name = rConf.__Name__;
+		END IF;
+		RETURN TRUE;
+	END;
+END MODULE;
+
+CREATE COMPUTE MODULE SetDatabaseTable
+	CREATE FUNCTION Main() RETURNS BOOLEAN
+	BEGIN
+		SET OutputRoot = InputRoot;
+		DECLARE rConf REFERENCE TO Environment.Configuration;
+		IF (rConf.Loader.Name IS NOT NULL AND '' <> rConf.Loader.Name) THEN
+			SET rConf.Database.Table = rConf.Loader.Name;
+		END IF;
+		RETURN TRUE;
+	END;
+END MODULE;
+
+CREATE COMPUTE MODULE SetSystemProperty
+	CREATE FUNCTION Main() RETURNS BOOLEAN
+	BEGIN
+		SET OutputRoot = InputRoot;
+		DECLARE rConf REFERENCE TO Environment.Configuration;
+		IF (rConf.Loader.Name IS NOT NULL AND '' <> rConf.Loader.Name) THEN
+			SET rConf.System.PropertyName = rConf.Loader.Name;
+		ELSEIF (rConf.__Name__ IS NOT NULL AND '' <> rConf.__Name__) THEN
+			SET rConf.System.PropertyName = rConf.__Name__;
+		END IF;
+		RETURN TRUE;
+	END;
+END MODULE;

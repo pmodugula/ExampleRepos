@@ -1,0 +1,3 @@
+*.bar
+core-bridge-ems-to-mq*.properties
+runmqsc*.mqsc

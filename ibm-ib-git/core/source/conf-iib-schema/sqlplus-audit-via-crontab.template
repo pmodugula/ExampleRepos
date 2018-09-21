@@ -1,0 +1,2 @@
+#Audit
+* * * * * sh /home/dbkadm/mqsi-scripts/sqlplus-audit-via-crontab.sh

@@ -1,0 +1,3 @@
+common-library-java
+common-library-msgnode-log4j-java
+common-wms-library

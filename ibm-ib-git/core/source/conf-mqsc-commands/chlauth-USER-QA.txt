@@ -1,0 +1,13 @@
+ibui mquser Iuliia_Bui@epam.com Iuliia Bui
+iskapchuk mquser Illia_Skapchuk@epam.com Illia Skapchuk
+opushkar mquser Olga_Pushkar@epam.com Olga Pushkar
+sdushevin mquser Sergii_Dushevin@epam.com Sergii Dushevin
+tsprishevska mquser Tamila.Sprishevska@fglsports.com Tamila Sprishevska
+aapanasovych mquser Anton_Apanasovych@epam.com Anton Apanasovych
+oklymenko mquser Olena_Klymenko@epam.com Olena Klymenko
+kleontieva mquser Kateryna_Leontieva@epam.com Kateryna Leontieva
+akurian mquser Anila.Kurian@fglsports.com Anila Kurian
+vzorin mquser Volodymyr_Zorin@epam.com Volodymyr Zorin
+sbryzhak mquser Serhii_Bryzhak@epam.com Serhii Bryzhak
+mbukhanets mquser Maryana.Bukhanets@fglsports.com Maryana Bukhanets
+kyork mquser

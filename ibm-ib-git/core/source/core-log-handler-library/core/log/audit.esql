@@ -1,0 +1,223 @@
+BROKER SCHEMA core.log
+
+--DROP TABLE IIB."AUDIT";
+/*CREATE TABLE IIB."AUDIT"(
+ CORREL_ID VARCHAR2(64 BYTE) NOT NULL, 
+ NODE_NM VARCHAR2(32 BYTE) NOT NULL, 
+ SERVER_NM VARCHAR2(32 BYTE) NOT NULL, 
+ APP_NM VARCHAR2(64 BYTE), 
+ LIB_NM VARCHAR2(64 BYTE), 
+ MSG_FLOW_NM VARCHAR2(128 BYTE) NOT NULL, 
+ BUS_KEY_NM VARCHAR2(128 BYTE), 
+ BUS_VALUE_CD VARCHAR2(256 BYTE), 
+ OPEN_DTS VARCHAR2(64 BYTE) NOT NULL,
+ CHANGE_DTS VARCHAR2(64 BYTE), 
+ CLOSE_DTS VARCHAR2(64 BYTE),
+ STATE VARCHAR2(8 BYTE)
+ REASON VARCHAR2(128 BYTE)
+);*/
+CREATE FUNCTION auditTrim(IN txt CHARACTER, IN len INTEGER) RETURNS CHARACTER
+BEGIN
+	RETURN SUBSTRING(txt FROM 1 FOR len);
+END;
+
+CREATE FILTER MODULE audit_FilterRdbmsDisabled
+	CREATE FUNCTION Main() RETURNS BOOLEAN
+	BEGIN
+		DECLARE auditToRdbms CHARACTER NULL;
+		CALL java.lang.System.getProperty('EAI.MESSAGE.FLOW.AUDIT.TO.RDBMS') INTO auditToRdbms;
+		IF auditToRdbms IS NULL OR '' = auditToRdbms THEN
+			SET auditToRdbms = 'FALSE';
+		END IF;
+		DECLARE audit BOOLEAN CAST(auditToRdbms AS BOOLEAN);
+		DECLARE dontDoRdbms BOOLEAN (FALSE = audit);
+		RETURN dontDoRdbms;--Leave the code block like this so we can debug efficiently (actually see the value returned before it is returned)
+	END;
+END MODULE;
+
+CREATE COMPUTE MODULE audit_EaiCoreLog4J1
+	CREATE FUNCTION Main() RETURNS BOOLEAN
+	BEGIN
+		CALL core.log.Error('ID#'||Environment.__CorrelIdForLog4J__||' [_FLOW - Audit] failed processing in core.log.audit.subflow');
+		RETURN TRUE;
+	END;
+END MODULE;
+
+CREATE COMPUTE MODULE audit_PreAudit
+	CREATE FUNCTION Main() RETURNS BOOLEAN
+	BEGIN
+		SET OutputRoot = InputRoot;
+		DECLARE rEnv REFERENCE TO Environment;
+		DECLARE correlId CHARACTER CAST(rEnv.__CorrelIdForLog4J__ AS CHARACTER);
+		SET rEnv.__CoreLogAuditCorrelId__ = auditTrim(SUBSTRING(correlId FROM 3 FOR LENGTH(correlId)-3), 64);
+		SET rEnv.__CoreLogAuditNodeNm__ = auditTrim(rEnv.Configuration.__Internal__.Broker.Name, 32);
+		SET rEnv.__CoreLogAuditServerNm__ = auditTrim(rEnv.Configuration.__Internal__.Label.ExecutionGroup, 32);
+		SET rEnv.__CoreLogAuditApplicationNm__ = auditTrim(rEnv.Configuration.__Internal__.Label.Application, 64);
+		SET rEnv.__CoreLogAuditLibraryNm__ = auditTrim(rEnv.Configuration.__Internal__.Label.Library, 64);
+		SET rEnv.__CoreLogAuditMessageFlowNm__ = auditTrim(rEnv.Configuration.__Internal__.Label.MessageFlow, 128);
+		SET rEnv.__CoreLogAuditBusKeyNm__ = auditTrim(rEnv.__CoreLogAuditBusKeyNm__, 128);
+		SET rEnv.__CoreLogAuditBusValueCd__ = auditTrim(rEnv.__CoreLogAuditBusValueCd__, 256);
+		SET rEnv.__CoreLogAuditState__ = auditTrim(rEnv.__CoreLogAuditState__, 16);
+		SET rEnv.__CoreLogAuditReason__ = auditTrim(rEnv.__CoreLogAuditReason__, 128);
+		RETURN TRUE;
+	END;
+END MODULE;
+
+--CREATE TABLE IIB."AUDIT"( --"AUDIT_ARCH","AUDIT_HIST"
+--  CORREL_ID VARCHAR2(64) NOT NULL,
+--  NODE_NM VARCHAR2(32) NOT NULL,
+--  SERVER_NM VARCHAR2(32) NOT NULL,
+--  APP_NM VARCHAR2(64) NULL,
+--  LIB_NM VARCHAR2(64) NULL,
+--  MSG_FLOW_NM VARCHAR2(128) NOT NULL,
+--  BUS_KEY_NM VARCHAR2(128) NOT NULL,
+--  BUS_VALUE_CD VARCHAR2(256) NULL,
+--  OPEN_TS TIMESTAMP NULL,
+--  CHANGE_TS TIMESTAMP NULL,
+--  CLOSE_TS TIMESTAMP NULL
+--  STATE VARCHAR(8) NULL,
+--  REASON VARCHAR(128) NuLL 
+--);
+CREATE DATABASE MODULE audit_InsertIntoOrUpdateIIB_AUDIT
+	CREATE FUNCTION Main() RETURNS BOOLEAN
+	BEGIN
+		DECLARE rEnv REFERENCE TO Environment;
+		DECLARE now CHARACTER auditTrim(CAST(CURRENT_GMTTIMESTAMP AS CHARACTER), 64);
+		SET now = SUBSTRING(now FROM 15 FOR LENGTH(now)-15);
+		IF 'OPEN' = rEnv.__CoreLogAuditEvent__ THEN
+			SET rEnv.__DatabaseInsert__[] = PASSTHRU(
+				'INSERT INTO IIB."AUDIT"('||
+				'CORREL_ID,NODE_NM,SERVER_NM,APP_NM,LIB_NM,MSG_FLOW_NM,OPEN_DTS,STATE'||
+				') VALUES(?,?,?,?,?,?,?,?)'
+				VALUES(
+					rEnv.__CoreLogAuditCorrelId__,
+					rEnv.__CoreLogAuditNodeNm__,
+					rEnv.__CoreLogAuditServerNm__,
+					rEnv.__CoreLogAuditApplicationNm__,
+					rEnv.__CoreLogAuditLibraryNm__,
+					rEnv.__CoreLogAuditMessageFlowNm__,
+					now,
+					'OPEN'
+				)
+			);
+		ELSEIF 'CHANGE' = rEnv.__CoreLogAuditEvent__ THEN
+			DECLARE updateQuery CHARACTER
+				'UPDATE IIB."AUDIT" SET '||
+				'BUS_KEY_NM='''||rEnv.__CoreLogAuditBusKeyNm__||''','||
+				'BUS_VALUE_CD='''||rEnv.__CoreLogAuditBusValueCd__||''','||
+				'CHANGE_DTS='''||now||''' '||
+				'WHERE CORREL_ID='''||rEnv.__CoreLogAuditCorrelId__||'''';
+			SET rEnv.__DatabaseUpdate__[] = PASSTHRU(updateQuery);
+		ELSEIF 'CLOSE' = rEnv.__CoreLogAuditEvent__ THEN
+			DECLARE state CHARACTER NULL;
+			IF 0 = CARDINALITY(rEnv.__Exception__[]) THEN
+				IF rEnv.__CoreLogAuditState__ IS NULL THEN
+					SET state = 'PASS';
+				ELSE
+					SET state = rEnv.__CoreLogAuditState__;
+				END IF;
+			ELSE
+				SET state = 'FAIL';
+				DECLARE I INTEGER 1;
+				DECLARE J INTEGER CARDINALITY(rEnv.__InitialMessageBodyInHex__[]);
+				WHILE I <= J DO
+					DECLARE hex CHARACTER rEnv.__InitialMessageBodyInHex__[I];
+					DECLARE ascii CHARACTER NULL;
+					CALL common.convert_HexToAscii(hex) INTO ascii;
+					DECLARE __CorrelIdLog4J__ CHARACTER rEnv.__InitialCorrelId__[I];
+					IF __CorrelIdLog4J__ = rEnv.__CorrelIdForLog4J__ THEN
+						CALL core.log.Error('ID#'||__CorrelIdLog4J__||' [_FLOW - Message] Body='||ascii);
+					ELSE
+						CALL core.log.Error('ID#'||__CorrelIdLog4J__||' [_FLOW - Message] [ID@'||rEnv.__CorrelIdForLog4J__||'] Body='||ascii);
+					END IF;
+					SET I = I + 1;
+				END WHILE;
+			END IF;
+			DECLARE reason CHARACTER '';
+			IF rEnv.__CoreLogAuditReason__ IS NOT NULL THEN
+				SET reason = rEnv.__CoreLogAuditReason__;
+			END IF;
+			DECLARE updateQuery CHARACTER
+				'UPDATE IIB."AUDIT" SET '||
+				'CLOSE_DTS='''||now||''','||
+				'STATE='''||state||''','||
+				'REASON='''||reason||''' '||
+				'WHERE CORREL_ID='''||rEnv.__CoreLogAuditCorrelId__||'''';
+			SET rEnv.__DatabaseUpdate__[] = PASSTHRU(updateQuery);
+		END IF;
+		DELETE FIELD rEnv.__Exception__;--Not deleted in CoreLogHandler 'technical' handler because we need it here for AUDIT purposes
+		RETURN TRUE;
+	END;
+END MODULE;
+
+CREATE COMPUTE MODULE audit_EaiCoreLog4J2
+	CREATE FUNCTION Main() RETURNS BOOLEAN
+	BEGIN
+		DECLARE rEnv REFERENCE TO Environment;
+		DECLARE audit CHARACTER '';
+		IF rEnv.__CoreLogAuditApplicationNm__ IS NOT NULL THEN
+			SET audit = rEnv.__CoreLogAuditApplicationNm__;
+		ELSEIF Environment.__CoreLogAuditLibraryNm__ IS NOT NULL THEN
+			SET audit = rEnv.__CoreLogAuditLibraryNm__;
+		END IF;
+		IF 'OPEN' = rEnv.__CoreLogAuditEvent__ THEN
+			SET audit = audit||' - OPEN';
+		ELSEIF 'CHANGE' = rEnv.__CoreLogAuditEvent__ THEN
+			SET audit = audit||' - CHANGE - '||rEnv.__CoreLogAuditBusKeyNm__||'='||rEnv.__CoreLogAuditBusValueCd__;
+		ELSEIF 'CLOSE' = rEnv.__CoreLogAuditEvent__ THEN
+			DECLARE state CHARACTER NULL;
+			IF 0 = CARDINALITY(rEnv.__Exception__[]) THEN
+				IF rEnv.__CoreLogAuditState__ IS NULL THEN
+					SET state = 'PASS';
+				ELSE
+					SET state = rEnv.__CoreLogAuditState__;
+				END IF;
+			ELSE
+				SET state = 'FAIL';
+				DECLARE I INTEGER 1;
+				DECLARE J INTEGER CARDINALITY(rEnv.__InitialMessageBodyInHex__[]);
+				WHILE I <= J DO
+					DECLARE hex CHARACTER rEnv.__InitialMessageBodyInHex__[I];
+					DECLARE ascii CHARACTER NULL;
+					CALL common.convert_HexToAscii(hex) INTO ascii;
+					DECLARE __CorrelIdLog4J__ CHARACTER rEnv.__InitialCorrelId__[I];
+					IF __CorrelIdLog4J__ = rEnv.__CorrelIdForLog4J__ THEN
+						CALL core.log.Error('ID#'||__CorrelIdLog4J__||' [_FLOW - Message] Body='||ascii);
+					ELSE
+						CALL core.log.Error('ID#'||__CorrelIdLog4J__||' [_FLOW - Message] [ID@'||rEnv.__CorrelIdForLog4J__||'] Body='||ascii);
+					END IF;
+					SET I = I + 1;
+				END WHILE;
+			END IF;
+			DECLARE reason CHARACTER '';
+			IF rEnv.__CoreLogAuditReason__ IS NOT NULL THEN
+				SET reason = rEnv.__CoreLogAuditReason__;
+			END IF;
+			IF '' = reason THEN
+				SET audit = audit||' - '||state;
+			ELSE
+				SET audit = audit||' - '||state||' - '||reason;
+			END IF; 
+		END IF;
+		CALL core.log.Error('ID#'||rEnv.__CorrelIdForLog4J__||' [_FLOW - Audit] '||audit);
+		DELETE FIELD rEnv.__Exception__;--Not deleted in CoreLogHandler 'technical' handler because we need it here for AUDIT purposes
+		RETURN TRUE;
+	END;
+END MODULE;
+
+CREATE COMPUTE MODULE audit_PostAudit
+	CREATE FUNCTION Main() RETURNS BOOLEAN
+	BEGIN
+		SET OutputRoot = InputRoot;
+		DECLARE rEnv REFERENCE TO Environment;
+		DELETE FIELD rEnv.__CoreLogAuditCorrelId__;
+		DELETE FIELD rEnv.__CoreLogAuditNodeNm__;
+		DELETE FIELD rEnv.__CoreLogAuditServerNm__;
+		DELETE FIELD rEnv.__CoreLogAuditApplicationNm__;
+		DELETE FIELD rEnv.__CoreLogAuditLibraryNm__;
+		DELETE FIELD rEnv.__CoreLogAuditMessageFlowNm__;
+		DELETE FIELD rEnv.__CoreLogAuditState__;
+		DELETE FIELD rEnv.__CoreLogAuditReason__;
+		RETURN TRUE;
+	END;
+END MODULE;

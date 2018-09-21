@@ -1,0 +1,5 @@
+${__any__}.${__object__}.fwp.subscriber#IIBInboundQueue=RECV.${SUB_IN}
+${__any__}.${__object__}.fwp.subscriber#IIBDataSource=STG${ENVN}${INST}
+${__any__}.${__object__}.fwp.subscriber#FWPOutboundQueue=SEND.${SUB_OUT}
+${__any__}.${__object__}.fwp.subscriber#CoreAuditDataSource=AUD${ENVN}${INST}
+${__any__}.${__object__}.fwp.subscriber#additionalInstances=${EXTRATHREADS}

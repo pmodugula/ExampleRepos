@@ -1,0 +1,36 @@
+BROKER SCHEMA core.audit
+
+DECLARE theSchema CONSTANT CHARACTER 'core.audit';
+
+CREATE FILTER MODULE test_FilterException
+	DECLARE theModule CONSTANT CHARACTER 'test_FilterException';
+	CREATE FUNCTION Main() RETURNS BOOLEAN
+	BEGIN
+		DECLARE returnValue BOOLEAN TRUE;
+		DECLARE J INTEGER CARDINALITY(Root.XMLNSC.audit.exception[]);
+		IF 0=J THEN
+			SET returnValue = FALSE;
+		END IF;
+		DECLARE rEnv REFERENCE TO Environment;
+		CALL core.log.LogFromEsql(rEnv, theSchema||'.'||theModule, ' - RETURN '||CAST(returnValue AS CHARACTER)||' - CARDINALITY(Root.XMLNSC.audit.exception[]='||CAST(J AS CHARACTER));
+		RETURN returnValue;
+	END;
+END MODULE;
+
+CREATE FILTER MODULE test_FilterMessage
+	DECLARE theModule CONSTANT CHARACTER 'test_FilterMessage';
+	CREATE FUNCTION Main() RETURNS BOOLEAN
+	BEGIN
+		DECLARE returnValue BOOLEAN TRUE;
+		DECLARE J INTEGER CARDINALITY(Root.XMLNSC.audit.message[]);
+		IF 0=J THEN
+			DECLARE rEnv REFERENCE TO Environment;
+			CALL core.audit.AuditState(rEnv, 'DROP');
+			CALL core.audit.AuditStateComment(rEnv, 'CARDINALITY(Root.XMLNSC.audit.message[]='||CAST(J AS CHARACTER));
+			SET returnValue = FALSE;
+		END IF;
+		DECLARE rEnv REFERENCE TO Environment;
+		CALL core.log.LogFromEsql(rEnv, theSchema||'.'||theModule, ' - RETURN '||CAST(returnValue AS CHARACTER)||' - CARDINALITY(Root.XMLNSC.audit.message[]='||CAST(J AS CHARACTER));
+		RETURN returnValue;
+	END;
+END MODULE;

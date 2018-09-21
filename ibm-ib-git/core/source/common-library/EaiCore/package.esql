@@ -1,0 +1,6 @@
+BROKER SCHEMA EaiCore
+
+--public static String ConvertHexToAscii(String hex);
+CREATE PROCEDURE ConvertHexToAscii(IN hex CHARACTER) RETURNS CHARACTER LANGUAGE JAVA EXTERNAL NAME "EaiCoreConvertHexToAscii.ConvertHexToAscii";
+--public static Long MessageFlowStop(String brokerName, String executionGroupName, String messageFlowName, String applicationName, String libraryName);
+CREATE PROCEDURE MessageFlowStop(IN brokerName CHARACTER, IN executionGroupName CHARACTER, IN messageFlowName CHARACTER, IN applicationName CHARACTER, IN libraryName CHARACTER) RETURNS INTEGER LANGUAGE JAVA EXTERNAL NAME "EaiCoreMessageFlowStop.MessageFlowStop";

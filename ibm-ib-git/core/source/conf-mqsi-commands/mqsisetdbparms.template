@@ -1,0 +1,15 @@
+mqsisetdbparms ${_NODE} -n ${AUD_DB_DSN} -u ${MDR_DB_USER} -p ${MDR_DB_PASSWORD}
+mqsisetdbparms ${_NODE} -n ${STG_DB_DSN} -u ${MDR_DB_USER} -p ${MDR_DB_PASSWORD}
+mqsisetdbparms ${_NODE} -n ${PMM_DB_DSN} -u ${PMM_DB_USER} -p ${PMM_DB_PASSWORD}
+mqsisetdbparms ${_NODE} -n ${CDC_DB_DSN} -u ${CDC_DB_USER} -p ${CDC_DB_PASSWORD}
+mqsisetdbparms ${_NODE} -n ${MDC_DB_DSN} -u ${MDC_DB_USER} -p ${MDC_DB_PASSWORD}
+##http://www-01.ibm.com/support/knowledgecenter/SSMKHH_9.0.0/com.ibm.etools.mft.doc/bc19030_.htm
+mqsichangeproperties ${_NODE} -c JMSProviders -o Tibco_EMS -n jndiBindingsLocation -v ${EMS_JNDI_BIND_LOC}
+mqsisetdbparms ${_NODE} -n jndi::${EMS_JNDI_INIT_CTX} -u ${EMS_USER} -p ${EMS_PASSWORD}
+mqsisetdbparms ${_NODE} -n jndi::${EMS_QCF} -u ${EMS_USER} -p ${EMS_PASSWORD}
+mqsisetdbparms ${_NODE} -n jndi::${EMS_Q} -u ${EMS_USER} -p ${EMS_PASSWORD}
+mqsisetdbparms ${_NODE} -n jms::${EMS_QCF} -u ${EMS_USER} -p ${EMS_PASSWORD}
+mqsisetdbparms ${_NODE} -n jms::${EMS_Q} -u ${EMS_USER} -p ${EMS_PASSWORD}
+##mqsireportproperties ${_NODE} -o Tibco_EMS -c JMSProviders -r
+##netstat -an|grep -i ESTABLISHED|grep ${EMS_JNDI_BIND_IPADDR}|grep ${EMS_JNDI_BIND_PORT}
+mqsisetdbparms ${_NODE} -n jdbc::ringoSecureId -u ${RETEK_DB_USER} -p ${RETEK_DB_PASSWORD}

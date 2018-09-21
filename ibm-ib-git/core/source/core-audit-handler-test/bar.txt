@@ -1,0 +1,3 @@
+common-library-java
+core-configuration-loader-system-java
+core-audit-handler-library-java

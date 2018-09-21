@@ -1,0 +1,220 @@
+BROKER SCHEMA common
+
+/************************************************************************************************************************
+* Date : 10/02/2015 *
+* Name : Narendra * *
+* Reason : Declaring Namespaces inside the getnamespace procedure code *
+*************************************************************************************************************************/
+
+--DECLARE nsWms CHARACTER 'http://www.fglsports.com/schema/wmstaging/tables/v1';
+--DECLARE nsWms CHARACTER NULL;
+--IF nsWms IS NULL THEN CALL common.getNamespaceWms() INTO nsWms;END IF;DECLARE wms NAMESPACE nsWms;
+
+CREATE FUNCTION common_getNamespace(IN System CHARACTER, IN SubjectArea CHARACTER, IN Source CHARACTER, IN Sbu CHARACTER) RETURNS CHARACTER
+BEGIN
+	DECLARE _Source__ CHARACTER UPPER(SUBSTRING(Source FROM 1 FOR 1))||LOWER(SUBSTRING(Source FROM 2));
+	DECLARE _Sbu__ CHARACTER UPPER(SUBSTRING(Sbu FROM 1 FOR 1))||LOWER(SUBSTRING(Sbu FROM 2));
+	RETURN 'http://www.fgl.com/'||System||SubjectArea||_Source__||_Sbu__;
+END;
+
+CREATE PROCEDURE xsi_getNamespace() RETURNS CHARACTER
+BEGIN
+	DECLARE nsXsi CHARACTER 'http://www.w3.org/2001/XMLSchema-instance';
+	RETURN nsXsi;
+END;
+
+CREATE PROCEDURE wms_getNamespace() RETURNS CHARACTER
+BEGIN
+	DECLARE nsWms CHARACTER 'http://www.fglsports.com/schema/wmstaging/tables/v1';
+	RETURN nsWms;
+END;
+
+CREATE PROCEDURE pmm_getNamespace() RETURNS CHARACTER
+BEGIN
+	DECLARE nsPmm CHARACTER 'http://www.fglsports.com/schema/pmmstaging/tables/v1';
+	RETURN nsPmm;
+END;
+
+CREATE PROCEDURE asn_getNamespace() RETURNS CHARACTER
+BEGIN
+	DECLARE nsAsn CHARACTER 'http://www.fglsports.com/schema/arts/retail/asn/v1';
+	RETURN nsAsn;
+END;
+
+CREATE PROCEDURE eai_getNamespace() RETURNS CHARACTER
+BEGIN
+	RETURN 'http://www.fgl.com/exchange/';
+END;
+--Added by Alex Russell 16-Aug 2015 --Refer to onsite/onshore EAI team (Alex/Navin) before using
+CREATE FUNCTION common_getNamespaceEai() RETURNS CHARACTER
+BEGIN
+	RETURN 'http://www.fgl.com/exchange/';
+END;
+
+CREATE PROCEDURE datastage_getNamespace() RETURNS CHARACTER
+BEGIN
+	DECLARE nsDataStage CHARACTER 'http://www.fgl.com/DataStage';
+	RETURN nsDataStage;
+END;
+
+CREATE PROCEDURE arts_getNamespace() RETURNS CHARACTER
+BEGIN
+	RETURN 'http://www.fgl.com/ARTS';
+END;
+--Added by Alex Russell 16-Aug 2015 --Refer to onsite/onshore EAI team (Alex/Navin) before using
+CREATE FUNCTION common_getNamespaceArts() RETURNS CHARACTER
+BEGIN
+	RETURN 'http://www.fgl.com/ARTS';
+END;
+
+CREATE PROCEDURE bswp_getNamespace() RETURNS CHARACTER
+BEGIN
+	DECLARE nsBswp CHARACTER 'http://www.fglsports.com/schema/bswpstaging/tables/v1';
+	RETURN nsBswp;
+END;
+
+CREATE PROCEDURE fwp_getNamespace() RETURNS CHARACTER
+BEGIN
+	RETURN 'http://www.fglsports.com/schema/fwpstaging/tables/v1';
+END;
+
+CREATE PROCEDURE msax_getNamespaceMessage() RETURNS CHARACTER
+BEGIN
+	DECLARE nsMessage CHARACTER 'http://schemas.microsoft.com/dynamics/2011/01/documents/Message';
+	RETURN nsMessage;
+END;
+
+CREATE PROCEDURE msax_getNamespaceEntityKeyList() RETURNS CHARACTER
+BEGIN
+	DECLARE nsEkl CHARACTER 'http://schemas.microsoft.com/dynamics/2006/02/documents/EntityKeyList';
+	RETURN nsEkl;
+END;
+
+CREATE PROCEDURE msax_getNamespaceEntityKey() RETURNS CHARACTER
+BEGIN
+	DECLARE nsEk CHARACTER 'http://schemas.microsoft.com/dynamics/2006/02/documents/EntityKey';
+	RETURN nsEk;
+END;
+
+CREATE PROCEDURE msax_getNamespaceBuyer() RETURNS CHARACTER
+BEGIN
+	DECLARE nsBuyerGroup CHARACTER 'http://schemas.microsoft.com/dynamics/2008/01/documents/TmxInventBuyerGroup';
+	RETURN nsBuyerGroup;
+END;
+
+CREATE PROCEDURE msax_getNamespaceVendTable() RETURNS CHARACTER
+BEGIN
+	DECLARE nsVend CHARACTER 'http://schemas.microsoft.com/dynamics/2008/01/documents/VendTable';
+	RETURN nsVend;
+END;
+
+CREATE PROCEDURE jde_getNamespace() RETURNS CHARACTER
+BEGIN
+	DECLARE nsJde CHARACTER 'http://www.fglsports.com/schema/jdestaging/tables/v1';
+	RETURN nsJde;
+END;
+
+CREATE PROCEDURE datastageVendorFrn_getNamespace() RETURNS CHARACTER
+BEGIN
+	DECLARE nsDatastageVendorFrn CHARACTER 'http://www.fgl.com/DataStageVendorFrn';
+	RETURN nsDatastageVendorFrn;
+END;
+
+CREATE PROCEDURE datastageItemSize_getNamespace() RETURNS CHARACTER
+BEGIN
+	DECLARE nsDatastageItem CHARACTER 'http://www.fgl.com/DataStageSizePmmFgl';
+	RETURN nsDatastageItem;
+END;
+
+CREATE PROCEDURE datastagePurchaseOrderFgl_getNamespace() RETURNS CHARACTER
+BEGIN
+	DECLARE nsDatastagePurchaseOrderFgl CHARACTER 'http://www.fgl.com/DataStagePurchaseOrderPmmFgl';
+	RETURN nsDatastagePurchaseOrderFgl;
+END;
+
+CREATE PROCEDURE datastagePurchaseOrderMww_getNamespace() RETURNS CHARACTER
+BEGIN
+	DECLARE nsDatastagePurchaseOrderMww CHARACTER 'http://www.fgl.com/DataStagePurchaseOrderPmmMww';
+	RETURN nsDatastagePurchaseOrderMww;
+END;
+
+CREATE PROCEDURE dataStageStorePmmMww_getNamespace() RETURNS CHARACTER
+BEGIN
+	RETURN 'http://www.fgl.com/DataStageStorePmmMww';
+END;
+CREATE PROCEDURE datastageStoreFgl_getNamespace() RETURNS CHARACTER
+BEGIN
+	RETURN 'http://www.fgl.com/DataStageStorePmmFgl';
+END;
+
+CREATE PROCEDURE datastageVendorFgl_getNamespace() RETURNS CHARACTER
+BEGIN
+	DECLARE nsDatastageVendorFgl CHARACTER 'http://www.fgl.com/DataStageVendorPmmFgl';
+	RETURN nsDatastageVendorFgl;
+END;
+
+CREATE PROCEDURE datastageVendorMww_getNamespace() RETURNS CHARACTER
+BEGIN
+	DECLARE nsDatastageVendorMww CHARACTER 'http://www.fgl.com/DataStageVendorPmmMww';
+	RETURN nsDatastageVendorMww;
+END;
+		 
+CREATE PROCEDURE eaiStagingPmm_getNamespace() RETURNS CHARACTER
+BEGIN
+	DECLARE nsEaiStagingPmm CHARACTER 'http://www.fgl.com/exchange/staging/pmm';
+	RETURN nsEaiStagingPmm;
+END;
+
+CREATE PROCEDURE datastagePIXgetNamespace() RETURNS CHARACTER
+BEGIN
+      DECLARE nsDatastagePIX CHARACTER 'http://www.fgl.com/DataStagePixTransaction';
+      RETURN nsDatastagePIX;
+END;
+
+CREATE PROCEDURE nsArts_getNamespace() RETURNS CHARACTER
+BEGIN
+      DECLARE nsArts CHARACTER 'http://www.fgl.com/ARTS';
+      RETURN nsArts;
+END;
+
+CREATE PROCEDURE datastageAsnMww_getNamespace() RETURNS CHARACTER
+BEGIN
+	DECLARE nsDatastageAsnMww CHARACTER 'http://www.fgl.com/DataStageAsnPmmMww';
+	RETURN nsDatastageAsnMww;
+END;
+
+CREATE PROCEDURE datastageTransferMww_getNamespace() RETURNS CHARACTER
+BEGIN
+	DECLARE nsDataStageTransferPmmMww CHARACTER 'http://www.fgl.com/DataStageTransferPmmMww';
+	RETURN nsDataStageTransferPmmMww;
+END;
+
+CREATE PROCEDURE datastageShippingInvoice_getNamespace() RETURNS CHARACTER
+BEGIN
+      DECLARE nsDataStageShippingInvoice CHARACTER 'http://www.fgl.com/DataStageShippingInvoice';
+      RETURN nsDataStageShippingInvoice;
+END;
+
+CREATE PROCEDURE datastageInvoiceMww_getNamespace() RETURNS CHARACTER
+BEGIN
+	DECLARE nsDataStageInvoiceMatchingPmmMww CHARACTER 'http://www.fgl.com/DataStageInvoiceMatchingPmmMww';
+	RETURN nsDataStageInvoiceMatchingPmmMww;
+END;
+
+CREATE PROCEDURE datastageStylePrePackMww_getNamespace() RETURNS CHARACTER
+BEGIN
+	DECLARE nsDataStageStylePrePackMww CHARACTER 'http://www.fgl.com/DataStageStylePrePackPmmMww';
+	RETURN nsDataStageStylePrePackMww;
+END;
+ 
+CREATE PROCEDURE datastageProductHierarchyMww_getNamespace() RETURNS CHARACTER
+BEGIN
+	DECLARE nsDataStageProductHierarchyMww CHARACTER 'http://www.fgl.com/DataStageProductHierarchyPmmMww';
+	RETURN nsDataStageProductHierarchyMww;
+END;
+
+CREATE PROCEDURE datastageProductPmmMww_getNamespace() RETURNS CHARACTER
+BEGIN
+	DECLARE nsDatastageProductPmmMww CHARACTER 'http://www.fgl.com/DataStageProductPmmMww';
+	RETURN nsDatastageProductPmmMww;
+END;

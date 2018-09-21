@@ -1,0 +1,87 @@
+BROKER SCHEMA core.log
+
+DECLARE CoreLogTitle EXTERNAL CHARACTER '';
+DECLARE CoreLogSubtitle EXTERNAL CHARACTER '';
+DECLARE CoreLogLevel EXTERNAL CHARACTER '';
+DECLARE CoreLogEvent EXTERNAL CHARACTER '';
+DECLARE CoreLogType EXTERNAL CHARACTER '';
+DECLARE CoreLogImpl EXTERNAL BOOLEAN TRUE;
+
+DECLARE CoreLogQueue EXTERNAL CHARACTER 'ALL.EAI.COMMON_OUT.IBM_IB';
+
+CREATE COMPUTE MODULE handler_PickupUserDefinedProperties
+	CREATE FUNCTION Main() RETURNS BOOLEAN
+	BEGIN
+		SET OutputRoot = InputRoot;
+		SET OutputLocalEnvironment = InputLocalEnvironment;
+		SET OutputExceptionList = InputExceptionList;
+		DECLARE rEnv REFERENCE TO Environment;
+		SET rEnv.__CoreLogTitle__ = CoreLogTitle;
+		SET rEnv.__CoreLogSubtitle__ = CoreLogSubtitle;
+		SET rEnv.__CoreLogLevel__ = CoreLogLevel;
+		SET rEnv.__CoreLogEvent__ = CoreLogEvent;
+		SET rEnv.__CoreLogType__ = CoreLogType;
+		SET rEnv.__CoreLogImpl__ = CoreLogImpl;
+		SET rEnv.__CoreLogQueue__ = CoreLogQueue;
+	END;
+END MODULE;
+
+CREATE FILTER MODULE handler_TECorBUSorAUDNotFlowFinished
+	CREATE FUNCTION Main() RETURNS BOOLEAN
+	BEGIN
+		DECLARE rEnv REFERENCE TO Environment;
+		DECLARE coreLogTitle CHARACTER rEnv.__CoreLogTitle__;
+		DECLARE coreLogSubtitle CHARACTER rEnv.__CoreLogSubtitle__;
+		DECLARE returnValue BOOLEAN coreLogTitle IS NOT NULL AND '' <> coreLogTitle AND FALSE = ('_FLOW' = coreLogTitle AND 'Finished' = coreLogSubtitle);
+		RETURN 'TEC' = CoreLogType OR 'BUS' = CoreLogType OR 'AUD' = CoreLogType AND TRUE = returnValue;
+	END;
+END MODULE;
+
+CREATE FILTER MODULE handler_BUSorAUD
+	CREATE FUNCTION Main() RETURNS BOOLEAN
+	BEGIN
+		RETURN 'BUS' = CoreLogType OR 'AUD' = CoreLogType;
+	END;
+END MODULE;
+
+CREATE FILTER MODULE handler_AUD
+	CREATE FUNCTION Main() RETURNS BOOLEAN
+	BEGIN
+		RETURN 'AUD' = CoreLogType AND Environment.__CorrelationId__ IS NOT NULL;
+	END;
+END MODULE;
+
+CREATE FILTER MODULE handler_TECorBUSorAUDFlowFinished
+	CREATE FUNCTION Main() RETURNS BOOLEAN
+	BEGIN
+		DECLARE rEnv REFERENCE TO Environment;
+		DECLARE coreLogTitle CHARACTER rEnv.__CoreLogTitle__;
+		DECLARE coreLogSubtitle CHARACTER rEnv.__CoreLogSubtitle__;
+		DECLARE returnValue BOOLEAN coreLogTitle IS NOT NULL AND '' <> coreLogTitle AND TRUE = ('_FLOW' = coreLogTitle AND 'Finished' = coreLogSubtitle);
+		RETURN 'TEC' = CoreLogType OR 'BUS' = CoreLogType OR 'AUD' = CoreLogType AND TRUE = returnValue;
+	END;
+END MODULE;
+
+CREATE COMPUTE MODULE handler_CleanupUserDefinedProperties
+	CREATE FUNCTION Main() RETURNS BOOLEAN
+	BEGIN
+		SET OutputRoot = InputRoot;
+		SET OutputLocalEnvironment = InputLocalEnvironment;
+		SET OutputExceptionList = InputExceptionList;
+		DECLARE rEnv REFERENCE TO Environment;
+		DELETE FIELD rEnv.__CoreLogTitle__;
+		DELETE FIELD rEnv.__CoreLogSubtitle__;
+		DELETE FIELD rEnv.__CoreLogLevel__;
+		DELETE FIELD rEnv.__CoreLogEvent__;
+		DELETE FIELD rEnv.__CoreLogType__;
+		DELETE FIELD rEnv.__CoreLogImpl__;
+		DELETE FIELD rEnv.__CoreLogQueue__;
+	END;
+END MODULE;
+
+CREATE FILTER MODULE handler_isDropped
+	CREATE FUNCTION Main() RETURNS BOOLEAN
+	BEGIN
+		RETURN 'DROP'=Environment.__CoreAuditStateReason__;
+	END;
+END MODULE;

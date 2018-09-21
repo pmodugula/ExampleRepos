@@ -1,0 +1,3 @@
+*.bar
+${__any__}-${__object__}-${__sys__}-publisher*.properties
+runmqsc*.mqsc

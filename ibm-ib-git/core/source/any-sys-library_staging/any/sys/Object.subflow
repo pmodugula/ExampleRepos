@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ecore:EPackage xmi:version="2.0" xmlns:xmi="http://www.omg.org/XMI" xmlns:ecore="http://www.eclipse.org/emf/2002/Ecore" xmlns:eflow="http://www.ibm.com/wbi/2005/eflow" xmlns:${__any__}_${__sys__}_insert_InsertInto${_Object__}.subflow="${__any__}/${__sys__}/insert/InsertInto${_Object__}.subflow" xmlns:utility="http://www.ibm.com/wbi/2005/eflow_utility" nsURI="${__any__}/${__sys__}/${_Object__}.subflow" nsPrefix="${__any__}_${__sys__}_${_Object__}.subflow">
+  <eClassifiers xmi:type="eflow:FCMComposite" name="FCMComposite_1" useDefaults="true" udpSupport="true">
+    <eSuperTypes href="http://www.ibm.com/wbi/2005/eflow#//FCMBlock"/>
+    <eStructuralFeatures xmi:type="ecore:EAttribute" xmi:id="Property.${_SYS_}DataSource" name="${_SYS_}DataSource">
+      <eType xmi:type="ecore:EDataType" href="http://www.eclipse.org/emf/2002/Ecore#//EString"/>
+    </eStructuralFeatures>
+    <translation xmi:type="utility:TranslatableString" key="${_Object__}" bundleName="${__any__}/${__sys__}/${_Object__}" pluginId="${__any__}-${__sys__}-library"/>
+    <colorGraphic16 xmi:type="utility:GIFFileGraphic" resourceName="platform:/plugin/${__any__}-${__sys__}-library/icons/full/obj16/${_Object__}.gif"/>
+    <colorGraphic32 xmi:type="utility:GIFFileGraphic" resourceName="platform:/plugin/${__any__}-${__sys__}-library/icons/full/obj30/${_Object__}.gif"/>
+    <composition>
+      <nodes xmi:type="eflow:FCMSource" xmi:id="InTerminal.Input" location="10,20">
+        <translation xmi:type="utility:TranslatableString" key="InTerminal.Input" bundleName="${__any__}/${__sys__}/${_Object__}" pluginId="${__any__}-${__sys__}-library"/>
+      </nodes>
+      <nodes xmi:type="eflow:FCMSink" xmi:id="OutTerminal.Output" location="213,20">
+        <translation xmi:type="utility:TranslatableString" key="OutTerminal.Output" bundleName="${__any__}/${__sys__}/${_Object__}" pluginId="${__any__}-${__sys__}-library"/>
+      </nodes>
+      <nodes xmi:type="${__any__}_${__sys__}_insert_InsertInto${_Object__}.subflow:FCMComposite_1" xmi:id="FCMComposite_1_1" location="93,20">
+        <translation xmi:type="utility:ConstantString" string="InsertInto${_Object__}"/>
+      </nodes>
+      <connections xmi:type="eflow:FCMConnection" xmi:id="FCMConnection_1" targetNode="FCMComposite_1_1" sourceNode="InTerminal.Input" sourceTerminalName="OutTerminal.out" targetTerminalName="InTerminal.Input"/>
+      <connections xmi:type="eflow:FCMConnection" xmi:id="FCMConnection_2" targetNode="OutTerminal.Output" sourceNode="FCMComposite_1_1" sourceTerminalName="OutTerminal.Output" targetTerminalName="InTerminal.in"/>
+    </composition>
+    <propertyOrganizer>
+      <propertyDescriptor groupName="Group.Basic" configurable="true" describedAttribute="Property.${_SYS_}DataSource">
+        <propertyName xmi:type="utility:TranslatableString" key="Property.${_SYS_}DataSource" bundleName="${__any__}/${__sys__}/insert/InsertInto${_Object__}" pluginId="${__any__}-${__sys__}-library"/>
+      </propertyDescriptor>
+    </propertyOrganizer>
+    <attributeLinks promotedAttribute="Property.${_SYS_}DataSource" overriddenNodes="FCMComposite_1_1">
+      <overriddenAttribute href="${__any__}/${__sys__}/insert/InsertInto${_Object__}.subflow#Property.${_SYS_}DataSource"/>
+    </attributeLinks>
+    <stickyBoard/>
+  </eClassifiers>
+</ecore:EPackage>

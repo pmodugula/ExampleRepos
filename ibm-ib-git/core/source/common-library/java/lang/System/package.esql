@@ -1,0 +1,5 @@
+BROKER SCHEMA java.lang.System
+
+CREATE PROCEDURE getProperty(IN propertyName CHARACTER) RETURNS CHARACTER LANGUAGE JAVA EXTERNAL NAME "java.lang.System.getProperty";
+CREATE PROCEDURE setProperty(IN propertyName CHARACTER, IN propertyValue CHARACTER) RETURNS CHARACTER LANGUAGE JAVA EXTERNAL NAME "java.lang.System.setProperty";
+CREATE PROCEDURE clearProperty(IN propertyName CHARACTER) RETURNS CHARACTER LANGUAGE JAVA EXTERNAL NAME "java.lang.System.clearProperty";

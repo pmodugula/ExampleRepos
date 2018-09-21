@@ -1,0 +1,110 @@
+BROKER SCHEMA core.log
+
+CREATE FILTER MODULE business_FilterDocDbDisabled
+	CREATE FUNCTION Main() RETURNS BOOLEAN
+	BEGIN
+		DECLARE auditToDocDb CHARACTER NULL;
+		CALL java.lang.System.getProperty('EAI.MESSAGE.FLOW.AUDIT.TO.DOCDB') INTO auditToDocDb;
+		IF auditToDocDb IS NULL OR '' = auditToDocDb THEN
+			SET auditToDocDb = 'FALSE';
+		END IF;
+		DECLARE audit BOOLEAN CAST(auditToDocDb AS BOOLEAN);
+		DECLARE dontDoDocDb BOOLEAN (FALSE = audit);
+		RETURN dontDoDocDb;--Leave the code block like this so we can debug efficiently (actually see the value returned before it is returned)
+	END;
+END MODULE;
+
+CREATE COMPUTE MODULE business_PreLogging
+	CREATE FUNCTION Main() RETURNS BOOLEAN
+	BEGIN
+		DECLARE I INTEGER 1;
+		DECLARE J INTEGER CARDINALITY(InputRoot.*[]);
+		WHILE I < J DO
+			SET OutputRoot.*[I] = InputRoot.*[I];
+			SET I = I + 1;
+		END WHILE;
+		CREATE LASTCHILD OF OutputRoot DOMAIN('XMLNSC');
+		CREATE LASTCHILD OF OutputRoot.XMLNSC TYPE Name NAME 'xml';
+		DECLARE ref REFERENCE TO OutputRoot.XMLNSC.xml;
+		DECLARE rEnv REFERENCE TO Environment;
+		SET ref.header.correlationId = rEnv.__CorrelationId__;
+		SET ref.header.systemId = rEnv.__SystemId__;
+		SET ref.header.type = rEnv.__CoreLogType__;
+		SET ref.header.timestamp = CURRENT_GMTTIMESTAMP;
+		DECLARE rConf REFERENCE TO rEnv.Configuration;
+		SET ref.header.interfaceId = rConf.__Name__;
+		--SET ref.header.appId = NULL;
+		--SET ref.header.batchId = NULL;
+		--SET ref.header.sourceBatchId = ;
+		DECLARE rInput REFERENCE TO rEnv.__Root__;
+		IF rInput IS NULL THEN
+			MOVE rInput TO InputRoot;
+		END IF;
+		IF (0 < CARDINALITY(rInput.*[])) THEN
+			SET ref.header.domain = FIELDNAME(rInput.*[<]);
+			SET ref.root = rInput;
+		END IF;
+		IF (0 < CARDINALITY(InputLocalEnvironment.*[])) THEN
+			SET ref.environment = InputLocalEnvironment;
+		END IF;
+		DECLARE rExc REFERENCE TO rEnv.__ExceptionList__;
+		IF rExc IS NULL THEN
+			MOVE rExc TO InputExceptionList;
+		END IF;
+		IF (0 < CARDINALITY(rExc.*[])) THEN
+			SET ref.exception.count = CARDINALITY(rExc.*[]);
+			SET ref.exception.list = rExc;
+		END IF;
+		RETURN TRUE;
+	END;
+END MODULE;
+
+CREATE COMPUTE MODULE business_SetCorrelId
+	CREATE FUNCTION Main() RETURNS BOOLEAN
+	BEGIN
+		SET OutputRoot = InputRoot;
+		SET OutputRoot.MQMD.CorrelId = Environment.__correlationId__;
+		DECLARE aQueueName CHARACTER NULL;
+		DECLARE rEnv REFERENCE TO Environment;
+		DECLARE rConf REFERENCE TO rEnv.Configuration;
+		CALL common.queue_BuildName('ALL.EAI.COMMON_OUT.IBM_IB', rConf.__Envn__, rConf.__Inst__) INTO aQueueName;
+		--SET OutputLocalEnvironment = InputLocalEnvironment;
+		SET OutputLocalEnvironment.Destination.MQ.DestinationData[1].queueName = aQueueName;
+		SET OutputExceptionList = InputExceptionList;
+		RETURN TRUE;
+	END;
+END MODULE;
+
+CREATE COMPUTE MODULE business_ConvertToJson
+	CREATE FUNCTION Main() RETURNS BOOLEAN
+	BEGIN
+		DECLARE I INTEGER 1;
+		DECLARE J INTEGER CARDINALITY(InputRoot.*[]);
+		WHILE I < J DO
+			SET OutputRoot.*[I] = InputRoot.*[I];
+			SET I = I + 1;
+		END WHILE;
+		CREATE LASTCHILD OF OutputRoot DOMAIN('JSON');
+		CREATE LASTCHILD OF OutputRoot.JSON TYPE Name NAME 'Data';
+		DECLARE ref REFERENCE TO OutputRoot.JSON.Data;
+		SET OutputRoot.JSON.Data = InputRoot.*[<];
+		SET OutputExceptionList = InputExceptionList;
+		SET OutputLocalEnvironment = InputLocalEnvironment;
+		RETURN TRUE;
+	END;
+END MODULE;
+
+CREATE FILTER MODULE business_ImplIsEmbedded
+	CREATE FUNCTION Main() RETURNS BOOLEAN
+	BEGIN
+		RETURN CoreLogImpl;
+	END;
+END MODULE;
+
+CREATE COMPUTE MODULE business_EaiCoreLog4J
+	CREATE FUNCTION Main() RETURNS BOOLEAN
+	BEGIN
+		CALL core.log.Error('ID#'||Environment.__CorrelId__||' [_FLOW - Audit] failed processing in core.log.business.subflow');
+		RETURN TRUE;
+	END;
+END MODULE;

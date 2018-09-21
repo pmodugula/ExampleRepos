@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ecore:EPackage xmi:version="2.0"
+    xmlns:xmi="http://www.omg.org/XMI" xmlns:ComIbmJMSClientInput.msgnode="ComIbmJMSClientInput.msgnode" xmlns:ComIbmJMSMQTransform.msgnode="ComIbmJMSMQTransform.msgnode" xmlns:ComIbmMQOutput.msgnode="ComIbmMQOutput.msgnode" xmlns:ComIbmPassthru.msgnode="ComIbmPassthru.msgnode" xmlns:ecore="http://www.eclipse.org/emf/2002/Ecore" xmlns:eflow="http://www.ibm.com/wbi/2005/eflow" xmlns:mbmonitor="http://www.ibm.com/wbi/2008/eflow_mbmonitor" xmlns:utility="http://www.ibm.com/wbi/2005/eflow_utility" nsURI="core/bridge/ems_to_mq/consumer.msgflow"
+    nsPrefix="core_bridge_ems_to_mq_consumer.msgflow">
+  <eClassifiers xmi:type="eflow:FCMComposite" name="FCMComposite_1">
+    <eSuperTypes href="http://www.ibm.com/wbi/2005/eflow#//FCMBlock"/>
+    <eStructuralFeatures xmi:type="ecore:EAttribute" xmi:id="Property.EMSSourceQueue" name="EMSSourceQueue" defaultValueLiteral="DO-NOT-DEPLOY-THIS-VIA-TOOLKIT">
+      <eType xmi:type="ecore:EDataType" href="http://www.eclipse.org/emf/2002/Ecore#//EString"/>
+    </eStructuralFeatures>
+    <eStructuralFeatures xmi:type="ecore:EAttribute" xmi:id="Property.EMSBackoutQueue" name="EMSBackoutQueue" defaultValueLiteral="DO-NOT-DEPLOY-THIS-VIA-TOOLKIT">
+      <eType xmi:type="ecore:EDataType" href="http://www.eclipse.org/emf/2002/Ecore#//EString"/>
+    </eStructuralFeatures>
+    <eStructuralFeatures xmi:type="ecore:EAttribute" xmi:id="Property.IIBOutboundQueue" name="IIBOutboundQueue" defaultValueLiteral="DO-NOT-DEPLOY-THIS-VIA-TOOLKIT">
+      <eType xmi:type="ecore:EDataType" href="http://www.eclipse.org/emf/2002/Ecore#//EString"/>
+    </eStructuralFeatures>
+    <translation xmi:type="utility:TranslatableString" key="consumer" bundleName="core/bridge/ems_to_mq/consumer" pluginId="core-bridge-ems-to-mq"/>
+    <colorGraphic16 xmi:type="utility:GIFFileGraphic" resourceName="platform:/plugin/core-bridge-ems-to-mq/icons/full/obj16/consumer.gif"/>
+    <colorGraphic32 xmi:type="utility:GIFFileGraphic" resourceName="platform:/plugin/core-bridge-ems-to-mq/icons/full/obj30/consumer.gif"/>
+    <composition>
+      <nodes xmi:type="ComIbmJMSClientInput.msgnode:FCMComposite_1" xmi:id="FCMComposite_1_1" location="10,20" sourceQueueName="FGL.QA2.WM.BW.WMCOMMON.Q" jmsProviderName="tibcoEMS" initialContextFactory="com.tibco.tibjms.naming.TibjmsInitialContextFactory" connectionFactoryName="XAQueueConnectionFactory" backoutThreshold="5" messageDomainProperty="BLOB" transactionMode="yes">
+        <translation xmi:type="utility:ConstantString" string="WM.BW.WMCOMMON"/>
+        <monitorEvents eventSourceDescription="Transaction start" eventSourceName="WM.BW.WMCOMMON.transaction.Start" eventIdentity="WM.BW.WMCOMMON.TransactionStart">
+          <eventXMLDoc xmi:type="mbmonitor:MonitorEvent" eventUOW="none">
+            <globalTransactionCorrelator/>
+            <parentTransactionCorrelator/>
+            <localTransactionCorrelator/>
+            <bitStreamData encoding="CDATA"/>
+            <eventName literal="WM.BW.WMCOMMON.TransactionStart"/>
+            <eventFilter dataLocation="true()" isXPath="true"/>
+          </eventXMLDoc>
+        </monitorEvents>
+      </nodes>
+      <nodes xmi:type="ComIbmMQOutput.msgnode:FCMComposite_1" xmi:id="FCMComposite_1_5" location="308,20" queueName="SEND.ALL.WM.CALDC_IN.IBM_IB.QA.2" newMsgId="true">
+        <translation xmi:type="utility:ConstantString" string="SEND.ALL.WM.WMCOMMON_IN"/>
+      </nodes>
+      <nodes xmi:type="ComIbmJMSMQTransform.msgnode:FCMComposite_1" xmi:id="FCMComposite_1_2" location="175,20">
+        <translation xmi:type="utility:ConstantString" string="JmsMqTransform"/>
+      </nodes>
+      <nodes xmi:type="ComIbmPassthru.msgnode:FCMComposite_1" xmi:id="FCMComposite_1_3" location="530,20">
+        <translation xmi:type="utility:ConstantString" string="PassThroughForDebug"/>
+      </nodes>
+      <connections xmi:type="eflow:FCMConnection" xmi:id="FCMConnection_1" targetNode="FCMComposite_1_2" sourceNode="FCMComposite_1_1" sourceTerminalName="OutTerminal.out" targetTerminalName="InTerminal.in"/>
+      <connections xmi:type="eflow:FCMConnection" xmi:id="FCMConnection_8" targetNode="FCMComposite_1_5" sourceNode="FCMComposite_1_2" sourceTerminalName="OutTerminal.out" targetTerminalName="InTerminal.in"/>
+      <connections xmi:type="eflow:FCMConnection" xmi:id="FCMConnection_9" targetNode="FCMComposite_1_3" sourceNode="FCMComposite_1_5" sourceTerminalName="OutTerminal.out" targetTerminalName="InTerminal.in"/>
+    </composition>
+    <propertyOrganizer>
+      <propertyDescriptor groupName="Group.CoreBridgeEmsToMq" propertyEditor="com.ibm.etools.mft.ibmnodes.editors.jms.SourceQueuePropertyEditor" configurable="true" describedAttribute="Property.EMSSourceQueue">
+        <propertyName xmi:type="utility:TranslatableString" key="Property.EMSSourceQueue" bundleName="core/bridge/ems_to_mq/consumer" pluginId="core-bridge-ems-to-mq"/>
+        <propertyDescriptor groupName="Group.CoreBridgeEmsToMq" configurable="true" describedAttribute="Property.EMSBackoutQueue">
+          <propertyName xmi:type="utility:TranslatableString" key="Property.EMSBackoutQueue" bundleName="core/bridge/ems_to_mq/consumer" pluginId="core-bridge-ems-to-mq"/>
+          <propertyDescriptor groupName="Group.CoreBridgeEmsToMq" propertyEditor="com.ibm.etools.mft.ibmnodes.editors.mq.MQQueueNameEditor" configurable="true" describedAttribute="Property.IIBOutboundQueue">
+            <propertyName xmi:type="utility:TranslatableString" key="Property.IIBOutboundQueue" bundleName="core/bridge/ems_to_mq/consumer" pluginId="core-bridge-ems-to-mq"/>
+          </propertyDescriptor>
+        </propertyDescriptor>
+      </propertyDescriptor>
+    </propertyOrganizer>
+    <attributeLinks promotedAttribute="Property.EMSSourceQueue" overriddenNodes="FCMComposite_1_1">
+      <overriddenAttribute href="ComIbmJMSClientInput.msgnode#Property.sourceQueueName"/>
+    </attributeLinks>
+    <attributeLinks promotedAttribute="Property.EMSBackoutQueue" overriddenNodes="FCMComposite_1_1">
+      <overriddenAttribute href="ComIbmJMSClientInput.msgnode#Property.backoutDestination"/>
+    </attributeLinks>
+    <attributeLinks promotedAttribute="Property.IIBOutboundQueue" overriddenNodes="FCMComposite_1_5">
+      <overriddenAttribute href="ComIbmMQOutput.msgnode#Property.queueName"/>
+    </attributeLinks>
+    <stickyBoard/>
+  </eClassifiers>
+</ecore:EPackage>

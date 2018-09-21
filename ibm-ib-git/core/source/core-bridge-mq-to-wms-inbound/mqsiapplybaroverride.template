@@ -1,0 +1,6 @@
+core.bridge.mq_to_wms.consumer#IIBInboundQueue=RECV.${WMCOMMON}
+core.bridge.mq_to_wms.consumer#CDCOutboundDatQueue=SEND.${WMCOMMON_CALDC_DAT}
+core.bridge.mq_to_wms.consumer#CDCOutboundTrxQueue=SEND.${WMCOMMON_CALDC_TRX}
+core.bridge.mq_to_wms.consumer#MDCOutboundDatQueue=SEND.${WMCOMMON_MISDC_DAT}
+core.bridge.mq_to_wms.consumer#MDCOutboundTrxQueue=SEND.${WMCOMMON_MISDC_TRX}
+core.bridge.mq_to_wms.consumer#CoreAuditDataSource=AUD${ENVN}${INST}

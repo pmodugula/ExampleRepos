@@ -1,0 +1,5 @@
+${__any__}.${__object__}.${__sys__}.subscriber#IIBInboundQueue=RECV.${SUB_IN}
+${__any__}.${__object__}.${__sys__}.subscriber#IIBDataSource=STG${ENVN}${INST}
+${__any__}.${__object__}.${__sys__}.subscriber#${_SYS_}OutboundQueue=SEND.${SUB_OUT}
+${__any__}.${__object__}.${__sys__}.subscriber#CoreAuditDataSource=AUD${ENVN}${INST}
+${__any__}.${__object__}.${__sys__}.subscriber#additionalInstances=${EXTRATHREADS}

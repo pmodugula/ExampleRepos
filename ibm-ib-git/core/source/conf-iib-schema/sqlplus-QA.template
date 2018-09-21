@@ -1,0 +1,2 @@
+cat ${_PATH_PLSQL}/sqlplus-QA.sql|perl -e 'while(<>){s/(.*\S)\s*/$1/;print"$_\n"}' > ${_PATH_PLSQL}/sqlplus.sql~;mv ${_PATH_PLSQL}/sqlplus.sql~ ${_PATH_PLSQL}/sqlplus-QA.sql
+/opt/oracle/product/11.2.0.1/bin/sqlplus -s ${../resources/credentials-QA.properties:MDR_DB_USER}/${../resources/credentials-QA.properties:MDR_DB_PASSWORD}@${../source/conf-odbc-datasources/template-QA.properties:MDR_DB_HOST} @${_PATH_PLSQL}/sqlplus-QA.sql

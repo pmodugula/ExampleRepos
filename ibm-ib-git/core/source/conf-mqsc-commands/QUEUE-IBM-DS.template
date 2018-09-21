@@ -1,0 +1,1 @@
+DEFINE QLOCAL(ALL.EAI.TEST.IBM_DS${dotENVN}${dotINST}) DESCR('DataStage test queue for amqsphac')

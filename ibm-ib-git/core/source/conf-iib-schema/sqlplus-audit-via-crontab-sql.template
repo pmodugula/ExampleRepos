@@ -1,0 +1,15 @@
+spool /home/dbkadm/mqsi-scripts/sqlplus-audit-via-crontab.log;
+
+select 'AUDIT' as "TABLE",count(*) as "COUNT" from IIB."AUDIT";
+select 'AUDIT_ARCH' as "TABLE",count(*) as "COUNT" from IIB."AUDIT_ARCH";
+select 'AUDIT_HIST' as "TABLE",count(*) as "COUNT" from IIB."AUDIT_HIST";
+
+BEGIN
+ AUDIT_REMOVE_FROM_HIST(14);--days
+ AUDIT_MOVE_FROM_ARCH_TO_HIST(5);--days
+ AUDIT_MOVE_TO_ARCH(1);--hours
+END;
+/
+
+spool off;
+quit;

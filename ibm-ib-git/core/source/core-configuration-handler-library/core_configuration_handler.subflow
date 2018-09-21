@@ -1,0 +1,148 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ecore:EPackage xmi:version="2.0"
+    xmlns:xmi="http://www.omg.org/XMI" xmlns:ComIbmCompute.msgnode="ComIbmCompute.msgnode" xmlns:ComIbmFilter.msgnode="ComIbmFilter.msgnode" xmlns:ComIbmFlowOrder.msgnode="ComIbmFlowOrder.msgnode" xmlns:ComIbmPassthru.msgnode="ComIbmPassthru.msgnode" xmlns:_core_configuration_loader.subflow="_core_configuration_loader.subflow" xmlns:core_configuration_internal.subflow="core_configuration_internal.subflow" xmlns:core_configuration_via_queue.subflow="core_configuration_via_queue.subflow" xmlns:ecore="http://www.eclipse.org/emf/2002/Ecore"
+    xmlns:eflow="http://www.ibm.com/wbi/2005/eflow" xmlns:utility="http://www.ibm.com/wbi/2005/eflow_utility" nsURI="core_configuration_handler.subflow"
+    nsPrefix="core_configuration_handler.subflow">
+  <eClassifiers xmi:type="eflow:FCMComposite" name="FCMComposite_1" useDefaults="true" udpSupport="true">
+    <eSuperTypes href="http://www.ibm.com/wbi/2005/eflow#//FCMBlock"/>
+    <eStructuralFeatures xmi:type="ecore:EAttribute" xmi:id="Property.CoreConfType" name="CoreConfType">
+      <eType xmi:type="ecore:EDataType" href="http://www.eclipse.org/emf/2002/Ecore#//EString"/>
+    </eStructuralFeatures>
+    <eStructuralFeatures xmi:type="ecore:EAttribute" xmi:id="Property.CoreConfName" name="CoreConfName">
+      <eType xmi:type="ecore:EDataType" href="http://www.eclipse.org/emf/2002/Ecore#//EString"/>
+    </eStructuralFeatures>
+    <eStructuralFeatures xmi:type="ecore:EAttribute" xmi:id="Property.CoreConfInst" name="CoreConfInst">
+      <eType xmi:type="ecore:EDataType" href="http://www.eclipse.org/emf/2002/Ecore#//EString"/>
+    </eStructuralFeatures>
+    <eStructuralFeatures xmi:type="ecore:EAttribute" xmi:id="Property.CoreConfEnvn" name="CoreConfEnvn">
+      <eType xmi:type="ecore:EDataType" href="http://www.eclipse.org/emf/2002/Ecore#//EString"/>
+    </eStructuralFeatures>
+    <eStructuralFeatures xmi:type="ecore:EAttribute" xmi:id="Property.CoreConfImpl" name="CoreConfImpl" lowerBound="1" defaultValueLiteral="false">
+      <eType xmi:type="ecore:EDataType" href="http://www.eclipse.org/emf/2002/Ecore#//EBoolean"/>
+    </eStructuralFeatures>
+    <eStructuralFeatures xmi:type="ecore:EAttribute" xmi:id="Property.CoreConfLoaderQueueInst" name="CoreConfLoaderQueueInst">
+      <eType xmi:type="ecore:EDataType" href="http://www.eclipse.org/emf/2002/Ecore#//EString"/>
+    </eStructuralFeatures>
+    <eStructuralFeatures xmi:type="ecore:EAttribute" xmi:id="Property.CoreConfLoaderQueueEnvn" name="CoreConfLoaderQueueEnvn">
+      <eType xmi:type="ecore:EDataType" href="http://www.eclipse.org/emf/2002/Ecore#//EString"/>
+    </eStructuralFeatures>
+    <eStructuralFeatures xmi:type="ecore:EAttribute" xmi:id="Property.CoreConfCache" name="CoreConfCache" lowerBound="1" defaultValueLiteral="1">
+      <eType xmi:type="ecore:EDataType" href="http://www.eclipse.org/emf/2002/Ecore#//EInt"/>
+    </eStructuralFeatures>
+    <eStructuralFeatures xmi:type="ecore:EAttribute" xmi:id="Property.ALL.EAI.CORE_CONF_OUT" name="ALL.EAI.CORE_CONF_OUT" lowerBound="1" defaultValueLiteral="RECV.ALL.EAI.CORE_CONF_OUT.IBM_IB.DV">
+      <eType xmi:type="ecore:EDataType" href="http://www.eclipse.org/emf/2002/Ecore#//EString"/>
+    </eStructuralFeatures>
+    <eStructuralFeatures xmi:type="ecore:EAttribute" xmi:id="Property.ALL.EAI.CORE_CONF_IN" name="ALL.EAI.CORE_CONF_IN" defaultValueLiteral="SEND.ALL.EAI.CORE_CONF_IN.IBM_IB.DV">
+      <eType xmi:type="ecore:EDataType" href="http://www.eclipse.org/emf/2002/Ecore#//EString"/>
+    </eStructuralFeatures>
+    <translation xmi:type="utility:TranslatableString" key="core_configuration_handler" bundleName="core_configuration_handler" pluginId="core-configuration-handler-library"/>
+    <colorGraphic16 xmi:type="utility:GIFFileGraphic" resourceName="platform:/plugin/core-configuration-handler-library/icons/full/obj16/core_configuration_handler.gif"/>
+    <colorGraphic32 xmi:type="utility:GIFFileGraphic" resourceName="platform:/plugin/core-configuration-handler-library/icons/full/obj30/core_configuration_handler.gif"/>
+    <composition>
+      <nodes xmi:type="eflow:FCMSource" xmi:id="InTerminal.Input" location="10,20">
+        <translation xmi:type="utility:TranslatableString" key="InTerminal.Input" bundleName="core_configuration_handler" pluginId="core-configuration-handler-library"/>
+      </nodes>
+      <nodes xmi:type="eflow:FCMSink" xmi:id="OutTerminal.Output" location="209,97">
+        <translation xmi:type="utility:TranslatableString" key="OutTerminal.Output" bundleName="core_configuration_handler" pluginId="core-configuration-handler-library"/>
+      </nodes>
+      <nodes xmi:type="ComIbmFlowOrder.msgnode:FCMComposite_1" xmi:id="FCMComposite_1_1" location="93,20">
+        <translation xmi:type="utility:ConstantString" string="FlowOrder"/>
+      </nodes>
+      <nodes xmi:type="ComIbmPassthru.msgnode:FCMComposite_1" xmi:id="FCMComposite_1_9" location="1531,101">
+        <translation xmi:type="utility:ConstantString" string="PassThroughForDebug2"/>
+      </nodes>
+      <nodes xmi:type="ComIbmFilter.msgnode:FCMComposite_1" xmi:id="FCMComposite_1_10" location="1000,20" filterExpression="esql://routine/core.configuration#ImplIsEmbedded.Main" throwExceptionOnDatabaseError="false">
+        <translation xmi:type="utility:ConstantString" string="ImplIsEmbedded?"/>
+        <longDescription xmi:type="utility:ConstantString" string="This node uses Environment.Configuration.Impl to determine if the flow invocation uses the embedded configuration loader (Impl=1) rather than a decoupled configuration loader (Impl=2)"/>
+      </nodes>
+      <nodes xmi:type="core_configuration_via_queue.subflow:FCMComposite_1" xmi:id="FCMComposite_1_3" location="1134,20">
+        <translation xmi:type="utility:ConstantString" string="CoreConfViaQueue"/>
+        <longDescription xmi:type="utility:ConstantString" string="This subflow requires CoreConfQueryQueue and Environment.Configuration.Loader.Envn,Inst to build LocalEnvironment.Destination.MQ.DestinationData[1].queueName -&#xD;&#xA;CoreConfQueryQueue||'.'||Environment.Configuration.Loader.Queue.Envn||'.'||Environment.Configuration.Loader.Queue.Inst"/>
+      </nodes>
+      <nodes xmi:type="ComIbmCompute.msgnode:FCMComposite_1" xmi:id="FCMComposite_1_6" location="1404,20" computeExpression="esql://routine/core.configuration#CopyCoreConfToCache.Main" throwExceptionOnDatabaseError="false">
+        <translation xmi:type="utility:ConstantString" string="CopyCoreConfToCache"/>
+      </nodes>
+      <nodes xmi:type="ComIbmCompute.msgnode:FCMComposite_1" xmi:id="FCMComposite_1_4" location="1134,100" computeExpression="esql://routine/core.configuration#SetCoreConfLoader.Main" throwExceptionOnDatabaseError="false">
+        <translation xmi:type="utility:ConstantString" string="SetCoreConfLoader"/>
+      </nodes>
+      <nodes xmi:type="ComIbmCompute.msgnode:FCMComposite_1" xmi:id="FCMComposite_1_5" location="632,20" computeExpression="esql://routine/core.configuration#PickupUserDefinedProperties.Main" throwExceptionOnDatabaseError="false">
+        <translation xmi:type="utility:ConstantString" string="PickupUserDefinedProperties"/>
+      </nodes>
+      <nodes xmi:type="ComIbmCompute.msgnode:FCMComposite_1" xmi:id="FCMComposite_1_8" location="436,20" computeExpression="esql://routine/core.configuration#PickupMessageConfiguration.Main" throwExceptionOnDatabaseError="false">
+        <translation xmi:type="utility:ConstantString" string="PickupMessageConfiguration"/>
+      </nodes>
+      <nodes xmi:type="core_configuration_internal.subflow:FCMComposite_1" xmi:id="FCMComposite_1_11" location="825,20">
+        <translation xmi:type="utility:ConstantString" string="DiscoverIntegrationServer"/>
+      </nodes>
+      <nodes xmi:type="ComIbmCompute.msgnode:FCMComposite_1" xmi:id="FCMComposite_1_7" location="188,20" computeExpression="esql://routine/core.configuration#DefaultCoreConf.Main" throwExceptionOnDatabaseError="false">
+        <translation xmi:type="utility:ConstantString" string="DefaultCoreConf"/>
+      </nodes>
+      <nodes xmi:type="_core_configuration_loader.subflow:FCMComposite_1" xmi:id="FCMComposite_1_2" location="1277,100">
+        <translation xmi:type="utility:ConstantString" string="CoreConfLoader"/>
+      </nodes>
+      <nodes xmi:type="ComIbmFilter.msgnode:FCMComposite_1" xmi:id="FCMComposite_1_12" location="307,20" filterExpression="esql://routine/core.configuration#CoreConfIsCached.Main" throwExceptionOnDatabaseError="false">
+        <translation xmi:type="utility:ConstantString" string="CoreConfIsCached?"/>
+        <longDescription xmi:type="utility:ConstantString" string="This node uses Environment.Configuration.Impl to determine if the flow invocation uses the embedded configuration loader (Impl=1) rather than a decoupled configuration loader (Impl=2)"/>
+      </nodes>
+      <nodes xmi:type="ComIbmPassthru.msgnode:FCMComposite_1" xmi:id="FCMComposite_1_13" location="420,96">
+        <translation xmi:type="utility:ConstantString" string="PassThroughForDebug1"/>
+      </nodes>
+      <connections xmi:type="eflow:FCMConnection" xmi:id="FCMConnection_1" targetNode="FCMComposite_1_1" sourceNode="InTerminal.Input" sourceTerminalName="OutTerminal.out" targetTerminalName="InTerminal.in"/>
+      <connections xmi:type="eflow:FCMConnection" xmi:id="FCMConnection_2" targetNode="OutTerminal.Output" sourceNode="FCMComposite_1_1" sourceTerminalName="OutTerminal.second" targetTerminalName="InTerminal.in"/>
+      <connections xmi:type="eflow:FCMConnection" xmi:id="FCMConnection_14" targetNode="FCMComposite_1_6" sourceNode="FCMComposite_1_3" sourceTerminalName="OutTerminal.Failure1" targetTerminalName="InTerminal.in"/>
+      <connections xmi:type="eflow:FCMConnection" xmi:id="FCMConnection_15" targetNode="FCMComposite_1_6" sourceNode="FCMComposite_1_3" sourceTerminalName="OutTerminal.Output1" targetTerminalName="InTerminal.in"/>
+      <connections xmi:type="eflow:FCMConnection" xmi:id="FCMConnection_18" targetNode="FCMComposite_1_9" sourceNode="FCMComposite_1_6" sourceTerminalName="OutTerminal.out" targetTerminalName="InTerminal.in"/>
+      <connections xmi:type="eflow:FCMConnection" xmi:id="FCMConnection_11" targetNode="FCMComposite_1_3" sourceNode="FCMComposite_1_10" sourceTerminalName="OutTerminal.false" targetTerminalName="InTerminal.Input"/>
+      <connections xmi:type="eflow:FCMConnection" xmi:id="FCMConnection_25" targetNode="FCMComposite_1_4" sourceNode="FCMComposite_1_10" sourceTerminalName="OutTerminal.true" targetTerminalName="InTerminal.in"/>
+      <connections xmi:type="eflow:FCMConnection" xmi:id="FCMConnection_10" targetNode="FCMComposite_1_5" sourceNode="FCMComposite_1_8" sourceTerminalName="OutTerminal.out" targetTerminalName="InTerminal.in"/>
+      <connections xmi:type="eflow:FCMConnection" xmi:id="FCMConnection_12" targetNode="FCMComposite_1_11" sourceNode="FCMComposite_1_5" sourceTerminalName="OutTerminal.out" targetTerminalName="InTerminal.Input"/>
+      <connections xmi:type="eflow:FCMConnection" xmi:id="FCMConnection_3" targetNode="FCMComposite_1_9" sourceNode="FCMComposite_1_3" sourceTerminalName="OutTerminal.Output2" targetTerminalName="InTerminal.in"/>
+      <connections xmi:type="eflow:FCMConnection" xmi:id="FCMConnection_4" targetNode="FCMComposite_1_2" sourceNode="FCMComposite_1_4" sourceTerminalName="OutTerminal.out" targetTerminalName="InTerminal.Input"/>
+      <connections xmi:type="eflow:FCMConnection" xmi:id="FCMConnection_5" targetNode="FCMComposite_1_6" sourceNode="FCMComposite_1_2" sourceTerminalName="OutTerminal.Output1" targetTerminalName="InTerminal.in"/>
+      <connections xmi:type="eflow:FCMConnection" xmi:id="FCMConnection_6" targetNode="FCMComposite_1_10" sourceNode="FCMComposite_1_11" sourceTerminalName="OutTerminal.Output" targetTerminalName="InTerminal.in"/>
+      <connections xmi:type="eflow:FCMConnection" xmi:id="FCMConnection_8" targetNode="FCMComposite_1_7" sourceNode="FCMComposite_1_1" sourceTerminalName="OutTerminal.first" targetTerminalName="InTerminal.in"/>
+      <connections xmi:type="eflow:FCMConnection" xmi:id="FCMConnection_13" targetNode="FCMComposite_1_12" sourceNode="FCMComposite_1_7" sourceTerminalName="OutTerminal.out" targetTerminalName="InTerminal.in"/>
+      <connections xmi:type="eflow:FCMConnection" xmi:id="FCMConnection_16" targetNode="FCMComposite_1_8" sourceNode="FCMComposite_1_12" sourceTerminalName="OutTerminal.false" targetTerminalName="InTerminal.in"/>
+      <connections xmi:type="eflow:FCMConnection" xmi:id="FCMConnection_17" targetNode="FCMComposite_1_13" sourceNode="FCMComposite_1_12" sourceTerminalName="OutTerminal.true" targetTerminalName="InTerminal.in"/>
+    </composition>
+    <propertyOrganizer>
+      <propertyDescriptor groupName="Group.CoreConf" configurable="true" userDefined="true" describedAttribute="Property.CoreConfType">
+        <propertyName xmi:type="utility:TranslatableString" key="Property.CoreConfType" bundleName="core_configuration_handler" pluginId="core-configuration-handler-library"/>
+        <propertyDescriptor groupName="Group.CoreConf" configurable="true" userDefined="true" describedAttribute="Property.CoreConfName">
+          <propertyName xmi:type="utility:TranslatableString" key="Property.CoreConfName" bundleName="core_configuration_handler" pluginId="core-configuration-handler-library"/>
+          <propertyDescriptor groupName="Group.CoreConf" configurable="true" userDefined="true" describedAttribute="Property.CoreConfInst">
+            <propertyName xmi:type="utility:TranslatableString" key="Property.CoreConfInst" bundleName="core_configuration_handler" pluginId="core-configuration-handler-library"/>
+            <propertyDescriptor groupName="Group.CoreConf" configurable="true" userDefined="true" describedAttribute="Property.CoreConfEnvn">
+              <propertyName xmi:type="utility:TranslatableString" key="Property.CoreConfEnvn" bundleName="core_configuration_handler" pluginId="core-configuration-handler-library"/>
+              <propertyDescriptor groupName="Group.CoreConf" configurable="true" userDefined="true" describedAttribute="Property.CoreConfImpl">
+                <propertyName xmi:type="utility:TranslatableString" key="Property.CoreConfImpl" bundleName="core_configuration_handler" pluginId="core-configuration-handler-library"/>
+                <propertyDescriptor groupName="Group.CoreConfLoader" configurable="true" userDefined="true" describedAttribute="Property.CoreConfLoaderQueueInst">
+                  <propertyName xmi:type="utility:TranslatableString" key="Property.CoreConfLoaderQueueInst" bundleName="core_configuration_handler" pluginId="core-configuration-handler-library"/>
+                  <propertyDescriptor groupName="Group.CoreConfLoader" configurable="true" userDefined="true" describedAttribute="Property.CoreConfLoaderQueueEnvn">
+                    <propertyName xmi:type="utility:TranslatableString" key="Property.CoreConfLoaderQueueEnvn" bundleName="core_configuration_handler" pluginId="core-configuration-handler-library"/>
+                    <propertyDescriptor groupName="Group.CoreConf" configurable="true" userDefined="true" describedAttribute="Property.CoreConfCache">
+                      <propertyName xmi:type="utility:TranslatableString" key="Property.CoreConfCache" bundleName="core_configuration_handler" pluginId="core-configuration-handler-library"/>
+                      <propertyDescriptor groupName="Group.Basic" propertyEditor="com.ibm.etools.mft.ibmnodes.editors.mq.MQQueueNameEditor" configurable="true" describedAttribute="Property.ALL.EAI.CORE_CONF_OUT">
+                        <propertyName xmi:type="utility:TranslatableString" key="Property.ALL.EAI.CORE_CONF_OUT" bundleName="core_configuration_via_queue" pluginId="core-configuration-handler-library"/>
+                        <propertyDescriptor groupName="Group.Basic" configurable="true" userDefined="true" describedAttribute="Property.ALL.EAI.CORE_CONF_IN">
+                          <propertyName xmi:type="utility:TranslatableString" key="Property.ALL.EAI.CORE_CONF_IN" bundleName="core_configuration_via_queue" pluginId="core-configuration-handler-library"/>
+                        </propertyDescriptor>
+                      </propertyDescriptor>
+                    </propertyDescriptor>
+                  </propertyDescriptor>
+                </propertyDescriptor>
+              </propertyDescriptor>
+            </propertyDescriptor>
+          </propertyDescriptor>
+        </propertyDescriptor>
+      </propertyDescriptor>
+    </propertyOrganizer>
+    <attributeLinks promotedAttribute="Property.ALL.EAI.CORE_CONF_OUT" overriddenNodes="FCMComposite_1_3">
+      <overriddenAttribute href="core_configuration_via_queue.subflow#Property.ALL.EAI.CORE_CONF_OUT"/>
+    </attributeLinks>
+    <attributeLinks promotedAttribute="Property.ALL.EAI.CORE_CONF_IN" overriddenNodes="FCMComposite_1_3">
+      <overriddenAttribute href="core_configuration_via_queue.subflow#Property.ALL.EAI.CORE_CONF_IN"/>
+    </attributeLinks>
+    <stickyBoard/>
+  </eClassifiers>
+</ecore:EPackage>

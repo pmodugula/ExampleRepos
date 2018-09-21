@@ -1,0 +1,29 @@
+BROKER SCHEMA core.cache
+
+CREATE PROCEDURE getConfigurationValue(IN rConf REFERENCE, IN aName CHARACTER, IN theName CHARACTER) RETURNS CHARACTER
+BEGIN
+	DECLARE theValue CHARACTER NULL;
+	IF (1 <= rConf.__Cache__) THEN
+		DECLARE I INTEGER 1;
+		DECLARE J INTEGER CARDINALITY(rConf.*[]);
+		DECLARE K INTEGER -1;
+		WHILE I <= J AND 0 > K DO
+			IF (FIELDNAME(rConf.*[I]) = aName) THEN
+				SET K = I;
+			END IF;
+			SET I = I + 1;
+		END WHILE;
+		SET I = 1;
+		SET J = CARDINALITY(rConf.*[K].*[]);
+		WHILE I <= J DO
+			IF (FIELDNAME(rConf.*[K].*[I]) = theName) THEN
+				SET theValue = FIELDVALUE(rConf.*[K].*[I]);
+				SET I = J;
+			END IF;
+			SET I = I + 1;
+		END WHILE;
+	ELSEIF (2 = rConf.__Cache__) THEN
+	ELSEIF (3 = rConf.__Cache__) THEN
+	END IF;
+	RETURN theValue;
+END;

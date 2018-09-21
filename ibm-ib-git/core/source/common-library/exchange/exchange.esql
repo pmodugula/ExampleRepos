@@ -1,0 +1,71 @@
+BROKER SCHEMA exchange
+
+CREATE PROCEDURE exchange_buildCommonMessageRouting(IN nsEtl CHARACTER, IN rInRouting REFERENCE, IN nsUrl CHARACTER, IN r REFERENCE, IN blankORspace CHARACTER)
+BEGIN
+	-- /eai:Exchange/eai:MessageRouting <= /etl:Exchange/etl:MessageRouting
+	DECLARE etl NAMESPACE nsEtl;
+	DECLARE ns NAMESPACE nsUrl;
+	SET r.ns:SbuNumber = COALESCE(rInRouting.etl:SBU_NBR,blankORspace);
+	SET r.ns:SbuCode = COALESCE(rInRouting.etl:SBU_CD,blankORspace);
+	SET r.ns:SbuName = COALESCE(rInRouting.etl:SBU_NM,blankORspace);
+	SET r.ns:DataSourceCode = COALESCE(rInRouting.etl:DATA_SOURCE_CD,blankORspace);
+	--SET r.ns:DataSourceName = COALESCE(rInRouting.etl:DATA_SOURCE_NM,blankORspace);
+	SET r.ns:DataSourceCodeName = COALESCE(rInRouting.etl:DATA_SOURCE_NM,blankORspace);
+END;
+
+CREATE PROCEDURE exchange_buildMessageRouting(IN nsEtl CHARACTER, IN rInRouting REFERENCE, IN nsEai CHARACTER, IN rOutExc REFERENCE, IN blankORspace CHARACTER)
+BEGIN
+	-- /eai:Exchange/eai:MessageRouting <= /etl:Exchange/etl:MessageRouting
+	DECLARE etl NAMESPACE nsEtl;
+	DECLARE eai NAMESPACE nsEai;
+	SET rOutExc.eai:MessageRouting.eai:Guid = rInRouting.etl:Guid;
+	DECLARE rOutRouting REFERENCE TO rOutExc.eai:MessageRouting;
+	--SET rOutRouting.eai:MessageId = InputRoot.MQMD.MsgId;--Not sure this won't be DEPRECATED soon (it has been in my mind --Alex Russell, 15-Aug 2015)
+	SET rOutRouting.eai:MessageType = rInRouting.etl:MessageType;
+	SET rOutRouting.eai:SubjectArea = rInRouting.etl:SubjectArea;
+	CALL exchange_buildCommonMessageRouting(nsEtl,rInRouting,nsEai,rOutRouting,blankORspace);
+	DECLARE I INTEGER 1;
+	DECLARE J INTEGER CARDINALITY(rInRouting.etl:Testing.*[]);
+	WHILE I <= J DO
+		CREATE LASTCHILD OF rOutRouting.eai:Testing TYPE NameValue NAME FIELDNAME(rInRouting.etl:Testing.*[I]) VALUE FIELDVALUE(rInRouting.etl:Testing.*[I]);
+		DECLARE I2 INTEGER 1;
+		DECLARE J2 INTEGER CARDINALITY(rInRouting.etl:Testing.*[I].(XMLNSC.Attribute)*[]);
+		WHILE I2 <= J2 DO
+			SET rOutRouting.eai:Testing.*[I].(XMLNSC.Attribute)*[I2] = rInRouting.etl:Testing.*[I].(XMLNSC.Attribute)*[I2];
+			SET I2 = I2 + 1; 
+		END WHILE;
+		SET I = I + 1;
+	END WHILE;
+END;
+
+CREATE PROCEDURE exchange_buildMessageRouting_AuditMessages_SystemTransition(IN nsEai CHARACTER, IN rOutRouting REFERENCE, IN Protocol CHARACTER, IN ProtocolDetails CHARACTER)
+BEGIN
+	DECLARE eai NAMESPACE nsEai;
+	SET rOutRouting.eai:AuditMessages.eai:Count = 1;
+	DECLARE rMessages REFERENCE TO rOutRouting.eai:AuditMessages;
+	SET rMessages.eai:SystemTransition.eai:Index = 1;
+	DECLARE rTransition REFERENCE TO rMessages.eai:SystemTransition;
+	SET rTransition.eai:Timestamp = CURRENT_TIMESTAMP;
+	SET rTransition.eai:Protocol = Protocol;
+	SET rTransition.eai:ProtocolDetails = ProtocolDetails;
+END;
+
+CREATE PROCEDURE exchange_buildMessages_SourceSystems(IN nsEai CHARACTER, IN rOutExc REFERENCE, IN MessagesCount INTEGER, IN nsEtl CHARACTER, IN rInRouting REFERENCE, IN SbuCode CHARACTER)
+BEGIN
+	-- /eai:Exchange/eai:Messages
+	DECLARE eai NAMESPACE nsEai;
+	DECLARE etl NAMESPACE nsEtl;
+	SET rOutExc.eai:Messages.eai:Count = MessagesCount;
+	DECLARE rOutMessages REFERENCE TO rOutExc.eai:Messages;
+	-- /eai:Exchange/eai:Messages/eai:SourceSystems
+	SET rOutMessages.eai:SourceSystems.eai:Count = 1;
+	DECLARE rOutSystems REFERENCE TO rOutMessages.eai:SourceSystems;
+	SET rOutSystems.eai:SourceSystem.eai:Index = 1;
+	DECLARE rOutSystem REFERENCE TO rOutSystems.eai:SourceSystem;
+	SET rOutSystem.eai:SbuNumber = rInRouting.etl:SBU_NBR;
+	SET rOutSystem.eai:SbuCode = SbuCode;
+	SET rOutSystem.eai:SbuName = rInRouting.etl:SBU_NM;
+	SET rOutSystem.eai:MessageSourceCode = rInRouting.etl:DATA_SOURCE_CD;
+	--SET rOutSystem.eai:MessageSourceName = rInRouting.etl:DATA_SOURCE_NM;
+	SET rOutSystem.eai:MessageSourceCodeName = rInRouting.etl:DATA_SOURCE_NM;--TODO: MessageSourceCodeName should be renamed to MessageSourceName (as with DATA_SOURCE_CODE|NAME) except this has to be fixed in ARTS too
+END;

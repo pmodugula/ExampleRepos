@@ -1,0 +1,52 @@
+BROKER SCHEMA core.message
+
+--ExceptionList
+--	RecoverableException
+--			File:CHARACTER:/build/slot1/S900_P/src/DataFlowEngine/MQLibrary/linklib/ImbMqInputNode.cpp
+--			Line:INTEGER:2077
+--			Function:CHARACTER:ImbCommonInputNode::eligibleForBackout
+--			Type:CHARACTER:ComIbmMQInputNode
+--			Name:CHARACTER:core/audit/test#FCMComposite_1_5
+--			Label:CHARACTER:core.audit.test.ALL.EAI.AUDIT_TEST_IN
+--			Catalog:CHARACTER:BIPmsgs
+--			Severity:INTEGER:3
+--			Number:INTEGER:2652
+--			Text:CHARACTER:Dequeued failed message. Propagating a message to the failure terminal
+CREATE FILTER MODULE postprocessor_ExceptionNumberIs2652
+	CREATE FUNCTION Main() RETURNS BOOLEAN
+	BEGIN
+		RETURN 2652=CAST(ExceptionList.RecoverableException.Number AS INTEGER);
+	END;
+END MODULE;
+
+CREATE COMPUTE MODULE postprocessor_PickupExceptionList
+	CREATE FUNCTION Main() RETURNS BOOLEAN
+	BEGIN
+		SET OutputLocalEnvironment = InputLocalEnvironment;
+		DECLARE rEnv REFERENCE TO Environment;
+		IF rEnv.__ExceptionList__ IS NULL THEN
+			SET rEnv.__ExceptionList__ = InputExceptionList;
+		END IF;
+		IF rEnv.__ExceptionList__ IS NOT NULL THEN
+			SET rEnv.__CoreAuditState__ = _FAIL;
+		END IF;
+		SET OutputExceptionList = rEnv.__ExceptionList__;
+		SET Environment.__ExceptionListDone__ = TRUE;
+		SET OutputRoot = InputRoot;
+		RETURN TRUE;
+	END;
+END MODULE;
+
+CREATE FILTER MODULE postprocessor_AuditStateIsDrop
+	CREATE FUNCTION Main() RETURNS BOOLEAN
+	BEGIN
+		DECLARE isDrop BOOLEAN FALSE;
+		DECLARE rEnv REFERENCE TO Environment;
+		IF _DROP=rEnv.__CoreAuditState__ THEN
+			SET isDrop = TRUE;
+		ELSE
+			SET rEnv.__CoreAuditState__ = _PASS;
+		END IF;
+		RETURN isDrop;
+	END;
+END MODULE;

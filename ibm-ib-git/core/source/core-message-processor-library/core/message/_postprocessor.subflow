@@ -1,0 +1,116 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ecore:EPackage xmi:version="2.0"
+    xmlns:xmi="http://www.omg.org/XMI" xmlns:ComIbmCompute.msgnode="ComIbmCompute.msgnode" xmlns:ComIbmFilter.msgnode="ComIbmFilter.msgnode" xmlns:ComIbmPassthru.msgnode="ComIbmPassthru.msgnode" xmlns:ComIbmThrow.msgnode="ComIbmThrow.msgnode" xmlns:EaiCoreLog4J.msgnode="EaiCoreLog4J.msgnode" xmlns:core_audit__audit.subflow="core/audit/_audit.subflow" xmlns:ecore="http://www.eclipse.org/emf/2002/Ecore" xmlns:eflow="http://www.ibm.com/wbi/2005/eflow" xmlns:utility="http://www.ibm.com/wbi/2005/eflow_utility" nsURI="core/message/_postprocessor.subflow"
+    nsPrefix="core_message__postprocessor.subflow">
+  <eClassifiers xmi:type="eflow:FCMComposite" name="FCMComposite_1" useDefaults="true" udpSupport="true">
+    <eSuperTypes href="http://www.ibm.com/wbi/2005/eflow#//FCMBlock"/>
+    <eStructuralFeatures xmi:type="ecore:EAttribute" xmi:id="Property.CoreAuditDataSource" name="CoreAuditDataSource">
+      <eType xmi:type="ecore:EDataType" href="http://www.eclipse.org/emf/2002/Ecore#//EString"/>
+    </eStructuralFeatures>
+    <eStructuralFeatures xmi:type="ecore:EAttribute" xmi:id="Property.CoreAuditEnabled" name="CoreAuditEnabled" lowerBound="1" defaultValueLiteral="true">
+      <eType xmi:type="ecore:EDataType" href="http://www.eclipse.org/emf/2002/Ecore#//EBoolean"/>
+    </eStructuralFeatures>
+    <translation xmi:type="utility:TranslatableString" key="_postprocessor" bundleName="core/message/_postprocessor" pluginId="core-message-processor-library"/>
+    <colorGraphic16 xmi:type="utility:GIFFileGraphic" resourceName="platform:/plugin/core-message-processor-library/icons/full/obj16/_postprocessor.gif"/>
+    <colorGraphic32 xmi:type="utility:GIFFileGraphic" resourceName="platform:/plugin/core-message-processor-library/icons/full/obj30/_postprocessor.gif"/>
+    <composition>
+      <nodes xmi:type="eflow:FCMSource" xmi:id="InTerminal.Input" location="10,20">
+        <translation xmi:type="utility:TranslatableString" key="InTerminal.FailureInput" bundleName="core/message/_postprocessor" pluginId="core-message-processor-library"/>
+      </nodes>
+      <nodes xmi:type="eflow:FCMSource" xmi:id="InTerminal.Input1" location="10,253">
+        <translation xmi:type="utility:TranslatableString" key="InTerminal.Input" bundleName="core/message/_postprocessor" pluginId="core-message-processor-library"/>
+      </nodes>
+      <nodes xmi:type="eflow:FCMSource" xmi:id="InTerminal.Input2" location="10,405">
+        <translation xmi:type="utility:TranslatableString" key="InTerminal.CatchInput" bundleName="core/message/_postprocessor" pluginId="core-message-processor-library"/>
+      </nodes>
+      <nodes xmi:type="EaiCoreLog4J.msgnode:FCMComposite_1" xmi:id="FCMComposite_1_13" location="222,253" logLevel="DEBUG" logMessage="ID#${Environment.__MsgIdForLog4J__} [_FLOW - FINISH:PASS]">
+        <translation xmi:type="utility:ConstantString" string="CoreLog4JFinishDebugPass"/>
+      </nodes>
+      <nodes xmi:type="EaiCoreLog4J.msgnode:FCMComposite_1" xmi:id="FCMComposite_1_14" location="224,334" logLevel="WARN" logMessage="ID#${Environment.__MsgIdForLog4J__} [_FLOW - FINISH:DROP] Comment=${Environment.__CoreAuditStateComment__}">
+        <translation xmi:type="utility:ConstantString" string="CoreLog4JFinishWarnDrop"/>
+      </nodes>
+      <nodes xmi:type="ComIbmFilter.msgnode:FCMComposite_1" xmi:id="FCMComposite_1_15" location="93,253" filterExpression="esql://routine/core.message#postprocessor_AuditStateIsDrop.Main" throwExceptionOnDatabaseError="false">
+        <translation xmi:type="utility:ConstantString" string="AuditStateIsDrop"/>
+      </nodes>
+      <nodes xmi:type="EaiCoreLog4J.msgnode:FCMComposite_1" xmi:id="FCMComposite_1_16" location="260,405" logLevel="ERROR" logMessage="ID#${Environment.__MsgIdForLog4J__} [_FLOW - FINISH:CATCH] Body=${Environment.__InitialMessageBodyInAscii__} ExceptionList=${ExceptionList}">
+        <translation xmi:type="utility:ConstantString" string="CoreLog4JFinishCatchError"/>
+        <longDescription xmi:type="utility:ConstantString" string="ID#${Environment.__MsgIdForLog4J__} CID#${Environment.__CorrelIdForLog4J__} [_FLOW - FINISH:CATCH] Body=${Body} | ExceptionList=${ExceptionList}"/>
+      </nodes>
+      <nodes xmi:type="ComIbmFilter.msgnode:FCMComposite_1" xmi:id="FCMComposite_1_17" location="793,101" filterExpression="esql://routine/core.log.technical#exception_FilterMessageFlowStop.Main" throwExceptionOnDatabaseError="false">
+        <translation xmi:type="utility:ConstantString" string="FilterMessageFlowStop"/>
+      </nodes>
+      <nodes xmi:type="ComIbmCompute.msgnode:FCMComposite_1" xmi:id="FCMComposite_1_19" location="954,182" computeExpression="esql://routine/core.log.technical#exception_MessageFlowStop.Main" throwExceptionOnDatabaseError="false">
+        <translation xmi:type="utility:ConstantString" string="MessageFlowStop"/>
+      </nodes>
+      <nodes xmi:type="ComIbmCompute.msgnode:FCMComposite_1" xmi:id="FCMComposite_1_21" location="109,405" computeExpression="esql://routine/core.message#postprocessor_PickupExceptionList.Main" computeMode="all" throwExceptionOnDatabaseError="false">
+        <translation xmi:type="utility:ConstantString" string="PickupExceptionList2"/>
+      </nodes>
+      <nodes xmi:type="ComIbmCompute.msgnode:FCMComposite_1" xmi:id="FCMComposite_1_22" location="285,20" computeExpression="esql://routine/core.message#postprocessor_PickupExceptionList.Main" computeMode="all" throwExceptionOnDatabaseError="false">
+        <translation xmi:type="utility:ConstantString" string="PickupExceptionList1"/>
+      </nodes>
+      <nodes xmi:type="EaiCoreLog4J.msgnode:FCMComposite_1" xmi:id="FCMComposite_1_23" location="442,20" logLevel="ERROR" logMessage="ID#${Environment.__MsgIdForLog4J__} [_FLOW - FINISH:FAILURE] Body=${Environment.__InitialMessageBodyInAscii__} ExceptionList=${ExceptionList}">
+        <translation xmi:type="utility:ConstantString" string="CoreLog4JFinishFailureError"/>
+        <longDescription xmi:type="utility:ConstantString" string="ID#${Environment.__MsgIdForLog4J__} CID#${Environment.__CorrelIdForLog4J__} [_FLOW - FINISH:FAILURE] Body=${Body} | ExceptionList=${ExceptionList}"/>
+      </nodes>
+      <nodes xmi:type="ComIbmThrow.msgnode:FCMComposite_1" xmi:id="FCMComposite_1_7" location="1089,101">
+        <translation xmi:type="utility:ConstantString" string="Throw1"/>
+      </nodes>
+      <nodes xmi:type="ComIbmFilter.msgnode:FCMComposite_1" xmi:id="FCMComposite_1_8" location="113,20" filterExpression="esql://routine/core.message#postprocessor_ExceptionNumberIs2652.Main" throwExceptionOnDatabaseError="false">
+        <translation xmi:type="utility:ConstantString" string="ExceptionNumberIs2652"/>
+      </nodes>
+      <nodes xmi:type="ComIbmPassthru.msgnode:FCMComposite_1" xmi:id="FCMComposite_1_10" location="280,101">
+        <translation xmi:type="utility:ConstantString" string="PassThroughForLayout"/>
+      </nodes>
+      <nodes xmi:type="ComIbmThrow.msgnode:FCMComposite_1" xmi:id="FCMComposite_1_11" location="607,405">
+        <translation xmi:type="utility:ConstantString" string="Throw2"/>
+      </nodes>
+      <nodes xmi:type="core_audit__audit.subflow:FCMComposite_1" xmi:id="FCMComposite_1_1" location="406,253">
+        <translation xmi:type="utility:ConstantString" string="CoreAuditHandler2"/>
+      </nodes>
+      <nodes xmi:type="ComIbmPassthru.msgnode:FCMComposite_1" xmi:id="FCMComposite_1_2" location="548,253">
+        <translation xmi:type="utility:ConstantString" string="PassThroughForDebug"/>
+      </nodes>
+      <nodes xmi:type="core_audit__audit.subflow:FCMComposite_1" xmi:id="FCMComposite_1_3" location="628,20" CoreAuditState="FAIL">
+        <translation xmi:type="utility:ConstantString" string="CoreAuditHandler1FAIL"/>
+      </nodes>
+      <nodes xmi:type="core_audit__audit.subflow:FCMComposite_1" xmi:id="FCMComposite_1_4" location="442,405" CoreAuditState="FAIL">
+        <translation xmi:type="utility:ConstantString" string="CoreAuditHandler3FAIL"/>
+      </nodes>
+      <connections xmi:type="eflow:FCMConnection" xmi:id="FCMConnection_4" targetNode="FCMComposite_1_15" sourceNode="InTerminal.Input1" sourceTerminalName="OutTerminal.out" targetTerminalName="InTerminal.in"/>
+      <connections xmi:type="eflow:FCMConnection" xmi:id="FCMConnection_22" targetNode="FCMComposite_1_19" sourceNode="FCMComposite_1_17" sourceTerminalName="OutTerminal.true" targetTerminalName="InTerminal.in"/>
+      <connections xmi:type="eflow:FCMConnection" xmi:id="FCMConnection_31" targetNode="FCMComposite_1_16" sourceNode="FCMComposite_1_21" sourceTerminalName="OutTerminal.out" targetTerminalName="InTerminal.in"/>
+      <connections xmi:type="eflow:FCMConnection" xmi:id="FCMConnection_42" targetNode="FCMComposite_1_23" sourceNode="FCMComposite_1_22" sourceTerminalName="OutTerminal.out" targetTerminalName="InTerminal.in"/>
+      <connections xmi:type="eflow:FCMConnection" xmi:id="FCMConnection_66" targetNode="FCMComposite_1_21" sourceNode="InTerminal.Input2" sourceTerminalName="OutTerminal.out" targetTerminalName="InTerminal.in"/>
+      <connections xmi:type="eflow:FCMConnection" xmi:id="FCMConnection_67" targetNode="FCMComposite_1_13" sourceNode="FCMComposite_1_15" sourceTerminalName="OutTerminal.false" targetTerminalName="InTerminal.in"/>
+      <connections xmi:type="eflow:FCMConnection" xmi:id="FCMConnection_68" targetNode="FCMComposite_1_14" sourceNode="FCMComposite_1_15" sourceTerminalName="OutTerminal.true" targetTerminalName="InTerminal.in"/>
+      <connections xmi:type="eflow:FCMConnection" xmi:id="FCMConnection_13" targetNode="FCMComposite_1_8" sourceNode="InTerminal.Input" sourceTerminalName="OutTerminal.out" targetTerminalName="InTerminal.in"/>
+      <connections xmi:type="eflow:FCMConnection" xmi:id="FCMConnection_14" targetNode="FCMComposite_1_22" sourceNode="FCMComposite_1_8" sourceTerminalName="OutTerminal.false" targetTerminalName="InTerminal.in"/>
+      <connections xmi:type="eflow:FCMConnection" xmi:id="FCMConnection_16" targetNode="FCMComposite_1_10" sourceNode="FCMComposite_1_8" sourceTerminalName="OutTerminal.true" targetTerminalName="InTerminal.in"/>
+      <connections xmi:type="eflow:FCMConnection" xmi:id="FCMConnection_17" targetNode="FCMComposite_1_17" sourceNode="FCMComposite_1_10" sourceTerminalName="OutTerminal.out" targetTerminalName="InTerminal.in"/>
+      <connections xmi:type="eflow:FCMConnection" xmi:id="FCMConnection_19" targetNode="FCMComposite_1_7" sourceNode="FCMComposite_1_19" sourceTerminalName="OutTerminal.out" targetTerminalName="InTerminal.in"/>
+      <connections xmi:type="eflow:FCMConnection" xmi:id="FCMConnection_20" targetNode="FCMComposite_1_7" sourceNode="FCMComposite_1_17" sourceTerminalName="OutTerminal.false" targetTerminalName="InTerminal.in"/>
+      <connections xmi:type="eflow:FCMConnection" xmi:id="FCMConnection_1" targetNode="FCMComposite_1_1" sourceNode="FCMComposite_1_13" sourceTerminalName="OutTerminal.out" targetTerminalName="InTerminal.Input"/>
+      <connections xmi:type="eflow:FCMConnection" xmi:id="FCMConnection_2" targetNode="FCMComposite_1_1" sourceNode="FCMComposite_1_14" sourceTerminalName="OutTerminal.out" targetTerminalName="InTerminal.Input"/>
+      <connections xmi:type="eflow:FCMConnection" xmi:id="FCMConnection_3" targetNode="FCMComposite_1_2" sourceNode="FCMComposite_1_1" sourceTerminalName="OutTerminal.Output" targetTerminalName="InTerminal.in"/>
+      <connections xmi:type="eflow:FCMConnection" xmi:id="FCMConnection_5" targetNode="FCMComposite_1_3" sourceNode="FCMComposite_1_23" sourceTerminalName="OutTerminal.out" targetTerminalName="InTerminal.Input"/>
+      <connections xmi:type="eflow:FCMConnection" xmi:id="FCMConnection_6" targetNode="FCMComposite_1_17" sourceNode="FCMComposite_1_3" sourceTerminalName="OutTerminal.Output" targetTerminalName="InTerminal.in"/>
+      <connections xmi:type="eflow:FCMConnection" xmi:id="FCMConnection_7" targetNode="FCMComposite_1_4" sourceNode="FCMComposite_1_16" sourceTerminalName="OutTerminal.out" targetTerminalName="InTerminal.Input"/>
+      <connections xmi:type="eflow:FCMConnection" xmi:id="FCMConnection_8" targetNode="FCMComposite_1_11" sourceNode="FCMComposite_1_4" sourceTerminalName="OutTerminal.Output" targetTerminalName="InTerminal.in"/>
+    </composition>
+    <propertyOrganizer>
+      <propertyDescriptor groupName="Group.Basic" configurable="true" describedAttribute="Property.CoreAuditDataSource">
+        <propertyName xmi:type="utility:TranslatableString" key="Property.CoreAuditDataSource" bundleName="core/audit/_audit" pluginId="core-audit-handler-library"/>
+        <propertyDescriptor groupName="Group.Basic" configurable="true" userDefined="true" describedAttribute="Property.CoreAuditEnabled">
+          <propertyName xmi:type="utility:TranslatableString" key="Property.CoreAuditEnabled" bundleName="core/audit/_audit" pluginId="core-audit-handler-library"/>
+        </propertyDescriptor>
+      </propertyDescriptor>
+    </propertyOrganizer>
+    <attributeLinks promotedAttribute="Property.CoreAuditDataSource" overriddenNodes="FCMComposite_1_3 FCMComposite_1_1 FCMComposite_1_4">
+      <overriddenAttribute href="core/audit/_audit.subflow#Property.CoreAuditDataSource"/>
+    </attributeLinks>
+    <attributeLinks promotedAttribute="Property.CoreAuditEnabled" overriddenNodes="FCMComposite_1_3 FCMComposite_1_1 FCMComposite_1_4">
+      <overriddenAttribute href="core/audit/_audit.subflow#Property.CoreAuditEnabled"/>
+    </attributeLinks>
+    <stickyBoard/>
+  </eClassifiers>
+</ecore:EPackage>

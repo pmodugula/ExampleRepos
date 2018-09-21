@@ -1,0 +1,104 @@
+DECLARE CoreConfDatabaseTable EXTERNAL CHARACTER '';
+
+CREATE COMPUTE MODULE core_configuration_loader_database_SetTable
+	CREATE FUNCTION Main() RETURNS BOOLEAN
+	BEGIN
+		DECLARE I INTEGER 1;
+		DECLARE J INTEGER CARDINALITY(InputRoot.*[]);
+		WHILE I < J DO
+			SET OutputRoot.*[I] = InputRoot.*[I];
+			SET I = I + 1;
+		END WHILE;
+		--Do not sustain message payload..
+		DECLARE rConf REFERENCE TO Environment.Configuration;
+		IF (InputRoot.MQRFH2.CoreConfDatabaseTable IS NOT NULL AND '' <> InputRoot.MQRFH2.CoreConfDatabaseTable) THEN
+			SET Environment.__CoreConfDatabaseTable__ = InputRoot.MQRFH2.CoreConfDatabaseTable;
+		ELSEIF (InputRoot.XMLNSC.Configuration.Database.Table IS NOT NULL AND '' <> InputRoot.XMLNSC.Configuration.Database.Table) THEN
+			SET Environment.__CoreConfDatabaseTable__ = InputRoot.XMLNSC.Configuration.Database.Table;
+		ELSEIF (rConf.Database.Table IS NOT NULL AND '' <> rConf.Database.Table) THEN
+			SET Environment.__CoreConfDatabaseTable__ = rConf.Database.Table;
+		ELSEIF (CoreConfDatabaseTable IS NOT NULL AND '' <> CoreConfDatabaseTable) THEN
+			SET Environment.__CoreConfDatabaseTable__ = CoreConfDatabaseTable;
+		END IF;
+		RETURN TRUE;
+	END;
+END MODULE;
+
+CREATE DATABASE MODULE core_configuration_loader_database_DatabaseSelect
+	CREATE FUNCTION Main() RETURNS BOOLEAN
+	BEGIN
+		DECLARE rEnv REFERENCE TO Environment;
+		DECLARE rConf REFERENCE TO rEnv.Configuration;
+		DECLARE componentId CHARACTER rConf.__Name__;
+		DECLARE tableId CHARACTER NULL;
+		IF (0 < CARDINALITY(rEnv.Configuration[])) THEN
+			DECLARE Envn CHARACTER rConf.Loader.Envn;
+			IF (Envn IS NULL OR '' = Envn) THEN
+				SET Envn = rConf.__Envn__;
+			END IF;
+			IF (Envn IS NOT NULL AND '' <> Envn) THEN
+				SET componentId = componentId||'-'||Envn;
+				SET tableId = Envn;
+			END IF;
+			DECLARE Inst CHARACTER rConf.Loader.Inst;
+			IF (Inst IS NULL OR '' = Inst) THEN
+				SET Inst = rConf.__Inst__;
+			END IF;
+			IF (Inst IS NOT NULL AND '' <> Inst) THEN
+				IF ('0' = Inst OR '1' = Inst) THEN
+					SET Inst = '';
+				END IF;
+			END IF;
+			IF (Inst IS NOT NULL AND '' <> Inst) THEN
+				SET componentId = componentId||'-'||Inst;
+				IF (tableId IS NULL OR '' = tableId) THEN
+					SET tableId = Inst;
+				ELSE
+					SET tableId = tableId||'_'||Inst;
+				END IF;
+			END IF;
+		END IF;
+		IF ('CONFIGURATION' = rEnv.__CoreConfDatabaseTable__) THEN
+			SET rEnv.__DatabaseSelect__[] = PASSTHRU('SELECT * FROM IIB.'||rEnv.__CoreConfDatabaseTable__||' WHERE COMPONENT_ID=?' VALUES(componentId));
+		ELSEIF (tableId IS NULL OR '' = tableId) THEN
+			SET rEnv.__DatabaseSelect__[] = PASSTHRU('SELECT * FROM IIB.'||rEnv.__CoreConfDatabaseTable__);
+		ELSE
+			SET rEnv.__DatabaseSelect__[] = PASSTHRU('SELECT * FROM IIB.'||rEnv.__CoreConfDatabaseTable__||'_'||tableId);
+		END IF;
+		RETURN TRUE;
+	END;
+END MODULE;
+
+CREATE COMPUTE MODULE core_configuration_loader_database_ProcessDatabaseResults
+	CREATE FUNCTION Main() RETURNS BOOLEAN
+	BEGIN
+		DECLARE I INTEGER 1;
+		DECLARE J INTEGER CARDINALITY(InputRoot.*[]);
+		WHILE I <= J DO
+			SET OutputRoot.*[I] = InputRoot.*[I];
+			SET I = I + 1;
+		END WHILE;
+		DECLARE rEnv REFERENCE TO Environment;
+		CREATE LASTCHILD OF OutputRoot DOMAIN('XMLNSC');
+		CREATE LASTCHILD OF OutputRoot.XMLNSC TYPE Name NAME 'Configuration';
+		DECLARE rConf REFERENCE TO OutputRoot.XMLNSC.Configuration;
+		SET I = CARDINALITY(rEnv.__DatabaseSelect__[]);
+		IF ('CONFIGURATION' = rEnv.__CoreConfDatabaseTable__) THEN
+			CREATE FIRSTCHILD OF rConf TYPE Name NAME rEnv.Configuration.__Name__;
+			WHILE I > 0 DO
+				CREATE FIRSTCHILD OF rConf.*[1] TYPE NameValue NAME rEnv.__DatabaseSelect__[<].KEY_NM VALUE rEnv.__DatabaseSelect__[<].VALUE_CD;
+				DELETE FIELD rEnv.__DatabaseSelect__[<];
+				SET I = I - 1; 
+			END WHILE;
+		ELSE
+			WHILE I > 0 DO
+				CREATE FIRSTCHILD OF rConf TYPE Name NAME rEnv.__CoreConfDatabaseTable__;
+				SET rConf.*[1] = rEnv.__DatabaseSelect__[<];
+				DELETE FIELD rEnv.__DatabaseSelect__[<];
+				SET I = I - 1; 
+			END WHILE;
+		END IF; 
+		DELETE FIELD rEnv.__CoreConfDatabaseTable__;
+		RETURN TRUE;
+	END;
+END MODULE;

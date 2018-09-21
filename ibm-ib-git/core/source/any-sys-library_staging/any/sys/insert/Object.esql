@@ -1,0 +1,69 @@
+BROKER SCHEMA ${__any__}.${__sys__}.insert
+
+--CREATE TABLE [dbo].[${_Object__}]  ( 
+--    [ID]    int IDENTITY(1,1) NOT NULL,
+--    [Field1] varchar(255) NULL,
+--    [Field2] varchar(255) NULL,
+--    CONSTRAINT [PK_${_Object__}] PRIMARY KEY CLUSTERED([ID])
+--)
+CREATE PROCEDURE InsertInto${_Object__}(IN rEnv REFERENCE, IN r${_Object__} REFERENCE)
+BEGIN
+	--TODO: MC - externalise...?
+	DECLARE select${_Object__} CHARACTER NULL;
+	DECLARE update${_Object__} CHARACTER NULL;
+	DECLARE insertInto${_Object__} CHARACTER NULL;
+	DECLARE ${_SYS_}SchemaName CHARACTER NULL;
+	CALL ${__any__}.${__sys__}.get${_SYS_}SchemaName() INTO ${_SYS_}SchemaName;
+
+	WHILE LASTMOVE(r${_Object__}) DO
+		DECLARE theField1 CHARACTER COALESCE(SUBSTRING(r${_Object__}.*:Field1 FROM 1 FOR 50),' ');
+		DECLARE theField2 CHARACTER COALESCE(SUBSTRING(r${_Object__}.*:Field2 FROM 1 FOR 50),' ');
+		--CALL ${__any__}.${__sys__}.getESBUser() INTO '..';
+
+		IF select${_Object__} IS NULL THEN
+			SET select${_Object__} =
+			'SELECT Field1, Field2 FROM '||${_SYS_}SchemaName||'.${_Object__}'||
+			' WHERE Field2 = ?';
+			---------------1
+		END IF;
+		
+		IF update${_Object__} IS NULL THEN
+			SET update${_Object__} =
+			'UPDATE '||${_SYS_}SchemaName||'.${_Object__}'||
+			' SET Field1 = ?'||
+			-------------1
+			' WHERE Field2 = ?';
+			---------------2
+		END IF;
+ 
+		IF insertInto${_Object__} IS NULL THEN
+			SET insertInto${_Object__} =
+			'INSERT INTO '||${_SYS_}SchemaName||'.${_Object__}('||
+			'Field1,Field2'||
+			----1----2
+			') VALUES('||
+			'?,?'||
+			---2
+			')';
+		END IF;
+		
+		DECLARE current${_Object__} ROW;
+		SET current${_Object__} = PASSTHRU(select${_Object__} VALUES(theField1));
+
+		IF CARDINALITY(current${_Object__}.*[]) = 0 THEN
+			SET rEnv.__InsertInto${_Object__}__.Row[] = PASSTHRU(insertInto${_Object__} VALUES(
+			theField1,theField2
+			------1-------2
+			));
+		ELSE
+			IF theField1 <> current${_Object__}.*[1] THEN
+				SET rEnv.__Update${_Object__}__.Row[] = PASSTHRU(update${_Object__} VALUES(
+				theField1, theField2
+				------1-------2
+				));
+			END IF;
+		END IF;
+
+		MOVE r${_Object__} NEXTSIBLING REPEAT TYPE NAME;
+	END WHILE;
+END;

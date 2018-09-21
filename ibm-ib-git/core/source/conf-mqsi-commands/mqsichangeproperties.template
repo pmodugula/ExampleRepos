@@ -1,0 +1,3 @@
+mqsichangeproperties ${_NODE} -e ${_SERVER} -o ComIbmJVMManager -n jvmSystemProperty -v"-DEAI.MESSAGE.FLOW.STOP.ON.BACKOUTCOUNT=0 -DEAI.MESSAGE.FLOW.AUDIT.TO.LOGSTASH=FALSE"
+##http://www-01.ibm.com/support/knowledgecenter/#!/SSMKHH_9.0.0/com.ibm.etools.mft.doc/an09143_.htm
+##mqsireportproperties ${_NODE} -o ComIbmJVMManager -e ${_SERVER} -r

@@ -1,0 +1,14 @@
+mqsicreateconfigurableservice ${_NODE} -c TCPIPClient -o TCPIPProfileLogstash -n Hostname,Port -v ${KIBANA_IPADDR1},${KIBANA_JSONAPI_PORT}
+#mqsicreateconfigurableservice ${_NODE} -c TCPIPClient -o TCPIPProfileLogstash -n Hostname,Port -v ${KIBANA_IPADDR2},${KIBANA_JSONAPI_PORT}
+#mqsireportproperties ${_NODE} -o TCPIPProfileLogstash -c TCPIPClient -r
+##Use Chrome!
+##http://${KIBANA_IPADDR}:${KIBANA_WEBUI_PORT}/_plugin/kibana/#/dashboard/file/default.json
+
+##http://www-01.ibm.com/support/knowledgecenter/api/content/nl/en-us/SSMKHH_9.0.0/com.ibm.etools.mft.doc/bp34105_.htm
+mqsicreateconfigurableservice ${_NODE} -c TCPIPServer -o TCPIPProfileRetek -n Port,MaximumConnections -v ${TCPIP_PORT_FOR_RETEK:6789},100
+
+##http://www-01.ibm.com/support/knowledgecenter/#!/SSMKHH_9.0.0/com.ibm.etools.mft.doc/bn28734_.htm
+#mqsicreateconfigurableservice ${_NODE} -c JDBCProviders -o dbm-giftcard-retek -n\
+# connectionUrlFormat,databaseName,databaseSchemaNames,databaseType,databaseVersion,environmentParms,jarsURL,jdbcProviderXASupport,maxConnectionPoolSize,portNumber,securityIdentity,serverName,type4DatasourceClassName,type4DriverClassName -v\
+# 'jdbc:as400://[serverName]:[portNumber]',posdev,JPSTGDATA,DB2,5.3,'naming=system;prompt=false;user=[user];password=[password];SoTimeout=55000;libraries=QGPL',/home/brkadm/db2/jdbc/jtopen_8_4/lib,false,0,446,ringoSecureId,posdev.mww.lan,com.ibm.as400.access.AS400JDBCDataSource,com.ibm.as400.access.AS400JDBCDriver
+##mqsireportproperties ${_NODE} -c JDBCProviders -o dbm-giftcard-retek  -r

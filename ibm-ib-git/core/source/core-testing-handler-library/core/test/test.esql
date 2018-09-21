@@ -1,0 +1,85 @@
+BROKER SCHEMA core.test
+PATH core.log, core.audit;
+
+DECLARE theSchema CONSTANT CHARACTER 'core.test';
+
+DECLARE APOSTROPHE CONSTANT CHARACTER '''';
+
+CREATE FILTER MODULE test_FilterIsTesting
+	DECLARE theModule CONSTANT CHARACTER theSchema||'.test_FilterIsTesting';
+	CREATE FUNCTION Main() RETURNS BOOLEAN
+	BEGIN
+		DECLARE isTesting BOOLEAN FALSE;
+		DECLARE rTesting REFERENCE TO Root.XMLNSC.*:Exchange.*:MessageRouting.*:Testing;
+		IF TRUE=LASTMOVE(rTesting) THEN--Assume (Know/Assert) Discovery has been done - as it is as long as CoreMessagePreProcessor is wired
+			DECLARE rLabel REFERENCE To Environment.Configuration.__Internal__.Label;
+			 
+			DECLARE AppNm CHARACTER rLabel.Application;
+			DECLARE bAppNm BOOLEAN FALSE;
+			IF rTesting.*:ApplicationName IS NOT NULL AND ''<>rTesting.*:ApplicationName THEN
+				SET bAppNm = TRUE;
+			END IF;
+			--If \Exchange\MessageRouting\Testing\ApplicationName isn't set or matches..
+			IF FALSE=bAppNm OR (TRUE=bAppNm AND rLabel.Application IS NOT NULL AND AppNm=rLabel.Application) THEN
+				SET bAppNm = TRUE;
+			ELSE
+				SET bAppNm = FALSE;
+			END IF;
+			
+			DECLARE LibNm CHARACTER rLabel.Library;
+			DECLARE bLibNm BOOLEAN FALSE;
+			IF rTesting.*:LibraryName IS NOT NULL AND ''<>rTesting.*:LibraryName THEN
+				SET bLibNm = TRUE;
+			END IF;
+			--If \Exchange\MessageRouting\Testing\LibraryName isn't set or matches..
+			IF FALSE=bLibNm OR (TRUE=bLibNm AND rLabel.Library IS NOT NULL AND LibNm=rLabel.Library) THEN
+				SET bLibNm = TRUE;
+			ELSE
+				SET bLibNm = FALSE;
+			END IF;
+			
+			DECLARE MsgFlow CHARACTER rLabel.MessageFlow;
+			DECLARE bMsgFlow BOOLEAN FALSE;
+			IF rTesting.*:MessageFlow IS NOT NULL AND ''<>rTesting.*:MessageFlow THEN
+				SET bMsgFlow = TRUE;
+			END IF;
+			--If \Exchange\MessageRouting\Testing\MessageFlow isn't set or matches..
+			IF FALSE=bMsgFlow OR (TRUE=bMsgFlow AND rLabel.MessageFlow IS NOT NULL AND MsgFlow=rLabel.MessageFlow) THEN
+				SET bMsgFlow = TRUE;
+			ELSE
+				SET bMsgFlow = FALSE;
+			END IF;
+			
+			SET isTesting = TRUE=bAppNm AND TRUE=bLibNm AND TRUE=bMsgFlow;
+		END IF;
+		IF TRUE=isTesting AND 0<CARDINALITY(rTesting.*:ThrowException[]) THEN
+			DECLARE BackoutCount CHARACTER CAST(rTesting.*:ThrowException.(XMLNSC.Attribute)BackoutCount AS CHARACTER);
+			DECLARE ThrowException BOOLEAN FALSE;
+			IF BackoutCount IS NULL THEN
+				SET ThrowException = TRUE;
+			ELSEIF COALESCE(Environment.__CoreAuditBackoutCount__, 0) < CAST(BackoutCount AS INTEGER) THEN
+				SET ThrowException = TRUE;
+			END IF;
+			IF TRUE=ThrowException THEN
+				CALL AuditStateComment(Environment, theModule||' '||buildDebugKeyValueText('TestingThrowException.BackoutCount',APOSTROPHE,BackoutCount));
+				THROW USER EXCEPTION CATALOG 'TestingThrowException' MESSAGE 3001 VALUES('Testing Throw Exception On Purpose');
+			END IF;
+			IF rTesting.*:QueueName IS NULL THEN
+				SET isTesting = FALSE;--Switch it off since we're not throwing an exception and we don't have a queue name..
+			END IF;
+		END IF;
+		RETURN isTesting;--Is Testing *and* is matched against Application Name, Library Name, and/or Message Flow Name
+	END;
+END MODULE;
+
+CREATE COMPUTE MODULE test_SetQueueName
+	DECLARE theModule CONSTANT CHARACTER theSchema||'.test_SetQueueName';
+	CREATE FUNCTION Main() RETURNS BOOLEAN
+	BEGIN
+		DECLARE QueueName CHARACTER InputRoot.XMLNSC.*:Exchange.*:MessageRouting.*:Testing.*:QueueName;
+		CALL AuditStateComment(Environment, theModule||' '||buildDebugKeyValueText('QueueName',APOSTROPHE,QueueName));
+		SET OutputLocalEnvironment.Destination.MQ.DestinationData[1].queueName = QueueName;
+		SET OutputRoot = InputRoot;
+		RETURN TRUE;
+	END;
+END MODULE;

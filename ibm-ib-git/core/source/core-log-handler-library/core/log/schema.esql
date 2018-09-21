@@ -1,0 +1,103 @@
+BROKER SCHEMA core.log
+PATH common;
+
+CREATE PROCEDURE _Log4JLogMessage(IN brokerName CHARACTER, IN executionGroupName CHARACTER, IN logger CHARACTER, IN level CHARACTER, IN message CHARACTER) LANGUAGE JAVA EXTERNAL NAME "com.fglsports.custom.node.EsqlLog4j.logMessage";
+CREATE PROCEDURE _LogMessage(IN logger CHARACTER, IN level CHARACTER, IN message CHARACTER)
+BEGIN
+	CALL core.log._Log4JLogMessage(BrokerName, ExecutionGroupLabel, logger, level, message);
+END;
+CREATE PROCEDURE LogMessage(IN level CHARACTER, IN message CHARACTER) BEGIN
+	CALL core.log._LogMessage(MessageFlowLabel||'{'||ApplicationLabel||'}', level, message);
+END;
+
+CREATE FUNCTION buildDebugKeyValueText(IN theKey CHARACTER, IN delim CHARACTER, IN theValue CHARACTER) RETURNS CHARACTER
+BEGIN
+	DECLARE BLANK CONSTANT CHARACTER '';
+	DECLARE text CHARACTER theKey||'=';
+	IF delim IS NOT NULL AND BLANK<>delim AND theValue IS NOT NULL THEN
+		SET text = text||delim;
+	END IF;
+	IF theValue IS NULL THEN
+		SET text = text||'<null>';
+	ELSEIF BLANK=theValue THEN
+		SET text = text||'<blank>';
+	ELSE
+		SET text = text||theValue;
+	END IF;
+	IF delim IS NOT NULL AND BLANK<>delim AND theValue IS NOT NULL THEN
+		SET text = text||delim;
+	END IF;
+	RETURN text;
+END;
+
+CREATE PROCEDURE _Log4JLogMessage__NEW__(IN brokerName CHARACTER, IN executionGroupName CHARACTER, IN logger CHARACTER, IN level CHARACTER, IN message CHARACTER) LANGUAGE JAVA EXTERNAL NAME "eai.core.log4j.Esql.LogMessage";
+CREATE PROCEDURE _LogMessage__NEW__(IN logger CHARACTER, IN level CHARACTER, IN message CHARACTER)
+BEGIN
+	CALL core.log._Log4JLogMessage__NEW__(BrokerName, ExecutionGroupLabel, logger, level, message);
+END;
+CREATE PROCEDURE LogMessage__NEW__(IN rEnv REFERENCE, IN theModule CHARACTER, IN level CHARACTER, IN message CHARACTER)
+BEGIN
+	IF TRUE=common_valueIsNullOrBlank(theModule) THEN
+		SET theModule = '<anonymous>';
+	END IF; 
+	CALL core.log._LogMessage__NEW__(
+		ApplicationLabel||':'||MessageFlowLabel,
+		level,
+		buildDebugKeyValueText('ID','#',rEnv.__MsgIdForLog4J__)||' '||theModule||' - '||message
+	);
+END;
+
+CREATE PROCEDURE Trace(IN message CHARACTER)
+BEGIN
+	CALL core.log.LogMessage('TRACE', message);
+END;
+CREATE PROCEDURE TraceMessage(IN rEnv REFERENCE, IN theModule CHARACTER, IN message CHARACTER)
+BEGIN
+	CALL core.log.LogMessage__NEW__(rEnv, theModule, 'TRACE', message);
+END;
+
+CREATE PROCEDURE Debug(IN message CHARACTER)
+BEGIN
+	CALL core.log.LogMessage('DEBUG', message);
+END;
+CREATE PROCEDURE DebugMessage(IN rEnv REFERENCE, IN theModule CHARACTER, IN message CHARACTER)
+BEGIN
+	CALL core.log.LogMessage__NEW__(rEnv, theModule, 'DEBUG', message);
+END;
+
+CREATE PROCEDURE Info(IN message CHARACTER) BEGIN
+	CALL core.log.LogMessage('INFO', message);
+END;
+CREATE PROCEDURE InfoMessage(IN rEnv REFERENCE, IN theModule CHARACTER, IN message CHARACTER)
+BEGIN
+	CALL core.log.LogMessage__NEW__(rEnv, theModule, 'INFO', message);
+END;
+
+CREATE PROCEDURE Warn(IN message CHARACTER) BEGIN
+	CALL core.log.LogMessage('WARN', message);
+END;
+CREATE PROCEDURE WarnMessage(IN rEnv REFERENCE, IN theModule CHARACTER, IN message CHARACTER)
+BEGIN
+	CALL core.log.LogMessage__NEW__(rEnv, theModule, 'WARN', message);
+END;
+
+CREATE PROCEDURE Error(IN message CHARACTER) BEGIN
+	CALL core.log.LogMessage('ERROR', message);
+END;
+CREATE PROCEDURE ErrorMessage(IN rEnv REFERENCE, IN theModule CHARACTER, IN message CHARACTER)
+BEGIN
+	CALL core.log.LogMessage__NEW__(rEnv, theModule, 'ERROR', message);
+END;
+
+CREATE PROCEDURE Fatal(IN message CHARACTER) BEGIN
+	CALL core.log.LogMessage('FATAL', message);
+END;
+CREATE PROCEDURE FatalMessage(IN rEnv REFERENCE, IN theModule CHARACTER, IN message CHARACTER)
+BEGIN
+	CALL core.log.LogMessage__NEW__(rEnv, theModule, 'FATAL', message);
+END;
+
+CREATE PROCEDURE LogFromEsql(IN rEnv REFERENCE, IN theModuleName CHARACTER, IN message CHARACTER)
+BEGIN
+	CALL core.log.Debug('ID#'||rEnv.__MsgIdForLog4J__||' '||theModuleName||' - '||message);
+END;

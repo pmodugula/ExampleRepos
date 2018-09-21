@@ -1,0 +1,25 @@
+# Root logger option
+log4j.rootLogger=${LOG4J_LEVEL}, file, fatal
+
+# Custom node logger option
+log4j.logger.com.fglsports.custom.node.TokenReplacer=WARN
+log4j.logger.com.fglsports.custom.node.MessageTreeUtility=WARN
+
+# Direct log messages to a log file
+log4j.appender.file=org.apache.log4j.RollingFileAppender
+
+# Redirect to logs folder
+log4j.appender.file.File=${_LOG4J_PATH}log4j-${_NODE}-${_SERVER}.log
+log4j.appender.file.MaxFileSize=${LOG4J_SIZE}
+log4j.appender.file.MaxBackupIndex=${LOG4J_INDEX}
+log4j.appender.file.layout=org.apache.log4j.PatternLayout
+log4j.appender.file.layout.ConversionPattern=%d{yyyy-MM-dd HH:mm:ss} %p %c - %m%n
+
+# Message Node errors (logger is user controlled so we can't rely on the logger - therefore FATAL is reserved for Message Node)
+log4j.appender.fatal=org.apache.log4j.RollingFileAppender
+log4j.appender.fatal.File=${_LOG4J_PATH}log4j-${_NODE}-${_SERVER}-fatal.log
+log4j.appender.fatal.MaxFileSize=${LOG4J_SIZE}
+log4j.appender.fatal.MaxBackupIndex=2
+log4j.appender.fatal.layout=org.apache.log4j.PatternLayout
+log4j.appender.fatal.layout.ConversionPattern=%d{yyyy-MM-dd HH:mm:ss} %p %c %L - %m%n
+log4j.appender.fatal.Threshold=FATAL

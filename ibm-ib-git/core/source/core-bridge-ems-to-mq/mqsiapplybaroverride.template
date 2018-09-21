@@ -1,0 +1,3 @@
+core.bridge.ems_to_mq.consumer#EMSSourceQueue=FGL.${emsEnvQ}.WM.BW.WMCOMMON.Q
+core.bridge.ems_to_mq.consumer#EMSBackoutQueue=FGL.${emsEnvQ}.WM.BW.WMCOMMON.BO.Q
+core.bridge.ems_to_mq.consumer#IIBOutboundQueue=SEND.${WMCOMMON}

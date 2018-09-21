@@ -1,0 +1,113 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ecore:EPackage xmi:version="2.0"
+    xmlns:xmi="http://www.omg.org/XMI" xmlns:ComIbmCompute.msgnode="ComIbmCompute.msgnode" xmlns:ComIbmFilter.msgnode="ComIbmFilter.msgnode" xmlns:ComIbmLabel.msgnode="ComIbmLabel.msgnode" xmlns:ComIbmPassthru.msgnode="ComIbmPassthru.msgnode" xmlns:ComIbmRouteToLabel.msgnode="ComIbmRouteToLabel.msgnode" xmlns:core_configuration_loader_database.subflow="core_configuration_loader_database.subflow" xmlns:core_configuration_loader_file.subflow="core_configuration_loader_file.subflow" xmlns:core_configuration_loader_system.subflow="core_configuration_loader_system.subflow"
+    xmlns:ecore="http://www.eclipse.org/emf/2002/Ecore" xmlns:eflow="http://www.ibm.com/wbi/2005/eflow" xmlns:utility="http://www.ibm.com/wbi/2005/eflow_utility" nsURI="_core_configuration_loader.subflow"
+    nsPrefix="_core_configuration_loader.subflow">
+  <eClassifiers xmi:type="eflow:FCMComposite" name="FCMComposite_1" useDefaults="true" udpSupport="true">
+    <eSuperTypes href="http://www.ibm.com/wbi/2005/eflow#//FCMBlock"/>
+    <eStructuralFeatures xmi:type="ecore:EAttribute" xmi:id="Property.CoreConfLoaderType" name="CoreConfLoaderType">
+      <eType xmi:type="ecore:EDataType" href="http://www.eclipse.org/emf/2002/Ecore#//EString"/>
+    </eStructuralFeatures>
+    <eStructuralFeatures xmi:type="ecore:EAttribute" xmi:id="Property.CoreConfLoaderName" name="CoreConfLoaderName">
+      <eType xmi:type="ecore:EDataType" href="http://www.eclipse.org/emf/2002/Ecore#//EString"/>
+    </eStructuralFeatures>
+    <eStructuralFeatures xmi:type="ecore:EAttribute" xmi:id="Property.CoreConfLoaderInst" name="CoreConfLoaderInst">
+      <eType xmi:type="ecore:EDataType" href="http://www.eclipse.org/emf/2002/Ecore#//EString"/>
+    </eStructuralFeatures>
+    <eStructuralFeatures xmi:type="ecore:EAttribute" xmi:id="Property.CoreConfLoaderEnvn" name="CoreConfLoaderEnvn">
+      <eType xmi:type="ecore:EDataType" href="http://www.eclipse.org/emf/2002/Ecore#//EString"/>
+    </eStructuralFeatures>
+    <translation xmi:type="utility:TranslatableString" key="_core_configuration_loader" bundleName="_core_configuration_loader" pluginId="core-configuration-loader-library"/>
+    <colorGraphic16 xmi:type="utility:GIFFileGraphic" resourceName="platform:/plugin/core-configuration-loader-library/icons/full/obj16/_core_configuration_loader.gif"/>
+    <colorGraphic32 xmi:type="utility:GIFFileGraphic" resourceName="platform:/plugin/core-configuration-loader-library/icons/full/obj30/_core_configuration_loader.gif"/>
+    <longDescription xmi:type="utility:ConstantString" string="&lt;Configuration>&#xD;&#xA; &lt;Loader>&#xD;&#xA;  &lt;Type/>&#xD;&#xA;  &lt;Name/>&#xD;&#xA;  &lt;Inst/>&#xD;&#xA;  &lt;Envn/>&#xD;&#xA; &lt;/Loader>&#xD;&#xA;&lt;/Configuration>"/>
+    <composition>
+      <nodes xmi:type="eflow:FCMSource" xmi:id="InTerminal.Input" location="26,20">
+        <translation xmi:type="utility:TranslatableString" key="InTerminal.Input" bundleName="_core_configuration_loader" pluginId="core-configuration-loader-library"/>
+      </nodes>
+      <nodes xmi:type="ComIbmLabel.msgnode:FCMComposite_1" xmi:id="FCMComposite_1_5" location="25,344" labelName="File">
+        <translation xmi:type="utility:ConstantString" string="LabelFile"/>
+      </nodes>
+      <nodes xmi:type="ComIbmLabel.msgnode:FCMComposite_1" xmi:id="FCMComposite_1_6" location="10,182" labelName="Database">
+        <translation xmi:type="utility:ConstantString" string="LabelDatabase"/>
+      </nodes>
+      <nodes xmi:type="ComIbmRouteToLabel.msgnode:FCMComposite_1" xmi:id="FCMComposite_1_8" location="809,20" mode="routeToFirst">
+        <translation xmi:type="utility:ConstantString" string="RouteToLabel"/>
+      </nodes>
+      <nodes xmi:type="ComIbmCompute.msgnode:FCMComposite_1" xmi:id="FCMComposite_1_1" location="681,20" computeExpression="esql://routine/core.configuration.loader#SetLabel.Main" computeMode="destinationAndMessage" throwExceptionOnDatabaseError="false">
+        <translation xmi:type="utility:ConstantString" string="SetLabel"/>
+      </nodes>
+      <nodes xmi:type="eflow:FCMSink" xmi:id="OutTerminal.Output1" location="687,101">
+        <translation xmi:type="utility:TranslatableString" key="OutTerminal.Output" bundleName="_core_configuration_loader" pluginId="core-configuration-loader-library"/>
+      </nodes>
+      <nodes xmi:type="ComIbmFilter.msgnode:FCMComposite_1" xmi:id="FCMComposite_1_19" location="518,182" filterExpression="esql://routine/core.configuration.loader#LoadedSuccessfully.Main" throwExceptionOnDatabaseError="false">
+        <translation xmi:type="utility:ConstantString" string="SuccessfulLoad?"/>
+      </nodes>
+      <nodes xmi:type="ComIbmLabel.msgnode:FCMComposite_1" xmi:id="FCMComposite_1_2" location="15,263" labelName="System">
+        <translation xmi:type="utility:ConstantString" string="LabelSystem"/>
+      </nodes>
+      <nodes xmi:type="core_configuration_loader_system.subflow:FCMComposite_1" xmi:id="FCMComposite_1_18" location="341,263">
+        <translation xmi:type="utility:ConstantString" string="CoreConfSystemLoad"/>
+      </nodes>
+      <nodes xmi:type="core_configuration_loader_file.subflow:FCMComposite_1" xmi:id="FCMComposite_1_22" location="351,344">
+        <translation xmi:type="utility:ConstantString" string="CoreConfFileLoad"/>
+      </nodes>
+      <nodes xmi:type="core_configuration_loader_database.subflow:FCMComposite_1" xmi:id="FCMComposite_1_23" location="336,182">
+        <translation xmi:type="utility:ConstantString" string="CoreConfDatabaseLoad"/>
+      </nodes>
+      <nodes xmi:type="ComIbmPassthru.msgnode:FCMComposite_1" xmi:id="FCMComposite_1_4" location="648,182">
+        <translation xmi:type="utility:ConstantString" string="PassThroughForDebug"/>
+      </nodes>
+      <nodes xmi:type="ComIbmFilter.msgnode:FCMComposite_1" xmi:id="FCMComposite_1_11" location="515,20" filterExpression="esql://routine/core.configuration.loader#ConfTypeNotSet.Main" throwExceptionOnDatabaseError="false">
+        <translation xmi:type="utility:ConstantString" string="ConfTypeNotSet?"/>
+      </nodes>
+      <nodes xmi:type="ComIbmCompute.msgnode:FCMComposite_1" xmi:id="FCMComposite_1_14" location="152,344" computeExpression="esql://routine/core.configuration.loader#SetDirectoryAndFile.Main" throwExceptionOnDatabaseError="false">
+        <translation xmi:type="utility:ConstantString" string="SetDirectoryAndFile"/>
+      </nodes>
+      <nodes xmi:type="ComIbmCompute.msgnode:FCMComposite_1" xmi:id="FCMComposite_1_16" location="157,182" computeExpression="esql://routine/core.configuration.loader#SetDatabaseTable.Main" throwExceptionOnDatabaseError="false">
+        <translation xmi:type="utility:ConstantString" string="SetDatabaseTable"/>
+      </nodes>
+      <nodes xmi:type="ComIbmCompute.msgnode:FCMComposite_1" xmi:id="FCMComposite_1_17" location="154,263" computeExpression="esql://routine/core.configuration.loader#SetSystemProperty.Main" throwExceptionOnDatabaseError="false">
+        <translation xmi:type="utility:ConstantString" string="SetSystemProperty"/>
+      </nodes>
+      <nodes xmi:type="ComIbmCompute.msgnode:FCMComposite_1" xmi:id="FCMComposite_1_3" location="322,20" computeExpression="esql://routine/core.configuration.loader#PickupUserDefinedProperties.Main" throwExceptionOnDatabaseError="false">
+        <translation xmi:type="utility:ConstantString" string="PickupUserDefinedProperties"/>
+      </nodes>
+      <nodes xmi:type="ComIbmCompute.msgnode:FCMComposite_1" xmi:id="FCMComposite_1_7" location="126,20" computeExpression="esql://routine/core.configuration.loader#PickupMessageConfiguration.Main" throwExceptionOnDatabaseError="false">
+        <translation xmi:type="utility:ConstantString" string="PickupMessageConfiguration"/>
+      </nodes>
+      <connections xmi:type="eflow:FCMConnection" xmi:id="FCMConnection_5" targetNode="FCMComposite_1_8" sourceNode="FCMComposite_1_1" sourceTerminalName="OutTerminal.out" targetTerminalName="InTerminal.in"/>
+      <connections xmi:type="eflow:FCMConnection" xmi:id="FCMConnection_6" targetNode="FCMComposite_1_19" sourceNode="FCMComposite_1_23" sourceTerminalName="OutTerminal.Output1" targetTerminalName="InTerminal.in"/>
+      <connections xmi:type="eflow:FCMConnection" xmi:id="FCMConnection_7" targetNode="FCMComposite_1_19" sourceNode="FCMComposite_1_18" sourceTerminalName="OutTerminal.Failure" targetTerminalName="InTerminal.in"/>
+      <connections xmi:type="eflow:FCMConnection" xmi:id="FCMConnection_12" targetNode="OutTerminal.Output1" sourceNode="FCMComposite_1_11" sourceTerminalName="OutTerminal.true" targetTerminalName="InTerminal.in"/>
+      <connections xmi:type="eflow:FCMConnection" xmi:id="FCMConnection_9" targetNode="FCMComposite_1_19" sourceNode="FCMComposite_1_22" sourceTerminalName="OutTerminal.Output1" targetTerminalName="InTerminal.in"/>
+      <connections xmi:type="eflow:FCMConnection" xmi:id="FCMConnection_23" targetNode="FCMComposite_1_14" sourceNode="FCMComposite_1_5" sourceTerminalName="OutTerminal.out" targetTerminalName="InTerminal.in"/>
+      <connections xmi:type="eflow:FCMConnection" xmi:id="FCMConnection_24" targetNode="FCMComposite_1_22" sourceNode="FCMComposite_1_14" sourceTerminalName="OutTerminal.out" targetTerminalName="InTerminal.Input"/>
+      <connections xmi:type="eflow:FCMConnection" xmi:id="FCMConnection_25" targetNode="FCMComposite_1_16" sourceNode="FCMComposite_1_6" sourceTerminalName="OutTerminal.out" targetTerminalName="InTerminal.in"/>
+      <connections xmi:type="eflow:FCMConnection" xmi:id="FCMConnection_26" targetNode="FCMComposite_1_23" sourceNode="FCMComposite_1_16" sourceTerminalName="OutTerminal.out" targetTerminalName="InTerminal.Input"/>
+      <connections xmi:type="eflow:FCMConnection" xmi:id="FCMConnection_27" targetNode="FCMComposite_1_17" sourceNode="FCMComposite_1_2" sourceTerminalName="OutTerminal.out" targetTerminalName="InTerminal.in"/>
+      <connections xmi:type="eflow:FCMConnection" xmi:id="FCMConnection_28" targetNode="FCMComposite_1_18" sourceNode="FCMComposite_1_17" sourceTerminalName="OutTerminal.out" targetTerminalName="InTerminal.Input"/>
+      <connections xmi:type="eflow:FCMConnection" xmi:id="FCMConnection_4" targetNode="FCMComposite_1_1" sourceNode="FCMComposite_1_11" sourceTerminalName="OutTerminal.false" targetTerminalName="InTerminal.in"/>
+      <connections xmi:type="eflow:FCMConnection" xmi:id="FCMConnection_8" targetNode="OutTerminal.Output1" sourceNode="FCMComposite_1_19" sourceTerminalName="OutTerminal.true" targetTerminalName="InTerminal.in"/>
+      <connections xmi:type="eflow:FCMConnection" xmi:id="FCMConnection_10" targetNode="FCMComposite_1_4" sourceNode="FCMComposite_1_19" sourceTerminalName="OutTerminal.false" targetTerminalName="InTerminal.in"/>
+      <connections xmi:type="eflow:FCMConnection" xmi:id="FCMConnection_2" targetNode="FCMComposite_1_11" sourceNode="FCMComposite_1_3" sourceTerminalName="OutTerminal.out" targetTerminalName="InTerminal.in"/>
+      <connections xmi:type="eflow:FCMConnection" xmi:id="FCMConnection_11" targetNode="FCMComposite_1_7" sourceNode="InTerminal.Input" sourceTerminalName="OutTerminal.out" targetTerminalName="InTerminal.in"/>
+      <connections xmi:type="eflow:FCMConnection" xmi:id="FCMConnection_13" targetNode="FCMComposite_1_3" sourceNode="FCMComposite_1_7" sourceTerminalName="OutTerminal.out" targetTerminalName="InTerminal.in"/>
+    </composition>
+    <propertyOrganizer>
+      <propertyDescriptor groupName="Group.CoreConfLoader" configurable="true" userDefined="true" describedAttribute="Property.CoreConfLoaderType">
+        <propertyName xmi:type="utility:TranslatableString" key="Property.CoreConfLoaderType" bundleName="_core_configuration_loader" pluginId="core-configuration-loader-library"/>
+        <propertyDescriptor groupName="Group.CoreConfLoader" configurable="true" userDefined="true" describedAttribute="Property.CoreConfLoaderName">
+          <propertyName xmi:type="utility:TranslatableString" key="Property.CoreConfLoaderName" bundleName="_core_configuration_loader" pluginId="core-configuration-loader-library"/>
+          <propertyDescriptor groupName="Group.CoreConfLoader" configurable="true" userDefined="true" describedAttribute="Property.CoreConfLoaderInst">
+            <propertyName xmi:type="utility:TranslatableString" key="Property.CoreConfLoaderInst" bundleName="_core_configuration_loader" pluginId="core-configuration-loader-library"/>
+            <propertyDescriptor groupName="Group.CoreConfLoader" configurable="true" userDefined="true" describedAttribute="Property.CoreConfLoaderEnvn">
+              <propertyName xmi:type="utility:TranslatableString" key="Property.CoreConfLoaderEnvn" bundleName="_core_configuration_loader" pluginId="core-configuration-loader-library"/>
+            </propertyDescriptor>
+          </propertyDescriptor>
+        </propertyDescriptor>
+      </propertyDescriptor>
+    </propertyOrganizer>
+    <stickyBoard/>
+  </eClassifiers>
+</ecore:EPackage>

@@ -1,0 +1,4 @@
+[${DSN_NAME}]
+DRIVER=${DB2_LIB_PATH}
+Description=IBM DB2 ODBC Database
+Database=${DSN_DATABASE}

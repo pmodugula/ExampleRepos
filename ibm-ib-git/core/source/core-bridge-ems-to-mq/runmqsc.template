@@ -1,0 +1,3 @@
+** Send to core-bridge-mq-to-wms-inbound
+DEFINE QALIAS(SEND.${WMCOMMON}) TARGET(${../source/core-bridge-mq-to-wms-inbound/template-default.properties:WMCOMMON})
+* DEFINE QLOCAL(${../source/core-bridge-mq-to-wms-inbound/template-default.properties:WMCOMMON})

@@ -1,0 +1,6 @@
+** ${__any__}-${__object__}-${__sys__}-publisher: runmqsc.template
+DEFINE QALIAS(SEND.${EVENT_IN_DS}) TARGET(${EVENT_IN_DS})
+DEFINE QLOCAL(${EVENT_IN_BO_DS}) DESCR('${__any__}-${__object__}-${__sys__}-publisher backout queue')
+DEFINE QLOCAL(${EVENT_IN_DS}) BOQNAME(${EVENT_IN_DO_DS})
+DEFINE QALIAS(RECV.${EVENT_IN_IB}) TARGET(${EVENT_IN_DS})
+DEFINE TOPIC(${${_OBJECT_}_TOPIC}) TOPICSTR('${${_OBJECT_}_TOPICSTR}')

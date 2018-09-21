@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<dependencies>
+    <build>2.0.0</build>
+    <cygmin64>1.0.1</cygmin64>
+    <core>development</core>
+    <wms-outbound>development</wms-outbound>
+    <folders>
+        <folder type="build">build</folder>
+        <folder type="build">deployment</folder>
+        <folder type="build">resources</folder>
+        <folder type="cygmin64">cygmin64</folder>
+	<folder type="wms-outbound">trx-pixconsign-wms-to-ems</folder>
+	<folder type="wms-outbound">trx-pixdockcheckin-wms-to-ems</folder>
+	<folder type="wms-outbound">trx-pixdistribadj-wms-outbound</folder>
+	<folder type="wms-outbound">trx-pixdistribadj-wms-to-ems</folder>
+	<folder type="wms-outbound">trx-pixinventadj-wms-outbound</folder>
+	<folder type="wms-outbound">trx-pixinventadj-wms-to-ems</folder>
+	<folder type="wms-outbound">trx-pixinventsnapcomp-wms-outbound</folder>
+	<folder type="wms-outbound">trx-pixinventsnapcomp-wms-to-ems</folder>
+	<folder type="wms-outbound">trx-pixinventsnap-wms-outbound</folder>
+	<folder type="wms-outbound">trx-pixinventsnap-wms-to-ems</folder>
+	<folder type="wms-outbound">trx-pixreceipt-wms-outbound</folder>
+	<folder type="wms-outbound">trx-pixreceipt-wms-to-ems</folder>
+    </folders>
+</dependencies>

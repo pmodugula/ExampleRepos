@@ -1,0 +1,81 @@
+DECLARE CoreConfSystemPropertyName EXTERNAL CHARACTER '';
+
+CREATE FILTER MODULE core_configuration_loader_system_SystemPropertyName
+	CREATE FUNCTION Main() RETURNS BOOLEAN
+	BEGIN
+		DECLARE returnValue BOOLEAN FALSE;
+		DECLARE rConf REFERENCE TO Environment.Configuration;
+		IF (Root.MQRFH2.CoreConfSystemPropertyName IS NOT NULL AND '' <> Root.MQRFH2.CoreConfSystemPropertyName) THEN
+			SET returnValue = TRUE;
+		ELSEIF (Root.XMLNSC.Configuration.System.PropertyName IS NOT NULL AND '' <> Root.XMLNSC.Configuration.System.PropertyName) THEN
+			SET returnValue = TRUE;
+		ELSEIF (rConf.System.PropertyName IS NOT NULL AND '' <> rConf.System.PropertyName) THEN
+			SET returnValue = TRUE;
+		ELSEIF (CoreConfSystemPropertyName IS NOT NULL AND '' <> CoreConfSystemPropertyName) THEN
+			SET returnValue = TRUE;
+		END IF;
+		RETURN returnValue;
+	END;
+END MODULE;
+
+CREATE COMPUTE MODULE core_configuration_loader_system_SetPropertyName
+	CREATE FUNCTION Main() RETURNS BOOLEAN
+	BEGIN
+		DECLARE I INTEGER 1;
+		DECLARE J INTEGER CARDINALITY(InputRoot.*[]);
+		WHILE I < J DO
+			SET OutputRoot.*[I] = InputRoot.*[I];
+			SET I = I + 1;
+		END WHILE;
+		CREATE LASTCHILD OF OutputRoot DOMAIN 'XMLNSC';
+		DECLARE theName CHARACTER;
+		DECLARE rConf REFERENCE TO Environment.Configuration;
+		IF (InputRoot.MQRFH2.CoreConfSystemPropertyName IS NOT NULL AND '' <> InputRoot.MQRFH2.CoreConfSystemPropertyName) THEN
+			SET theName = InputRoot.MQRFH2.CoreConfSystemPropertyName;
+		ELSEIF (InputRoot.XMLNSC.Configuration.System.PropertyName IS NOT NULL AND '' <> InputRoot.XMLNSC.Configuration.System.PropertyName) THEN
+			SET theName = InputRoot.XMLNSC.Configuration.System.PropertyName;
+		ELSEIF (rConf.System.PropertyName IS NOT NULL AND '' <> rConf.System.PropertyName) THEN
+			SET theName = rConf.System.PropertyName;
+		ELSEIF (CoreConfSystemPropertyName IS NOT NULL AND '' <> CoreConfSystemPropertyName) THEN
+			SET theName = CoreConfSystemPropertyName;
+		END IF;
+		CREATE LASTCHILD OF OutputRoot.XMLNSC TYPE Name NAME theName;
+		RETURN TRUE;
+	END;
+END MODULE;
+
+CREATE COMPUTE MODULE core_configuration_loader_system_ProcessEnvironmentValues
+	CREATE FUNCTION Main() RETURNS BOOLEAN
+	BEGIN
+		DECLARE I INTEGER 1;
+		DECLARE J INTEGER;
+		SET J = CARDINALITY(InputRoot.*[]);
+		WHILE I < J DO
+			SET OutputRoot.*[I] = InputRoot.*[I];
+			SET I = I + 1;
+		END WHILE;
+		DECLARE rProp REFERENCE TO InputRoot.XMLNSC.*[1];
+		CREATE LASTCHILD OF OutputRoot.XMLNSC TYPE Name NAME 'Configuration';
+		DECLARE rConf REFERENCE TO OutputRoot.XMLNSC.Configuration;
+		CREATE LASTCHILD OF rConf TYPE Name NAME 'System';
+		DECLARE rSystem REFERENCE TO rConf.System;
+		WHILE LASTMOVE(rProp) DO
+			DECLARE theFieldName CHARACTER FIELDNAME(rProp);
+			DECLARE theFieldValue CHARACTER FIELDVALUE(rProp);
+			DECLARE I INTEGER 1;
+			DECLARE J INTEGER CARDINALITY(rSystem.*[]);
+			DECLARE K INTEGER -1;
+			WHILE I <= J AND K < 0 DO
+				IF (FIELDNAME(rSystem.*[I]) = theFieldName) THEN
+					SET K = I;
+				END IF;
+				SET I = I + 1;
+			END WHILE;
+			IF (0 > K OR J = 0) THEN
+				CREATE LASTCHILD OF rSystem NAME theFieldName VALUE theFieldValue;
+			END IF;
+			MOVE rProp NEXTSIBLING;
+		END WHILE; 
+		RETURN TRUE;
+	END;
+END MODULE;

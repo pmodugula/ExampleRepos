@@ -1,0 +1,23 @@
+DEFINE QLOCAL(${WMCOMMON_BO}) DESCR('core-bridge-mq-to-wms-inbound backout queue')
+DEFINE QLOCAL(${WMCOMMON}) BOTHRESH(5) BOQNAME(${WMCOMMON_BO})
+** Receive from core-bridge-ems-to-mq
+DEFINE QALIAS(RECV.${WMCOMMON}) TARGET(${WMCOMMON})
+
+** Send to dat-caldc-wms-inbound
+DEFINE QALIAS(SEND.${WMCOMMON_CALDC_DAT}) TARGET(${../source/dat-caldc-wms-inbound/template-default.properties:CALDC})
+* DEFINE QLOCAL(${../source/dat-caldc-wms-inbound/template-default.properties:CALDC})
+** Send to trx-caldc-wms-inbound
+DEFINE QALIAS(SEND.${WMCOMMON_CALDC_TRX}) TARGET(${../source/trx-caldc-wms-inbound/template-default.properties:CALDC})
+* DEFINE QLOCAL(${../source/trx-caldc-wms-inbound/template-default.properties:CALDC})
+** Send to trx-caldc-wms-inbound-bulk
+*** This alias is not used by this project but it is being defined here because it is 
+*** directly being used by ETL and we don't have a project in IB to take ownership of this alias
+DEFINE QALIAS(SEND.${CALDC_TRX_BULK}) TARGET(${../source/trx-caldc-wms-inbound-bulk/template-default.properties:CALDC})
+* DEFINE QLOCAL(${../source/trx-caldc-wms-inbound-bulk/template-default.properties:CALDC})
+
+** Send to dat-misdc-wms-inbound
+DEFINE QALIAS(SEND.${WMCOMMON_MISDC_DAT}) TARGET(${../source/dat-misdc-wms-inbound/template-default.properties:MISDC})
+* DEFINE QLOCAL(${../source/dat-misdc-wms-inbound/template-default.properties:MISDC})
+** Send to trx-misdc-wms-inbound
+DEFINE QALIAS(SEND.${WMCOMMON_MISDC_TRX}) TARGET(${../source/trx-misdc-wms-inbound/template-default.properties:MISDC})
+* DEFINE QLOCAL(${../source/trx-misdc-wms-inbound/template-default.properties:MISDC})

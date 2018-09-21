@@ -1,0 +1,179 @@
+DECLARE CoreConfFileDirectory EXTERNAL CHARACTER '';
+DECLARE CoreConfFileName EXTERNAL CHARACTER '';
+
+CREATE FILTER MODULE core_configuration_loader_file_DirectoryIsSet
+	CREATE FUNCTION Main() RETURNS BOOLEAN
+	BEGIN
+		DECLARE returnValue BOOLEAN FALSE;
+		DECLARE rConf REFERENCE TO Environment.Configuration;
+		IF (Root.MQRFH2.CoreConfFileDirectory IS NOT NULL AND '' <> Root.MQRFH2.CoreConfFileDirectory) THEN
+			SET returnValue = TRUE;
+		ELSEIF (Root.XMLNSC.Configuration.File.Directory IS NOT NULL AND '' <> Root.XMLNSC.Configuration.File.Directory) THEN
+			SET returnValue = TRUE;
+		ELSEIF (rConf.File.Directory IS NOT NULL AND '' <> rConf.File.Directory) THEN
+			SET returnValue = TRUE;
+		ELSEIF (CoreConfFileDirectory IS NOT NULL AND '' <> CoreConfFileDirectory) THEN
+			SET returnValue = TRUE;
+		END IF;
+		RETURN returnValue;
+	END;
+END MODULE;
+
+CREATE COMPUTE MODULE core_configuration_loader_file_StoreMQHeadersInTemp
+	CREATE FUNCTION Main() RETURNS BOOLEAN
+	BEGIN
+		SET OutputRoot = InputRoot;
+		SET Environment.__MQMD__ = InputRoot.MQMD;
+		SET Environment.__MQRFH2__ = InputRoot.MQRFH2;
+		RETURN TRUE;
+	END;
+END MODULE;
+
+CREATE COMPUTE MODULE core_configuration_loader_file_SetDirectory
+	CREATE FUNCTION Main() RETURNS BOOLEAN
+	BEGIN
+		SET OutputRoot = InputRoot;
+		--SET OutputLocalEnvironment = InputLocalEnvironment;
+		DECLARE rConf REFERENCE TO Environment.Configuration;
+		DECLARE directory CHARACTER;
+		IF (InputRoot.MQRFH2.CoreConfFileDirectory IS NOT NULL AND '' <> InputRoot.MQRFH2.CoreConfFileDirectory) THEN
+			SET directory = InputRoot.MQRFH2.CoreConfFileDirectory;
+		ELSEIF (InputRoot.XMLNSC.Configuration.File.Directory IS NOT NULL AND '' <> InputRoot.XMLNSC.Configuration.File.Directory) THEN
+			SET directory = InputRoot.XMLNSC.Configuration.File.Directory;
+		ELSEIF (rConf.File.Directory IS NOT NULL AND '' <> rConf.File.Directory) THEN
+			SET directory = rConf.File.Directory;
+		ELSEIF (CoreConfFileDirectory IS NOT NULL AND '' <> CoreConfFileDirectory) THEN
+			SET directory = CoreConfFileDirectory;
+		ELSE
+			CALL java.lang.System.getProperty('user.home') INTO directory;
+		END IF;
+		SET OutputLocalEnvironment.Destination.File.Directory = directory;
+		RETURN TRUE;
+	END;
+END MODULE;
+
+CREATE FILTER MODULE core_configuration_loader_file_NameIsSet
+	CREATE FUNCTION Main() RETURNS BOOLEAN
+	BEGIN
+		DECLARE returnValue BOOLEAN FALSE;
+		DECLARE rConf REFERENCE TO Environment.Configuration;
+		IF (Root.MQRFH2.CoreConfFileName IS NOT NULL AND '' <> Root.MQRFH2.CoreConfFileName) THEN
+			SET returnValue = TRUE;
+		ELSEIF (Root.XMLNSC.Configuration.File.Name IS NOT NULL AND '' <> Root.XMLNSC.Configuration.File.Name) THEN
+			SET returnValue = TRUE;
+		ELSEIF (rConf.File.Name IS NOT NULL AND '' <> rConf.File.Name) THEN
+			SET returnValue = TRUE;
+		ELSEIF (CoreConfFileName IS NOT NULL AND '' <> CoreConfFileName) THEN
+			SET returnValue = TRUE;
+		END IF;
+		RETURN returnValue;
+	END;
+END MODULE;
+
+CREATE COMPUTE MODULE core_configuration_loader_file_SetName
+	CREATE FUNCTION Main() RETURNS BOOLEAN
+	BEGIN
+		SET OutputRoot = InputRoot;
+		SET OutputLocalEnvironment = InputLocalEnvironment;
+		DECLARE rEnv REFERENCE TO Environment;
+		DECLARE rConf REFERENCE TO rEnv.Configuration;
+		DECLARE fileName CHARACTER '';
+		IF (InputRoot.MQRFH2.CoreConfFileName IS NOT NULL AND '' <> InputRoot.MQRFH2.CoreConfFileName) THEN
+			SET fileName = InputRoot.MQRFH2.CoreConfFileName;
+		ELSEIF (InputRoot.XMLNSC.Configuration.File.Name IS NOT NULL AND '' <> InputRoot.XMLNSC.Configuration.File.Name) THEN
+			SET fileName = InputRoot.XMLNSC.Configuration.File.Name;
+		ELSEIF (rConf.File.Name IS NOT NULL AND '' <> rConf.File.Name) THEN
+			SET fileName = rConf.File.Name;
+		ELSEIF (CoreConfFileName IS NOT NULL AND '' <> CoreConfFileName) THEN
+			SET fileName = CoreConfFileName;
+		END IF;
+		SET rEnv.__CoreConfFileName__ = fileName;
+		IF (0 < CARDINALITY(rEnv.Configuration[])) THEN
+			DECLARE Envn CHARACTER rConf.Loader.Envn;
+			IF (Envn IS NULL OR '' = Envn) THEN
+				SET Envn = rConf.__Envn__;
+			END IF;
+			IF (Envn IS NOT NULL AND '' <> Envn) THEN
+				SET fileName = fileName||'-'||Envn;
+			END IF;
+			DECLARE Inst CHARACTER rConf.Loader.Inst;
+			IF (Inst IS NULL OR '' = Inst) THEN
+				SET Inst = rConf.__Inst__;
+			END IF;
+			IF (Inst IS NOT NULL AND '' <> Inst) THEN
+				IF ('0' = Inst OR '1' = Inst) THEN
+					SET Inst = '';
+				END IF;
+			END IF;
+			IF (Inst IS NOT NULL AND '' <> Inst) THEN
+				SET fileName = fileName||'-'||Inst;
+			END IF;
+		END IF;
+		SET OutputLocalEnvironment.Destination.File.Name = fileName||'.properties';
+		RETURN TRUE;
+	END;
+END MODULE;
+
+CREATE COMPUTE MODULE core_configuration_loader_file_ProcessFileContents
+	CREATE FUNCTION Main() RETURNS BOOLEAN
+	BEGIN
+		DECLARE I INTEGER 1;
+		DECLARE J INTEGER CARDINALITY(InputRoot.*[]);
+		WHILE I < J DO
+			SET OutputRoot.*[I] = InputRoot.*[I];
+			SET I = I + 1;
+		END WHILE;
+		DECLARE rEnv REFERENCE TO Environment;
+		CREATE LASTCHILD OF OutputRoot DOMAIN('XMLNSC');
+		CREATE LASTCHILD OF OutputRoot.XMLNSC.Configuration TYPE Name NAME rEnv.__CoreConfFileName__;
+		DELETE FIELD rEnv.__CoreConfFileName__;
+		DECLARE rOutput REFERENCE TO OutputRoot.XMLNSC.Configuration.*[<];
+		DECLARE rProp REFERENCE TO InputRoot.DFDL.Properties.Property[1];
+		WHILE LASTMOVE(rProp) DO
+			DECLARE theFieldName CHARACTER rProp.Key;
+			DECLARE theFieldValue CHARACTER rProp.Value;
+			DECLARE I INTEGER 1;
+			DECLARE J INTEGER CARDINALITY(rOutput.*[]);
+			DECLARE K INTEGER -1;
+			WHILE I <= J AND K < 0 DO
+				IF (FIELDNAME(rOutput.*[I]) = theFieldName) THEN
+					SET K = I;
+				END IF;
+				SET I = I + 1;
+			END WHILE;
+			IF (0 > K OR J = 0) THEN
+				CREATE LASTCHILD OF rOutput NAME theFieldName VALUE theFieldValue;
+			END IF;
+			MOVE rProp NEXTSIBLING;
+		END WHILE; 
+		RETURN TRUE;
+	END;
+END MODULE;
+
+CREATE COMPUTE MODULE core_configuration_loader_file_RestoreMQHeadersFromTemp
+	CREATE FUNCTION Main() RETURNS BOOLEAN
+	BEGIN
+		SET OutputRoot = InputRoot;
+		IF (0 < CARDINALITY(Environment.__MQMD__[])) THEN
+			CREATE PREVIOUSSIBLING OF OutputRoot.*[<] DOMAIN ('MQMD');
+			DECLARE I INTEGER 1;
+			DECLARE J INTEGER CARDINALITY(Environment.__MQMD__.*[]);
+			WHILE I <= J DO
+				SET OutputRoot.MQMD.*[I] = Environment.__MQMD__.*[I];
+				SET I = I + 1;
+			END WHILE;
+		END IF;
+		IF (0 < CARDINALITY(Environment.__MQRFH2__[])) THEN
+			CREATE NEXTSIBLING OF OutputRoot.MQMD DOMAIN('MQRFH2');
+			DECLARE I INTEGER 1;
+			DECLARE J INTEGER CARDINALITY(Environment.__MQRFH2__.*[]);
+			WHILE I <= J DO
+				SET OutputRoot.MQRFH2.*[I] = Environment.__MQRFH2__.*[I];
+				SET I = I + 1;
+			END WHILE;
+		END IF;
+		DELETE FIELD Environment.__MQMD__;
+		DELETE FIELD Environment.__MQRFH2__;
+		RETURN TRUE;
+	END;
+END MODULE;

@@ -1,0 +1,519 @@
+BROKER SCHEMA core.configuration
+
+DECLARE CoreConfType EXTERNAL CHARACTER '';
+DECLARE CoreConfName EXTERNAL CHARACTER '';
+DECLARE CoreConfInst EXTERNAL CHARACTER '';
+DECLARE CoreConfEnvn EXTERNAL CHARACTER '';
+DECLARE CoreConfImpl EXTERNAL BOOLEAN FALSE;
+DECLARE CoreConfCache EXTERNAL INTEGER 1;
+DECLARE CoreConfLoaderQueueInst EXTERNAL CHARACTER '';
+DECLARE CoreConfLoaderQueueEnvn EXTERNAL CHARACTER '';
+
+CREATE PROCEDURE SetCacheJvm(IN mapName CHARACTER, IN rConf REFERENCE) RETURNS BOOLEAN LANGUAGE JAVA EXTERNAL NAME "EaiCoreCacheJvm.SetCacheJvm";
+CREATE PROCEDURE GetCacheJvm(IN mapName CHARACTER, IN rConf REFERENCE) RETURNS BOOLEAN LANGUAGE JAVA EXTERNAL NAME "EaiCoreCacheJvm.GetCacheJvm";
+CREATE PROCEDURE ClearCacheJvm(IN mapName CHARACTER, IN rConf REFERENCE) RETURNS BOOLEAN LANGUAGE JAVA EXTERNAL NAME "EaiCoreCacheJvm.ClearCacheJvm";
+
+CREATE PROCEDURE SetCacheWxs(IN mapName CHARACTER, IN rConf REFERENCE) RETURNS BOOLEAN LANGUAGE JAVA EXTERNAL NAME "EaiCoreCacheWxs.SetCacheWxs";
+CREATE PROCEDURE GetCacheWxs(IN mapName CHARACTER, IN rConf REFERENCE) RETURNS BOOLEAN LANGUAGE JAVA EXTERNAL NAME "EaiCoreCacheWxs.GetCacheWxs";
+CREATE PROCEDURE ClearCacheWxs(IN mapName CHARACTER, IN rConf REFERENCE) RETURNS BOOLEAN LANGUAGE JAVA EXTERNAL NAME "EaiCoreCacheWxs.ClearCacheWxs";
+
+CREATE COMPUTE MODULE DefaultCoreConf
+	CREATE FUNCTION Main() RETURNS BOOLEAN
+	BEGIN
+		DECLARE rEnv REFERENCE TO Environment;
+		IF (0 = CARDINALITY(rEnv.Configuration[])) THEN
+			CREATE LASTCHILD OF rEnv TYPE Name NAME 'Configuration';
+		END IF;
+		DECLARE rConf REFERENCE TO rEnv.Configuration;
+		
+		IF (rConf.__Type__ IS NULL) THEN 
+			SET rConf.__Type__ = 'File';
+		END IF;
+		IF (rConf.__Name__ IS NULL) THEN
+			DECLARE theName CHARACTER '';
+			DECLARE _from INTEGER 1;
+			DECLARE _to INTEGER LENGTH(MessageFlowLabel);
+			DECLARE _char CHAR '';
+			WHILE _from <= _to DO
+				SET _char = SUBSTRING(MessageFlowLabel FROM _from FOR 1);
+				IF ('_' = _char) THEN
+					SET _char = '-';
+				END IF;
+				SET theName = theName||_char;
+				SET _from = _from + 1;
+			END WHILE;
+			SET rConf.__Name__ = theName;
+		END IF;
+		IF (rConf.__Cache__ IS NULL) THEN
+			SET rConf.__Cache__ = CoreConfCache;
+		END IF;
+		
+		SET OutputRoot = InputRoot;
+		RETURN TRUE;
+	END;
+END MODULE;
+
+CREATE FILTER MODULE CoreConfIsCached
+	CREATE FUNCTION Main() RETURNS BOOLEAN
+	BEGIN
+		DECLARE returnValue BOOLEAN FALSE;
+		DECLARE rConf REFERENCE TO Environment.Configuration;
+		IF (FALSE AND 1 <= CoreConfCache) THEN
+			DECLARE I INTEGER 1;
+			DECLARE J INTEGER CARDINALITY(rConf.*[]);
+			WHILE (I <= J AND FALSE = returnValue) DO
+				IF (rConf.__Name__ = FIELDNAME(rConf.*[I])) THEN
+					SET returnValue = TRUE;
+				END IF;
+				SET I = I + 1;
+			END WHILE;
+		END IF;
+		IF (FALSE AND FALSE = returnValue AND 2 = CoreConfCache) THEN
+			IF (rConf.__Name__ IS NOT NULL AND '' <> rConf.__Name__) THEN
+				CALL core.configuration.GetCacheJvm(FIELDVALUE(rConf.__Name__), rConf) INTO returnValue;
+			END IF;
+		ELSEIF (FALSE AND FALSE = returnValue AND 3 = CoreConfCache) THEN
+			IF (rConf.__Name__ IS NOT NULL AND '' <> rConf.__Name__) THEN
+				CALL core.configuration.GetCacheWxs(FIELDVALUE(rConf.__Name__), rConf) INTO returnValue;
+			END IF;
+		END IF;
+		RETURN returnValue;
+	END;
+END MODULE;
+
+CREATE COMPUTE MODULE PickupMessageConfiguration
+	CREATE FUNCTION Main() RETURNS BOOLEAN
+	BEGIN
+		SET OutputRoot = InputRoot;
+		
+		DECLARE rEnv REFERENCE TO Environment;
+		IF (0 = CARDINALITY(rEnv.Configuration[])) THEN
+			CREATE LASTCHILD OF rEnv TYPE Name NAME 'Configuration';
+		END IF;
+		DECLARE rConf REFERENCE TO rEnv.Configuration;
+
+		IF (InputRoot.MQRFH2.CoreConfType IS NOT NULL AND '' <> InputRoot.MQRFH2.CoreConfType) THEN
+			SET rConf.Type = InputRoot.MQRFH2.CoreConfType;
+		ELSEIF (InputRoot.XMLNSC.Configuration.Type IS NOT NULL AND '' <> InputRoot.XMLNSC.Configuration.Type) THEN
+			SET rConf.Type = InputRoot.XMLNSC.Type;
+		END IF;
+		
+		IF (InputRoot.MQRFH2.CoreConfName IS NOT NULL AND '' <> InputRoot.MQRFH2.CoreConfName) THEN
+			SET rConf.Name = InputRoot.MQRFH2.CoreConfName;
+		ELSEIF (InputRoot.XMLNSC.Configuration.Name IS NOT NULL AND '' <> InputRoot.XMLNSC.Configuration.Name) THEN
+			SET rConf.Name = InputRoot.XMLNSC.Configuration.Name;
+		END IF;
+		
+		IF (InputRoot.MQRFH2.CoreConfInst IS NOT NULL AND '' <> InputRoot.MQRFH2.CoreConfInst) THEN
+			SET rConf.Inst = InputRoot.MQRFH2.CoreConfInst;
+		ELSEIF (InputRoot.XMLNSC.Configuration.Inst IS NOT NULL AND '' <> InputRoot.XMLNSC.Configuration.Inst) THEN
+			SET rConf.Inst = InputRoot.XMLNSC.Configuration.Inst;
+		END IF;
+			
+		IF (InputRoot.MQRFH2.CoreConfEnvn IS NOT NULL AND '' <> InputRoot.MQRFH2.CoreConfEnvn) THEN
+			SET rConf.Envn = InputRoot.MQRFH2.CoreConfEnvn;
+		ELSEIF (InputRoot.XMLNSC.Configuration.Envn IS NOT NULL AND '' <> InputRoot.XMLNSC.Configuration.Envn) THEN
+			SET rConf.Envn = InputRoot.XMLNSC.Configuration.Envn;
+		END IF;
+		
+		IF (InputRoot.MQRFH2.CoreConfCache IS NOT NULL AND '' <> InputRoot.MQRFH2.CoreConfCache) THEN
+			SET rConf.Cache = InputRoot.MQRFH2.CoreConfCache;
+		ELSEIF (InputRoot.XMLNSC.Configuration.Cache IS NOT NULL AND '' <> InputRoot.XMLNSC.Configuration.Cache) THEN
+			SET rConf.Cache = InputRoot.XMLNSC.Configuration.Cache;
+		END IF;
+		
+		IF (InputRoot.MQRFH2.CoreConfLoaderQueueInst IS NOT NULL AND '' <> InputRoot.MQRFH2.CoreConfLoaderQueueInst) THEN
+			SET rConf.Loader.Queue.Inst = InputRoot.MQRFH2.CoreConfLoaderQueueInst;
+		ELSEIF (InputRoot.XMLNSC.Configuration.Queue.Inst IS NOT NULL AND '' <> InputRoot.XMLNSC.Configuration.Loader.Queue.Inst) THEN
+			SET rConf.Loader.Queue.Inst = InputRoot.XMLNSC.Configuration.Loader.Queue.Inst;
+		END IF;
+		
+		IF (InputRoot.MQRFH2.CoreConfLoaderQueueEnvn IS NOT NULL AND '' <> InputRoot.MQRFH2.CoreConfLoaderQueueEnvn) THEN
+			SET rConf.Loader.Queue.Envn = InputRoot.MQRFH2.CoreConfLoaderQueueEnvn;
+		ELSEIF (InputRoot.XMLNSC.Configuration.Loader.Queue.Envn IS NOT NULL AND '' <> InputRoot.XMLNSC.Configuration.Loader.Queue.Envn) THEN
+			SET rConf.Loader.Queue.Envn = InputRoot.XMLNSC.Configuration.Loader.Queue.Envn;
+		END IF;
+		
+		DECLARE impl CHARACTER NULL;
+		IF (InputRoot.MQRFH2.CoreConfImpl IS NOT NULL AND '' <> InputRoot.MQRFH2.CoreConfImpl) THEN
+			SET impl = InputRoot.MQRFH2.CoreConfImpl;
+		ELSEIF (InputRoot.XMLNSC.Configuration.Impl IS NOT NULL AND '' <> InputRoot.XMLNSC.Configuration.Impl) THEN
+			SET impl = InputRoot.XMLNSC.Configuration.Impl;
+		END IF;
+		IF (impl IS NOT NULL) THEN
+			IF ('1' = impl) THEN
+				SET rConf.Impl = TRUE;
+			ELSE
+				SET rConf.Impl = FALSE;
+			END IF;
+		END IF;
+		
+		RETURN TRUE;
+	END;
+END MODULE;
+		
+CREATE COMPUTE MODULE PickupUserDefinedProperties
+	CREATE FUNCTION Main() RETURNS BOOLEAN
+	BEGIN
+		SET OutputRoot = InputRoot;
+		
+		DECLARE rEnv REFERENCE TO Environment;
+		IF (0 = CARDINALITY(rEnv.Configuration[])) THEN
+			CREATE LASTCHILD OF rEnv TYPE Name NAME 'Configuration';
+		END IF;
+		DECLARE rConf REFERENCE TO rEnv.Configuration;
+
+		IF (rConf.Type IS NULL AND CoreConfType IS NOT NULL AND '' <> CoreConfType) THEN 
+			SET rConf.Type = CoreConfType;
+		END IF;
+		IF (rConf.Name IS NULL AND CoreConfName IS NOT NULL AND '' <> CoreConfName) THEN 
+			SET rConf.Name = CoreConfName;
+		END IF;
+		IF (rConf.Inst IS NULL AND CoreConfInst IS NOT NULL AND '' <> CoreConfInst) THEN 
+			SET rConf.Inst = CoreConfInst;
+		END IF;
+		IF (rConf.Envn IS NULL AND CoreConfEnvn IS NOT NULL AND '' <> CoreConfEnvn) THEN 
+			SET rConf.Envn = CoreConfEnvn;
+		END IF;
+		IF (rConf.Loader.Queue.Inst IS NULL AND CoreConfLoaderQueueInst IS NOT NULL AND '' <> CoreConfLoaderQueueInst) THEN 
+			SET rConf.Loader.Queue.Inst = CoreConfLoaderQueueInst;
+		END IF;
+		IF (rConf.Loader.Queue.Envn IS NULL AND CoreConfLoaderQueueEnvn IS NOT NULL AND '' <> CoreConfLoaderQueueEnvn) THEN 
+			SET rConf.Loader.Queue.Envn = CoreConfLoaderQueueEnvn;
+		END IF;
+		
+		IF (rConf.Impl IS NULL) THEN
+			SET rConf.Impl = (CoreConfLoaderQueueInst IS NULL OR '' = CoreConfLoaderQueueInst) AND (CoreConfLoaderQueueEnvn IS NULL OR '' = CoreConfLoaderQueueEnvn);
+		END IF;
+		
+		RETURN TRUE;
+	END;
+END MODULE;
+
+CREATE FILTER MODULE ImplIsEmbedded
+	CREATE FUNCTION Main() RETURNS BOOLEAN
+	BEGIN
+		RETURN Environment.Configuration.Impl;
+	END;
+END MODULE;
+
+CREATE COMPUTE MODULE SetCoreConfLoader
+	CREATE FUNCTION Main() RETURNS BOOLEAN
+	BEGIN
+		DECLARE I INTEGER 1;
+		DECLARE J INTEGER CARDINALITY(InputRoot.*[]);
+		WHILE I < J DO
+			SET OutputRoot.*[I] = InputRoot.*[I];
+			SET I = I + 1;
+		END WHILE;
+		--SET OutputRoot = InputRoot;
+		DECLARE rConf REFERENCE TO Environment.Configuration;
+		IF (rConf.Type IS NOT NULL AND '' <> rConf.Type) THEN
+			SET rConf.Loader.Type = rConf.Type;
+		ELSEIF (rConf.__Type__ IS NOT NULL AND '' <> rConf.__Type__) THEN
+			SET rConf.Loader.Type = rConf.__Type__;
+		END IF;
+		IF (rConf.Name IS NOT NULL AND '' <> rConf.Name) THEN
+			SET rConf.Loader.Name = rConf.Name;
+		ELSEIF (rConf.__Name__ IS NOT NULL AND '' <> rConf.__Name__) THEN
+			SET rConf.Loader.Name = rConf.__Name__;
+		END IF;
+		IF (rConf.Inst IS NOT NULL AND '' <> rConf.Inst) THEN
+			SET rConf.Loader.Inst = rConf.Inst;
+		ELSEIF (rConf.__Inst__ IS NOT NULL AND '' <> rConf.__Inst__) THEN
+			SET rConf.Loader.Inst = rConf.__Inst__;
+		END IF;
+		IF (rConf.Envn IS NOT NULL AND '' <> rConf.Envn) THEN
+			SET rConf.Loader.Envn = rConf.Envn;
+		ELSEIF (rConf.__Envn__ IS NOT NULL AND '' <> rConf.__Envn__) THEN
+			SET rConf.Loader.Envn = rConf.__Envn__;
+		END IF;
+		RETURN TRUE;
+	END;
+END MODULE;
+
+CREATE COMPUTE MODULE CopyCoreConfToCache
+	CREATE FUNCTION Main() RETURNS BOOLEAN
+	BEGIN
+		DECLARE returnValue BOOLEAN FALSE;
+		SET OutputRoot = InputRoot;
+		DECLARE rConf REFERENCE TO Environment.Configuration;
+		IF (1 <= CoreConfCache) THEN
+			DECLARE aName CHARACTER FIELDNAME(InputRoot.XMLNSC.Configuration.*[1]);--TODO handle no configuration returned (0 = CARDINALITY(InputRoot.XMLNSC.Configuration[]))
+			DECLARE rProp REFERENCE TO InputRoot.XMLNSC.Configuration.*[1].*[1];
+			DECLARE rEnv REFERENCE TO Environment;
+			IF (0 = CARDINALITY(rEnv.Configuration[])) THEN
+				CREATE LASTCHILD OF rEnv TYPE Name NAME 'Configuration';
+			END IF;
+			DECLARE I INTEGER 1;
+			DECLARE J INTEGER CARDINALITY(rConf.*[]);
+			DECLARE K INTEGER -1;
+			WHILE I <= J AND K < 0 DO
+				IF (FIELDNAME(rConf.*[I]) = aName) THEN
+					SET K = I;
+				END IF;
+				SET I = I + 1;
+			END WHILE;
+			IF (0 > K) THEN
+				CREATE LASTCHILD OF rConf TYPE Name NAME aName;
+				SET K = J + 1;
+			END IF;
+			MOVE rConf TO rConf.*[K];
+			WHILE LASTMOVE(rProp) DO
+				DECLARE theFieldName CHARACTER FIELDNAME(rProp);
+				DECLARE theFieldValue CHARACTER FIELDVALUE(rProp);
+				DECLARE I INTEGER 1;
+				DECLARE J INTEGER CARDINALITY(rConf.*[]);
+				DECLARE K INTEGER -1;
+				WHILE I <= J AND K < 0 DO
+					IF (FIELDNAME(rConf.*[I]) = theFieldName) THEN
+						SET K = I;
+					END IF;
+					SET I = I + 1;
+				END WHILE;
+				IF (0 > K OR J = 0) THEN
+					CREATE LASTCHILD OF rConf NAME theFieldName VALUE theFieldValue;
+				END IF;
+				MOVE rProp NEXTSIBLING;
+			END WHILE;
+			SET returnValue = TRUE;
+		END IF; 
+		IF (2 = CoreConfCache) THEN
+			MOVE rConf TO Environment.Configuration;
+			IF (rConf.__Name__ IS NOT NULL AND '' <> rConf.__Name__) THEN
+				CALL core.configuration.SetCacheJvm(FIELDVALUE(rConf.__Name__), rConf) INTO returnValue;
+			END IF;
+		ELSEIF (3 = CoreConfCache) THEN
+			MOVE rConf TO Environment.Configuration;
+			IF (rConf.__Name__ IS NOT NULL AND '' <> rConf.__Name__) THEN
+				CALL core.configuration.SetCacheWxs(FIELDVALUE(rConf.__Name__), rConf) INTO returnValue;
+			END IF;
+		END IF;
+		RETURN returnValue;
+	END;
+END MODULE;
+
+DECLARE CoreConfQuery EXTERNAL CHARACTER '';
+DECLARE CoreConfQueryQueue EXTERNAL CHARACTER '';
+
+CREATE COMPUTE MODULE DiscoverIntegrationServer
+	CREATE PROCEDURE GetCharacterOfConf(IN _str CHARACTER, IN _from INTEGER, IN _for INTEGER) RETURNS CHARACTER
+	BEGIN
+		DECLARE _substr CHARACTER '';
+		IF (LENGTH(_str) >= _from+_for-1) THEN
+			SET _substr = SUBSTRING(_str FROM _from FOR _for); --IBN[D|Q|P]n[A|B] / IBS[D|Q|P]n[A|B].m.XYZ
+		END IF;
+		RETURN _substr;
+	END;
+	CREATE PROCEDURE GetIndexOfConf(IN _str CHARACTER, IN _char CHAR) RETURNS INTEGER
+	BEGIN
+		DECLARE _index INTEGER -1;
+		DECLARE _from INTEGER 1;
+		DECLARE _to INTEGER LENGTH(_str);
+		WHILE (_from <= _to AND _index < 0) DO
+			IF (SUBSTRING(_str FROM _from FOR 1) = _char) THEN
+				SET _index = _from;
+			END IF;
+			SET _from = _from + 1;
+		END WHILE;
+		RETURN _index;
+	END;
+	CREATE PROCEDURE GetIntegerOfConf(IN _str CHARACTER, IN _from INTEGER, IN _for INTEGER) RETURNS CHARACTER
+	BEGIN
+		DECLARE _substr CHARACTER '';
+		IF (LENGTH(_str) >= _from+_for-1) THEN
+			SET _substr = SUBSTRING(_str FROM _from FOR _for); --IBN[D|Q|P]n[A|B] / IBS[D|Q|P]n[A|B].m.XYZ
+			IF ('0' = _substr OR '1' = _substr OR '2' = _substr OR '3' = _substr OR '4' = _substr OR '5' = _substr OR '6' = _substr OR '7' = _substr OR '8' = _substr OR '9' = _substr) THEN
+				SET _substr = _substr;
+			ELSE
+				SET _substr = NULL;
+			END IF;
+		END IF;
+		RETURN _substr;
+	END;
+	
+	CREATE FUNCTION Main() RETURNS BOOLEAN
+	BEGIN
+		SET OutputRoot = InputRoot;
+		
+		DECLARE rEnv REFERENCE TO Environment;
+		IF (0 = CARDINALITY(rEnv.Configuration[])) THEN
+			CREATE LASTCHILD OF rEnv TYPE Name NAME 'Configuration';
+		END IF;
+		DECLARE rConf REFERENCE TO rEnv.Configuration;
+
+		IF (0 = CARDINALITY(rConf.__Internal__[])) THEN
+			SET rConf.__Internal__.Broker.Name = BrokerName;
+			SET rConf.__Internal__.Broker.UserId = BrokerUserId;
+			SET rConf.__Internal__.Broker.Version = BrokerVersion;
+			SET rConf.__Internal__.WorkPath = WorkPath;
+			SET rConf.__Internal__.ProcessId = CAST(ProcessId AS CHAR);
+			SET rConf.__Internal__.Execution.Group.Label = ExecutionGroupLabel;
+			SET rConf.__Internal__.Execution.Group.Name = ExecutionGroupName;
+			SET rConf.__Internal__.MessageFlow.AdditionalInstances = CAST(AdditionalInstances AS CHAR);
+			SET rConf.__Internal__.Library.Label = LibraryLabel;
+			SET rConf.__Internal__.Application.Label = ApplicationLabel;
+			SET rConf.__Internal__.MessageFlow.Label = MessageFlowLabel;
+		END IF;
+		
+		DECLARE inst CHARACTER rConf.__Inst__;
+		IF (inst IS NULL) THEN
+			DECLARE _index INTEGER -1;
+			CALL GetIndexOfConf(ExecutionGroupLabel, '.') INTO _index;
+			IF (_index >= 0) THEN
+				CALL GetIntegerOfConf(ExecutionGroupLabel, _index+1, 1) INTO inst; --IBS(D|Q|P)n[A|B].m.XYZ
+			END IF;
+		END IF;
+		IF (inst IS NOT NULL AND '' <> inst) THEN
+			IF ('0' = inst) THEN
+				SET inst = '';
+			ELSEIF ('1' = inst) THEN
+				SET inst = '';
+			END IF;
+		END IF;
+		SET rConf.__Inst__ = inst;
+			
+		DECLARE envn CHARACTER rConf.__Envn__;
+		IF (envn IS NULL) THEN
+			CALL GetCharacterOfConf(ExecutionGroupLabel, 4, 1) INTO envn; --IBS[D|Q|P]n[A|B].m.XYZ
+		END IF;
+		IF (envn IS NOT NULL AND '' <> envn) THEN
+			IF ('D' = envn) THEN
+				SET envn = 'DV';
+			ELSEIF ('Q' = envn) THEN
+				SET envn = 'QA';
+			ELSEIF ('P' = envn) THEN
+				SET envn = 'PP';
+			ELSE
+				SET envn = '';
+			END IF;
+		END IF;
+		SET rConf.__Envn__ = envn;
+		
+		RETURN TRUE;
+	END;
+END MODULE;
+
+CREATE COMPUTE MODULE BuildConfMessage
+	CREATE FUNCTION Main() RETURNS BOOLEAN
+	BEGIN
+		DECLARE I INTEGER 1;
+		DECLARE J INTEGER CARDINALITY(InputRoot.*[]);
+		WHILE I < J DO
+			SET OutputRoot.*[I] = InputRoot.*[I];
+			SET I = I + 1;
+		END WHILE;
+		CREATE LASTCHILD OF OutputRoot DOMAIN('XMLNSC');
+
+		DECLARE rConf REFERENCE TO Environment.Configuration;
+		SET OutputRoot.XMLNSC.Configuration.Loader.Type = rConf.Type;
+		SET OutputRoot.XMLNSC.Configuration.Loader.Name = rConf.Name;
+		
+		SET OutputRoot.MQMD.ReplyToQ = 'SEND.ALL.EAI.CORE_CONF_OUT';--
+		
+		DECLARE __envn__ CHARACTER rConf.__Envn__;
+		IF (__envn__ IS NOT NULL AND '' <> __envn__) THEN
+			SET OutputRoot.MQMD.ReplyToQ = OutputRoot.MQMD.ReplyToQ||'.'||__envn__;
+		END IF;
+		
+		DECLARE __inst__ CHARACTER rConf.__Inst__;
+		IF (__inst__ IS NOT NULL AND '' <> __inst__) THEN
+			IF ('0' = __inst__ OR '1' = __inst__) THEN
+				SET __inst__ = '';
+			END IF;
+		END IF;
+		IF (__inst__ IS NOT NULL AND '' <> __inst__) THEN
+			SET OutputRoot.MQMD.ReplyToQ = OutputRoot.MQMD.ReplyToQ||'.'||__inst__;
+		END IF;
+		
+		DECLARE inst CHARACTER NULL;
+		IF (rConf.Inst IS NOT NULL AND '' <> rConf.Inst) THEN
+			SET inst = rConf.Inst;
+		ELSEIF (rConf.__Inst__ IS NOT NULL AND '' <> rConf.__Inst__) THEN
+			SET inst = rConf.__Inst__;
+		END IF;
+		IF (inst IS NOT NULL AND '' <> inst) THEN
+			IF ('0' = inst OR '1' = inst) THEN
+				SET inst = '';
+			END IF;
+		END IF;
+		IF (inst IS NOT NULL) THEN
+			SET OutputRoot.XMLNSC.Configuration.Loader.Inst = inst;
+		END IF;
+		
+		DECLARE envn CHARACTER NULL;
+		IF (rConf.Envn IS NOT NULL AND '' <> rConf.Envn) THEN
+			SET envn = rConf.Envn;
+		ELSEIF (rConf.__Envn__ IS NOT NULL AND '' <> rConf.__Envn__) THEN
+			SET envn = rConf.__Envn__;
+		END IF;
+		IF (envn IS NOT NULL) THEN
+			SET OutputRoot.XMLNSC.Configuration.Loader.Envn = envn;
+		END IF;
+		
+		SET OutputLocalEnvironment = InputLocalEnvironment;
+		
+		RETURN TRUE;
+	END;
+END MODULE;
+
+CREATE COMPUTE MODULE CopyMsgIdToCorrelId
+	CREATE FUNCTION Main() RETURNS BOOLEAN
+	BEGIN
+		SET OutputRoot = InputRoot;
+		SET OutputRoot.MQMD.CorrelId = InputLocalEnvironment.WrittenDestination.MQ.DestinationData.msgId;
+		RETURN TRUE;
+	END;
+END MODULE;
+
+CREATE COMPUTE MODULE CopyQueueToTemp
+	CREATE FUNCTION Main() RETURNS BOOLEAN
+	BEGIN
+		SET OutputRoot = InputRoot;
+		IF (InputRoot.MQMD.ReplyToQ IS NOT NULL AND '' <> InputRoot.MQMD.ReplyToQ) THEN
+			SET OutputLocalEnvironment.Destination.MQ.DestinationData[1].queueName = InputRoot.MQMD.ReplyToQ;
+		ELSE
+			DECLARE aQueueName CHARACTER CoreConfQueryQueue;
+			DECLARE rConf REFERENCE TO Environment.Configuration;
+			DECLARE envn CHARACTER InputRoot.XMLNSC.Configuration.Loader.Queue.Envn;
+			IF (envn IS NOT NULL) THEN
+			ELSEIF (rConf.Loader.Queue.Envn IS NOT NULL AND '' <> rConf.Loader.Queue.Envn) THEN
+				SET envn = rConf.Loader.Queue.Envn;
+			ELSEIF (rConf.Envn IS NULL AND rConf.__Envn__ IS NOT NULL AND '' <> rConf.__Envn__) THEN
+				SET envn = rConf.__Envn__;
+			END IF;
+			IF (envn IS NOT NULL AND '' <> envn) THEN
+				SET aQueueName = aQueueName||'.'||envn;
+			END IF;
+			DECLARE inst CHARACTER InputRoot.XMLNSC.Configuration.Loader.Queue.Inst;
+			IF (inst IS NOT NULL) THEN
+			ELSEIF (rConf.Loader.Queue.Inst IS NOT NULL AND '' <> rConf.Loader.Queue.Inst) THEN
+				SET inst = rConf.Loader.Queue.Inst;
+			ELSEIF (rConf.Inst IS NULL AND rConf.__Inst__ IS NOT NULL AND '' <> rConf.__Inst__) THEN
+				SET inst = rConf.__Inst__;
+			END IF;
+			IF (inst IS NOT NULL AND '' <> inst) THEN
+				IF ('0' = inst OR '1' = inst) THEN
+					SET inst = '';
+				END IF;
+				IF ('' <> inst) THEN
+					SET aQueueName = aQueueName||'.'||inst;
+				END IF;
+			END IF;
+			SET OutputLocalEnvironment.Destination.MQ.DestinationData[1].queueName = aQueueName;
+		END IF;
+		SET Environment.__LocalEnvironment__ = OutputLocalEnvironment;
+		RETURN TRUE;
+	END;
+END MODULE;
+
+CREATE COMPUTE MODULE SetQueue
+	CREATE FUNCTION Main() RETURNS BOOLEAN
+	BEGIN
+		SET OutputRoot = InputRoot;
+		DECLARE rEnv REFERENCE TO Environment;
+		SET OutputLocalEnvironment = rEnv.__LocalEnvironment__;
+		DELETE FIELD rEnv.__LocalEnvironment_;
+		RETURN TRUE;
+	END;
+END MODULE;

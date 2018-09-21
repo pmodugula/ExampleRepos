@@ -1,0 +1,231 @@
+BROKER SCHEMA core.audit
+
+DECLARE CORE_AUDIT_USER_ID CONSTANT CHARACTER 'IIB';--TODO: deprecate and move to TRIGGER ON INSERT for 'V$SESSION'(?) inside database
+
+DECLARE _OPEN CONSTANT CHARACTER 'OPEN';
+DECLARE _PASS CONSTANT CHARACTER 'PASS';
+DECLARE _FAIL CONSTANT CHARACTER 'FAIL';
+DECLARE _REPLAY CONSTANT CHARACTER 'REPLAY';
+DECLARE _DELETE CONSTANT CHARACTER 'DELETE';
+DECLARE _PURGE CONSTANT CHARACTER 'PURGE';
+DECLARE _DONE CONSTANT CHARACTER 'DONE';
+DECLARE _NOOP CONSTANT CHARACTER 'NOOP';
+
+DECLARE CoreAuditState EXTERNAL CHARACTER '';
+DECLARE CoreAuditImpl EXTERNAL BOOLEAN TRUE;
+DECLARE CoreAuditEnabled EXTERNAL BOOLEAN TRUE;
+
+CREATE PROCEDURE AuditState(IN rEnv REFERENCE, IN state CHARACTER)
+BEGIN
+	SET rEnv.__CoreAuditState__ = state;
+END;
+CREATE PROCEDURE AuditStateComment(IN rEnv REFERENCE, IN comment CHARACTER)
+BEGIN
+	SET rEnv.__CoreAuditStateComment__ = comment;
+END;
+
+CREATE FUNCTION auditTrim(IN txt CHARACTER, IN len INTEGER) RETURNS CHARACTER
+BEGIN
+	RETURN SUBSTRING(txt FROM 1 FOR len);
+END;
+
+CREATE FILTER MODULE audit_FilterAuditIsEnabled
+	CREATE FUNCTION Main() RETURNS BOOLEAN
+	BEGIN
+		RETURN TRUE=CoreAuditEnabled;
+	END;
+END MODULE;
+
+CREATE FILTER MODULE audit_FilterHasMsgId
+	CREATE FUNCTION Main() RETURNS BOOLEAN
+	BEGIN
+		DECLARE rEnv REFERENCE TO Environment;
+		RETURN rEnv.__MsgId__ IS NOT NULL AND rEnv.__CorrelId__ IS NOT NULL;
+	END;
+END MODULE;
+
+CREATE FILTER MODULE audit_FilterHasAuditId
+	CREATE FUNCTION Main() RETURNS BOOLEAN
+	BEGIN
+		DECLARE rEnv REFERENCE TO Environment;
+		RETURN rEnv.__CoreAuditId__ IS NOT NULL AND ''<>rEnv.__CoreAuditId__;
+	END;
+END MODULE;
+
+CREATE DATABASE MODULE audit_SelectFromIIB_AUDIT_SEQ
+	CREATE FUNCTION Main() RETURNS BOOLEAN
+	BEGIN
+		DECLARE rEnv REFERENCE TO Environment;
+		SET rEnv.__SelectIIB_AUDIT_SEQ_NEXTVAL__[] = PASSTHRU('SELECT IIB.IIB_AUDIT_SEQ.NEXTVAL FROM DUAL');
+		SET rEnv.__CoreAuditId__ = CAST(rEnv.__SelectIIB_AUDIT_SEQ_NEXTVAL__[1].NEXTVAL AS INTEGER);
+		WHILE 0<CARDINALITY(rEnv.__SelectIIB_AUDIT_SEQ_NEXTVAL__[]) DO
+			DELETE FIELD rEnv.__SelectIIB_AUDIT_SEQ_NEXTVAL__[<];
+		END WHILE;
+		RETURN TRUE;
+	END;
+END MODULE;
+
+CREATE DATABASE MODULE audit_InsertIntoIIB_AUDIT_STATE
+	DECLARE insertIntoIIB_AUDIT_STATE CHARACTER
+	'INSERT INTO IIB.IIB_AUDIT_STATE('||
+	'AUDIT_STATE_ID,AUDIT_ID,INSERT_DTS,CREATE_USER_ID,RECORD_CREATE_TMS,RECORD_UPDATE_TMS,UPDATE_USER_ID,STATE,"COMMENT"'||
+	--------------1--------2----------3--------------4-----------------5-----------------6--------------7-----8---------9
+	') VALUES('||
+	'IIB.IIB_AUDIT_STATE_SEQ.NEXTVAL,?,?,?,?,?,?,?,?'||
+	---------------------------------2-------------9
+	')';
+	CREATE FUNCTION Main() RETURNS BOOLEAN
+	BEGIN
+		DECLARE rEnv REFERENCE TO Environment;
+		IF CoreAuditState IS NOT NULL AND ''<>CoreAuditState THEN
+			SET rEnv.__CoreAuditState__ = CoreAuditState;
+		END IF;
+		IF 'FAIL'=rEnv.__CoreAuditState__ THEN
+			IF rEnv.__CoreAuditStateComment__ IS NULL THEN
+				DECLARE number INTEGER;
+				DECLARE text CHARACTER;
+				CALL getLastExceptionDetail(rEnv.__ExceptionList__.*[1],number,text);
+			END IF;
+		END IF;
+		IF rEnv.__CoreAuditStateComment__ IS NOT NULL THEN
+			SET rEnv.__CoreAuditStateComment__ = auditTrim(rEnv.__CoreAuditStateComment__, 128);
+		END IF;
+		DECLARE ORA_SYSTIMESTAMP CHARACTER rEnv.__CoreAuditOraSystimestamp__;
+		IF ORA_SYSTIMESTAMP IS NULL THEN
+			SET rEnv.__ORA_SYSTIMESTAMP__[] = PASSTHRU('SELECT to_char(SYSTIMESTAMP, ''YYYY-MM-DD HH24:MI:SS.FF'') AS "VALUE" FROM DUAL');
+			SET rEnv.__CoreAuditOraSystimestamp__ = rEnv.__ORA_SYSTIMESTAMP__[1].VALUE;
+			DELETE FIELD rEnv.__ORA_SYSTIMESTAMP__[1];
+			SET ORA_SYSTIMESTAMP = rEnv.__CoreAuditOraSystimestamp__;
+		END IF;
+		DECLARE IIB_GMTTIMESTAMP CHARACTER auditTrim(CAST(CURRENT_GMTTIMESTAMP AS CHARACTER), 64);
+		SET IIB_GMTTIMESTAMP = SUBSTRING(IIB_GMTTIMESTAMP FROM 15 FOR LENGTH(IIB_GMTTIMESTAMP)-15);
+		SET rEnv.__InsertIntoIIB_AUDIT_STATE__[] = PASSTHRU(insertIntoIIB_AUDIT_STATE VALUES(
+			--rEnv.__CoreAuditStateId__, --Automatically generated during INSERT and IIB_AUDIT_STATE_SEQ.NEXTVAL
+			rEnv.__CoreAuditId__, --2
+			IIB_GMTTIMESTAMP, --3
+			CORE_AUDIT_USER_ID, --4
+			ORA_SYSTIMESTAMP, --5
+			ORA_SYSTIMESTAMP, --6
+			CORE_AUDIT_USER_ID, --7
+			rEnv.__CoreAuditState__, --8
+			rEnv.__CoreAuditStateComment__ --9
+		));
+		WHILE 0<CARDINALITY(rEnv.__InsertIntoIIB_AUDIT_STATE__[]) DO
+			DELETE FIELD rEnv.__InsertIntoIIB_AUDIT_STATE__[<];
+		END WHILE;
+		RETURN TRUE;
+	END;
+	CREATE PROCEDURE getLastExceptionDetail(IN ref REFERENCE, OUT messageNumber INTEGER, OUT messageText CHARACTER)
+	BEGIN
+		A: WHILE LASTMOVE(ref) DO --Added label so we can LEAVE later
+			IF 'Insert'<>FIELDNAME(ref.*[<]) AND 0<CARDINALITY(ref.*[<].*[]) THEN
+				MOVE ref LASTCHILD;
+			ELSE
+				SET messageNumber = ref.Number;
+				SET messageText = ref.Text;
+				LEAVE A;
+			END IF;
+		END WHILE;
+	END;
+END MODULE;
+
+CREATE COMPUTE MODULE audit_PreAudit
+	CREATE FUNCTION Main() RETURNS BOOLEAN
+	BEGIN
+		SET OutputRoot = InputRoot;
+		DECLARE rEnv REFERENCE TO Environment;
+		DECLARE msgId CHARACTER CAST(rEnv.__MsgIdForLog4J__ AS CHARACTER);
+		--SET rEnv.__CoreAuditId__ =
+		SET rEnv.__CoreAuditMsgId__ = COALESCE(auditTrim(msgId, 64), 0);--COALESCE(..,0): necessary for TCPIPServerInput
+		--SET rEnv.__CoreAuditBackoutCount__ = COALESCE(auditTrim(CAST(InputRoot.MQMD.BackoutCount AS CHARACTER), 20), 0);
+		SET rEnv.__CoreAuditGuid__ = COALESCE(auditTrim(InputRoot.XMLNSC.*:Exchange.*:MessageRouting.*:Guid, 64), '0');--Will never not be '0' since we never *gurantee* a parseable XML message for Audit 'OPEN' and we should not!
+		SET rEnv.__CoreAuditUserId__ = auditTrim(rEnv.Configuration.__Internal__.User.Id, 255);
+		DECLARE correlId CHARACTER CAST(rEnv.__CorrelIdForLog4J__ AS CHARACTER);
+		SET rEnv.__CoreAuditCorrelId__ = COALESCE(auditTrim(correlId, 64), 0);--COALESCE(..,0): necessary for TCPIPServerInput
+		SET rEnv.__CoreAuditNodeNm__ = auditTrim(rEnv.Configuration.__Internal__.Broker.Name, 32);
+		SET rEnv.__CoreAuditServerNm__ = auditTrim(rEnv.Configuration.__Internal__.Label.ExecutionGroup, 32);
+		SET rEnv.__CoreAuditApplicationNm__ = auditTrim(rEnv.Configuration.__Internal__.Label.Application, 64);
+		SET rEnv.__CoreAuditLibraryNm__ = auditTrim(rEnv.Configuration.__Internal__.Label.Library, 64);
+		SET rEnv.__CoreAuditMessageFlowNm__ = auditTrim(rEnv.Configuration.__Internal__.Label.MessageFlow, 128);
+		RETURN TRUE;
+	END;
+END MODULE;
+
+CREATE DATABASE MODULE audit_SelectFromAndInsertIntoIIB_AUDIT
+	DECLARE selectBackoutCountFromIIB_AUDIT CHARACTER
+	'SELECT BACKOUT_COUNT FROM IIB.IIB_AUDIT WHERE AUDIT_ID=('||
+    ' SELECT MAX(AUDIT_ID) FROM IIB.IIB_AUDIT WHERE MSG_ID=?'||
+    ')';
+	DECLARE insertIntoIIB_AUDIT CHARACTER
+	'INSERT INTO IIB.IIB_AUDIT('||
+	'AUDIT_ID,MSG_ID,MSG_ID_BLOB,BACKOUT_COUNT,CORREL_ID,CORREL_ID_BLOB,GUID,INSERT_DTS,CREATE_USER_ID,RECORD_CREATE_TMS,RECORD_UPDATE_TMS,UPDATE_USER_ID,NODE_NM,SERVER_NM,APP_NM,LIB_NM,MSG_FLOW_NM'||
+	--------1------2-----------3-------------4---------5--------------6----7----------8--------------9----------------10----------------11-------------12------13--------14-----15-----16----------17
+	') VALUES('||
+	'?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?'||
+	---2--------------10------------17
+	')';
+	CREATE FUNCTION Main() RETURNS BOOLEAN
+	BEGIN
+		DECLARE rEnv REFERENCE TO Environment;
+		SET rEnv.__SelectBackoutCountFromIIB_AUDIT__[] = PASSTHRU(selectBackoutCountFromIIB_AUDIT VALUES(rEnv.__CoreAuditMsgId__));
+		IF 0=CARDINALITY(rEnv.__SelectBackoutCountFromIIB_AUDIT__[]) THEN
+			SET rEnv.__CoreAuditBackoutCount__ = 0;
+		ELSE
+			SET rEnv.__CoreAuditBackoutCount__ = rEnv.__SelectBackoutCountFromIIB_AUDIT__[1].BACKOUT_COUNT+1;
+			WHILE 0<CARDINALITY(rEnv.__SelectBackoutCountFromIIB_AUDIT__[]) DO
+				DELETE FIELD rEnv.__SelectBackoutCountFromIIB_AUDIT__[<];
+			END WHILE;
+		END IF;
+		DECLARE ORA_SYSTIMESTAMP CHARACTER rEnv.__CoreAuditOraSystimestamp__;
+		IF ORA_SYSTIMESTAMP IS NULL THEN
+			SET rEnv.__ORA_SYSTIMESTAMP__[] = PASSTHRU('SELECT to_char(SYSTIMESTAMP, ''YYYY-MM-DD HH24:MI:SS.FF'') AS "VALUE" FROM DUAL');
+			SET rEnv.__CoreAuditOraSystimestamp__ = rEnv.__ORA_SYSTIMESTAMP__[1].VALUE;
+			DELETE FIELD rEnv.__ORA_SYSTIMESTAMP__[1];
+			SET ORA_SYSTIMESTAMP = rEnv.__CoreAuditOraSystimestamp__;
+		END IF;
+		DECLARE IIB_GMTTIMESTAMP CHARACTER auditTrim(CAST(CURRENT_GMTTIMESTAMP AS CHARACTER), 64);
+		SET IIB_GMTTIMESTAMP = SUBSTRING(IIB_GMTTIMESTAMP FROM 15 FOR LENGTH(IIB_GMTTIMESTAMP)-15);
+		SET rEnv.__InsertIntoIIB_AUDIT__[] = PASSTHRU(insertIntoIIB_AUDIT VALUES(
+			rEnv.__CoreAuditId__, --1
+			rEnv.__CoreAuditMsgId__, --2
+			rEnv.__MsgId__, --3
+			rEnv.__CoreAuditBackoutCount__, --4
+			rEnv.__CoreAuditCorrelId__, --5
+			rEnv.__CorrelId__, --6
+			rEnv.__CoreAuditGuid__, --7
+			IIB_GMTTIMESTAMP, --8
+			CORE_AUDIT_USER_ID, --9
+			ORA_SYSTIMESTAMP, --10
+			ORA_SYSTIMESTAMP, --11
+			CORE_AUDIT_USER_ID, --12
+			rEnv.__CoreAuditNodeNm__, --13
+			rEnv.__CoreAuditServerNm__, --14
+			rEnv.__CoreAuditApplicationNm__, --15
+			rEnv.__CoreAuditLibraryNm__, --16
+			rEnv.__CoreAuditMessageFlowNm__ --17
+		));
+		WHILE 0<CARDINALITY(rEnv.__InsertIntoIIB_AUDIT__[]) DO
+			DELETE FIELD rEnv.__InsertIntoIIB_AUDIT__[<];
+		END WHILE;
+		RETURN TRUE;
+	END;
+END MODULE;
+
+CREATE COMPUTE MODULE audit_PostAudit
+	CREATE FUNCTION Main() RETURNS BOOLEAN
+	BEGIN
+		SET OutputRoot = InputRoot;
+		DECLARE rEnv REFERENCE TO Environment;
+		--DELETE FIELD rEnv.__CoreAuditId__; --Don't delete this field (leave this comment here) otherwise subsequent INSERTs (e.g. STATE='PASS|FAIL') will not correlate
+		DELETE FIELD rEnv.__CoreAuditMsgId__;
+		--DELETE FIELD rEnv.__CoreAuditBackoutCount__;
+		DELETE FIELD rEnv.__CoreAuditCorrelId__;
+		DELETE FIELD rEnv.__CoreAuditGuid__;
+		DELETE FIELD rEnv.__CoreAuditNodeNm__;
+		DELETE FIELD rEnv.__CoreAuditServerNm__;
+		DELETE FIELD rEnv.__CoreAuditApplicationNm__;
+		DELETE FIELD rEnv.__CoreAuditLibraryNm__;
+		DELETE FIELD rEnv.__CoreAuditMessageFlowNm__;
+		RETURN TRUE;
+	END;
+END MODULE;

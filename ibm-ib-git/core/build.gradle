@@ -1,0 +1,351 @@
+import org.apache.commons.io.FileUtils
+
+
+buildscript {
+    repositories {
+        mavenCentral()
+    }
+
+    dependencies {
+        classpath 'org.apache.commons:commons-io:1.3.2'
+    }
+}
+
+task listOptions() {
+    println "****************************************************"
+    println "*                PROJECT OPTIONS                   *"
+    println "****************************************************"
+    println " - cleanProject,               < cP >"
+    println " - refreshDependencies,        < rD >"
+    println " - refreshRemote (git),        < rR >"
+//    println " - testProject,                < tP  >"
+//    println " - buildProject,               < bP  >"
+    println "****************************************************"
+}
+
+task refreshDependencies(type: ProjectDependenciesTask, dependsOn: 'cleanProject')
+task cleanProject(type: CleanProjectTask)
+
+
+//PURPOSE: updates all the repositories with remote tracking, new tags, branches etc.
+task refreshRemote(type:Exec){
+   commandLine 'sh', './refreshRemote.sh'
+}
+
+/**
+ * Provides API to gather project dependencies and versions
+ */
+class ProjectDependenciesTask extends DefaultTask {
+
+    static final GITSTAGING_DIR = "./gitstaging/"
+    static final TARGET_SOURCE_DIR = "./source/"
+    static final TARGET_ROOT_DIR = "./"
+
+    @TaskAction
+    def stageDirectoryDependencies() {
+
+        DependencyContext dependencyContext = DependencyManager.getDependencies(project."property.service.bom.file")
+        
+        Set<IBDependency> dependencies = dependencyContext.getDependencySet()
+        List<String> processedList = new ArrayList()
+
+        def processedRepos = []
+        dependencies.each { dependency ->
+
+            if (dependency.type.equals("wms-library")) {
+	        if(!processedRepos.contains(dependency.type)){
+	            processedRepos << dependency.type
+		    project.exec {
+	                commandLine 'sh', './cloneRepo.sh', project."property.git.wms-library.url", dependency.branch
+	            }
+		}
+
+                FileUtils.copyDirectory(
+                     new File(GITSTAGING_DIR + dependency.type + "/source/" + dependency.name),
+                     new File(TARGET_SOURCE_DIR + "/" + dependency.name)
+                );
+            } else if (dependency.type.equals("pmm-library")) {
+	        if(!processedRepos.contains(dependency.type)){
+	            processedRepos << dependency.type
+		    project.exec {
+	                commandLine 'sh', './cloneRepo.sh', project."property.git.pmm-library.url", dependency.branch
+	            }
+		}
+                FileUtils.copyDirectory(
+                     new File(GITSTAGING_DIR + dependency.type + "/source/" + dependency.name),
+                     new File(TARGET_SOURCE_DIR + "/" + dependency.name)
+                );
+            } else if (dependency.type.equals("cygmin64")){
+	        if(!processedRepos.contains(dependency.type)){
+	            processedRepos << dependency.type
+		    project.exec {
+	                commandLine 'sh', './cloneRepo.sh', project."property.git.cygmin64.url", dependency.branch
+	            }
+		}
+                FileUtils.copyDirectory(
+                        new File(GITSTAGING_DIR + "/" + dependency.name + "/target"),
+                        new File(TARGET_ROOT_DIR + "/" + dependency.name)
+                );
+            } else if (dependency.type.equals("build")) {
+                def targetDir = TARGET_ROOT_DIR + "/${dependency.name}"
+                def sourceDir = GITSTAGING_DIR + "/build/${dependency.name}"
+
+	        if(!processedRepos.contains(dependency.type)){
+	            processedRepos << dependency.type
+		    project.exec {
+	                commandLine 'sh', './cloneRepo.sh', project."property.git.build.url", dependency.branch
+	            }
+		}
+                FileUtils.copyDirectory( new File(sourceDir), new File(targetDir));
+            } else if (dependency.type.equals("core")) {
+	        if(!processedRepos.contains(dependency.type)){
+	            processedRepos << dependency.type
+		    project.exec {
+	                commandLine 'sh', './cloneRepo.sh', project."property.git.core.url", dependency.branch
+	            }
+		}
+                FileUtils.copyDirectory(
+                        new File(GITSTAGING_DIR + dependency.type + "/source/" + dependency.name),
+                        new File(TARGET_SOURCE_DIR + "/" + dependency.name)
+                );
+            } else if (dependency.type.equals("message-schemas")) {
+	        if(!processedRepos.contains(dependency.type)){
+	            processedRepos << dependency.type
+		    project.exec {
+	                commandLine 'sh', './cloneRepo.sh', project."property.git.message-schemas.url", dependency.branch
+	            }
+		}
+		List<MessageSchemaDependency> messageSchemaDependencyList = dependencyContext.messageSchemaDependencyList 
+		if(messageSchemaDependencyList && messageSchemaDependencyList.size() > 0){
+			processMessageSchemas(messageSchemaDependencyList)
+		}
+            } else if (dependency.type.equals("pmm-outbound")){
+	        if(!processedRepos.contains(dependency.type)){
+	            processedRepos << dependency.type
+		    project.exec {
+	                commandLine 'sh', './cloneRepo.sh', project."property.git.pmm-outbound.url", dependency.branch
+	            }
+		}
+                FileUtils.copyDirectory(
+                        new File(GITSTAGING_DIR + dependency.type + "/source/" + dependency.name),
+                        new File(TARGET_SOURCE_DIR + "/" + dependency.name)
+                );
+            } else if (dependency.type.equals("wms-outbound")){
+	        if(!processedRepos.contains(dependency.type)){
+	            processedRepos << dependency.type
+		    project.exec {
+	                commandLine 'sh', './cloneRepo.sh', project."property.git.wms-outbound.url", dependency.branch
+	            }
+		}
+                FileUtils.copyDirectory(
+                        new File(GITSTAGING_DIR + dependency.type + "/source/" + dependency.name),
+                        new File(TARGET_SOURCE_DIR + "/" + dependency.name)
+                );
+            }
+        }
+    }
+
+	/**
+	 * Process Schema Documents per Project
+	 */
+    void processMessageSchemas(List<MessageSchemaDependency> messageSchemaDependencyList){
+        messageSchemaDependencyList.each{schema ->
+	    println "Staging Schema File: ${schema.source} into ${schema.target}"
+
+	    String fromDir = GITSTAGING_DIR + "/message-schemas/" + schema.source
+	    String toDir = TARGET_SOURCE_DIR + "/" + schema.target + "/" + 
+	                   schema.source.substring(0,schema.source.lastIndexOf("/"))
+
+	    FileUtils.copyFileToDirectory(new File(fromDir), new File(toDir))
+			
+	    schema.dependencies.each{childSchema ->
+	        fromDir = GITSTAGING_DIR + "/message-schemas/" + childSchema
+		toDir = TARGET_SOURCE_DIR + "/" + schema.target + "/" + 
+		        childSchema.substring(0,childSchema.lastIndexOf("/"))
+
+	        println "\tStaging Child Schema: ${childSchema}"
+	        FileUtils.copyFileToDirectory(new File(fromDir), new File(toDir)) 
+	    }
+        }
+    }
+}
+
+
+/**
+ * DependencyManager
+ */
+class DependencyManager {
+
+    static DependencyContext getDependencies(String repoDependencyFile) {
+        List<IBDependency> dependencySet = []
+        List<MessageSchemaDependency> messageSchemaDependencyList = []
+
+        XmlParser parser = new XmlParser()
+        def result = parser.parse(new File(repoDependencyFile))
+
+        //Find Dependency by Type Branches
+        String coreBranch = result.'core'.text()
+        String pmmLibraryBranch = result.'pmm-library'.text()
+        String wmsLibraryBranch = result.'wms-library'.text()
+        String pmmOutboundBranch = result.'pmm-outbound'.text()
+        String wmsOutboundBranch = result.'wms-outbound'.text()
+        String buildBranch       = result.'build'.text()
+        String cygmin64Branch    = result.'cygmin64'.text()
+        String messageSchemasBranch = result.'message-schemas'.text()
+
+        //Process Dependencies
+        result.folders.each {
+            it.folder.each { p ->
+                IBDependency dependency = new IBDependency();
+                dependency.name = p.text()
+                dependency.type = p.'@type'
+
+                if (dependency.type.equalsIgnoreCase("pmm-library")) {
+                    dependency.branch = pmmLibraryBranch
+                } else if (dependency.type.equalsIgnoreCase("wms-library")) {
+                    dependency.branch = wmsLibraryBranch
+                } else if (dependency.type.equalsIgnoreCase("core")) {
+                    dependency.branch = coreBranch
+                } else if (dependency.type.equalsIgnoreCase("pmm-outbound")){
+                    dependency.branch = pmmOutboundBranch
+                } else if (dependency.type.equalsIgnoreCase("wms-outbound")){
+                    dependency.branch = wmsOutboundBranch
+                } else if (dependency.type.equalsIgnoreCase("build")){
+                    dependency.branch = buildBranch
+                } else if (dependency.type.equalsIgnoreCase("cygmin64")){
+                    dependency.branch = cygmin64Branch
+                } else if (dependency.type.equalsIgnoreCase("message-schemas")){
+                    dependency.branch = messageSchemasBranch
+                } else {
+                    dependency.branch = "* current"
+                }
+                dependencySet.add(dependency)
+            }
+        }
+
+        
+	//Process Schema Dependencies
+        result.schemas.each{
+            it.each{s ->
+	        MessageSchemaDependency messageSchemaDependency = new MessageSchemaDependency()
+                messageSchemaDependency.source  = s.source.text()
+                messageSchemaDependency.target  = s.target.text()
+		//println "SOURCE: ${s.source.text()}"
+		//println "TARGET: ${s.target.text()}"
+                messageSchemaDependency.dependencies = []
+				
+                s.dependencies.dependency.each{d ->
+		    //println "SCHEMA DEPENDENCY: ${d.text()}"
+                    messageSchemaDependency.dependencies << d.text()
+                }
+	
+	        messageSchemaDependencyList << messageSchemaDependency
+            }
+        }
+
+        dependencySet.sort({ it.type })
+        dependencySet.each {
+            println it
+        }
+
+	DependencyContext dependencyContext = new DependencyContext();
+	dependencyContext.dependencySet = dependencySet
+	dependencyContext.messageSchemaDependencyList = messageSchemaDependencyList
+
+        return dependencyContext
+    }
+}
+
+/* 
+ * CleanProjectTask
+ */
+class CleanProjectTask extends DefaultTask {
+    
+    static final GITSTAGING_DIR = "./gitstaging/"
+    static final TARGET_SOURCE_DIR = "./source/"
+    static final TARGET_ROOT_DIR = "./"
+
+    @TaskAction
+    def removeAllDependencyFolders() {
+	
+	DependencyContext dependencyContext = DependencyManager.getDependencies(project."property.service.bom.file")
+        Set<IBDependency> dependencies = dependencyContext.getDependencySet()
+	List<MessageSchemaDependency> messageSchemaDependencyList = dependencyContext.messageSchemaDependencyList
+
+        FileUtils.deleteDirectory(new File(GITSTAGING_DIR))
+
+        dependencies.each { dependency ->
+            println "Removing module dependency: ${dependency.name}"
+            if (dependency.type.equals("wms-library")) {
+                String dir = TARGET_SOURCE_DIR + "/" + dependency.name
+                FileUtils.deleteDirectory(new File(dir))
+            } else if (dependency.type.equals("pmm-library")) {
+                String dir = TARGET_SOURCE_DIR + "/" + dependency.name
+                FileUtils.deleteDirectory(new File(dir))
+            } else if (dependency.type.equals("core")) {
+                String dir = TARGET_SOURCE_DIR + "/" + dependency.name
+                FileUtils.deleteDirectory(new File(dir))
+            } else if (dependency.type.equals("cygmin64")) {
+                String dir = TARGET_ROOT_DIR + "/" + dependency.name
+                FileUtils.deleteDirectory(new File(dir))
+            } else if (dependency.type.equals("message-schemas")) {
+		        if(messageSchemaDependencyList && messageSchemaDependencyList.size() > 0){
+		            cleanupMessageSchemas(messageSchemaDependencyList)
+		        }
+            } else if (dependency.type.equals("build")) {
+                String dir = TARGET_ROOT_DIR + "/" + dependency.name
+                FileUtils.deleteDirectory(new File(dir))
+            } else {
+                println "Unknown dependency type during clean directories: ${dependency?.type}"
+            }
+        }
+
+    }
+
+	/**
+	 * Cleanup Schema Documents per Project
+	 */
+    void cleanupMessageSchemas(List<MessageSchemaDependency> messageSchemaDependencyList) {
+        messageSchemaDependencyList.each { schema ->
+            println "Cleaning Schema Directory: $TARGET_SOURCE_DIR/${schema.target}/xsd"
+            File f = new File(TARGET_SOURCE_DIR + "/" + schema.target + "/xsd")
+            if (f && f.exists()) {
+                FileUtils.forceDelete(f)
+            }
+        }
+    }
+}
+
+
+/**
+ * Bean IBDependency
+ */
+class IBDependency {
+    String type
+    String name
+    String branch
+
+    String toString() {
+        StringBuilder sb = new StringBuilder()
+        sb.append("( ")
+        sb.append(branch.padRight(10))
+        sb.append(" ) ")
+        sb.append(name.padRight(35))
+        sb.append(" - ")
+        sb.append(type)
+        return sb.toString()
+    }
+}
+
+/* Bean MessageSchemaDependency */
+class MessageSchemaDependency {
+    String source
+    String target
+    List<String> dependencies
+}
+
+/* DependeciesContext */
+class DependencyContext {
+    List<IBDependency>            dependencySet = []
+    List<MessageSchemaDependency> messageSchemaDependencyList 
+}

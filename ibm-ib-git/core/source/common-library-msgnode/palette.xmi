@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<palette:CategoryCmp xmi:version="2.0" xmlns:xmi="http://www.omg.org/XMI" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:palette="http://www.ibm.com/wbi/2005/eflow_palette" xmlns:utility="http://www.ibm.com/wbi/2005/eflow_utility" xmi:id="Customizations">
+  <categoryLabel xsi:type="utility:TranslatableString" key="category.name" bundleName="palette" pluginId="common-library-msgnode"/>
+  <cmpGroups xsi:type="palette:GroupCmp">
+    <cmpEntries xsi:type="palette:ToolEntry" xmi:id="EaiCoreLog4J" icon16Name="platform:/plugin/common-library-msgnode/icons/full/clcl16/EaiCoreLog4J.gif" icon32Name="platform:/plugin/common-library-msgnode/icons/full/obj32/EaiCoreLog4J.gif" toolClassName="com.ibm.etools.mft.flow.editor.MFTNodeCreationTool" toolClassPluginId="com.ibm.etools.mft.flow" nodeURI="EaiCoreLog4J.msgnode">
+      <entryLabel xsi:type="utility:TranslatableString" key="entry.EaiCoreLog4J" bundleName="palette" pluginId="common-library-msgnode"/>
+      <entryShortDescription xsi:type="utility:TranslatableString" key="tooltip.EaiCoreLog4J" bundleName="palette" pluginId="common-library-msgnode"/>
+    </cmpEntries>
+  </cmpGroups>
+</palette:CategoryCmp>

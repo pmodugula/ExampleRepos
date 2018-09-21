@@ -1,0 +1,801 @@
+BROKER SCHEMA common
+
+DECLARE theSchema CONSTANT CHARACTER 'common';
+
+DECLARE CommonQueue EXTERNAL CHARACTER ''; --
+
+DECLARE BLANK CONSTANT CHARACTER '';
+CREATE FUNCTION common_valueIsNotNullAndNotBlank(IN value CHARACTER) RETURNS BOOLEAN
+BEGIN
+	RETURN value IS NOT NULL AND 0<LENGTH(TRIM(value)); --TRIM(value)<>BLANK;
+END;
+CREATE FUNCTION common_valueIsNullOrBlank(IN value CHARACTER) RETURNS BOOLEAN
+BEGIN
+	RETURN value IS NULL OR 0=LENGTH(TRIM(value)); --TRIM(value)=BLANK;
+END;
+
+CREATE PROCEDURE common_setEnvironmentKeyValue(IN rEnv REFERENCE, IN theParentKey CHARACTER, IN theChildKey CHARACTER, IN theValue CHARACTER) --RETURNS CHARACTER
+BEGIN
+	DECLARE theOldChildKeyValue CHARACTER NULL;
+	DECLARE __theParentKey__ CHARACTER '__'||theParentKey||'__';
+	--IF rEnv.{__theParentKey__} IS NOT NULL THEN
+	-- SET theOldChildKeyValue = rEnv.{__theParentKey__}.{theChildKey};
+	--END IF;
+	SET rEnv.{__theParentKey__}.{theChildKey} = theValue;
+	--RETURN theOldChildKeyValue;
+END;
+CREATE PROCEDURE common_getEnvironmentKeyValue(IN rEnv REFERENCE, IN theParentKey CHARACTER, IN theChildKey CHARACTER) RETURNS CHARACTER
+BEGIN
+	DECLARE theChildKeyValue CHARACTER NULL;
+	DECLARE __theParentKey__ CHARACTER '__'||theParentKey||'__';
+	IF rEnv.{__theParentKey__} IS NOT NULL THEN
+		SET theChildKeyValue = rEnv.{__theParentKey__}.{theChildKey};
+	END IF;
+	RETURN theChildKeyValue;
+END;
+
+DECLARE _I CONSTANT CHARACTER 'I'; --ETL value
+DECLARE _INSERT CONSTANT CHARACTER 'INSERT'; --ARTS value
+DECLARE _U CONSTANT CHARACTER 'U'; --ETL value
+DECLARE _UPDATE CONSTANT CHARACTER 'UPDATE'; --ARTS value
+DECLARE _D CONSTANT CHARACTER 'D'; --ETL value
+DECLARE _DELETE CONSTANT CHARACTER 'DELETE'; --ARTS value
+DECLARE _N CONSTANT CHARACTER 'N'; --ETL value
+DECLARE _NONE CONSTANT CHARACTER 'NONE'; --ARTS value
+CREATE FUNCTION mapChangeActionFlagOrActionFromEtlToArts(IN ChangeActionFlagOrAction CHARACTER) RETURNS CHARACTER
+BEGIN
+	DECLARE Action CHARACTER; -- _NONE;
+	--YES! The Constants above should be in scope but testing has proven out that there constants must be in local scope to work --Alex Russell, 18-Aug 2015
+	DECLARE _I CHARACTER 'I';
+	DECLARE _INSERT CHARACTER 'INSERT';
+	DECLARE _U CHARACTER 'U';
+	DECLARE _UPDATE CHARACTER 'UPDATE';
+	DECLARE _D CHARACTER 'D';
+	DECLARE _DELETE CHARACTER 'DELETE';
+	DECLARE _N CHARACTER 'N';
+	DECLARE _NONE CHARACTER 'NONE';
+	CASE ChangeActionFlagOrAction
+	WHEN _I THEN SET Action=_INSERT;
+	WHEN _U THEN SET Action=_UPDATE;
+	WHEN _D THEN SET Action=_DELETE;
+	WHEN _N THEN SET Action=_NONE;
+	END CASE;
+	RETURN Action;
+END;
+
+DECLARE PASS CONSTANT CHARACTER 'PASS';
+DECLARE DROP CONSTANT CHARACTER 'DROP';
+DECLARE FAIL CONSTANT CHARACTER 'FAIL';
+
+DECLARE MWW CONSTANT CHARACTER 'MWW';
+DECLARE FGL CONSTANT CHARACTER 'FGL';
+DECLARE FRN CONSTANT CHARACTER 'FRN';
+
+DECLARE PROVINCE_CODE CONSTANT CHARACTER 'PROVINCE CODE';
+DECLARE yyyyMMdd CONSTANT CHARACTER 'yyyyMMdd';
+
+DECLARE ENVIRONMENT_PROTECT_AGAINST_INFINITE_LOOP CONSTANT CHARACTER 'ProtectAgainstInfiniteLoop';
+--DECLARE USER_EXCEPTION_CATALOG_INTERNAL_CODE_QUALITY_ISSUE CONSTANT CHARACTER 'InternalCodeQualityIssue';--Can't use this constant as the ESQL Parser gets its knickers in a twist (even though we're syntactically correct)
+DECLARE USER_EXCEPTION_MESSAGE_PROTECT_AGAINST_INFINITE_LOOP CONSTANT INTEGER 1;
+
+CREATE FUNCTION protectAgainstInfiniteLoopAndReturnPreviousIndex(IN rEnv REFERENCE, IN theModule CHARACTER, IN thisIndex INTEGER) RETURNS INTEGER
+BEGIN
+	--DO NOT override theModule here as we want to show what module the caller is/was
+	DECLARE thePreviousIndexCharacter CHARACTER common_getEnvironmentKeyValue(rEnv, ENVIRONMENT_PROTECT_AGAINST_INFINITE_LOOP, theModule);
+	DECLARE thePreviousIndex INTEGER 0;
+	IF thePreviousIndexCharacter IS NOT NULL THEN
+		SET thePreviousIndex = CAST(thePreviousIndexCharacter AS INTEGER);
+		IF thePreviousIndex=thisIndex THEN
+			THROW USER EXCEPTION CATALOG 'InternalCodeQualityIssue' MESSAGE USER_EXCEPTION_MESSAGE_PROTECT_AGAINST_INFINITE_LOOP VALUES(theModule, thisIndex);
+		END IF;
+	END IF;
+	--DECLARE previousIndexCharacter CHARACTER NULL;
+	CALL common_setEnvironmentKeyValue(rEnv, ENVIRONMENT_PROTECT_AGAINST_INFINITE_LOOP, theModule, CAST(thisIndex AS CHARACTER)); -- INTO previousIndexCharacter;
+	RETURN thePreviousIndex;
+END;
+CREATE FUNCTION protectAgainstInfiniteLoopAndReturnNextIndex(IN rEnv REFERENCE, IN theModule CHARACTER, IN thisIndex INTEGER) RETURNS INTEGER
+BEGIN
+	DECLARE thePreviousIndex INTEGER protectAgainstInfiniteLoopAndReturnPreviousIndex(rEnv,theModule,thisIndex);
+	RETURN thisIndex+1;
+END;
+
+CREATE PROCEDURE isBLOB(IN r REFERENCE) RETURNS BOOLEAN
+BEGIN
+	RETURN 'BLOB' = FIELDNAME(r.*[<]);
+END;
+
+CREATE COMPUTE MODULE RestoreLocalEnvironmentFromTemp
+	CREATE FUNCTION Main() RETURNS BOOLEAN
+	BEGIN
+		SET OutputRoot = InputRoot;
+		DECLARE rEnv REFERENCE TO Environment;
+		SET OutputLocalEnvironment = rEnv.__LocalEnvironment__;
+		DELETE FIELD rEnv.__LocalEnvironment_;
+		RETURN TRUE;
+	END;
+END MODULE;
+
+CREATE PROCEDURE queue_BuildName(IN aQueueName CHARACTER, IN envn CHARACTER, IN inst CHARACTER) RETURNS CHARACTER
+BEGIN
+	IF (envn IS NOT NULL AND '' <> envn) THEN
+		SET aQueueName = aQueueName||'.'||envn;
+	END IF;
+	IF (inst IS NOT NULL AND '' <> inst) THEN
+		IF ('0' = inst OR '1' = inst) THEN
+			SET inst = '';
+		END IF;
+		IF ('' <> inst) THEN
+			SET aQueueName = aQueueName||'.'||inst;
+		END IF;
+	END IF;
+	RETURN aQueueName;
+END;
+
+CREATE COMPUTE MODULE queue_StoreNameInTempLocalEnvironment
+	CREATE FUNCTION Main() RETURNS BOOLEAN
+	BEGIN
+		SET OutputRoot = InputRoot;
+		IF (InputRoot.MQMD.ReplyToQ IS NOT NULL AND '' <> InputRoot.MQMD.ReplyToQ) THEN
+			SET OutputLocalEnvironment.Destination.MQ.DestinationData[1].queueName = InputRoot.MQMD.ReplyToQ;
+		ELSE
+			DECLARE aQueueName CHARACTER NULL;
+			IF (InputRoot.MQRFH2.CommonQueue IS NOT NULL AND '' <> InputRoot.MQRFH2.CommonQueue) THEN
+				SET aQueueName = InputRoot.MQRFH2.Common.Queue;
+			ELSEIF (InputRoot.XMLNSC.Configuration.Common.Queue IS NOT NULL AND '' <> InputRoot.XMLNSC.Configuration.Common.Queue) THEN
+				SET aQueueName = InputRoot.XMLNSC.Configuration.Common.Queue;
+			ELSEIF (CommonQueue IS NOT NULL AND '' <> CommonQueue) THEN
+				SET aQueueName = CommonQueue;
+			END IF;
+			DECLARE rConf REFERENCE TO Environment.Configuration;
+			DECLARE envn CHARACTER InputRoot.XMLNSC.Configuration.Loader.Queue.Envn;
+			IF (envn IS NOT NULL) THEN
+			ELSEIF (rConf.Loader.Queue.Envn IS NOT NULL AND '' <> rConf.Loader.Queue.Envn) THEN
+				SET envn = rConf.Loader.Queue.Envn;
+			ELSEIF (rConf.Envn IS NULL AND rConf.__Envn__ IS NOT NULL AND '' <> rConf.__Envn__) THEN
+				SET envn = rConf.__Envn__;
+			END IF;
+			IF (envn IS NOT NULL AND '' <> envn) THEN
+				SET aQueueName = aQueueName||'.'||envn;
+			END IF;
+			DECLARE inst CHARACTER InputRoot.XMLNSC.Configuration.Loader.Queue.Inst;
+			IF (inst IS NOT NULL) THEN
+			ELSEIF (rConf.Loader.Queue.Inst IS NOT NULL AND '' <> rConf.Loader.Queue.Inst) THEN
+				SET inst = rConf.Loader.Queue.Inst;
+			ELSEIF (rConf.Inst IS NULL AND rConf.__Inst__ IS NOT NULL AND '' <> rConf.__Inst__) THEN
+				SET inst = rConf.__Inst__;
+			END IF;
+			IF (inst IS NOT NULL AND '' <> inst) THEN
+				IF ('0' = inst OR '1' = inst) THEN
+					SET inst = '';
+				END IF;
+				IF ('' <> inst) THEN
+					SET aQueueName = aQueueName||'.'||inst;
+				END IF;
+			END IF;
+			SET OutputLocalEnvironment.Destination.MQ.DestinationData[1].queueName = aQueueName;
+		END IF;
+		SET Environment.__LocalEnvironment__ = OutputLocalEnvironment;
+		RETURN TRUE;
+	END;
+END MODULE;
+
+CREATE COMPUTE MODULE throw_HandleException
+	CREATE FUNCTION Main() RETURNS BOOLEAN
+	BEGIN
+		IF (0 < CARDINALITY(InputRoot.*[])) THEN
+			SET Environment.__Root__ = InputRoot;
+		END IF;
+		IF (0 < CARDINALITY(InputLocalEnvironment.*[])) THEN
+			SET Environment.__LocalEnvironment__ = InputLocalEnvironment;
+		END IF;
+		IF (0 < CARDINALITY(InputExceptionList.*[])) THEN
+			SET Environment.__Exception__ = InputExceptionList;
+		END IF;
+		RETURN TRUE;
+	END;
+END MODULE;
+
+CREATE PROCEDURE CheckIfValueIsNullOrEmpty(IN valueToCheck CHARACTER) RETURNS BOOLEAN
+BEGIN
+	RETURN valueToCheck IS NULL OR '' = TRIM(valueToCheck);
+END;
+
+CREATE PROCEDURE throw_PrepareExceptionIfValueIsNullOrEmpty(IN valueToCheck CHARACTER, IN rEnv REFERENCE, IN valueExceptionText CHARACTER) RETURNS CHARACTER
+BEGIN
+	DECLARE returnValue CHARACTER NULL;
+	DECLARE isNullOrEmpty BOOLEAN FALSE;
+	CALL CheckIfValueIsNullOrEmpty(valueToCheck) INTO isNullOrEmpty;
+	IF TRUE = isNullOrEmpty THEN
+		CREATE LASTCHILD OF rEnv TYPE NameValue NAME '__Exception__' VALUE valueExceptionText;
+		SET returnValue = valueToCheck;
+	END IF;
+	RETURN returnValue;
+END;
+
+CREATE PROCEDURE common_GetIndexOf(IN _str CHARACTER, IN _sub CHARACTER) RETURNS INTEGER
+BEGIN
+	DECLARE _index INTEGER -1;
+	DECLARE _from INTEGER 1;
+	DECLARE _len INTEGER LENGTH(_sub);
+	DECLARE _to INTEGER LENGTH(_str)-_len;
+	WHILE _from <= _to AND _index < 0 DO
+		IF SUBSTRING(_str FROM _from FOR _len)=_sub THEN
+			SET _index = _from;
+		END IF;
+		SET _from = _from+1;
+	END WHILE;
+	RETURN _index;
+END;
+
+CREATE PROCEDURE common_GetCharacterOfConf(IN _str CHARACTER, IN _from INTEGER, IN _for INTEGER) RETURNS CHARACTER
+BEGIN
+	DECLARE _substr CHARACTER '';
+	IF LENGTH(_str) >= _from+_for-1 THEN
+		SET _substr = SUBSTRING(_str FROM _from FOR _for); --IBN[D|Q|P]n[A|B] / IBS[D|Q|P]n[A|B].m.XYZ
+	END IF;
+	RETURN _substr;
+END;
+CREATE PROCEDURE common_GetIndexOfConf(IN _str CHARACTER, IN _char CHAR) RETURNS INTEGER
+BEGIN
+	DECLARE _index INTEGER -1;
+	DECLARE _from INTEGER 1;
+	DECLARE _to INTEGER LENGTH(_str);
+	WHILE _from <= _to AND 0>_index DO
+		IF SUBSTRING(_str FROM _from FOR 1) = _char THEN
+			SET _index = _from;
+		END IF;
+		SET _from = _from+1;
+	END WHILE;
+	RETURN _index;
+END;
+CREATE PROCEDURE common_GetIntegerOfConf(IN _str CHARACTER, IN _from INTEGER, IN _for INTEGER) RETURNS CHARACTER
+BEGIN
+	DECLARE _substr CHARACTER '';
+	IF LENGTH(_str) >= _from+_for-1 THEN
+		SET _substr = SUBSTRING(_str FROM _from FOR _for); --IBN[D|Q|P]n[A|B] / IBS[D|Q|P]n[A|B].m.XYZ
+		IF '0'=_substr OR '1'=_substr OR '2'=_substr OR '3'=_substr OR '4'=_substr OR '5'=_substr OR '6'=_substr OR '7'=_substr OR '8'=_substr OR '9'=_substr THEN
+			SET _substr = _substr;
+		ELSE
+			SET _substr = NULL;
+		END IF;
+	END IF;
+	RETURN _substr;
+END;
+
+DECLARE DOMAIN_Properties EXTERNAL CHARACTER 'Properties';
+CREATE PROCEDURE headers_BuildProperties(IN rInput REFERENCE, INOUT rOutput REFERENCE)
+BEGIN
+	DECLARE rProperties REFERENCE TO rInput.{DOMAIN_Properties};
+	IF FALSE=LASTMOVE(rProperties) THEN
+		CREATE FIRSTCHILD OF rOutput DOMAIN(DOMAIN_Properties);
+	END IF;
+END;
+
+DECLARE DOMAIN_MQMD EXTERNAL CHARACTER 'MQMD';
+CREATE PROCEDURE headers_BuildMQMD(IN rInput REFERENCE, INOUT rOutput REFERENCE)
+BEGIN
+	CALL common.headers_BuildProperties(rInput, rOutput);
+	DECLARE rMQMD REFERENCE TO rInput.{DOMAIN_MQMD};
+	IF FALSE=LASTMOVE(rMQMD) THEN
+		CREATE NEXTSIBLING OF rOutput.{DOMAIN_Properties} DOMAIN(DOMAIN_MQMD);
+	END IF;
+END;
+
+DECLARE DOMAIN_MQRFH2 EXTERNAL CHARACTER 'MQRFH2';
+CREATE PROCEDURE headers_BuildMQRFH2(IN rInput REFERENCE, INOUT rOutput REFERENCE)
+BEGIN
+	CALL common.headers_BuildMQMD(rInput, rOutput);
+	DECLARE rMQRFH2 REFERENCE TO rInput.{DOMAIN_MQRFH2};
+	IF FALSE=LASTMOVE(rMQRFH2) THEN
+		SET rOutput.{DOMAIN_MQMD}.Format = MQFMT_RF_HEADER_2;
+		CREATE NEXTSIBLING OF rOutput.{DOMAIN_MQMD} DOMAIN(DOMAIN_MQRFH2);
+		DECLARE rMQRFH2 REFERENCE TO rOutput.{DOMAIN_MQRFH2};
+		SET rMQRFH2.(MQRFH2.Field)Version = MQRFH_VERSION_2;
+		SET rMQRFH2.(MQRFH2.Field)Encoding = rInput.{DOMAIN_MQMD}.Encoding;
+		SET rMQRFH2.(MQRFH2.Field)CodedCharSetId = rInput.{DOMAIN_MQMD}.CodedCharSetId;
+		SET rMQRFH2.(MQRFH2.Field)Format = rInput.{DOMAIN_MQMD}.Format;
+	END IF;
+END;
+
+CREATE PROCEDURE copyFolders(INOUT rInput REFERENCE, INOUT rOutput REFERENCE, IN I INTEGER, IN J INTEGER)
+BEGIN
+	DECLARE ref REFERENCE TO rOutput;
+	WHILE I < J DO
+		DECLARE folderName CHARACTER FIELDNAME(rInput.*[I]);
+		SET I = I + 1;
+		DELETE FIELD rOutput.{folderName};
+		CREATE LASTCHILD OF rOutput DOMAIN(folderName);
+		SET rOutput.{folderName} = rInput.{folderName};
+		MOVE ref TO rOutput.{folderName};
+	END WHILE;
+END;
+CREATE PROCEDURE common_CopyMessageHeaders(INOUT rInput REFERENCE, INOUT rOutput REFERENCE)
+BEGIN
+	DECLARE J INTEGER CARDINALITY(rInput.*[])+1;
+	DECLARE lastFolderName CHARACTER FIELDNAME(rInput.*[<]);
+	--Don't change this to <> and AND because OR is quicker, also order the folder names by most frequently used first
+	IF 'XMLNSC'=lastFolderName OR 'XMLNS'=lastFolderName OR 'XML'=lastFolderName OR 'BLOB'=lastFolderName OR 'JSON'=lastFolderName OR 'DFDL'=lastFolderName THEN
+		SET J = J - 1;
+	END IF;
+	CALL common.copyFolders(rInput,rOutput,1,J);
+END;
+CREATE PROCEDURE common_CopyEntireMessage(INOUT rInput REFERENCE, INOUT rOutput REFERENCE)
+BEGIN
+	DECLARE J INTEGER CARDINALITY(rInput.*[]);
+	CALL common.copyFolders(rInput,rOutput,1,J+1);
+END;
+
+CREATE PROCEDURE convert_HexToAscii(IN hex CHARACTER) RETURNS CHARACTER
+BEGIN
+	DECLARE ascii CHARACTER NULL;
+	IF hex IS NOT NULL AND 3 < LENGTH(hex) THEN
+		SET hex = SUBSTRING(hex FROM 3 FOR LENGTH(hex)-3);
+		CALL EaiCore.ConvertHexToAscii(hex) INTO ascii;
+	END IF;
+	RETURN ascii;
+	RETURN hex;
+END;
+
+CREATE PROCEDURE admin_MessageFlowStop() RETURNS INTEGER
+BEGIN
+	DECLARE rc INTEGER 1;
+	CALL EaiCore.MessageFlowStop(BrokerName, ExecutionGroupLabel, MessageFlowLabel, ApplicationLabel, LibraryLabel) INTO rc;
+	RETURN rc;
+END;
+
+CREATE PROCEDURE translation_codeTranslatorPos(IN sbuCode CHARACTER, IN dataSourceCode CHARACTER, IN sourceCodeType CHARACTER, IN sourceCodeValue CHARACTER) RETURNS CHARACTER
+BEGIN
+	DECLARE query CHARACTER;
+	DECLARE result ROW;
+	--Fetch code from database
+	SET query = 'SELECT B_CODE_VALUE_CD FROM INT_FACILITY_DM.INT_XREF_CODE_ASCTN WHERE A_SBU_CD=? AND A_DATA_SOURCE_CD=? AND A_CODE_TYPE_CD=? AND A_CODE_VALUE_CD=?';
+	SET result = PASSTHRU(query VALUES(sbuCode, dataSourceCode, sourceCodeType, sourceCodeValue));
+	--Check if one and only one code is returned from database. If not, return NULL
+	IF 1 = CARDINALITY(result.*[]) THEN
+		RETURN CAST(result.B_CODE_VALUE_CD AS CHARACTER);
+	ELSE
+		RETURN NULL;
+	END IF;
+END;
+
+CREATE PROCEDURE common_ConcatenateFields(IN ref REFERENCE, IN J INTEGER, IN K INTEGER, IN fieldName CHARACTER) RETURNS CHARACTER
+BEGIN
+	DECLARE nos CHARACTER '';
+	DECLARE I INTEGER 1;
+	WHILE I <= J DO
+		IF '' = nos THEN
+			SET nos = ref.{fieldName};
+		ELSEIF I < K THEN --TODO We could base our decision on the actual field length and whether the field we're building would be too long.. but.. (we have since extended this procedure to two different fields, so we'd need to pass in the field width too (from the target schema)
+			SET nos = nos||','||ref.{fieldName};
+		ELSE
+			SET nos = nos||'..';
+			SET I = J;
+		END IF;
+		MOVE ref NEXTSIBLING;
+		SET I = I + 1;
+	END WHILE;
+END;
+
+CREATE PROCEDURE common_CreateLastChildOfOutputRootDomainXmlnsc(IN rOutput REFERENCE)
+BEGIN
+	CREATE LASTCHILD OF rOutput DOMAIN('XMLNSC');
+	CREATE FIRSTCHILD OF rOutput.XMLNSC TYPE XMLNSC.XmlDeclaration NAME 'XmlDeclaration';
+	SET rOutput.XMLNSC.(XMLNSC.XmlDeclaration)*.(XMLNSC.Attribute)Version = '1.0';
+	SET rOutput.XMLNSC.(XMLNSC.XmlDeclaration)*.(XMLNSC.Attribute)Encoding = 'UTF-8';
+END;
+
+CREATE PROCEDURE common_CreateExchangeXml(IN rOutput REFERENCE, IN major CHARACTER, IN minor CHARACTER, IN fix CHARACTER)
+BEGIN
+	--http://www.fgl.com/exchange/
+	DECLARE nsEai CHARACTER common_getNamespaceEai();
+	DECLARE eai NAMESPACE nsEai;
+	SET rOutput.XMLNSC.eai:Exchange.(XMLNSC.Attribute)MajorVersion = major;
+	SET rOutput.XMLNSC.eai:Exchange.(XMLNSC.Attribute)MinorVersion = minor;
+	SET rOutput.XMLNSC.eai:Exchange.(XMLNSC.Attribute)FixVersion = fix;
+	SET rOutput.XMLNSC.eai:Exchange.(XMLNSC.NamespaceDecl)xmlns:"eai" = eai;
+	--http://www.fgl.com/ARTS
+	SET rOutput.XMLNSC.eai:Exchange.(XMLNSC.NamespaceDecl)xmlns:"arts" = common.common_getNamespaceArts();
+END;
+
+DECLARE MaxShortRetryAttempts INTEGER 1000;
+DECLARE MaxShortRetryInterval INTEGER 1000*60*60; --1hr (Excessively high, but to protected against over-zealous developers! ;o)
+DECLARE MaxLongRetryAttempts INTEGER 100;
+DECLARE MaxLongRetryInterval INTEGER 1000*60*60*24; --24hr (Excessively high, but to protected against over-zealous developers! ;o)
+
+DECLARE ShortRetryAttempts EXTERNAL INTEGER 5;
+DECLARE ShortRetryInterval EXTERNAL INTEGER 200;
+DECLARE LongRetryAttempts EXTERNAL INTEGER 5;
+DECLARE LongRetryInterval EXTERNAL INTEGER 2000;
+
+CREATE COMPUTE MODULE common_RetrySetup
+	CREATE FUNCTION Main() RETURNS BOOLEAN
+	BEGIN
+		SET OutputRoot = InputRoot;
+		SET OutputExceptionList = InputExceptionList;
+		DECLARE rEnv REFERENCE TO Environment;
+		IF rEnv.__ShortRetryAttempts__ IS NULL THEN
+			SET rEnv.__ShortRetryAttempt__ = 1;
+			SET rEnv.__ShortRetryAttempts__ = ShortRetryAttempts;
+			SET rEnv.__ShortRetryInterval__ = ShortRetryInterval;
+		END IF;
+		IF rEnv.__LongRetryAttempts__ IS NULL THEN
+			SET rEnv.__LongRetryAttempt__ = 1;
+			SET rEnv.__LongRetryAttempts__ = LongRetryAttempts;
+			SET rEnv.__LongRetryInterval__ = LongRetryInterval;
+		END IF;
+		RETURN TRUE;
+	END;
+END MODULE;
+
+CREATE FILTER MODULE common_WhileShortRetry
+	CREATE FUNCTION Main() RETURNS BOOLEAN
+	BEGIN
+		DECLARE doShortRetry BOOLEAN FALSE;
+		IF 0 < CARDINALITY(ExceptionList.*[]) THEN
+			DECLARE rEnv REFERENCE TO Environment;
+			IF rEnv.__ShortRetryAttempt__ IS NULL OR 0 = rEnv.__ShortRetryAttempt__ OR rEnv.__ShortRetryAttempt__ > rEnv.__ShortRetryAttempts__ + 1 THEN
+				SET rEnv.__ShortRetryAttempt__ = 1;
+			END IF;
+			IF rEnv.__ShortRetryAttempts__ IS NOT NULL AND rEnv.__ShortRetryAttempts__ > 0 AND rEnv.__ShortRetryAttempts__ <= MaxShortRetryAttempts THEN
+				SET doShortRetry = rEnv.__ShortRetryAttempt__ <= rEnv.__ShortRetryAttempts__;
+			END IF;
+		END IF;
+		RETURN doShortRetry;
+	END;
+END MODULE;
+CREATE COMPUTE MODULE common_ShortSleep
+	CREATE FUNCTION Main() RETURNS BOOLEAN
+	BEGIN
+		SET OutputRoot = InputRoot;
+		DECLARE shortRetryInterval INTEGER Environment.__ShortRetryInterval__;
+		IF shortRetryInterval > MaxShortRetryInterval THEN
+			SET shortRetryInterval = MaxShortRetryInterval;
+		END IF;
+		DECLARE completeSleep BOOLEAN SLEEP(shortRetryInterval);
+		RETURN completeSleep;
+	END;
+END MODULE;
+CREATE COMPUTE MODULE common_IncrementShortRetryAttempts
+	CREATE FUNCTION Main() RETURNS BOOLEAN
+	BEGIN
+		SET OutputRoot = InputRoot;
+		DECLARE rEnv REFERENCE TO Environment;
+		SET rEnv.__ShortRetryAttempt__ = rEnv.__ShortRetryAttempt__ + 1;
+		IF rEnv.__ShortRetryAttempt__ > MaxShortRetryAttempts + 1 THEN
+			SET rEnv.__ShortRetryAttempt__ = MaxShortRetryAttempts + 1;
+		END IF;
+		RETURN TRUE;
+	END;
+END MODULE;
+
+CREATE FILTER MODULE common_WhileLongRetry
+	CREATE FUNCTION Main() RETURNS BOOLEAN
+	BEGIN
+		DECLARE doLongRetry BOOLEAN FALSE;
+		IF 0 < CARDINALITY(ExceptionList.*[]) THEN
+			DECLARE rEnv REFERENCE TO Environment;
+			IF rEnv.__LongRetryAttempt__ IS NULL OR 0 = rEnv.__LongRetryAttempt__ OR rEnv.__LongRetryAttempt__ > rEnv.__LongRetryAttempts__ + 1 THEN
+				SET rEnv.__LongRetryAttempt__ = 1;
+			END IF;
+			IF rEnv.__LongRetryAttempts__ IS NOT NULL AND rEnv.__LongRetryAttempts__ > 0 AND rEnv.__LongRetryAttempts__ <= MaxLongRetryAttempts THEN
+				SET doLongRetry = rEnv.__LongRetryAttempt__ <= rEnv.__LongRetryAttempts__;
+			END IF;
+		END IF;
+		RETURN doLongRetry;
+	END;
+END MODULE;
+CREATE COMPUTE MODULE common_LongSleep
+	CREATE FUNCTION Main() RETURNS BOOLEAN
+	BEGIN
+		SET OutputRoot = InputRoot;
+		DECLARE longRetryInterval INTEGER Environment.__LongRetryInterval__;
+		IF longRetryInterval > MaxLongRetryInterval THEN
+			SET longRetryInterval = MaxLongRetryInterval;
+		END IF;
+		DECLARE completeSleep BOOLEAN SLEEP(longRetryInterval);
+		RETURN completeSleep;
+	END;
+END MODULE;
+CREATE COMPUTE MODULE common_IncrementLongRetryAttempts
+	CREATE FUNCTION Main() RETURNS BOOLEAN
+	BEGIN
+		SET OutputRoot = InputRoot;
+		DECLARE rEnv REFERENCE TO Environment;
+		SET rEnv.__LongRetryAttempt__ = rEnv.__LongRetryAttempt__ + 1;
+		IF rEnv.__LongRetryAttempt__ > MaxLongRetryAttempts + 1 THEN
+			SET rEnv.__LongRetryAttempt__ = MaxLongRetryAttempts + 1;
+		END IF;
+		RETURN TRUE;
+	END;
+END MODULE;
+/* Procedure : codeTranslatorPoS
+* Usage : For a given set of SBU code, source application (eg: PMM), code type(source) and code value(source), this procedures fetches the
+* equivalent code value for PoS application.
+* Parameters :
+* conversionType: It can take two values, APP_TO_CMN or CMN_TO_APP.
+If APP_TO_CMN is passed, the output is Enterprize Common Code.
+If CMN_TO_APP is passed, the output is code specific to Application determined by dataSourceCode parameter.
+* sbuCode (IN) : SBU Code
+* dataSourceCode(IN): Source application code such as PMM
+* sourceCodeType (IN) : The type of code (source) being looked up (eg: Store)
+* sourceCodeValue (IN) : The value of code in source application.
+* Returns : If found in database, it return the equivalent PoS code value matching the input parameters.
+* If not found or more than one values are returned from database lookup, it returns NULL.
+*
+* Projects calling codeTranslatorPoS procedure:
+dat-product-pmm-publisher - Calls Procedure to fetch code value for statusDesc mapping.
+dat-product-pos-subscriber - Calls Procedure to fetch code value for statusDesc mapping.
+dat-store-pos-subscriber - Calls Procedure to fetch code value for localeId(for Template) and province mapping.
+*/
+
+DECLARE APP_TO_CMN CONSTANT CHARACTER 'APP_TO_CMN';
+DECLARE CMN_TO_APP CONSTANT CHARACTER 'CMN_TO_APP';
+
+CREATE PROCEDURE translateCodeFromApplicationToCommon(IN rEnv REFERENCE, IN sbu CHARACTER, IN dataSource CHARACTER, IN type CHARACTER, IN suffix CHARACTER, IN value CHARACTER)
+BEGIN
+	DECLARE type2 CHARACTER type;
+	IF suffix IS NOT NULL AND ''<>suffix THEN
+		SET type2 = type2||suffix;
+	END IF;
+	DECLARE selectQuery CHARACTER --Changed by Alex Russell 2-Apr-2015, As requested by Warren Whale (Lead DArch)
+	'SELECT CMN.CMN_CODE_CD '||
+	'FROM IIB.INT_XREF_CODE_CMN XREF'|| --Was INT_XREF_CODE_CMN
+	' JOIN IIB.INT_CMN_CODE CMN ON XREF.CMN_CODE_ID=CMN.CMN_CODE_ID'||
+	' JOIN IIB.INT_CODE_TYPE TYP ON XREF.CODE_TYPE_ID=TYP.CODE_TYPE_ID '||
+	'WHERE XREF.SBU_CD=? AND XREF.DATA_SOURCE_CD=? AND XREF.EFCTV_TMS<=SYSDATE AND XREF.EXPIRY_TMS IS NULL AND TYP.CODE_TYPE_CD=? AND XREF.CODE_VALUE_CD=?';
+	DECLARE queryResult ROW; --BEWARE! A ROW cannot be declared and assigned in one step (IB Tookkit/Eclipse won't complain but runtime will)
+	SET queryResult = PASSTHRU(selectQuery VALUES(sbu, dataSource, type, value));
+	IF 1=CARDINALITY(queryResult.*[]) THEN
+		CALL common_TranslateCodeSet(rEnv, sbu, dataSource, type2, value, CAST(queryResult.CMN_CODE_CD AS CHARACTER));
+	ELSE
+		CALL common_TranslateCodeClear(rEnv, sbu, dataSource, type2, value);
+	END IF;
+END;
+CREATE PROCEDURE translateCodeFromCommonToApplication(IN rEnv REFERENCE, IN sbu CHARACTER, IN dataSource CHARACTER, IN type CHARACTER, IN suffix CHARACTER, IN value CHARACTER)
+BEGIN
+	DECLARE type2 CHARACTER type;
+	IF suffix IS NOT NULL AND ''<>suffix THEN
+		SET type2 = type2||suffix;
+	END IF;
+	DECLARE selectQuery CHARACTER --Changed by Alex Russell 2-Apr-2015, As requested by Warren Whale (Lead DArch)
+	'SELECT XREF.CODE_VALUE_CD '||
+	'FROM IIB.INT_XREF_CODE_CMN XREF'|| --Was INT_XREF_CODE_CMN
+	' JOIN IIB.INT_CMN_CODE CMN ON XREF.CMN_CODE_ID=CMN.CMN_CODE_ID'||
+	' JOIN IIB.INT_CODE_TYPE TYP ON XREF.CODE_TYPE_ID=TYP.CODE_TYPE_ID '||
+	'WHERE XREF.SBU_CD=? AND XREF.DATA_SOURCE_CD=? AND XREF.EFCTV_TMS<=SYSDATE AND XREF.EXPIRY_TMS IS NULL AND TYP.CODE_TYPE_CD=? AND CMN.CMN_CODE_CD=?';
+	DECLARE queryResult ROW; --BEWARE! A ROW cannot be declared and assigned in one step (IB Tookkit/Eclipse won't complain but runtime will)
+	SET queryResult = PASSTHRU(selectQuery VALUES(sbu, dataSource, type, value));
+	IF 1=CARDINALITY(queryResult.*[]) THEN
+		CALL common_TranslateCodeSet(rEnv, sbu, dataSource, type2, value, CAST(queryResult.CODE_VALUE_CD AS CHARACTER));
+	ELSE
+		CALL common_TranslateCodeClear(rEnv, sbu, dataSource, type2, value);
+	END IF;
+END;
+
+CREATE FUNCTION translateCodeFieldName(IN sbu CHARACTER, IN dataSource CHARACTER, IN type CHARACTER, IN value CHARACTER) RETURNS CHARACTER
+BEGIN
+	RETURN '__'||sbu||'_'||dataSource||'_'||type||'_'||value||'__';
+END;
+
+CREATE PROCEDURE common_TranslateCodeSet(IN rEnv REFERENCE, IN sbu CHARACTER, IN dataSource CHARACTER, IN type CHARACTER, IN value CHARACTER, IN code CHARACTER)
+BEGIN
+	DECLARE theFieldName CHARACTER;
+	CALL translateCodeFieldName(sbu, dataSource, type, value) INTO theFieldName;
+	SET rEnv.{theFieldName} = code;
+END;
+CREATE PROCEDURE common_TranslateCodeGet(IN rEnv REFERENCE, IN sbu CHARACTER, IN dataSource CHARACTER, IN type CHARACTER, IN value CHARACTER) RETURNS CHARACTER
+BEGIN
+	DECLARE theFieldName CHARACTER;
+	CALL translateCodeFieldName(sbu, dataSource, type, value) INTO theFieldName;
+	RETURN rEnv.{theFieldName};
+END;
+CREATE PROCEDURE common_TranslateCodeClear(IN rEnv REFERENCE, IN sbu CHARACTER, IN dataSource CHARACTER, IN type CHARACTER, IN value CHARACTER)
+BEGIN
+	DECLARE theFieldName CHARACTER;
+	CALL translateCodeFieldName(sbu, dataSource, type, value) INTO theFieldName;
+	DELETE FIELD rEnv.{theFieldName};
+END;
+
+DECLARE CoreXrefAppSbu EXTERNAL CHARACTER '';
+DECLARE CoreXrefAppDataSource EXTERNAL CHARACTER '';
+DECLARE CoreXrefAppType EXTERNAL CHARACTER '';
+DECLARE CoreXrefAppValue EXTERNAL CHARACTER '';
+DECLARE CoreXrefType EXTERNAL CHARACTER '';
+
+CREATE PROCEDURE common_TranslateCodeInit(IN rEnv REFERENCE)
+BEGIN
+	WHILE 0 < CARDINALITY(rEnv.__CoreXref__[]) DO
+		DELETE FIELD rEnv.__CoreXref__[<];
+	END WHILE;
+END;
+
+CREATE PROCEDURE common_TranslateCode(IN rEnv REFERENCE, IN sbu CHARACTER, IN dataSource CHARACTER, IN type CHARACTER, IN value CHARACTER)
+BEGIN
+	DECLARE I INTEGER CARDINALITY(rEnv.__CoreXref__[])+1;
+	SET rEnv.__CoreXref__[I].sbu = sbu;
+	SET rEnv.__CoreXref__[I].dataSource = dataSource;
+	SET rEnv.__CoreXref__[I].type = type;
+	SET rEnv.__CoreXref__[I].value = value;
+END;
+CREATE PROCEDURE common_TranslateCodeWithSuffix(IN rEnv REFERENCE, IN sbu CHARACTER, IN dataSource CHARACTER, IN type CHARACTER, IN suffix CHARACTER, IN value CHARACTER)
+BEGIN
+	DECLARE I INTEGER CARDINALITY(rEnv.__CoreXref__[])+1;
+	CALL common_TranslateCode(rEnv, sbu, dataSource, type, value);
+	SET rEnv.__CoreXref__[I].suffix = suffix;
+END;
+
+CREATE DATABASE MODULE common_CodeTranslationAppToCmn
+	CREATE FUNCTION Main() RETURNS BOOLEAN
+	BEGIN
+		DECLARE rEnv REFERENCE TO Environment;
+		IF CoreXrefAppValue IS NOT NULL AND ''<>CoreXrefAppValue THEN
+			CALL common.translateCodeFromApplicationToCommon(rEnv, CoreXrefAppSbu, CoreXrefAppDataSource, CoreXrefAppType, NULL, CoreXrefAppValue);
+		ELSE
+			DECLARE I INTEGER 1;
+			DECLARE J INTEGER CARDINALITY(rEnv.__CoreXref__[]);
+			WHILE I <= J DO
+				DECLARE ref REFERENCE TO rEnv.__CoreXref__[I];
+				CALL common.translateCodeFromApplicationToCommon(rEnv, ref.sbu, ref.dataSource, ref.type, ref.suffix, ref.value);
+				SET I = I + 1;
+			END WHILE;
+		END IF;
+		RETURN TRUE;
+	END;
+END MODULE;
+CREATE DATABASE MODULE common_CodeTranslationCmnToApp
+	CREATE FUNCTION Main() RETURNS BOOLEAN
+	BEGIN
+		DECLARE rEnv REFERENCE TO Environment;
+		IF CoreXrefAppValue IS NOT NULL AND ''<>CoreXrefAppValue THEN
+			CALL common.translateCodeFromCommonToApplication(rEnv, CoreXrefAppSbu, CoreXrefAppDataSource, CoreXrefAppType, NULL, CoreXrefAppValue);
+		ELSE
+			DECLARE I INTEGER 1;
+			DECLARE J INTEGER CARDINALITY(rEnv.__CoreXref__[]);
+			WHILE I <= J DO
+				DECLARE ref REFERENCE TO rEnv.__CoreXref__[I];
+				CALL common.translateCodeFromCommonToApplication(rEnv, ref.sbu, ref.dataSource, ref.type, ref.suffix, ref.value);
+				SET I = I + 1;
+			END WHILE;
+		END IF;
+		RETURN TRUE;
+	END;
+END MODULE;
+-- Updated by Madanlal Tulsiram 22/07/2016, Changes to incorporate code translation common code description changes.
+-- START CHANGE
+CREATE PROCEDURE translateCodeAndDescriptionFromApplicationToCommon(IN rEnv REFERENCE, IN sbu CHARACTER, IN dataSource CHARACTER, IN type CHARACTER, IN suffix CHARACTER, IN value CHARACTER)
+BEGIN
+	DECLARE type2 CHARACTER type;
+	IF suffix IS NOT NULL AND ''<>suffix THEN
+		SET type2 = type2||suffix;
+	END IF;
+	DECLARE selectQuery CHARACTER --Changed by Alex Russell 2-Apr-2015, As requested by Warren Whale (Lead DArch)
+	'SELECT CMN.CMN_CODE_CD,CMN.CMN_CODE_DSCRPT_TXT '|| -- changed by Madanlal 21/Jul/2016, to incorporate CMN_CODE_DSCRPT_TXT changes
+	'FROM IIB.INT_XREF_CODE_CMN XREF'|| --Was INT_XREF_CODE_CMN
+	' JOIN IIB.INT_CMN_CODE CMN ON XREF.CMN_CODE_ID=CMN.CMN_CODE_ID'||
+	' JOIN IIB.INT_CODE_TYPE TYP ON XREF.CODE_TYPE_ID=TYP.CODE_TYPE_ID '||
+	'WHERE XREF.SBU_CD=? AND XREF.DATA_SOURCE_CD=? AND XREF.EFCTV_TMS<=SYSDATE AND XREF.EXPIRY_TMS IS NULL AND TYP.CODE_TYPE_CD=? AND XREF.CODE_VALUE_CD=?';
+	DECLARE queryResult ROW; --BEWARE! A ROW cannot be declared and assigned in one step (IB Tookkit/Eclipse won't complain but runtime will)
+	SET queryResult = PASSTHRU(selectQuery VALUES(sbu, dataSource, type, value));
+	IF 1<=CARDINALITY(queryResult.*[]) THEN
+		CALL common_TranslateCodeSet_Code(rEnv, sbu, dataSource, type2, value, CAST(queryResult.CMN_CODE_CD AS CHARACTER));
+		-- changed by Madanlal 21/Jul/2016, to incorporate CMN_CODE_DSCRPT_TXT changes
+		IF queryResult.CMN_CODE_DSCRPT_TXT <> '' THEN
+			CALL common_TranslateCodeSet_Code_Description(rEnv, sbu, dataSource, type2, 'CMN_CODE_DSCRPT_TXT', value, CAST(queryResult.CMN_CODE_DSCRPT_TXT AS CHARACTER));
+		END IF;
+	ELSE
+		CALL common_TranslateCodeClear(rEnv, sbu, dataSource, type2, value);
+		CALL common_TranslateCodeDescClear(rEnv, sbu, dataSource, type2,'CMN_CODE_DSCRPT_TXT', value);
+	END IF;
+END;
+CREATE PROCEDURE translateCodeAndDescriptionFromCommonToApplication(IN rEnv REFERENCE, IN sbu CHARACTER, IN dataSource CHARACTER, IN type CHARACTER, IN suffix CHARACTER, IN value CHARACTER)
+BEGIN
+	DECLARE type2 CHARACTER type;
+	IF suffix IS NOT NULL AND ''<>suffix THEN
+		SET type2 = type2||suffix;
+	END IF;
+	DECLARE selectQuery CHARACTER --Changed by Alex Russell 2-Apr-2015, As requested by Warren Whale (Lead DArch)
+	'SELECT XREF.CODE_VALUE_CD,CMN.CMN_CODE_DSCRPT_TXT '|| -- changed by Madanlal 21/Jul/2016, to incorporate CMN_CODE_DSCRPT_TXT changes
+	'FROM IIB.INT_XREF_CODE_CMN XREF'|| --Was INT_XREF_CODE_CMN
+	' JOIN IIB.INT_CMN_CODE CMN ON XREF.CMN_CODE_ID=CMN.CMN_CODE_ID'||
+	' JOIN IIB.INT_CODE_TYPE TYP ON XREF.CODE_TYPE_ID=TYP.CODE_TYPE_ID '||
+	'WHERE XREF.SBU_CD=? AND XREF.DATA_SOURCE_CD=? AND XREF.EFCTV_TMS<=SYSDATE AND XREF.EXPIRY_TMS IS NULL AND TYP.CODE_TYPE_CD=? AND CMN.CMN_CODE_CD=?';
+	DECLARE queryResult ROW; --BEWARE! A ROW cannot be declared and assigned in one step (IB Tookkit/Eclipse won't complain but runtime will)
+	SET queryResult = PASSTHRU(selectQuery VALUES(sbu, dataSource, type, value));
+	IF 1<=CARDINALITY(queryResult.*[]) THEN
+		CALL common_TranslateCodeSet_Code(rEnv, sbu, dataSource, type2, value, CAST(queryResult.CODE_VALUE_CD AS CHARACTER));
+		-- changed by Madanlal 21/Jul/2016, to incorporate CMN_CODE_DSCRPT_TXT changes
+		IF queryResult.CMN_CODE_DSCRPT_TXT <> '' THEN
+			CALL common_TranslateCodeSet_Code_Description(rEnv, sbu, dataSource, type2, 'CMN_CODE_DSCRPT_TXT', value, CAST(queryResult.CMN_CODE_DSCRPT_TXT AS CHARACTER));
+		END IF;
+	ELSE
+		CALL common_TranslateCodeClear(rEnv, sbu, dataSource, type2, value);
+		CALL common_TranslateCodeDescClear(rEnv, sbu, dataSource, type2,'CMN_CODE_DSCRPT_TXT', value);
+	END IF;
+END;
+CREATE PROCEDURE common_TranslateCodeDescClear(IN rEnv REFERENCE, IN sbu CHARACTER, IN dataSource CHARACTER, IN type CHARACTER, IN desctype CHARACTER, IN value CHARACTER)
+BEGIN
+	DECLARE theFieldNameCodeDesc CHARACTER;
+	CALL translateCodeFieldName_Code_Description(sbu, dataSource, type, desctype, value) INTO theFieldNameCodeDesc;
+	DELETE FIELD rEnv.{theFieldNameCodeDesc};
+END;
+
+CREATE PROCEDURE common_TranslateCodeSet_Code(IN rEnv REFERENCE, IN sbu CHARACTER, IN dataSource CHARACTER, IN type CHARACTER, IN value CHARACTER, IN code CHARACTER)
+BEGIN
+	DECLARE theFieldName_Code CHARACTER;
+	CALL translateCodeFieldName_Code(sbu, dataSource, type, value) INTO theFieldName_Code;
+	IF TRUE=common.common_valueIsNotNullAndNotBlank(theFieldName_Code) THEN
+		SET rEnv.{theFieldName_Code} = code;
+	END IF;
+END;
+
+CREATE FUNCTION translateCodeFieldName_Code(IN sbu CHARACTER, IN dataSource CHARACTER, IN type CHARACTER, IN value CHARACTER) RETURNS CHARACTER
+BEGIN
+	RETURN '__'||sbu||'_'||dataSource||'_'||type||'_'||value||'__';
+END;
+
+CREATE PROCEDURE common_TranslateCodeGet_Code(IN rEnv REFERENCE, IN sbu CHARACTER, IN dataSource CHARACTER, IN type CHARACTER,IN value CHARACTER) RETURNS CHARACTER
+BEGIN
+	DECLARE theFieldName_Code CHARACTER;
+	CALL translateCodeFieldName_Code(sbu, dataSource, type, value) INTO theFieldName_Code;
+	RETURN rEnv.{theFieldName_Code};
+END;
+
+CREATE PROCEDURE common_TranslateCodeSet_Code_Description(IN rEnv REFERENCE, IN sbu CHARACTER, IN dataSource CHARACTER, IN type CHARACTER, IN desctype CHARACTER,IN value CHARACTER, IN codedesc CHARACTER)
+BEGIN
+	DECLARE theFieldNameCodeDesc CHARACTER;
+	CALL translateCodeFieldName_Code_Description(sbu, dataSource, type, desctype, value) INTO theFieldNameCodeDesc;
+	IF TRUE=common.common_valueIsNotNullAndNotBlank(theFieldNameCodeDesc) THEN
+		SET rEnv.{theFieldNameCodeDesc} = codedesc;
+	END IF;
+END;
+
+CREATE FUNCTION translateCodeFieldName_Code_Description(IN sbu CHARACTER, IN dataSource CHARACTER, IN type CHARACTER,IN desctype CHARACTER, IN value CHARACTER) RETURNS CHARACTER
+BEGIN
+	RETURN '__'||sbu||'_'||dataSource||'_'||type||'_'||desctype||'_'||value||'__';
+END;
+
+CREATE PROCEDURE common_TranslateCodeGet_Code_Description(IN rEnv REFERENCE, IN sbu CHARACTER, IN dataSource CHARACTER, IN type CHARACTER,IN desctype CHARACTER,IN value CHARACTER) RETURNS CHARACTER
+BEGIN
+	DECLARE theFieldNameCodeDesc CHARACTER;
+	CALL translateCodeFieldName_Code_Description(sbu, dataSource, type, desctype, value) INTO theFieldNameCodeDesc;
+	RETURN rEnv.{theFieldNameCodeDesc};
+END;
+
+CREATE DATABASE MODULE common_CodeAndDescriptionTranslationAppToCmn
+	CREATE FUNCTION Main() RETURNS BOOLEAN
+	BEGIN
+		DECLARE rEnv REFERENCE TO Environment;
+		IF CoreXrefAppValue IS NOT NULL AND ''<>CoreXrefAppValue THEN
+			CALL common.translateCodeAndDescriptionFromApplicationToCommon(rEnv, CoreXrefAppSbu, CoreXrefAppDataSource, CoreXrefAppType, NULL, CoreXrefAppValue);
+		ELSE
+			DECLARE I INTEGER 1;
+			DECLARE J INTEGER CARDINALITY(rEnv.__CoreXref__[]);
+			WHILE I <= J DO
+				DECLARE ref REFERENCE TO rEnv.__CoreXref__[I];
+				CALL common.translateCodeAndDescriptionFromApplicationToCommon(rEnv, ref.sbu, ref.dataSource, ref.type, ref.suffix, ref.value);
+				SET I = I + 1;
+			END WHILE;
+		END IF;
+		RETURN TRUE;
+	END;
+END MODULE;
+CREATE DATABASE MODULE common_CodeAndDescriptionTranslationCmnToApp
+	CREATE FUNCTION Main() RETURNS BOOLEAN
+	BEGIN
+		DECLARE rEnv REFERENCE TO Environment;
+		IF CoreXrefAppValue IS NOT NULL AND ''<>CoreXrefAppValue THEN
+			CALL common.translateCodeAndDescriptionFromCommonToApplication(rEnv, CoreXrefAppSbu, CoreXrefAppDataSource, CoreXrefAppType, NULL, CoreXrefAppValue);
+		ELSE
+			DECLARE I INTEGER 1;
+			DECLARE J INTEGER CARDINALITY(rEnv.__CoreXref__[]);
+			WHILE I <= J DO
+				DECLARE ref REFERENCE TO rEnv.__CoreXref__[I];
+				CALL common.translateCodeAndDescriptionFromCommonToApplication(rEnv, ref.sbu, ref.dataSource, ref.type, ref.suffix, ref.value);
+				SET I = I + 1;
+			END WHILE;
+		END IF;
+		RETURN TRUE;
+	END;
+END MODULE;
+-- Updated by Madanlal Tulsiram 22/07/2016, Changes to incorporate code translation common code description changes.
+-- END CHANGE

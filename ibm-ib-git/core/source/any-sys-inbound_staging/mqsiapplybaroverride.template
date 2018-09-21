@@ -1,0 +1,5 @@
+${__any__}.${__sys__}.inbound#IIBInboundQueue=RECV.${${_SYS_}}
+${__any__}.${__sys__}.inbound#${_SYS_}DataSource=${${_SYS_}DS}
+${__any__}.${__sys__}.inbound#${_SYS_}SchemaName=${${_SYS_}SN}
+${__any__}.${__sys__}.inbound#CoreAuditDataSource=AUD${ENVN}${INST}
+${__any__}.${__sys__}.inbound#MaxMsgsInDatabaseCommit=${${_SYS_}BULK}

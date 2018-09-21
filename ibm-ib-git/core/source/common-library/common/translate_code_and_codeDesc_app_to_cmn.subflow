@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ecore:EPackage xmi:version="2.0"
+    xmlns:xmi="http://www.omg.org/XMI" xmlns:ComIbmDatabase.msgnode="ComIbmDatabase.msgnode" xmlns:ecore="http://www.eclipse.org/emf/2002/Ecore" xmlns:eflow="http://www.ibm.com/wbi/2005/eflow" xmlns:utility="http://www.ibm.com/wbi/2005/eflow_utility" nsURI="common/translate_code_and_codeDesc_app_to_cmn.subflow"
+    nsPrefix="common_translate_code_and_codeDesc_app_to_cmn.subflow">
+  <eClassifiers xmi:type="eflow:FCMComposite" name="FCMComposite_1" useDefaults="true" udpSupport="true">
+    <eSuperTypes href="http://www.ibm.com/wbi/2005/eflow#//FCMBlock"/>
+    <eStructuralFeatures xmi:type="ecore:EAttribute" xmi:id="Property.CoreXrefAppSbu" name="CoreXrefAppSbu">
+      <eType xmi:type="ecore:EDataType" href="http://www.eclipse.org/emf/2002/Ecore#//EString"/>
+    </eStructuralFeatures>
+    <eStructuralFeatures xmi:type="ecore:EAttribute" xmi:id="Property.CoreXrefAppDataSource" name="CoreXrefAppDataSource">
+      <eType xmi:type="ecore:EDataType" href="http://www.eclipse.org/emf/2002/Ecore#//EString"/>
+    </eStructuralFeatures>
+    <eStructuralFeatures xmi:type="ecore:EAttribute" xmi:id="Property.CoreXrefAppValue" name="CoreXrefAppValue">
+      <eType xmi:type="ecore:EDataType" href="http://www.eclipse.org/emf/2002/Ecore#//EString"/>
+    </eStructuralFeatures>
+    <eStructuralFeatures xmi:type="ecore:EAttribute" xmi:id="Property.CoreXrefType" name="CoreXrefType" lowerBound="1" defaultValueLiteral="APP_TO_CMN">
+      <eType xmi:type="ecore:EDataType" href="http://www.eclipse.org/emf/2002/Ecore#//EString"/>
+    </eStructuralFeatures>
+    <eStructuralFeatures xmi:type="ecore:EAttribute" xmi:id="Property.CoreXrefAppType" name="CoreXrefAppType">
+      <eType xmi:type="ecore:EDataType" href="http://www.eclipse.org/emf/2002/Ecore#//EString"/>
+    </eStructuralFeatures>
+    <eStructuralFeatures xmi:type="ecore:EAttribute" xmi:id="Property.IIBDataSource" name="IIBDataSource">
+      <eType xmi:type="ecore:EDataType" href="http://www.eclipse.org/emf/2002/Ecore#//EString"/>
+    </eStructuralFeatures>
+    <translation xmi:type="utility:TranslatableString" key="translate_code_and_codeDesc_app_to_cmn" bundleName="common/translate_code_and_codeDesc_app_to_cmn" pluginId="common-library"/>
+    <colorGraphic16 xmi:type="utility:GIFFileGraphic" resourceName="platform:/plugin/common-library/icons/full/obj16/translate_code_and_codeDesc_app_to_cmn.gif"/>
+    <colorGraphic32 xmi:type="utility:GIFFileGraphic" resourceName="platform:/plugin/common-library/icons/full/obj30/translate_code_and_codeDesc_app_to_cmn.gif"/>
+    <composition>
+      <nodes xmi:type="eflow:FCMSource" xmi:id="InTerminal.Input" location="10,20">
+        <translation xmi:type="utility:TranslatableString" key="InTerminal.Input" bundleName="common/translate_code_and_codeDesc_app_to_cmn" pluginId="common-library"/>
+      </nodes>
+      <nodes xmi:type="eflow:FCMSink" xmi:id="OutTerminal.Output" location="364,20">
+        <translation xmi:type="utility:TranslatableString" key="OutTerminal.Output" bundleName="common/translate_code_and_codeDesc_app_to_cmn" pluginId="common-library"/>
+      </nodes>
+      <nodes xmi:type="ComIbmDatabase.msgnode:FCMComposite_1" xmi:id="FCMComposite_1_1" location="93,20" statement="esql://routine/common#common_CodeAndDescriptionTranslationAppToCmn.Main">
+        <translation xmi:type="utility:ConstantString" string="CodeAndDescriptionTranslationAppToCmn"/>
+      </nodes>
+      <connections xmi:type="eflow:FCMConnection" xmi:id="FCMConnection_1" targetNode="FCMComposite_1_1" sourceNode="InTerminal.Input" sourceTerminalName="OutTerminal.out" targetTerminalName="InTerminal.in"/>
+      <connections xmi:type="eflow:FCMConnection" xmi:id="FCMConnection_2" targetNode="OutTerminal.Output" sourceNode="FCMComposite_1_1" sourceTerminalName="OutTerminal.out" targetTerminalName="InTerminal.in"/>
+    </composition>
+    <propertyOrganizer>
+      <propertyDescriptor groupName="Group.Basic" configurable="true" userDefined="true" describedAttribute="Property.CoreXrefAppSbu">
+        <propertyName xmi:type="utility:TranslatableString" key="Property.CoreXrefAppSbu" bundleName="common/translate_code_and_codeDesc_app_to_cmn" pluginId="common-library"/>
+        <propertyDescriptor groupName="Group.Basic" configurable="true" userDefined="true" describedAttribute="Property.CoreXrefAppDataSource">
+          <propertyName xmi:type="utility:TranslatableString" key="Property.CoreXrefAppDataSource" bundleName="common/translate_code_and_codeDesc_app_to_cmn" pluginId="common-library"/>
+          <propertyDescriptor groupName="Group.Basic" configurable="true" userDefined="true" describedAttribute="Property.CoreXrefAppValue">
+            <propertyName xmi:type="utility:TranslatableString" key="Property.CoreXrefAppValue" bundleName="common/translate_code_and_codeDesc_app_to_cmn" pluginId="common-library"/>
+            <propertyDescriptor groupName="Group.Basic" configurable="true" userDefined="true" describedAttribute="Property.CoreXrefType">
+              <propertyName xmi:type="utility:TranslatableString" key="Property.CoreXrefType" bundleName="common/translate_code_and_codeDesc_app_to_cmn" pluginId="common-library"/>
+              <propertyDescriptor groupName="Group.Basic" configurable="true" userDefined="true" describedAttribute="Property.CoreXrefAppType">
+                <propertyName xmi:type="utility:TranslatableString" key="Property.CoreXrefAppType" bundleName="common/translate_code_and_codeDesc_app_to_cmn" pluginId="common-library"/>
+                <propertyDescriptor groupName="Group.CodeXref" configurable="true" describedAttribute="Property.IIBDataSource">
+                  <propertyName xmi:type="utility:TranslatableString" key="Property.IIBDataSource" bundleName="common/translate_code_and_codeDesc_app_to_cmn" pluginId="common-library"/>
+                </propertyDescriptor>
+              </propertyDescriptor>
+            </propertyDescriptor>
+          </propertyDescriptor>
+        </propertyDescriptor>
+      </propertyDescriptor>
+    </propertyOrganizer>
+    <attributeLinks promotedAttribute="Property.IIBDataSource" overriddenNodes="FCMComposite_1_1">
+      <overriddenAttribute href="ComIbmDatabase.msgnode#Property.dataSource"/>
+    </attributeLinks>
+    <stickyBoard/>
+  </eClassifiers>
+</ecore:EPackage>

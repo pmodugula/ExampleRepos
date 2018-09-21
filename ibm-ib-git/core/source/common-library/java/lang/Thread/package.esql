@@ -1,0 +1,4 @@
+BROKER SCHEMA java.lang.Thread
+
+----Toolkit/Build issue - Java method not found after deployment(? :-s Grr)
+--CREATE PROCEDURE sleep(IN milliseconds INTEGER) LANGUAGE JAVA EXTERNAL NAME "java.lang.Thread.sleep";

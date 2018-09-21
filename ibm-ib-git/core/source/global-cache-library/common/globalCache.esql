@@ -1,0 +1,129 @@
+BROKER SCHEMA common
+
+/*
+* Esql Filename : globalCache.esql
+* Date Created : 23rd Dec 2016
+* Description: This esql file contain two module one that to get the code/code description application to common translation form cache , if not availbale from cache then run SQL query and then update into global cache.
+* Authors : Prasantha Modugula
+*/
+
+-- Updated By Prasantha Modugula 21st Dec 2016 , Code trasactions are using global cache - JIRA FPOE-16503
+-- START CHANGE
+-- Perform lookup of value in Global Cache or find it from CT tables then add it to cache
+-- codeType - 'type' of code needed defined in INT_CODE_TYPE. Used for map key and SQL query
+-- codeId - the value we are looking up
+-- defaultValue - the default value which will be returned if a value is not found in the cache OR the database
+-- rInEnv - reference to environment
+CREATE PROCEDURE common_GlobalCacheCodeTranslationAppToCmn(IN rInEnv REFERENCE, IN sbu CHARACTER, IN dsCode CHARACTER, IN typeCd CHARACTER,IN valueCd CHARACTER,IN defaultValue CHARACTER) RETURNS CHARACTER
+BEGIN
+
+	DECLARE codeValue CHARACTER;
+	DECLARE mapName CHARACTER;
+	DECLARE mapKey CHARACTER;
+	-- map name should be sbu (ie. FGL) and data source code (i.e. PMM) specific
+	SET mapName = dsCode || '-' || sbu;
+	-- use a combination of the code and type as the key for the map, as the code is not guarenteed to be unique for different types in the tables
+	SET mapKey = typeCd || '-' || valueCd;
+	-- result back from adding to the map
+	DECLARE addMapResult BOOLEAN;
+	-- for logging
+	DECLARE schemaName CHARACTER 'common';
+	DECLARE moduleName CHARACTER 'globalCache';
+	-- try getting the value from the map
+	SET codeValue = getValue(mapName,mapKey);
+	IF (TRIM(codeValue) IS NULL OR TRIM(codeValue) ='' ) THEN
+		-- load from DB if the code was not found - use the code and the type as the input parameters to the SQL
+		DECLARE codeTranslationQuery CHARACTER;
+
+		SET codeTranslationQuery = 'SELECT CMN.CMN_CODE_CD,CMN.CMN_CODE_DSCRPT_TXT FROM IIB.INT_XREF_CODE_CMN XREF JOIN IIB.INT_CMN_CODE CMN ON XREF.CMN_CODE_ID=CMN.CMN_CODE_ID JOIN IIB.INT_CODE_TYPE TYP ON XREF.CODE_TYPE_ID=TYP.CODE_TYPE_ID WHERE XREF.SBU_CD=? AND XREF.DATA_SOURCE_CD=? AND XREF.EFCTV_TMS<=SYSDATE AND XREF.EXPIRY_TMS IS NULL AND TYP.CODE_TYPE_CD=? AND XREF.CODE_VALUE_CD=?';
+		CALL core.log.DebugMessage(rInEnv, schemaName || '.' || moduleName, 'common_GlobalCacheCodeTranslationAppToCmn - mapName:' || mapName || ' mapKey:' || mapKey || ' not found in cache executing SQL ' || codeTranslationQuery || '[' || sbu || ',' || dsCode || ',' || typeCd || ',' || valueCd || ']');
+		SET rInEnv.ResultSet[] = PASSTHRU(codeTranslationQuery,sbu,dsCode,typeCd,valueCd);
+		SET codeValue = rInEnv.ResultSet.CMN_CODE_CD;
+		-- if we can't find the code value use the default
+		IF (codeValue IS NULL OR codeValue='') THEN
+			CALL core.log.DebugMessage(rInEnv, schemaName || '.' || moduleName, 'common_GlobalCacheCodeTranslationAppToCmn - cannot find codeValue using default ' || defaultValue);
+			SET codeValue = defaultValue;
+		ELSE
+			CALL core.log.DebugMessage(rInEnv, schemaName || '.' || moduleName, 'common_GlobalCacheCodeTranslationAppToCmn - using value ' || codeValue || ' found in database now adding to cache');
+			-- add to cache so we can use it next time
+			SET addMapResult = addUpdateKey(mapName,mapKey,codeValue);
+			-- problem adding to the cache
+			IF (addMapResult IS FALSE) THEN
+				CALL core.log.DebugMessage(rInEnv, schemaName || '.' || moduleName, 'common_GlobalCacheCodeTranslationAppToCmn - could not add mapName:' || mapName || ' mapKey:' || mapKey || ' to the cache ' || codeTranslationQuery);
+			END IF;
+
+		END IF;
+
+	ELSE
+		CALL core.log.DebugMessage(rInEnv, schemaName || '.' || moduleName, 'common_GlobalCacheCodeTranslationAppToCmn - mapName:' || mapName || ' mapKey:' || mapKey || ' found in cache as ' || codeValue);
+
+	END IF;
+
+	RETURN codeValue;
+END;
+
+
+-- Perform lookup of value in Global Cache or find it from CT tables then add it to cache
+-- typeCd - 'type' of code needed defined in CODE_TYPE_CD. Used for map key and SQL query
+-- valueCd - the value we are looking up
+-- defaultValue - the default value which will be returned if a value is not found in the cache OR the database
+-- rInEnv - reference to environment
+CREATE PROCEDURE common_GlobalCacheDescTranslationAppToCmn(IN rInEnv REFERENCE, IN sbu CHARACTER, IN dsCode CHARACTER, IN typeCd CHARACTER,IN CmnCodeDscrptText CHARACTER,IN valueCd CHARACTER,IN defaultValueDesc CHARACTER) RETURNS CHARACTER
+BEGIN
+
+	DECLARE codeValueDesc CHARACTER;
+	DECLARE mapName CHARACTER;
+	DECLARE mapKey CHARACTER;
+	-- map name should be sbu (ie. FGL) and data source code (i.e. PMM) specific
+	SET mapName = dsCode || '-' || sbu;
+	-- use a combination of the code and type as the key for the map, as the code is not guarenteed to be unique for different types in the tables
+	SET mapKey = typeCd || '-' || valueCd || '-' || CmnCodeDscrptText;
+	-- result back from adding to the map
+	DECLARE addMapResult BOOLEAN;
+	-- for logging
+	DECLARE schemaName CHARACTER 'common';
+	DECLARE moduleName CHARACTER 'package';
+	-- try getting the value from the map
+	SET codeValueDesc = getValue(mapName,mapKey);
+	IF (TRIM(codeValueDesc) IS NULL OR TRIM(codeValueDesc) ='' ) THEN
+		-- load from DB if the code was not found - use the code and the type as the input parameters to the SQL
+		DECLARE codeTranslationQuery CHARACTER;
+
+		SET codeTranslationQuery = 'SELECT CMN.CMN_CODE_CD,CMN.CMN_CODE_DSCRPT_TXT FROM IIB.INT_XREF_CODE_CMN XREF JOIN IIB.INT_CMN_CODE CMN ON XREF.CMN_CODE_ID=CMN.CMN_CODE_ID JOIN IIB.INT_CODE_TYPE TYP ON XREF.CODE_TYPE_ID=TYP.CODE_TYPE_ID WHERE XREF.SBU_CD=? AND XREF.DATA_SOURCE_CD=? AND XREF.EFCTV_TMS<=SYSDATE AND XREF.EXPIRY_TMS IS NULL AND TYP.CODE_TYPE_CD=? AND XREF.CODE_VALUE_CD=?';
+		CALL core.log.DebugMessage(rInEnv, schemaName || '.' || moduleName, 'common_GlobalCacheDescTranslationAppToCmn - mapName:' || mapName || ' mapKey:' || mapKey || ' not found in cache executing SQL ' || codeTranslationQuery || '[' || sbu || ',' || dsCode || ',' || typeCd || ',' || valueCd || ']');
+		SET rInEnv.ResultSet[] = PASSTHRU(codeTranslationQuery,sbu,dsCode,typeCd,valueCd);
+		SET codeValueDesc = rInEnv.ResultSet.CMN_CODE_DSCRPT_TXT;
+		-- if we can't find the code value use the default
+		IF (codeValueDesc IS NULL OR codeValueDesc='') THEN
+			CALL core.log.DebugMessage(rInEnv, schemaName || '.' || moduleName, 'common_GlobalCacheDescTranslationAppToCmn - cannot find codeValue using default ' || defaultValueDesc);
+			SET codeValueDesc = defaultValueDesc;
+		ELSE
+			CALL core.log.DebugMessage(rInEnv, schemaName || '.' || moduleName, 'common_GlobalCacheDescTranslationAppToCmn - using value ' || codeValueDesc || ' found in database now adding to cache');
+			-- add to cache so we can use it next time
+			SET addMapResult = addUpdateKey(mapName,mapKey,codeValueDesc);
+			-- problem adding to the cache
+			IF (addMapResult IS FALSE) THEN
+				CALL core.log.DebugMessage(rInEnv, schemaName || '.' || moduleName, 'common_GlobalCacheDescTranslationAppToCmn - could not add mapName:' || mapName || ' mapKey:' || mapKey || ' to the cache ' || codeTranslationQuery);
+			END IF;
+
+		END IF;
+
+	ELSE
+		CALL core.log.DebugMessage(rInEnv, schemaName || '.' || moduleName, 'common_GlobalCacheDescTranslationAppToCmn - mapName:' || mapName || ' mapKey:' || mapKey || ' found in cache as ' || codeValueDesc);
+
+	END IF;
+
+	RETURN codeValueDesc;
+END;
+
+CREATE PROCEDURE getValue (IN chrMapName CHARACTER, IN chrKey CHARACTER)
+RETURNS CHARACTER
+LANGUAGE JAVA
+EXTERNAL NAME "com.fgl.eai.CacheUtil.getValue";
+
+CREATE PROCEDURE addUpdateKey (IN chrMapName CHARACTER, IN chrKey CHARACTER,IN chrValue CHARACTER)
+RETURNS BOOLEAN
+LANGUAGE JAVA
+EXTERNAL NAME "com.fgl.eai.CacheUtil.addUpdateKey";
+-- Updated By Prasantha Modugula 21st Dec 2016 , Code trasactions are using global cache - JIRA FPOE-16503
+-- END CHANGE

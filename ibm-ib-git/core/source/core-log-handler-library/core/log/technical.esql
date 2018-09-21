@@ -1,0 +1,77 @@
+BROKER SCHEMA core.log
+
+CREATE FILTER MODULE technical_FilterTitleSubtitleNotFlowFinished
+	CREATE FUNCTION Main() RETURNS BOOLEAN
+	BEGIN
+		DECLARE rEnv REFERENCE TO Environment;
+		DECLARE coreLogTitle CHARACTER rEnv.__CoreLogTitle__;
+		DECLARE coreLogSubtitle CHARACTER rEnv.__CoreLogSubtitle__;
+		DECLARE returnValue BOOLEAN coreLogTitle IS NOT NULL AND '' <> coreLogTitle AND FALSE = ('_FLOW' = coreLogTitle AND 'Finished' = coreLogSubtitle);
+		RETURN returnValue;
+	END;
+END MODULE;
+
+CREATE FILTER MODULE technical_FilterMessage
+	CREATE FUNCTION Main() RETURNS BOOLEAN
+	BEGIN
+		DECLARE returnValue BOOLEAN FALSE;
+		DECLARE bodyName CHARACTER FIELDNAME(Environment.__Root__.*[<]);
+		IF '_FLOW' <> Environment.__CoreLogTitle__ THEN
+			IF bodyName IS NOT NULL AND '' <> bodyName THEN
+				IF 'BLOB' = bodyName THEN
+					SET returnValue = TRUE;
+				ELSEIF 'XML' = bodyName OR 'XMLNS' = bodyName OR 'XMLNSC' = bodyName THEN
+					SET returnValue = TRUE;
+				ELSEIF 'JSON' = bodyName THEN
+					SET returnValue = TRUE;
+				ELSEIF 'DFDL' = bodyName THEN
+					SET returnValue = TRUE;
+				END IF;
+			ELSE
+				SET bodyName = FIELDNAME(Root.*[<]);
+				IF 'BLOB' = bodyName THEN
+					SET returnValue = TRUE;
+				ELSEIF 'XML' = bodyName OR 'XMLNS' = bodyName OR 'XMLNSC' = bodyName THEN
+					SET returnValue = TRUE;
+				ELSEIF 'JSON' = bodyName THEN
+					SET returnValue = TRUE;
+				ELSEIF 'DFDL' = bodyName THEN
+					SET returnValue = TRUE;
+				END IF;
+			END IF;
+		END IF;
+		RETURN returnValue;
+	END;
+END MODULE;
+
+CREATE FILTER MODULE technical_FilterException
+	CREATE FUNCTION Main() RETURNS BOOLEAN
+	BEGIN
+		DECLARE returnValue BOOLEAN FALSE;
+		DECLARE rEnv REFERENCE TO Environment;
+		DECLARE coreLogTitle CHARACTER rEnv.__CoreLogTitle__;
+		DECLARE coreLogSubtitle CHARACTER rEnv.__CoreLogSubtitle__;
+		IF '_FLOW' <> coreLogTitle AND 'Started' <> coreLogSubtitle AND 'Finished' <> coreLogSubtitle THEN
+			IF 0 < CARDINALITY(Environment.__Exception__.*[]) THEN
+				SET returnValue = TRUE;
+			ELSEIF 0 < CARDINALITY(ExceptionList.*[]) THEN
+				SET returnValue = TRUE;
+				IF returnValue = TRUE THEN
+					SET Environment.__Exception__ = ExceptionList;
+				END IF;
+			END IF;
+		END IF;
+		RETURN returnValue;
+	END;
+END MODULE;
+
+CREATE FILTER MODULE technical_FilterTitleSubtitleFlowFinished
+	CREATE FUNCTION Main() RETURNS BOOLEAN
+	BEGIN
+		DECLARE rEnv REFERENCE TO Environment;
+		DECLARE coreLogTitle CHARACTER rEnv.__CoreLogTitle__;
+		DECLARE coreLogSubtitle CHARACTER rEnv.__CoreLogSubtitle__;
+		DECLARE returnValue BOOLEAN coreLogTitle IS NOT NULL AND '' <> coreLogTitle AND TRUE = ('_FLOW' = coreLogTitle AND 'Finished' = coreLogSubtitle);
+		RETURN returnValue;
+	END;
+END MODULE;

@@ -1,0 +1,5 @@
+crtmqm .sh
+setmqaut .sh
+channel .mqsc
+chlauth-ADMIN .mqsc
+chlauth-USER .mqsc

@@ -1,0 +1,140 @@
+BROKER SCHEMA core.message
+
+DECLARE theSchema CONSTANT CHARACTER 'core.message';
+
+DECLARE _OPEN CONSTANT CHARACTER 'OPEN';
+DECLARE _PASS CONSTANT CHARACTER 'PASS';
+DECLARE _DROP CONSTANT CHARACTER 'DROP';
+DECLARE _FAIL CONSTANT CHARACTER 'FAIL';
+
+DECLARE _XML CONSTANT CHARACTER 'XML';
+DECLARE _XMLNS CONSTANT CHARACTER 'XMLNS';
+DECLARE _XMLNSC CONSTANT CHARACTER 'XMLNSC';
+DECLARE _JSON CONSTANT CHARACTER 'JSON';
+DECLARE _DFDL CONSTANT CHARACTER 'DFDL';
+
+CREATE COMPUTE MODULE processor_Discovery
+	DECLARE EMPTY_CORRELID CONSTANT CHARACTER '000000000000000000000000000000000000000000000000';
+	DECLARE theModule CONSTANT CHARACTER 'processor_Discovery';
+	CREATE FUNCTION Main() RETURNS BOOLEAN
+	BEGIN
+		SET OutputRoot = InputRoot;
+		SET OutputLocalEnvironment = InputLocalEnvironment;
+		SET OutputExceptionList = InputExceptionList;
+
+		IF 0=CARDINALITY(Environment.Configuration[]) THEN
+			DECLARE rEnv REFERENCE TO Environment;
+			CREATE LASTCHILD OF rEnv TYPE Name NAME 'Configuration';
+			DECLARE rConf REFERENCE TO rEnv.Configuration;
+			SET rConf.__Internal__.Broker.Name = BrokerName;
+			SET rConf.__Internal__.Name.Broker = BrokerName;
+			SET rConf.__Internal__.Broker.UserId = BrokerUserId;
+			SET rConf.__Internal__.Broker.Version = BrokerVersion;
+			SET rConf.__Internal__.WorkPath = WorkPath;
+			SET rConf.__Internal__.ProcessId = CAST(ProcessId AS CHAR);
+			SET rConf.__Internal__.ExecutionGroup.Label = ExecutionGroupLabel;
+			SET rConf.__Internal__.Label.ExecutionGroup = ExecutionGroupLabel;
+			SET rConf.__Internal__.ExecutionGroup.Name = ExecutionGroupName;
+			SET rConf.__Internal__.Name.ExecutionGroup = ExecutionGroupName;
+			SET rConf.__Internal__.MessageFlow.AdditionalInstances = CAST(AdditionalInstances AS CHAR);
+			SET rConf.__Internal__.MessageFlow.Label = MessageFlowLabel;
+			SET rConf.__Internal__.Label.MessageFlow = MessageFlowLabel;
+			SET rConf.__Internal__.Library.Label = LibraryLabel;
+			SET rConf.__Internal__.Label.Library = LibraryLabel;
+			SET rConf.__Internal__.Label.Application = ApplicationLabel;
+			SET rConf.__Internal__.Application.Label = ApplicationLabel;
+
+			IF rConf.__SystemId__ IS NULL THEN
+				SET rConf.__SystemId__ = 'IIB';
+			END IF;
+			--Set MsgId (which should never be empty) and printable Log4J MsgId in the environment
+			SET rEnv.__MsgId__ = InputRoot.MQMD.MsgId;
+			DECLARE __MsgId__ CHARACTER CAST(rEnv.__MsgId__ AS CHARACTER);
+			SET rEnv.__MsgIdForLog4J__ = SUBSTRING(__MsgId__ FROM 3 FOR LENGTH(__MsgId__)-3);
+			--Set Hex MsgId or CorrelId in the environment
+			IF InputRoot.MQMD.CorrelId IS NULL OR EMPTY_CORRELID=InputRoot.MQMD.CorrelId THEN
+				SET rEnv.__CorrelId__ = InputRoot.MQMD.MsgId;
+			ELSE
+				SET rEnv.__CorrelId__ = InputRoot.MQMD.CorrelId;
+			END IF;
+			--Set Ascii MsgId/CorrelId in the environment
+			DECLARE id CHARACTER CAST(rEnv.__CorrelId__ AS CHARACTER);
+			SET id = SUBSTRING(id FROM 3 FOR LENGTH(id)-3);
+			SET rEnv.__CorrelIdForLog4J__ = id;
+
+			IF rEnv.__Date__ IS NULL THEN
+				SET rEnv.__Date__ = CURRENT_GMTTIMESTAMP;
+			END IF;
+			--Make sure the correlid is propogated (Don't propagate MsgId?)
+			SET OutputRoot.MQMD.CorrelId = rEnv.__CorrelId__;
+
+			DECLARE hex CHARACTER FIELDVALUE(InputRoot.BLOB.BLOB);
+			DECLARE ascii CHARACTER NULL;
+			CALL common.convert_HexToAscii(hex) INTO ascii;
+			SET rEnv.__InitialMessageBodyInAscii__ = ascii;
+			DECLARE J INTEGER CARDINALITY(rEnv.__InitialMessageBodyInHex__[]);
+			IF 0=J THEN
+				SET rEnv.__InitialMessageBodyInHex__ = hex;
+				SET rEnv.__InitialCorrelId__ = rEnv.__CorrelIdForLog4J__;
+				--CALL core.log.LogFromEsql(rEnv, theSchema||'.'||theModule, ' [_FLOW - Message] Body='||ascii);
+			ELSE
+				SET rEnv.__InitialMessageBodyInHex__[J+1] = hex;
+				SET rEnv.__InitialCorrelId__[J+1] = rEnv.__CorrelIdForLog4J__;
+				--CALL core.log.LogFromEsql(rEnv, theSchema||'.'||theModule, ' [_FLOW - Message] Body='||ascii);
+			END IF;
+
+			IF rConf.__Name__ IS NULL THEN
+				DECLARE theName CHARACTER '';
+				DECLARE _from INTEGER 1;
+				DECLARE _to INTEGER LENGTH(MessageFlowLabel);
+				DECLARE _char CHAR '';
+				WHILE _from <= _to DO
+					SET _char = SUBSTRING(MessageFlowLabel FROM _from FOR 1);
+					IF '_'=_char THEN
+						SET _char = '-';
+					END IF;
+					SET theName = theName||_char;
+					SET _from = _from + 1;
+				END WHILE;
+				SET rConf.__Name__ = theName;
+			END IF;
+
+			DECLARE inst CHARACTER rConf.__Inst__;
+			IF inst IS NULL THEN
+				DECLARE _index INTEGER -1;
+				CALL common.common_GetIndexOfConf(ExecutionGroupLabel, '.') INTO _index;
+				IF 0<=_index THEN
+					CALL common.common_GetIntegerOfConf(ExecutionGroupLabel, _index+1, 1) INTO inst; --IBS(D|Q|P)n[A|B].m.XYZ
+				END IF;
+			END IF;
+			IF inst IS NOT NULL AND ''<>inst THEN
+				IF '0'=inst THEN
+					SET inst = '';
+				ELSEIF '1'=inst THEN
+					SET inst = '';
+				END IF;
+			END IF;
+			SET rConf.__Inst__ = inst;
+
+			DECLARE envn CHARACTER rConf.__Envn__;
+			IF envn IS NULL THEN
+				CALL common.common_GetCharacterOfConf(ExecutionGroupLabel, 4, 1) INTO envn; --IBS[D|Q|P]n[A|B].m.XYZ
+			END IF;
+			IF envn IS NOT NULL AND ''<>envn THEN
+				IF 'D'=envn THEN
+					SET envn = 'DV';
+				ELSEIF 'Q'=envn THEN
+					SET envn = 'QA';
+				ELSEIF 'P'=envn THEN
+					SET envn = 'PP';
+				ELSE
+					SET envn = '';
+				END IF;
+			END IF;
+			SET rConf.__Envn__ = envn;
+
+		END IF;
+
+		RETURN TRUE;
+	END;
+END MODULE;

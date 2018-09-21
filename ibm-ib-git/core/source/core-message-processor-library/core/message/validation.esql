@@ -1,0 +1,65 @@
+BROKER SCHEMA core.message
+
+DECLARE CoreMessageValidation EXTERNAL BOOLEAN FALSE;
+
+CREATE FILTER MODULE message_FilterMessageValidation
+	DECLARE theModule CONSTANT CHARACTER theSchema||'.'||'message_FilterMessageValidation'; 
+	CREATE FUNCTION Main() RETURNS BOOLEAN
+	BEGIN
+		--JIRA#CDH-1706 Fixed by Alex Russell   
+		--DECLARE rEnv REFERENCE TO Environment;
+		--IF FALSE=CoreMessageValidation THEN
+		--	CALL core.audit.AuditState(rEnv,_DROP);
+		--	CALL core.audit.AuditStateComment(rEnv, theModule||' - '||theSchema||'.CoreMessageValidation is '||CAST(CoreMessageValidation AS CHARACTER));
+		--END IF;
+		CALL core.log.Debug(theModule||' - '||theSchema||'.CoreMessageValidation is '||CAST(CoreMessageValidation AS CHARACTER)); --TODO: Add rEnv so we can pick up CorrelId inside Log4J ESQL Procedures
+		RETURN CoreMessageValidation;
+	END;
+END MODULE;
+
+CREATE COMPUTE MODULE message_ThrowMessageValidationException
+	DECLARE theModule CONSTANT CHARACTER theSchema||'.'||'message_ThrowMessageValidationException'; 
+	CREATE FUNCTION Main() RETURNS BOOLEAN
+	BEGIN
+		DECLARE number INTEGER;
+		DECLARE text CHARACTER;
+		CALL getLastExceptionDetail(InputExceptionList.*[1],number,text);
+		DECLARE rEnv REFERENCE TO Environment;
+		--CALL core.audit.AuditState(rEnv,_FAIL);
+		CALL core.audit.AuditStateComment(rEnv, theModule||' - Exception[number='||CAST(number AS CHARACTER)||'|text="'||text||'"]');
+		THROW USER EXCEPTION CATALOG 'XML_Validations_Exception' MESSAGE number VALUES(text);
+		RETURN TRUE;
+	END;
+	-- ****************************************************************************
+	-- A procedure that will get the details of the last exception from a message
+	-- IN ref: The exception list
+	-- OUT messageNumber: The last message number
+	-- OUT messageText: The last message text
+	-- ****************************************************************************
+	CREATE PROCEDURE getLastExceptionDetail(IN ref REFERENCE, OUT messageNumber INTEGER, OUT messageText CHARACTER)
+	BEGIN
+		--Keep looping while the moves to the child of exception list work
+		A: WHILE LASTMOVE(ref) DO --Added label so we can LEAVE later
+			--Store the current values for the error number and text
+			IF ref.Number IS NOT NULL THEN
+				IF 5026=ref.Number THEN
+					SET messageNumber = ref.Number;
+					DECLARE I INTEGER 1;
+					DECLARE J INTEGER CARDINALITY(ref.Insert[]);
+					WHILE I <= J DO --Changed from < to <= .oO(is this correct?)
+						SET messageText = ref.Insert[I].Text;
+						IF 4<LENGTH(messageText) THEN --Switch order to constant first
+							SET messageText = ref.Text||' '||messageText; --Added ||' '||
+							LEAVE A; --Leave the while loop as we're done (don't RETURN - return should only happen in one place, and here that's implicit at the end of the procedure)
+						END IF;
+						SET I = I + 1;
+					END WHILE;
+				ELSE
+					SET messageNumber = ref.Number;
+					SET messageText = ref.Text;
+				END IF;
+			END IF;
+			MOVE ref LASTCHILD;
+		END WHILE;
+	END;
+END MODULE;

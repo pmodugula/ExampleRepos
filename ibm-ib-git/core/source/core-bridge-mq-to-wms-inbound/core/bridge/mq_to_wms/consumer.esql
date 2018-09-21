@@ -1,0 +1,43 @@
+BROKER SCHEMA core.bridge.mq_to_wms
+
+DECLARE nsWms CHARACTER NULL;
+
+CREATE COMPUTE MODULE mq_to_wms_AuditDropEvent
+	CREATE FUNCTION Main() RETURNS BOOLEAN
+	BEGIN
+		CALL core.log.EventStateOnly(Environment, 'DROP');
+		SET OutputRoot = InputRoot;
+		RETURN TRUE;
+	END;
+END MODULE;
+
+CREATE COMPUTE MODULE mq_to_wms_AuditChangeEvent
+	CREATE FUNCTION Main() RETURNS BOOLEAN
+	BEGIN
+		IF nsWms IS NULL THEN CALL common.wms_getNamespace() INTO nsWms;END IF;DECLARE wms NAMESPACE nsWms;
+		CALL core.log.Event(Environment, 'CHANGE', 'DistributionCentre', InputRoot.XMLNSC.wms:WMStaging.wms:WMHeader.wms:DistributionCentre);
+		SET OutputRoot = InputRoot;
+		RETURN TRUE;
+		END;
+END MODULE;
+		
+CREATE FILTER MODULE mod_consumer_isMaster
+	CREATE FUNCTION Main() RETURNS BOOLEAN
+	BEGIN
+		IF nsWms IS NULL THEN CALL common.wms_getNamespace() INTO nsWms;END IF;DECLARE wms NAMESPACE nsWms;
+		/* Return true for transaction and false for master data also default is master*/
+		DECLARE isMaster BOOLEAN FALSE;
+		DECLARE rBody REFERENCE TO Root.XMLNSC.wms:WMStaging.wms:WMBody;
+		IF (EXISTS(rBody.wms:ItemSize[])) THEN
+			SET isMaster = TRUE;
+		ELSEIF (EXISTS(rBody.wms:Product[])) THEN
+			SET isMaster = TRUE;
+		ELSEIF (EXISTS(rBody.wms:Store[])) THEN
+			SET isMaster = TRUE;
+		ELSEIF (EXISTS(rBody.wms:Vendor[])) THEN
+			SET isMaster = TRUE;
+		END IF;
+		/* All other messages are treated as transactions */
+		RETURN isMaster;
+	END;
+END MODULE;

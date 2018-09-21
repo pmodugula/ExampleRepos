@@ -1,0 +1,52 @@
+BROKER SCHEMA core.log.technical
+
+CREATE COMPUTE MODULE exception_PickupException
+	CREATE FUNCTION Main() RETURNS BOOLEAN
+	BEGIN
+		SET OutputRoot = InputRoot;
+		SET OutputLocalEnvironment = InputLocalEnvironment;
+		SET OutputExceptionList = InputExceptionList;
+		IF 0 < CARDINALITY(Environment.__Exception__.*[]) THEN
+		ELSEIF 0 < CARDINALITY(InputExceptionList.*[]) THEN
+			SET Environment.__Exception__ = InputExceptionList;
+		END IF;
+		RETURN TRUE;
+	END;
+END MODULE;
+
+CREATE COMPUTE MODULE exception_CleanupException
+	CREATE FUNCTION Main() RETURNS BOOLEAN
+	BEGIN
+		SET OutputRoot = InputRoot;
+		SET OutputLocalEnvironment = InputLocalEnvironment;
+		SET OutputExceptionList = InputExceptionList;
+		--DELETE FIELD Environment.__Exception__;--We need this in CoreMessagePostProcessor for AUDIT purposes
+		RETURN TRUE;
+	END;
+END MODULE;
+
+CREATE FILTER MODULE exception_FilterMessageFlowStop
+	CREATE FUNCTION Main() RETURNS BOOLEAN
+	BEGIN
+		DECLARE stopOnBackoutCount CHARACTER NULL;
+		CALL java.lang.System.getProperty('EAI.MESSAGE.FLOW.STOP.ON.BACKOUTCOUNT') INTO stopOnBackoutCount;
+		DECLARE count INTEGER CAST(stopOnBackoutCount AS INTEGER);
+		DECLARE stopOnException BOOLEAN (count IS NOT NULL AND Root.MQMD.BackoutCount >= count); 
+		RETURN stopOnException;--Leave the code block like this so we can debug efficiently (actually see the value returned before it is returned)
+	END;
+END MODULE;
+
+CREATE COMPUTE MODULE exception_MessageFlowStop
+	CREATE FUNCTION Main() RETURNS BOOLEAN
+	BEGIN
+		DECLARE rc INTEGER 0;
+		CALL common.admin_MessageFlowStop() INTO rc;
+		--BrokerProxy brokerProxy = BrokerProxy.getLocalInstance(); // rc=1 => Failed
+		--ExecutionGroupProxy executionGroupProxy = brokerProxy.getExecutionGroupByName(executionGroupName); // rc=2 => Failed
+		--MessageFlowProxy messageFlowProxy = executionGroupProxy.getMessageFlowByName(messageFlowName, applicationName, libraryName); // rc=3 => Failed
+		--messageFlowProxy.stop(); // rc=4 => Failed
+		DECLARE rcStop CHARACTER CAST(rc AS CHARACTER);
+		CALL core.log.Error('ID#'||Environment.__CorrelId__||' [_FLOW - Control] stop:rc='||rcStop);
+		RETURN TRUE;
+	END;
+END MODULE;

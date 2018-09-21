@@ -1,0 +1,8 @@
+DEF QCF(${QMGR1}) CHANNEL(EAI.IBMIB.${ENVN}USER) HOSTNAME(${HOSTNAME1}) PORT(${PORT1}) TRANSPORT(CLIENT)
+DEF QCF(${QMGR2}) CHANNEL(EAI.IBMIB.${ENVN}USER) HOSTNAME(${HOSTNAME2}) PORT(${PORT2}) TRANSPORT(CLIENT)
+DEF Q(SEND.${../source/dat-product-pmm-publisher/template-default.properties:PUB_IN_NL}) QUEUE(SEND.${../source/dat-product-pmm-publisher/template-default.properties:PUB_IN_NL})
+DEF Q(SEND.${../source/dat-product-spp-pmm-publisher/template-default.properties:PUB_IN_NL}) QUEUE(SEND.${../source/dat-product-spp-pmm-publisher/template-default.properties:PUB_IN_NL})
+DEF Q(SEND.${../source/doc-asn-pmm-publisher/template-default.properties:PUB_IN_NL}) QUEUE(SEND.${../source/doc-asn-pmm-publisher/template-default.properties:PUB_IN_NL})
+DEF Q(SEND.${../source/doc-invoice-match-pmm-publisher/template-default.properties:PUB_IN_NL}) QUEUE(SEND.${../source/doc-invoice-match-pmm-publisher/template-default.properties:PUB_IN_NL})
+DEF Q(SEND.${../source/dat-po-pmm-publisher/template-default.properties:PUB_IN_NL}) QUEUE(SEND.${../source/dat-po-pmm-publisher/template-default.properties:PUB_IN_NL})
+DEF Q(SEND.${../source/doc-transfer-pmm-publisher/template-default.properties:PUB_IN_NL}) QUEUE(SEND.${../source/doc-transfer-pmm-publisher/template-default.properties:PUB_IN_NL})

@@ -1,0 +1,16 @@
+[${DSN_NAME}]
+Driver=/opt/ibm/mqsi/9.0.0.0/ODBC/V7.0/lib/UKora26.so
+Description=DataDirect 7.0 ODBC Oracle Wire Protocol
+HostName=${DSN_HOST}
+PortNumber=${DSN_PORT:1521}
+SID=${DSN_SID}
+EnableNCharSupport=1
+CatalogOptions=0
+EnableStaticCursorsForLongData=0
+ApplicationUsingThreads=1
+EnableDescribeParam=1
+OptimizePrepare=1
+WorkArounds=536870912
+ProcedureRetResults=1
+ColumnSizeAsCharacter=1
+LoginTimeout=0

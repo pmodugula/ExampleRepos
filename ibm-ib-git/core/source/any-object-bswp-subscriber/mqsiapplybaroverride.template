@@ -1,0 +1,5 @@
+${__any__}.${__object__}.bswp.subscriber#IIBInboundQueue=RECV.${SUB_IN}
+${__any__}.${__object__}.bswp.subscriber#IIBDataSource=STG${ENVN}${INST}
+${__any__}.${__object__}.bswp.subscriber#BSWPOutboundQueue=SEND.${SUB_OUT}
+${__any__}.${__object__}.bwsp.subscriber#CoreAuditDataSource=AUD${ENVN}${INST}
+${__any__}.${__object__}.bswp.subscriber#additionalInstances=${EXTRATHREADS}

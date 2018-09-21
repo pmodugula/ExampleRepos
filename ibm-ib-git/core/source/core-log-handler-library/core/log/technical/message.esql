@@ -1,0 +1,39 @@
+BROKER SCHEMA core.log.technical
+
+CREATE COMPUTE MODULE message_PickupMessage
+	CREATE FUNCTION Main() RETURNS BOOLEAN
+	BEGIN
+		SET OutputRoot = InputRoot;
+		SET OutputLocalEnvironment = InputLocalEnvironment;
+		SET OutputExceptionList = InputExceptionList;
+		DECLARE bodyName CHARACTER FIELDNAME(Environment.__Root__.*[<]);
+		IF bodyName IS NOT NULL AND '' <> bodyName THEN
+			SET Environment.__Body__ = Environment.__Root__.*[<];
+		ELSE
+			SET Environment.__Body__ = InputBody;
+		END IF;
+		RETURN TRUE;
+	END;
+END MODULE;
+
+CREATE COMPUTE MODULE message_CleanupMessage
+	CREATE FUNCTION Main() RETURNS BOOLEAN
+	BEGIN
+		SET OutputRoot = InputRoot;
+		SET OutputLocalEnvironment = InputLocalEnvironment;
+		SET OutputExceptionList = InputExceptionList;
+		DELETE FIELD Environment.__Body__;
+		RETURN TRUE;
+	END;
+END MODULE;
+
+CREATE COMPUTE MODULE message_LogMessage
+	CREATE FUNCTION Main() RETURNS BOOLEAN
+	BEGIN
+		SET OutputRoot = InputRoot;
+		SET OutputLocalEnvironment = InputLocalEnvironment;
+		SET OutputExceptionList = InputExceptionList;
+		CALL core.log.Debug('ID#'||Environment.__MsgIdForLog4J__||' CID#'||Environment.__CorrelIdForLog4J__||' [_FLOW - Message] Body='||Environment.__OriginalBody__);
+		RETURN TRUE;
+	END;
+END MODULE;

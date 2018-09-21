@@ -1,0 +1,4 @@
+mqsicreateconfigurableservice ${_NODE_} -c TCPIPClient -o TCPIPProfileLogstash -n Hostname,Port -v ${KIBANA_IPADDR},${KIBANA_JSONAPI_PORT}
+#mqsireportproperties ${_NODE_} -o TCPIPProfileLogstash -c TCPIPClient -r
+##Use Chrome!
+##http://${KIBANA_IPADDR}:${KIBANA_WEBUI_PORT}/_plugin/kibana/#/dashboard/file/default.json

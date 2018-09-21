@@ -1,0 +1,14 @@
+[${DSN_NAME_WMS}]
+uid=${DSN_USER_WMS}
+pwd=${DSN_PASSWORD_WMS}
+Database=${DSN_DATABASE_WMS}
+Protocol=TCPIP
+Port=${DSN_PORT_WMS:446}
+Hostname=${DSN_HOST_WMS}
+autocommit=0
+TableType="${DSN_TABLE_TYPE_WMS:'TABLE','VIEW','SYSTEM TABLE'}"
+;ConnectTimeout=10
+;ReceiveTimeout=120
+;LockTimeout=60
+;CursorHold=0
+TxnIsolation=1

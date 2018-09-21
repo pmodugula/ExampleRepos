@@ -1,0 +1,1 @@
+/opt/oracle/product/11.2.0.1/bin/sqlplus -s ${STG_DB_USER}/${STG_DB_PASSWORD}@${STG_DB_HOST} @/opt/ibm/mqsi-scripts/sqlplus-audit-via-crontab.sql

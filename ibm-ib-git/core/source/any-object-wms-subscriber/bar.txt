@@ -1,2 +1,0 @@
-common-library-java
-common-wms-library

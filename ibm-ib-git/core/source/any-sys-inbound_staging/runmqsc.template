@@ -1,5 +1,0 @@
-* DEFINE QALIAS(SEND.${${_SYS_}}) TARGET(${${_SYS_}})
-** Receive from ${__any__}-${__sys__}-inbound, ..
-DEFINE QLOCAL(${${_SYS_}_BO}) DESCR('${__any__}-${__sys__}-inbound backout queue')
-DEFINE QLOCAL(${${_SYS_}}) BOTHRESH(0) BOQNAME(${${_SYS_}_BO})
-DEFINE QALIAS(RECV.${${_SYS_}}) TARGET(${${_SYS_}})

@@ -1,5 +1,0 @@
-${__any__}.${__object__}.${__sys__}.publisher#IIBInboundQueue=RECV.${EVENT_IN_IB}
-${__any__}.${__object__}.${__sys__}.publisher#IIBDataSource=STG${ENVN}${INST}
-${__any__}.${__object__}.${__sys__}.publisher#IIBPublication=${${_OBJECT_}_TOPICSTR}
-${__any__}.${__object__}.${__sys__}.publisher#CoreAuditDataSource=AUD${ENVN}${INST}
-${__any__}.${__object__}.${__sys__}.publisher#additionalInstances=${EXTRATHREADS}

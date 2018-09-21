@@ -1,8 +1,0 @@
-** ${__any__}-${__object__}-bswp-subscriber: runmqsc.template
-DEFINE QALIAS(SEND.${SUB_IN}) TARGET(${SUB_IN})
-DEFINE SUB(${SUB_IN}) TOPICSTR('${../source/${__any__}-${__object__}-bswp-subscriber/template-default.properties:${_OBJECT_}_TOPICSTR}') DESTCLAS(PROVIDED) WSCHEMA(CHAR) DEST(SEND.${SUB_IN})
-DEFINE QLOCAL(${SUB_IN_BO}) DESCR('${__any__}-${__object__}-bswp-subscriber backout queue')
-DEFINE QLOCAL(${SUB_IN}) BOQNAME(${SUB_IN_BO})
-DEFINE QALIAS(RECV.${SUB_IN}) TARGET(${SUB_IN})
-DEFINE QALIAS(SEND.${SUB_OUT}) TARGET(${../source/etc-bswp-inbound/template-default.properties:BSWP})
-* DEFINE QLOCAL(${../source/etc-bswp-inbound/template-default.properties:BSWP})

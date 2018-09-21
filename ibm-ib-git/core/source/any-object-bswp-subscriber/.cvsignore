@@ -1,3 +1,0 @@
-*.bar
-${__any__}-${__object__}-bwsp-subscriber*.properties
-runmqsc*.mqsc

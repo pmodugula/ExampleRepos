@@ -1,0 +1,9 @@
+@REM File: pos-DV.dat
+@REM Version: 0.1.0
+@REM Date: 08-Oct 2015
+@REM Author: Rhett Whaley
+
+trx-sales-pmm-subscriber
+trx-sales-pmm-inbound
+trx-sales-aspect-subscriber
+trx-sales-aspect-inbound

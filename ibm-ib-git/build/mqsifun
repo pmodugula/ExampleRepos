@@ -1,0 +1,109 @@
+## File: mqsifun
+
+if [ -z "$zero" ]; then
+  dirnam=`dirname "$0"`
+  if [ '.' = "$dirnam" ]; then
+    dirnam=`pwd`
+  fi
+  basnam=`basename "$0"`
+  zero=`echo "$basnam"|sed 's/\(.*\)\.sh/\1/'`
+fi
+
+_mqsi_start() {
+  BROKER=$1
+  EC=1 _mqsi_check $BROKER
+  _RC=$?
+  RC=1
+  if [ $_RC -eq 0 ]; then
+    ${DRYRUN:+echo} mqsistart $BROKER
+    RC=$?
+  fi
+  if [ "$RC" -eq 0 ]; then
+    # probably need some sort of sleep here
+    EC=0 _mqsi_check $BROKER
+    _RC=$?
+
+  else
+    return $RC
+  fi
+}
+
+_mqsi_stop() {
+  BROKER=$1
+  EC=0 _mqsi_check $BROKER
+  _RC=$?
+  if [ $_RC -eq 0 ]; then
+    ${DRYRUN:+echo} mqsistop $BROKER
+    RC=$?
+  fi
+  if [ "$RC" -eq 0 ]; then
+    # probably need some sort of sleep here
+    EC=1 _mqsi_check $BROKER
+    _RC=$?
+  else
+    return $RC
+  fi
+}
+
+_mqsi_check() {
+  BROKER=$1
+  _cmd_out=$(mqsilist | grep $BROKER)
+  _mqsi_resp_code=$(cut -d':' -f1 <<< $_cmd_out)
+  _mqsi_state=$(cut -f9 <<< $_cmd_out)
+  if [ "$_mqsi_resp_code" = "BIP1284I" ]; then
+    if [ -z "$EC" ]; then
+      echo "Info[$zero]: $BROKER is running" >&2
+      RC=0
+    elif [ $EC -eq 0 ]; then
+      echo "Info[$zero]: $BROKER is running and expected to be running [PASS]" >&2
+      RC=0
+    elif [ $EC -eq 1 ]; then
+      echo "Info[$zero]: $BROKER is running but not expected to be running [FAIL]" >&2
+      RC=1
+    fi
+  else
+    if [ -z "$EC" ]; then
+      echo "Info[$zero]: $BROKER is not running" >&2
+      RC=0
+    elif [ $EC -eq 0 ]; then
+      echo "Info[$zero]: $BROKER is not running but expected to be running [FAIL]" >&2
+      RC=1
+    elif [ $EC -eq 1 ]; then
+      echo "Info[$zero]: $BROKER is not running and expected to not be running [PASS]" >&2
+      RC=0
+    fi
+  fi
+  return $RC
+}
+
+_mqsi_list_broker() {
+  _cmd_out=$(mqsilist | grep -v "^BIP8071I" | cut -d"'" -f2)
+  _RC=$?
+  if [ $_RC -eq 0 ]; then
+    echo $_cmd_out
+  fi
+}
+
+_mqsi_list_executiongroup() {
+  BROKER=$1
+  if [ -n "$BROKER" ]; then
+    _cmd_out=$(mqsilist $BROKER | grep $BROKER | grep -v "^BIP8071I" | cut -d"'" -f2)
+    _RC=$?
+    if [ $_RC -eq 0 ]; then
+      echo $_cmd_out
+    fi
+  fi
+}
+
+_mqsi_list_application() {
+  BROKER=$1
+  EXECUTION_GROUP=$2
+  if [ -n "$BROKER" ] && [ -n "$EXECUTION_GROUP" ]; then
+    _cmd_out=$(mqsilist $BROKER -e $EXECUTION_GROUP | grep -v "^BIP8071I" | cut -d"'" -f2)
+    _RC=$?
+    if [ $_RC -eq 0 ]; then
+      echo $_cmd_out
+    fi
+  fi
+}
+

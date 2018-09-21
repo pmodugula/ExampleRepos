@@ -1,0 +1,52 @@
+conf-mqsc-commands
+conf-jms-commands
+conf-mqsi-commands
+conf-odbc-datasources
+conf-iib-schema
+conf-unix-commands
+core-bridge-ems-to-mq
+core-bridge-mq-to-wms-inbound
+dat-wms-inbound-caldc
+doc-wms-inbound-caldc
+doc-wms-inbound-caldc-bulk
+trx-wms-inbound-caldc
+dat-wms-inbound-misdc
+doc-wms-inbound-misdc
+trx-wms-inbound-misdc
+core-pix-caldc-wms-outbound
+core-pix-misdc-wms-outbound
+dat-po-pmm-publisher
+dat-po-wms-subscriber
+dat-product-pmm-publisher
+dat-product-spp-pmm-publisher
+dat-product-spp-wms-subscriber
+dat-product-wms-subscriber
+doc-asn-pmm-publisher
+doc-asn-wms-subscriber
+doc-invent-snap-comp-pmm-inbound
+doc-invent-snap-pmm-inbound
+doc-invoice-match-pmm-publisher
+doc-invoice-match-wms-subscriber
+doc-invoice-ship-caldc-wms-outbound
+doc-invoice-ship-misdc-wms-outbound
+doc-invoice-ship-pmm-inbound
+doc-transfer-asn-wms-subscriber
+doc-transfer-dist-wms-subscriber
+doc-transfer-pmm-publisher
+trx-distrib-adjust-pmm-inbound
+trx-invent-adjust-pmm-inbound
+trx-pix-receipt-pmm-inbound
+
+@REM dat-store-pmm-publisher
+dat-store-pmm-publisher-fgl
+dat-store-pmm-publisher-mww
+@REM dat-store-wms-subscriber
+dat-store-wms-subscriber-caldc
+dat-store-wms-subscriber-misdc
+
+@REM dat-vendor-pmm-publisher
+dat-vendor-pmm-publisher-fgl
+dat-vendor-pmm-publisher-mww
+@REM dat-vendor-wms-subscriber
+dat-vendor-wms-subscriber-caldc
+dat-vendor-wms-subscriber-misdc

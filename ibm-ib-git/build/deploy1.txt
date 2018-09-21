@@ -1,0 +1,993 @@
+Status: project 'core-bridge-ems-to-mq' for collection 'caldc' processing..
+>>> MQSC <<<
+..\cygmin64\bin\ssh.exe -i ../resources/nkhanna-10.100.10.218-id_rsa nkhanna@10.100.10.218 "mkdir -p /home/nkhanna/core-bridge-ems-to-mq/"
+..\cygmin64\bin\scp.exe -i ../resources/nkhanna-10.100.10.218-id_rsa ../source/core-bridge-ems-to-mq/runmqsc-PP.mqsc nkhanna@10.100.10.218:/home/nkhanna/core-bridge-ems-to-mq/
+..\cygmin64\bin\ssh.exe -i ../resources/nkhanna-10.100.10.218-id_rsa nkhanna@10.100.10.218 "chmod 640 /home/nkhanna/core-bridge-ems-to-mq/runmqsc-PP.mqsc"
+..\cygmin64\bin\ssh.exe -i ../resources/nkhanna-10.100.10.218-id_rsa nkhanna@10.100.10.218 "sudo su - mqm -c 'runmqsc IBQP1 < /home/nkhanna/core-bridge-ems-to-mq/runmqsc-PP.mqsc'"
+5724-H72 (C) Copyright IBM Corp. 1994, 2011.  ALL RIGHTS RESERVED.
+Starting MQSC for queue manager IBQP1.
+
+
+       : ** Send to core-bridge-mq-to-wms-inbound
+     1 : DEFINE QALIAS(SEND.ALL.EAI.WMCOMMON_IN.IBM_IB.PP) TARGET(ALL.EAI.WMCOMMON_IN.IBM_IB.PP)
+AMQ8150: WebSphere MQ object already exists.
+       : * DEFINE QLOCAL(ALL.EAI.WMCOMMON_IN.IBM_IB.PP)
+One MQSC command read.
+No commands have a syntax error.
+One valid MQSC command could not be processed.
+>>> BAR <<<
+..\cygmin64\bin\ssh.exe -i ../resources/nkhanna-10.100.10.218-id_rsa nkhanna@10.100.10.218 "mkdir -p /home/nkhanna/core-bridge-ems-to-mq/"
+..\cygmin64\bin\scp.exe -i ../resources/nkhanna-10.100.10.218-id_rsa ../deployment/core-bridge-ems-to-mq/core-bridge-ems-to-mq-PP.bar nkhanna@10.100.10.218:/home/nkhanna/core-bridge-ems-to-mq/
+..\cygmin64\bin\ssh.exe -i ../resources/nkhanna-10.100.10.218-id_rsa nkhanna@10.100.10.218 "chmod 640 /home/nkhanna/core-bridge-ems-to-mq/core-bridge-ems-to-mq-PP.bar"
+..\cygmin64\bin\ssh.exe -i ../resources/nkhanna-10.100.10.218-id_rsa nkhanna@10.100.10.218 "sudo su - dbkadm -c 'mqsideploy IBNP1 -e IBSP1 -a /home/nkhanna/core-bridge-ems-to-mq/core-bridge-ems-to-mq-PP.bar'"
+
+MQSI 9.0.0.1
+/opt/ibm/mqsi/9.0.0.1
+
+BIP1039I: Deploying BAR file '/home/nkhanna/core-bridge-ems-to-mq/core-bridge-ems-to-mq-PP.bar' to broker 'IBNP1' (execution group 'IBSP1') ...
+BIP1092I: The broker successfully processed the deployment request.
+Status: project 'core-bridge-ems-to-mq' for collection 'caldc' was processed
+Status: project 'core-bridge-mq-to-wms-inbound' for collection 'caldc' processing..
+>>> MQSC <<<
+..\cygmin64\bin\ssh.exe -i ../resources/nkhanna-10.100.10.218-id_rsa nkhanna@10.100.10.218 "mkdir -p /home/nkhanna/core-bridge-mq-to-wms-inbound/"
+..\cygmin64\bin\scp.exe -i ../resources/nkhanna-10.100.10.218-id_rsa ../source/core-bridge-mq-to-wms-inbound/runmqsc-PP.mqsc nkhanna@10.100.10.218:/home/nkhanna/core-bridge-mq-to-wms-inbound/
+..\cygmin64\bin\ssh.exe -i ../resources/nkhanna-10.100.10.218-id_rsa nkhanna@10.100.10.218 "chmod 640 /home/nkhanna/core-bridge-mq-to-wms-inbound/runmqsc-PP.mqsc"
+..\cygmin64\bin\ssh.exe -i ../resources/nkhanna-10.100.10.218-id_rsa nkhanna@10.100.10.218 "sudo su - mqm -c 'runmqsc IBQP1 < /home/nkhanna/core-bridge-mq-to-wms-inbound/runmqsc-PP.mqsc'"
+5724-H72 (C) Copyright IBM Corp. 1994, 2011.  ALL RIGHTS RESERVED.
+Starting MQSC for queue manager IBQP1.
+
+
+     1 : DEFINE QLOCAL(ALL.EAI.WMCOMMON_IN.BO.IBM_IB.PP) DESCR('core-bridge-mq-to-wms-inbound backout queue')
+AMQ8150: WebSphere MQ object already exists.
+     2 : DEFINE QLOCAL(ALL.EAI.WMCOMMON_IN.IBM_IB.PP) BOTHRESH(5) BOQNAME(ALL.EAI.WMCOMMON_IN.BO.IBM_IB.PP)
+AMQ8150: WebSphere MQ object already exists.
+       : ** Receive from core-bridge-ems-to-mq
+     3 : DEFINE QALIAS(RECV.ALL.EAI.WMCOMMON_IN.IBM_IB.PP) TARGET(ALL.EAI.WMCOMMON_IN.IBM_IB.PP)
+AMQ8150: WebSphere MQ object already exists.
+       : ** Send to core-caldc-wms-inbound
+       : * DEFINE QALIAS(SEND.ALL.WMS.CALDC_IN.IBM_IB.PP) TARGET(ALL.WMS.CALDC_IN.IBM_IB.PP)
+       : * DEFINE QLOCAL(ALL.WMS.CALDC_IN.IBM_IB.PP)
+       : ** Send to core-misdc-wms-inbound
+       : * DEFINE QALIAS(SEND.ALL.WMS.MISDC_IN.IBM_IB.PP) TARGET(ALL.WMS.MISDC_IN.IBM_IB.PP)
+       : * DEFINE QLOCAL(ALL.WMS.MISDC_IN.IBM_IB.PP)
+3 MQSC commands read.
+No commands have a syntax error.
+3 valid MQSC commands could not be processed.
+>>> BAR <<<
+..\cygmin64\bin\ssh.exe -i ../resources/nkhanna-10.100.10.218-id_rsa nkhanna@10.100.10.218 "mkdir -p /home/nkhanna/core-bridge-mq-to-wms-inbound/"
+..\cygmin64\bin\scp.exe -i ../resources/nkhanna-10.100.10.218-id_rsa ../deployment/core-bridge-mq-to-wms-inbound/core-bridge-mq-to-wms-inbound-PP.bar nkhanna@10.100.10.218:/home/nkhanna/core-bridge-mq-to-wms-inbound/
+..\cygmin64\bin\ssh.exe -i ../resources/nkhanna-10.100.10.218-id_rsa nkhanna@10.100.10.218 "chmod 640 /home/nkhanna/core-bridge-mq-to-wms-inbound/core-bridge-mq-to-wms-inbound-PP.bar"
+..\cygmin64\bin\ssh.exe -i ../resources/nkhanna-10.100.10.218-id_rsa nkhanna@10.100.10.218 "sudo su - dbkadm -c 'mqsideploy IBNP1 -e IBSP1 -a /home/nkhanna/core-bridge-mq-to-wms-inbound/core-bridge-mq-to-wms-inbound-PP.bar'"
+
+MQSI 9.0.0.1
+/opt/ibm/mqsi/9.0.0.1
+
+BIP1039I: Deploying BAR file '/home/nkhanna/core-bridge-mq-to-wms-inbound/core-bridge-mq-to-wms-inbound-PP.bar' to broker 'IBNP1' (execution group 'IBSP1') ...
+BIP1092I: The broker successfully processed the deployment request.
+Status: project 'core-bridge-mq-to-wms-inbound' for collection 'caldc' was processed
+Status: project 'core-caldc-wms-inbound' for collection 'caldc' processing..
+>>> MQSC <<<
+..\cygmin64\bin\ssh.exe -i ../resources/nkhanna-10.100.10.218-id_rsa nkhanna@10.100.10.218 "mkdir -p /home/nkhanna/core-caldc-wms-inbound/"
+..\cygmin64\bin\scp.exe -i ../resources/nkhanna-10.100.10.218-id_rsa ../source/core-caldc-wms-inbound/runmqsc-PP.mqsc nkhanna@10.100.10.218:/home/nkhanna/core-caldc-wms-inbound/
+..\cygmin64\bin\ssh.exe -i ../resources/nkhanna-10.100.10.218-id_rsa nkhanna@10.100.10.218 "chmod 640 /home/nkhanna/core-caldc-wms-inbound/runmqsc-PP.mqsc"
+..\cygmin64\bin\ssh.exe -i ../resources/nkhanna-10.100.10.218-id_rsa nkhanna@10.100.10.218 "sudo su - mqm -c 'runmqsc IBQP1 < /home/nkhanna/core-caldc-wms-inbound/runmqsc-PP.mqsc'"
+5724-H72 (C) Copyright IBM Corp. 1994, 2011.  ALL RIGHTS RESERVED.
+Starting MQSC for queue manager IBQP1.
+
+
+     1 : DEFINE QALIAS(SEND.ALL.WMS.CALDC_IN.IBM_IB.PP) TARGET(ALL.WMS.CALDC_IN.IBM_IB.PP)
+AMQ8150: WebSphere MQ object already exists.
+       : ** Receive from core-bridge-mq-to-wms-inbound, ..
+     2 : DEFINE QLOCAL(ALL.WMS.CALDC_IN.BO.IBM_IB.PP) DESCR('core-caldc-wms-inbound backout queue')
+AMQ8150: WebSphere MQ object already exists.
+     3 : DEFINE QLOCAL(ALL.WMS.CALDC_IN.IBM_IB.PP) MAXDEPTH(40000) BOTHRESH(5) BOQNAME(ALL.WMS.CALDC_IN.BO.IBM_IB.PP)
+AMQ8150: WebSphere MQ object already exists.
+     4 : DEFINE QALIAS(RECV.ALL.WMS.CALDC_IN.IBM_IB.PP) TARGET(ALL.WMS.CALDC_IN.IBM_IB.PP)
+AMQ8150: WebSphere MQ object already exists.
+4 MQSC commands read.
+No commands have a syntax error.
+4 valid MQSC commands could not be processed.
+>>> BAR <<<
+..\cygmin64\bin\ssh.exe -i ../resources/nkhanna-10.100.10.218-id_rsa nkhanna@10.100.10.218 "mkdir -p /home/nkhanna/core-caldc-wms-inbound/"
+..\cygmin64\bin\scp.exe -i ../resources/nkhanna-10.100.10.218-id_rsa ../deployment/core-caldc-wms-inbound/core-caldc-wms-inbound-PP.bar nkhanna@10.100.10.218:/home/nkhanna/core-caldc-wms-inbound/
+..\cygmin64\bin\ssh.exe -i ../resources/nkhanna-10.100.10.218-id_rsa nkhanna@10.100.10.218 "chmod 640 /home/nkhanna/core-caldc-wms-inbound/core-caldc-wms-inbound-PP.bar"
+..\cygmin64\bin\ssh.exe -i ../resources/nkhanna-10.100.10.218-id_rsa nkhanna@10.100.10.218 "sudo su - dbkadm -c 'mqsideploy IBNP1 -e IBSP1 -a /home/nkhanna/core-caldc-wms-inbound/core-caldc-wms-inbound-PP.bar'"
+
+MQSI 9.0.0.1
+/opt/ibm/mqsi/9.0.0.1
+
+BIP1039I: Deploying BAR file '/home/nkhanna/core-caldc-wms-inbound/core-caldc-wms-inbound-PP.bar' to broker 'IBNP1' (execution group 'IBSP1') ...
+BIP1092I: The broker successfully processed the deployment request.
+Status: project 'core-caldc-wms-inbound' for collection 'caldc' was processed
+Status: project 'core-misdc-wms-inbound' for collection 'caldc' processing..
+>>> MQSC <<<
+..\cygmin64\bin\ssh.exe -i ../resources/nkhanna-10.100.10.218-id_rsa nkhanna@10.100.10.218 "mkdir -p /home/nkhanna/core-misdc-wms-inbound/"
+..\cygmin64\bin\scp.exe -i ../resources/nkhanna-10.100.10.218-id_rsa ../source/core-misdc-wms-inbound/runmqsc-PP.mqsc nkhanna@10.100.10.218:/home/nkhanna/core-misdc-wms-inbound/
+..\cygmin64\bin\ssh.exe -i ../resources/nkhanna-10.100.10.218-id_rsa nkhanna@10.100.10.218 "chmod 640 /home/nkhanna/core-misdc-wms-inbound/runmqsc-PP.mqsc"
+..\cygmin64\bin\ssh.exe -i ../resources/nkhanna-10.100.10.218-id_rsa nkhanna@10.100.10.218 "sudo su - mqm -c 'runmqsc IBQP1 < /home/nkhanna/core-misdc-wms-inbound/runmqsc-PP.mqsc'"
+5724-H72 (C) Copyright IBM Corp. 1994, 2011.  ALL RIGHTS RESERVED.
+Starting MQSC for queue manager IBQP1.
+
+
+     1 : DEFINE QALIAS(SEND.ALL.WMS.MISDC_IN.IBM_IB.PP) TARGET(ALL.WMS.MISDC_IN.IBM_IB.PP)
+AMQ8150: WebSphere MQ object already exists.
+       : ** Receive from core-bridge-mq-to-wms-inbound, ..
+     2 : DEFINE QLOCAL(ALL.WMS.MISDC_IN.BO.IBM_IB.PP) DESCR('core-misdc-wms-inbound backout queue')
+AMQ8150: WebSphere MQ object already exists.
+     3 : DEFINE QLOCAL(ALL.WMS.MISDC_IN.IBM_IB.PP) MAXDEPTH(40000) BOTHRESH(5) BOQNAME(ALL.WMS.MISDC_IN.BO.IBM_IB.PP)
+AMQ8150: WebSphere MQ object already exists.
+     4 : DEFINE QALIAS(RECV.ALL.WMS.MISDC_IN.IBM_IB.PP) TARGET(ALL.WMS.MISDC_IN.IBM_IB.PP)
+AMQ8150: WebSphere MQ object already exists.
+4 MQSC commands read.
+No commands have a syntax error.
+4 valid MQSC commands could not be processed.
+>>> BAR <<<
+..\cygmin64\bin\ssh.exe -i ../resources/nkhanna-10.100.10.218-id_rsa nkhanna@10.100.10.218 "mkdir -p /home/nkhanna/core-misdc-wms-inbound/"
+..\cygmin64\bin\scp.exe -i ../resources/nkhanna-10.100.10.218-id_rsa ../deployment/core-misdc-wms-inbound/core-misdc-wms-inbound-PP.bar nkhanna@10.100.10.218:/home/nkhanna/core-misdc-wms-inbound/
+..\cygmin64\bin\ssh.exe -i ../resources/nkhanna-10.100.10.218-id_rsa nkhanna@10.100.10.218 "chmod 640 /home/nkhanna/core-misdc-wms-inbound/core-misdc-wms-inbound-PP.bar"
+..\cygmin64\bin\ssh.exe -i ../resources/nkhanna-10.100.10.218-id_rsa nkhanna@10.100.10.218 "sudo su - dbkadm -c 'mqsideploy IBNP1 -e IBSP1 -a /home/nkhanna/core-misdc-wms-inbound/core-misdc-wms-inbound-PP.bar'"
+
+MQSI 9.0.0.1
+/opt/ibm/mqsi/9.0.0.1
+
+BIP1039I: Deploying BAR file '/home/nkhanna/core-misdc-wms-inbound/core-misdc-wms-inbound-PP.bar' to broker 'IBNP1' (execution group 'IBSP1') ...
+BIP1092I: The broker successfully processed the deployment request.
+Status: project 'core-misdc-wms-inbound' for collection 'caldc' was processed
+Status: project 'core-pix-caldc-wms-outbound' for collection 'caldc' processing..
+>>> MQSC <<<
+..\cygmin64\bin\ssh.exe -i ../resources/nkhanna-10.100.10.218-id_rsa nkhanna@10.100.10.218 "mkdir -p /home/nkhanna/core-pix-caldc-wms-outbound/"
+..\cygmin64\bin\scp.exe -i ../resources/nkhanna-10.100.10.218-id_rsa ../source/core-pix-caldc-wms-outbound/runmqsc-PP.mqsc nkhanna@10.100.10.218:/home/nkhanna/core-pix-caldc-wms-outbound/
+..\cygmin64\bin\ssh.exe -i ../resources/nkhanna-10.100.10.218-id_rsa nkhanna@10.100.10.218 "chmod 640 /home/nkhanna/core-pix-caldc-wms-outbound/runmqsc-PP.mqsc"
+..\cygmin64\bin\ssh.exe -i ../resources/nkhanna-10.100.10.218-id_rsa nkhanna@10.100.10.218 "sudo su - mqm -c 'runmqsc IBQP1 < /home/nkhanna/core-pix-caldc-wms-outbound/runmqsc-PP.mqsc'"
+5724-H72 (C) Copyright IBM Corp. 1994, 2011.  ALL RIGHTS RESERVED.
+Starting MQSC for queue manager IBQP1.
+
+
+       : ** Definition for DataStage
+     1 : DEFINE QALIAS(SEND.ALL.WMS.EVENT_PIX_CALDC_IN.IBM_DS.PP) TARGET(ALL.WMS.EVENT_PIX_CALDC_IN.IBM_DS.PP)
+AMQ8150: WebSphere MQ object already exists.
+     2 : DEFINE QLOCAL(ALL.WMS.EVENT_PIX_CALDC_IN.BO.IBM_DS.PP) DESCR('core-pix-caldc-wms-inbound backout queue')
+AMQ8150: WebSphere MQ object already exists.
+     3 : DEFINE QLOCAL(ALL.WMS.EVENT_PIX_CALDC_IN.IBM_DS.PP) BOTHRESH(5) BOQNAME(ALL.WMS.EVENT_PIX_CALDC_IN.BO.IBM_DS.PP)
+AMQ8150: WebSphere MQ object already exists.
+       : ** Receive from DataStage
+     4 : DEFINE QALIAS(RECV.ALL.WMS.EVENT_PIX_CALDC_IN.IBM_IB.PP) TARGET(ALL.WMS.EVENT_PIX_CALDC_IN.IBM_DS.PP)
+AMQ8150: WebSphere MQ object already exists.
+     5 : DEFINE QALIAS(SEND.ALL.WMS.PIX_CALDC_ERROR_IN.IBM_IB.PP) TARGET(ALL.WMS.PIX_CALDC_ERROR_IN.IBM_IB.PP)
+AMQ8150: WebSphere MQ object already exists.
+     6 : DEFINE QLOCAL(ALL.WMS.PIX_CALDC_ERROR_IN.IBM_IB.PP)
+AMQ8150: WebSphere MQ object already exists.
+       : ** Send to PIX Receipt
+     7 : DEFINE QALIAS(SEND.MKS.PMM.PIX_RECEIPT_IN.IBM_IB.PP) TARGET(MKS.PMM.PIX_RECEIPT_IN.IBM_IB.PP)
+AMQ8150: WebSphere MQ object already exists.
+       : * DEFINE QLOCAL(MKS.PMM.PIX_RECEIPT_IN.IBM_IB.PP)
+       : ** Send to Inventory Adjustment
+     8 : DEFINE QALIAS(SEND.MKS.PMM.PIX_INVENT_ADJ_IN.IBM_IB.PP) TARGET(MKS.PMM.PIX_INVENT_ADJ_IN.IBM_IB.PP)
+AMQ8150: WebSphere MQ object already exists.
+       : * DEFINE QLOCAL(MKS.PMM.PIX_INVENT_ADJ_IN.IBM_IB.PP)
+       : ** Send to Distribution Adjustment
+     9 : DEFINE QALIAS(SEND.MKS.PMM.PIX_DISTRIB_ADJ_IN.IBM_IB.PP) TARGET(MKS.PMM.PIX_DISTRIB_ADJ_IN.IBM_IB.PP)
+AMQ8150: WebSphere MQ object already exists.
+       : * DEFINE QLOCAL(MKS.PMM.PIX_DISTRIB_ADJ_IN.IBM_IB.PP)
+9 MQSC commands read.
+No commands have a syntax error.
+9 valid MQSC commands could not be processed.
+>>> BAR <<<
+..\cygmin64\bin\ssh.exe -i ../resources/nkhanna-10.100.10.218-id_rsa nkhanna@10.100.10.218 "mkdir -p /home/nkhanna/core-pix-caldc-wms-outbound/"
+..\cygmin64\bin\scp.exe -i ../resources/nkhanna-10.100.10.218-id_rsa ../deployment/core-pix-caldc-wms-outbound/core-pix-caldc-wms-outbound-PP.bar nkhanna@10.100.10.218:/home/nkhanna/core-pix-caldc-wms-outbound/
+..\cygmin64\bin\ssh.exe -i ../resources/nkhanna-10.100.10.218-id_rsa nkhanna@10.100.10.218 "chmod 640 /home/nkhanna/core-pix-caldc-wms-outbound/core-pix-caldc-wms-outbound-PP.bar"
+..\cygmin64\bin\ssh.exe -i ../resources/nkhanna-10.100.10.218-id_rsa nkhanna@10.100.10.218 "sudo su - dbkadm -c 'mqsideploy IBNP1 -e IBSP1 -a /home/nkhanna/core-pix-caldc-wms-outbound/core-pix-caldc-wms-outbound-PP.bar'"
+
+MQSI 9.0.0.1
+/opt/ibm/mqsi/9.0.0.1
+
+BIP1039I: Deploying BAR file '/home/nkhanna/core-pix-caldc-wms-outbound/core-pix-caldc-wms-outbound-PP.bar' to broker 'IBNP1' (execution group 'IBSP1') ...
+BIP1092I: The broker successfully processed the deployment request.
+Status: project 'core-pix-caldc-wms-outbound' for collection 'caldc' was processed
+Status: project 'core-pix-misdc-wms-outbound' for collection 'caldc' processing..
+>>> MQSC <<<
+..\cygmin64\bin\ssh.exe -i ../resources/nkhanna-10.100.10.218-id_rsa nkhanna@10.100.10.218 "mkdir -p /home/nkhanna/core-pix-misdc-wms-outbound/"
+..\cygmin64\bin\scp.exe -i ../resources/nkhanna-10.100.10.218-id_rsa ../source/core-pix-misdc-wms-outbound/runmqsc-PP.mqsc nkhanna@10.100.10.218:/home/nkhanna/core-pix-misdc-wms-outbound/
+..\cygmin64\bin\ssh.exe -i ../resources/nkhanna-10.100.10.218-id_rsa nkhanna@10.100.10.218 "chmod 640 /home/nkhanna/core-pix-misdc-wms-outbound/runmqsc-PP.mqsc"
+..\cygmin64\bin\ssh.exe -i ../resources/nkhanna-10.100.10.218-id_rsa nkhanna@10.100.10.218 "sudo su - mqm -c 'runmqsc IBQP1 < /home/nkhanna/core-pix-misdc-wms-outbound/runmqsc-PP.mqsc'"
+5724-H72 (C) Copyright IBM Corp. 1994, 2011.  ALL RIGHTS RESERVED.
+Starting MQSC for queue manager IBQP1.
+
+
+       : ** Definition for DataStage
+     1 : DEFINE QALIAS(SEND.ALL.WMS.EVENT_PIX_MISDC_IN.IBM_DS.PP) TARGET(ALL.WMS.EVENT_PIX_MISDC_IN.IBM_DS.PP)
+AMQ8150: WebSphere MQ object already exists.
+     2 : DEFINE QLOCAL(ALL.WMS.EVENT_PIX_MISDC_IN.BO.IBM_DS.PP) DESCR('core-pix-misdc-wms-inbound backout queue')
+AMQ8150: WebSphere MQ object already exists.
+     3 : DEFINE QLOCAL(ALL.WMS.EVENT_PIX_MISDC_IN.IBM_DS.PP) BOTHRESH(5) BOQNAME(ALL.WMS.EVENT_PIX_MISDC_IN.BO.IBM_DS.PP)
+AMQ8150: WebSphere MQ object already exists.
+       : ** Receive from DataStage
+     4 : DEFINE QALIAS(RECV.ALL.WMS.EVENT_PIX_MISDC_IN.IBM_IB.PP) TARGET(ALL.WMS.EVENT_PIX_MISDC_IN.IBM_DS.PP)
+AMQ8150: WebSphere MQ object already exists.
+     5 : DEFINE QALIAS(SEND.ALL.WMS.PIX_MISDC_ERROR_IN.IBM_IB.PP) TARGET(ALL.WMS.PIX_MISDC_ERROR_IN.IBM_IB.PP)
+AMQ8150: WebSphere MQ object already exists.
+     6 : DEFINE QLOCAL(ALL.WMS.PIX_MISDC_ERROR_IN.IBM_IB.PP)
+AMQ8150: WebSphere MQ object already exists.
+6 MQSC commands read.
+No commands have a syntax error.
+6 valid MQSC commands could not be processed.
+>>> BAR <<<
+..\cygmin64\bin\ssh.exe -i ../resources/nkhanna-10.100.10.218-id_rsa nkhanna@10.100.10.218 "mkdir -p /home/nkhanna/core-pix-misdc-wms-outbound/"
+..\cygmin64\bin\scp.exe -i ../resources/nkhanna-10.100.10.218-id_rsa ../deployment/core-pix-misdc-wms-outbound/core-pix-misdc-wms-outbound-PP.bar nkhanna@10.100.10.218:/home/nkhanna/core-pix-misdc-wms-outbound/
+..\cygmin64\bin\ssh.exe -i ../resources/nkhanna-10.100.10.218-id_rsa nkhanna@10.100.10.218 "chmod 640 /home/nkhanna/core-pix-misdc-wms-outbound/core-pix-misdc-wms-outbound-PP.bar"
+..\cygmin64\bin\ssh.exe -i ../resources/nkhanna-10.100.10.218-id_rsa nkhanna@10.100.10.218 "sudo su - dbkadm -c 'mqsideploy IBNP1 -e IBSP1 -a /home/nkhanna/core-pix-misdc-wms-outbound/core-pix-misdc-wms-outbound-PP.bar'"
+
+MQSI 9.0.0.1
+/opt/ibm/mqsi/9.0.0.1
+
+BIP1039I: Deploying BAR file '/home/nkhanna/core-pix-misdc-wms-outbound/core-pix-misdc-wms-outbound-PP.bar' to broker 'IBNP1' (execution group 'IBSP1') ...
+BIP1092I: The broker successfully processed the deployment request.
+Status: project 'core-pix-misdc-wms-outbound' for collection 'caldc' was processed
+Status: project 'dat-po-pmm-publisher' for collection 'caldc' processing..
+>>> MQSC <<<
+..\cygmin64\bin\ssh.exe -i ../resources/nkhanna-10.100.10.218-id_rsa nkhanna@10.100.10.218 "mkdir -p /home/nkhanna/dat-po-pmm-publisher/"
+..\cygmin64\bin\scp.exe -i ../resources/nkhanna-10.100.10.218-id_rsa ../source/dat-po-pmm-publisher/runmqsc-PP.mqsc nkhanna@10.100.10.218:/home/nkhanna/dat-po-pmm-publisher/
+..\cygmin64\bin\ssh.exe -i ../resources/nkhanna-10.100.10.218-id_rsa nkhanna@10.100.10.218 "chmod 640 /home/nkhanna/dat-po-pmm-publisher/runmqsc-PP.mqsc"
+..\cygmin64\bin\ssh.exe -i ../resources/nkhanna-10.100.10.218-id_rsa nkhanna@10.100.10.218 "sudo su - mqm -c 'runmqsc IBQP1 < /home/nkhanna/dat-po-pmm-publisher/runmqsc-PP.mqsc'"
+5724-H72 (C) Copyright IBM Corp. 1994, 2011.  ALL RIGHTS RESERVED.
+Starting MQSC for queue manager IBQP1.
+
+
+     1 : DEFINE QALIAS(SEND.MWW.PMM.EVENT_PO_IN.IBM_DS.PP) TARGET(MWW.PMM.EVENT_PO_IN.IBM_DS.PP)
+AMQ8150: WebSphere MQ object already exists.
+     2 : DEFINE QLOCAL(MWW.PMM.EVENT_PO_IN.BO.IBM_DS.PP) DESCR('dat-po-pmm-publisher backout queue')
+AMQ8150: WebSphere MQ object already exists.
+     3 : DEFINE QLOCAL(MWW.PMM.EVENT_PO_IN.IBM_DS.PP) BOTHRESH(5) BOQNAME(MWW.PMM.EVENT_PO_IN.BO.IBM_DS.PP)
+AMQ8150: WebSphere MQ object already exists.
+     4 : DEFINE QALIAS(RECV.MWW.PMM.EVENT_PO_IN.IBM_IB.PP) TARGET(MWW.PMM.EVENT_PO_IN.IBM_DS.PP)
+AMQ8150: WebSphere MQ object already exists.
+     5 : DEFINE QALIAS(SEND.MWW.PMM.PUB_PO_OUT.IBM_IB.PP) TARGET(MWW.PMM.PO.IBM_IB.PP)
+AMQ8150: WebSphere MQ object already exists.
+       : * DEFINE QLOCAL(MWW.PMM.PO.IBM_IB.PP)
+5 MQSC commands read.
+No commands have a syntax error.
+5 valid MQSC commands could not be processed.
+>>> BAR <<<
+..\cygmin64\bin\ssh.exe -i ../resources/nkhanna-10.100.10.218-id_rsa nkhanna@10.100.10.218 "mkdir -p /home/nkhanna/dat-po-pmm-publisher/"
+..\cygmin64\bin\scp.exe -i ../resources/nkhanna-10.100.10.218-id_rsa ../deployment/dat-po-pmm-publisher/dat-po-pmm-publisher-PP.bar nkhanna@10.100.10.218:/home/nkhanna/dat-po-pmm-publisher/
+..\cygmin64\bin\ssh.exe -i ../resources/nkhanna-10.100.10.218-id_rsa nkhanna@10.100.10.218 "chmod 640 /home/nkhanna/dat-po-pmm-publisher/dat-po-pmm-publisher-PP.bar"
+..\cygmin64\bin\ssh.exe -i ../resources/nkhanna-10.100.10.218-id_rsa nkhanna@10.100.10.218 "sudo su - dbkadm -c 'mqsideploy IBNP1 -e IBSP1 -a /home/nkhanna/dat-po-pmm-publisher/dat-po-pmm-publisher-PP.bar'"
+
+MQSI 9.0.0.1
+/opt/ibm/mqsi/9.0.0.1
+
+BIP1039I: Deploying BAR file '/home/nkhanna/dat-po-pmm-publisher/dat-po-pmm-publisher-PP.bar' to broker 'IBNP1' (execution group 'IBSP1') ...
+BIP1092I: The broker successfully processed the deployment request.
+Status: project 'dat-po-pmm-publisher' for collection 'caldc' was processed
+Status: project 'dat-po-wms-subscriber' for collection 'caldc' processing..
+>>> MQSC <<<
+..\cygmin64\bin\ssh.exe -i ../resources/nkhanna-10.100.10.218-id_rsa nkhanna@10.100.10.218 "mkdir -p /home/nkhanna/dat-po-wms-subscriber/"
+..\cygmin64\bin\scp.exe -i ../resources/nkhanna-10.100.10.218-id_rsa ../source/dat-po-wms-subscriber/runmqsc-PP.mqsc nkhanna@10.100.10.218:/home/nkhanna/dat-po-wms-subscriber/
+..\cygmin64\bin\ssh.exe -i ../resources/nkhanna-10.100.10.218-id_rsa nkhanna@10.100.10.218 "chmod 640 /home/nkhanna/dat-po-wms-subscriber/runmqsc-PP.mqsc"
+..\cygmin64\bin\ssh.exe -i ../resources/nkhanna-10.100.10.218-id_rsa nkhanna@10.100.10.218 "sudo su - mqm -c 'runmqsc IBQP1 < /home/nkhanna/dat-po-wms-subscriber/runmqsc-PP.mqsc'"
+5724-H72 (C) Copyright IBM Corp. 1994, 2011.  ALL RIGHTS RESERVED.
+Starting MQSC for queue manager IBQP1.
+
+
+     1 : DEFINE QLOCAL(MWW.PMM.SUB_PO_IN.BO.IBM_IB.PP) DESCR('dat-po-wms-subscriber backout queue')
+AMQ8150: WebSphere MQ object already exists.
+     2 : DEFINE QLOCAL(MWW.PMM.PO.IBM_IB.PP) BOTHRESH(5) BOQNAME(MWW.PMM.SUB_PO_IN.BO.IBM_IB.PP)
+AMQ8150: WebSphere MQ object already exists.
+     3 : DEFINE QALIAS(RECV.MWW.PMM.SUB_PO_IN.IBM_IB.PP) TARGET(MWW.PMM.PO.IBM_IB.PP)
+AMQ8150: WebSphere MQ object already exists.
+     4 : DEFINE QALIAS(SEND.MWW.PMM.SUB_PO_OUT.IBM_IB.PP) TARGET(ALL.WMS.CALDC_IN.IBM_IB.PP)
+AMQ8150: WebSphere MQ object already exists.
+       : * DEFINE QLOCAL(ALL.WMS.CALDC_IN.IBM_IB.PP)
+4 MQSC commands read.
+No commands have a syntax error.
+4 valid MQSC commands could not be processed.
+>>> BAR <<<
+..\cygmin64\bin\ssh.exe -i ../resources/nkhanna-10.100.10.218-id_rsa nkhanna@10.100.10.218 "mkdir -p /home/nkhanna/dat-po-wms-subscriber/"
+..\cygmin64\bin\scp.exe -i ../resources/nkhanna-10.100.10.218-id_rsa ../deployment/dat-po-wms-subscriber/dat-po-wms-subscriber-PP.bar nkhanna@10.100.10.218:/home/nkhanna/dat-po-wms-subscriber/
+..\cygmin64\bin\ssh.exe -i ../resources/nkhanna-10.100.10.218-id_rsa nkhanna@10.100.10.218 "chmod 640 /home/nkhanna/dat-po-wms-subscriber/dat-po-wms-subscriber-PP.bar"
+..\cygmin64\bin\ssh.exe -i ../resources/nkhanna-10.100.10.218-id_rsa nkhanna@10.100.10.218 "sudo su - dbkadm -c 'mqsideploy IBNP1 -e IBSP1 -a /home/nkhanna/dat-po-wms-subscriber/dat-po-wms-subscriber-PP.bar'"
+
+MQSI 9.0.0.1
+/opt/ibm/mqsi/9.0.0.1
+
+BIP1039I: Deploying BAR file '/home/nkhanna/dat-po-wms-subscriber/dat-po-wms-subscriber-PP.bar' to broker 'IBNP1' (execution group 'IBSP1') ...
+BIP1092I: The broker successfully processed the deployment request.
+Status: project 'dat-po-wms-subscriber' for collection 'caldc' was processed
+Status: project 'dat-product-pmm-publisher' for collection 'caldc' processing..
+>>> MQSC <<<
+..\cygmin64\bin\ssh.exe -i ../resources/nkhanna-10.100.10.218-id_rsa nkhanna@10.100.10.218 "mkdir -p /home/nkhanna/dat-product-pmm-publisher/"
+..\cygmin64\bin\scp.exe -i ../resources/nkhanna-10.100.10.218-id_rsa ../source/dat-product-pmm-publisher/runmqsc-PP.mqsc nkhanna@10.100.10.218:/home/nkhanna/dat-product-pmm-publisher/
+..\cygmin64\bin\ssh.exe -i ../resources/nkhanna-10.100.10.218-id_rsa nkhanna@10.100.10.218 "chmod 640 /home/nkhanna/dat-product-pmm-publisher/runmqsc-PP.mqsc"
+..\cygmin64\bin\ssh.exe -i ../resources/nkhanna-10.100.10.218-id_rsa nkhanna@10.100.10.218 "sudo su - mqm -c 'runmqsc IBQP1 < /home/nkhanna/dat-product-pmm-publisher/runmqsc-PP.mqsc'"
+5724-H72 (C) Copyright IBM Corp. 1994, 2011.  ALL RIGHTS RESERVED.
+Starting MQSC for queue manager IBQP1.
+
+
+     1 : DEFINE QALIAS(SEND.MWW.PMM.EVENT_PRODUCT_IN.IBM_DS.PP) TARGET(MWW.PMM.EVENT_PRODUCT_IN.IBM_DS.PP)
+AMQ8150: WebSphere MQ object already exists.
+     2 : DEFINE QLOCAL(MWW.PMM.EVENT_PRODUCT_IN.BO.IBM_DS.PP) DESCR('dat-product-pmm-publisher backout queue')
+AMQ8150: WebSphere MQ object already exists.
+     3 : DEFINE QLOCAL(MWW.PMM.EVENT_PRODUCT_IN.IBM_DS.PP) MAXDEPTH(40000) BOTHRESH(5) BOQNAME(EVENT_IN_DO_DS)
+AMQ8150: WebSphere MQ object already exists.
+     4 : DEFINE QALIAS(RECV.MWW.PMM.EVENT_PRODUCT_IN.IBM_IB.PP) TARGET(MWW.PMM.EVENT_PRODUCT_IN.IBM_DS.PP)
+AMQ8150: WebSphere MQ object already exists.
+     5 : DEFINE QALIAS(SEND.MWW.PMM.PUB_PRODUCT_OUT.IBM_IB.PP) TARGET(MWW.PMM.PRODUCT.IBM_IB.PP)
+AMQ8150: WebSphere MQ object already exists.
+       : * DEFINE QLOCAL(MWW.PMM.PRODUCT.IBM_IB.PP)
+       : * DEFINE TOPIC(PRODUCT_TOPIC) TOPICSTR('PRODUCT_TOPICSTR')
+5 MQSC commands read.
+No commands have a syntax error.
+5 valid MQSC commands could not be processed.
+>>> BAR <<<
+..\cygmin64\bin\ssh.exe -i ../resources/nkhanna-10.100.10.218-id_rsa nkhanna@10.100.10.218 "mkdir -p /home/nkhanna/dat-product-pmm-publisher/"
+..\cygmin64\bin\scp.exe -i ../resources/nkhanna-10.100.10.218-id_rsa ../deployment/dat-product-pmm-publisher/dat-product-pmm-publisher-PP.bar nkhanna@10.100.10.218:/home/nkhanna/dat-product-pmm-publisher/
+..\cygmin64\bin\ssh.exe -i ../resources/nkhanna-10.100.10.218-id_rsa nkhanna@10.100.10.218 "chmod 640 /home/nkhanna/dat-product-pmm-publisher/dat-product-pmm-publisher-PP.bar"
+..\cygmin64\bin\ssh.exe -i ../resources/nkhanna-10.100.10.218-id_rsa nkhanna@10.100.10.218 "sudo su - dbkadm -c 'mqsideploy IBNP1 -e IBSP1 -a /home/nkhanna/dat-product-pmm-publisher/dat-product-pmm-publisher-PP.bar'"
+
+MQSI 9.0.0.1
+/opt/ibm/mqsi/9.0.0.1
+
+BIP1039I: Deploying BAR file '/home/nkhanna/dat-product-pmm-publisher/dat-product-pmm-publisher-PP.bar' to broker 'IBNP1' (execution group 'IBSP1') ...
+BIP1092I: The broker successfully processed the deployment request.
+Status: project 'dat-product-pmm-publisher' for collection 'caldc' was processed
+Status: project 'dat-product-spp-pmm-publisher' for collection 'caldc' processing..
+>>> MQSC <<<
+..\cygmin64\bin\ssh.exe -i ../resources/nkhanna-10.100.10.218-id_rsa nkhanna@10.100.10.218 "mkdir -p /home/nkhanna/dat-product-spp-pmm-publisher/"
+..\cygmin64\bin\scp.exe -i ../resources/nkhanna-10.100.10.218-id_rsa ../source/dat-product-spp-pmm-publisher/runmqsc-PP.mqsc nkhanna@10.100.10.218:/home/nkhanna/dat-product-spp-pmm-publisher/
+..\cygmin64\bin\ssh.exe -i ../resources/nkhanna-10.100.10.218-id_rsa nkhanna@10.100.10.218 "chmod 640 /home/nkhanna/dat-product-spp-pmm-publisher/runmqsc-PP.mqsc"
+..\cygmin64\bin\ssh.exe -i ../resources/nkhanna-10.100.10.218-id_rsa nkhanna@10.100.10.218 "sudo su - mqm -c 'runmqsc IBQP1 < /home/nkhanna/dat-product-spp-pmm-publisher/runmqsc-PP.mqsc'"
+5724-H72 (C) Copyright IBM Corp. 1994, 2011.  ALL RIGHTS RESERVED.
+Starting MQSC for queue manager IBQP1.
+
+
+     1 : DEFINE QALIAS(SEND.MWW.PMM.EVENT_PRODUCT_SPP_IN.IBM_DS.PP) TARGET(MWW.PMM.EVENT_PRODUCT_SPP_IN.IBM_DS.PP)
+AMQ8150: WebSphere MQ object already exists.
+     2 : DEFINE QLOCAL(MWW.PMM.EVENT_PRODUCT_SPP_IN.BO.IBM_DS.PP) DESCR('dat-product-spp-pmm-publisher backout queue')
+AMQ8150: WebSphere MQ object already exists.
+     3 : DEFINE QLOCAL(MWW.PMM.EVENT_PRODUCT_SPP_IN.IBM_DS.PP) MAXDEPTH(40000) BOTHRESH(5) BOQNAME(MWW.PMM.EVENT_PRODUCT_SPP_IN.BO.IBM_DS.PP)
+AMQ8150: WebSphere MQ object already exists.
+     4 : DEFINE QALIAS(RECV.MWW.PMM.EVENT_PRODUCT_SPP_IN.IBM_IB.PP) TARGET(MWW.PMM.EVENT_PRODUCT_SPP_IN.IBM_DS.PP)
+AMQ8150: WebSphere MQ object already exists.
+     5 : DEFINE QALIAS(SEND.MWW.PMM.PUB_PRODUCT_SPP_OUT.IBM_IB.PP) TARGET(MWW.PMM.PRODUCT_SPP.IBM_IB.PP)
+AMQ8150: WebSphere MQ object already exists.
+       : * DEFINE QLOCAL(MWW.PMM.PRODUCT_SPP.IBM_IB.PP)
+       : * DEFINE TOPIC(PRODUCT_SPP_TOPIC) TOPICSTR('PRODUCT_SPP_TOPICSTR')
+5 MQSC commands read.
+No commands have a syntax error.
+5 valid MQSC commands could not be processed.
+>>> BAR <<<
+..\cygmin64\bin\ssh.exe -i ../resources/nkhanna-10.100.10.218-id_rsa nkhanna@10.100.10.218 "mkdir -p /home/nkhanna/dat-product-spp-pmm-publisher/"
+..\cygmin64\bin\scp.exe -i ../resources/nkhanna-10.100.10.218-id_rsa ../deployment/dat-product-spp-pmm-publisher/dat-product-spp-pmm-publisher-PP.bar nkhanna@10.100.10.218:/home/nkhanna/dat-product-spp-pmm-publisher/
+..\cygmin64\bin\ssh.exe -i ../resources/nkhanna-10.100.10.218-id_rsa nkhanna@10.100.10.218 "chmod 640 /home/nkhanna/dat-product-spp-pmm-publisher/dat-product-spp-pmm-publisher-PP.bar"
+..\cygmin64\bin\ssh.exe -i ../resources/nkhanna-10.100.10.218-id_rsa nkhanna@10.100.10.218 "sudo su - dbkadm -c 'mqsideploy IBNP1 -e IBSP1 -a /home/nkhanna/dat-product-spp-pmm-publisher/dat-product-spp-pmm-publisher-PP.bar'"
+
+MQSI 9.0.0.1
+/opt/ibm/mqsi/9.0.0.1
+
+BIP1039I: Deploying BAR file '/home/nkhanna/dat-product-spp-pmm-publisher/dat-product-spp-pmm-publisher-PP.bar' to broker 'IBNP1' (execution group 'IBSP1') ...
+BIP1092I: The broker successfully processed the deployment request.
+Status: project 'dat-product-spp-pmm-publisher' for collection 'caldc' was processed
+Status: project 'dat-product-spp-wms-subscriber' for collection 'caldc' processing..
+>>> MQSC <<<
+..\cygmin64\bin\ssh.exe -i ../resources/nkhanna-10.100.10.218-id_rsa nkhanna@10.100.10.218 "mkdir -p /home/nkhanna/dat-product-spp-wms-subscriber/"
+..\cygmin64\bin\scp.exe -i ../resources/nkhanna-10.100.10.218-id_rsa ../source/dat-product-spp-wms-subscriber/runmqsc-PP.mqsc nkhanna@10.100.10.218:/home/nkhanna/dat-product-spp-wms-subscriber/
+..\cygmin64\bin\ssh.exe -i ../resources/nkhanna-10.100.10.218-id_rsa nkhanna@10.100.10.218 "chmod 640 /home/nkhanna/dat-product-spp-wms-subscriber/runmqsc-PP.mqsc"
+..\cygmin64\bin\ssh.exe -i ../resources/nkhanna-10.100.10.218-id_rsa nkhanna@10.100.10.218 "sudo su - mqm -c 'runmqsc IBQP1 < /home/nkhanna/dat-product-spp-wms-subscriber/runmqsc-PP.mqsc'"
+5724-H72 (C) Copyright IBM Corp. 1994, 2011.  ALL RIGHTS RESERVED.
+Starting MQSC for queue manager IBQP1.
+
+
+     1 : DEFINE QLOCAL(MWW.PMM.SUB_PRODUCT_SPP_IN.BO.IBM_IB.PP) DESCR('dat-product-spp-wms-subscriber backout queue')
+AMQ8150: WebSphere MQ object already exists.
+     2 : DEFINE QLOCAL(MWW.PMM.PRODUCT_SPP.IBM_IB.PP) MAXDEPTH(40000) BOTHRESH(5) BOQNAME(MWW.PMM.SUB_PRODUCT_SPP_IN.BO.IBM_IB.PP)
+AMQ8150: WebSphere MQ object already exists.
+     3 : DEFINE QALIAS(RECV.MWW.PMM.SUB_PRODUCT_SPP_IN.IBM_IB.PP) TARGET(MWW.PMM.PRODUCT_SPP.IBM_IB.PP)
+AMQ8150: WebSphere MQ object already exists.
+     4 : DEFINE QALIAS(SEND.MWW.PMM.SUB_PRODUCT_SPP_OUT.IBM_IB.PP) TARGET(ALL.WMS.CALDC_IN.IBM_IB.PP)
+AMQ8150: WebSphere MQ object already exists.
+       : * DEFINE QLOCAL(ALL.WMS.CALDC_IN.IBM_IB.PP)
+     5 : DEFINE QALIAS(SEND.MWW.PMM.SUB_PRODUCT_SPP_IN_ERROR.IBM_IB.PP) TARGET(MWW.PMM.SUB_PRODUCT_SPP_IN_ERROR.IBM_IB.PP)
+AMQ8150: WebSphere MQ object already exists.
+     6 : DEFINE QLOCAL(MWW.PMM.SUB_PRODUCT_SPP_IN_ERROR.IBM_IB.PP)
+AMQ8150: WebSphere MQ object already exists.
+6 MQSC commands read.
+No commands have a syntax error.
+6 valid MQSC commands could not be processed.
+>>> BAR <<<
+..\cygmin64\bin\ssh.exe -i ../resources/nkhanna-10.100.10.218-id_rsa nkhanna@10.100.10.218 "mkdir -p /home/nkhanna/dat-product-spp-wms-subscriber/"
+..\cygmin64\bin\scp.exe -i ../resources/nkhanna-10.100.10.218-id_rsa ../deployment/dat-product-spp-wms-subscriber/dat-product-spp-wms-subscriber-PP.bar nkhanna@10.100.10.218:/home/nkhanna/dat-product-spp-wms-subscriber/
+..\cygmin64\bin\ssh.exe -i ../resources/nkhanna-10.100.10.218-id_rsa nkhanna@10.100.10.218 "chmod 640 /home/nkhanna/dat-product-spp-wms-subscriber/dat-product-spp-wms-subscriber-PP.bar"
+..\cygmin64\bin\ssh.exe -i ../resources/nkhanna-10.100.10.218-id_rsa nkhanna@10.100.10.218 "sudo su - dbkadm -c 'mqsideploy IBNP1 -e IBSP1 -a /home/nkhanna/dat-product-spp-wms-subscriber/dat-product-spp-wms-subscriber-PP.bar'"
+
+MQSI 9.0.0.1
+/opt/ibm/mqsi/9.0.0.1
+
+BIP1039I: Deploying BAR file '/home/nkhanna/dat-product-spp-wms-subscriber/dat-product-spp-wms-subscriber-PP.bar' to broker 'IBNP1' (execution group 'IBSP1') ...
+BIP1092I: The broker successfully processed the deployment request.
+Status: project 'dat-product-spp-wms-subscriber' for collection 'caldc' was processed
+Status: project 'dat-product-wms-subscriber' for collection 'caldc' processing..
+>>> MQSC <<<
+..\cygmin64\bin\ssh.exe -i ../resources/nkhanna-10.100.10.218-id_rsa nkhanna@10.100.10.218 "mkdir -p /home/nkhanna/dat-product-wms-subscriber/"
+..\cygmin64\bin\scp.exe -i ../resources/nkhanna-10.100.10.218-id_rsa ../source/dat-product-wms-subscriber/runmqsc-PP.mqsc nkhanna@10.100.10.218:/home/nkhanna/dat-product-wms-subscriber/
+..\cygmin64\bin\ssh.exe -i ../resources/nkhanna-10.100.10.218-id_rsa nkhanna@10.100.10.218 "chmod 640 /home/nkhanna/dat-product-wms-subscriber/runmqsc-PP.mqsc"
+..\cygmin64\bin\ssh.exe -i ../resources/nkhanna-10.100.10.218-id_rsa nkhanna@10.100.10.218 "sudo su - mqm -c 'runmqsc IBQP1 < /home/nkhanna/dat-product-wms-subscriber/runmqsc-PP.mqsc'"
+5724-H72 (C) Copyright IBM Corp. 1994, 2011.  ALL RIGHTS RESERVED.
+Starting MQSC for queue manager IBQP1.
+
+
+     1 : DEFINE QLOCAL(MWW.PMM.SUB_PRODUCT_IN.BO.IBM_IB.PP) DESCR('dat-product-wms-subscriber backout queue');
+AMQ8150: WebSphere MQ object already exists.
+     2 : DEFINE QLOCAL(MWW.PMM.PRODUCT.IBM_IB.PP) MAXDEPTH(40000) BOTHRESH(5) BOQNAME(MWW.PMM.SUB_PRODUCT_IN.BO.IBM_IB.PP)
+AMQ8150: WebSphere MQ object already exists.
+     3 : DEFINE QALIAS(RECV.MWW.PMM.SUB_PRODUCT_IN.IBM_IB.PP) TARGET(MWW.PMM.PRODUCT.IBM_IB.PP)
+AMQ8150: WebSphere MQ object already exists.
+     4 : DEFINE QALIAS(SEND.MWW.PMM.SUB_PRODUCT_OUT.IBM_IB.PP) TARGET(ALL.WMS.CALDC_IN.IBM_IB.PP)
+AMQ8150: WebSphere MQ object already exists.
+       : * DEFINE QLOCAL(ALL.WMS.CALDC_IN.IBM_IB.PP)
+     5 : DEFINE QALIAS(SEND.MWW.PMM.SUB_PRODUCT_ERROR_IN.IBM_IB.PP) TARGET(MWW.PMM.SUB_PRODUCT_ERROR_IN.IBM_IB.PP)
+AMQ8150: WebSphere MQ object already exists.
+     6 : DEFINE QLOCAL(MWW.PMM.SUB_PRODUCT_ERROR_IN.IBM_IB.PP)
+AMQ8150: WebSphere MQ object already exists.
+6 MQSC commands read.
+No commands have a syntax error.
+6 valid MQSC commands could not be processed.
+>>> BAR <<<
+..\cygmin64\bin\ssh.exe -i ../resources/nkhanna-10.100.10.218-id_rsa nkhanna@10.100.10.218 "mkdir -p /home/nkhanna/dat-product-wms-subscriber/"
+..\cygmin64\bin\scp.exe -i ../resources/nkhanna-10.100.10.218-id_rsa ../deployment/dat-product-wms-subscriber/dat-product-wms-subscriber-PP.bar nkhanna@10.100.10.218:/home/nkhanna/dat-product-wms-subscriber/
+..\cygmin64\bin\ssh.exe -i ../resources/nkhanna-10.100.10.218-id_rsa nkhanna@10.100.10.218 "chmod 640 /home/nkhanna/dat-product-wms-subscriber/dat-product-wms-subscriber-PP.bar"
+..\cygmin64\bin\ssh.exe -i ../resources/nkhanna-10.100.10.218-id_rsa nkhanna@10.100.10.218 "sudo su - dbkadm -c 'mqsideploy IBNP1 -e IBSP1 -a /home/nkhanna/dat-product-wms-subscriber/dat-product-wms-subscriber-PP.bar'"
+
+MQSI 9.0.0.1
+/opt/ibm/mqsi/9.0.0.1
+
+BIP1039I: Deploying BAR file '/home/nkhanna/dat-product-wms-subscriber/dat-product-wms-subscriber-PP.bar' to broker 'IBNP1' (execution group 'IBSP1') ...
+BIP1092I: The broker successfully processed the deployment request.
+Status: project 'dat-product-wms-subscriber' for collection 'caldc' was processed
+Status: project 'doc-asn-pmm-publisher' for collection 'caldc' processing..
+>>> MQSC <<<
+..\cygmin64\bin\ssh.exe -i ../resources/nkhanna-10.100.10.218-id_rsa nkhanna@10.100.10.218 "mkdir -p /home/nkhanna/doc-asn-pmm-publisher/"
+..\cygmin64\bin\scp.exe -i ../resources/nkhanna-10.100.10.218-id_rsa ../source/doc-asn-pmm-publisher/runmqsc-PP.mqsc nkhanna@10.100.10.218:/home/nkhanna/doc-asn-pmm-publisher/
+..\cygmin64\bin\ssh.exe -i ../resources/nkhanna-10.100.10.218-id_rsa nkhanna@10.100.10.218 "chmod 640 /home/nkhanna/doc-asn-pmm-publisher/runmqsc-PP.mqsc"
+..\cygmin64\bin\ssh.exe -i ../resources/nkhanna-10.100.10.218-id_rsa nkhanna@10.100.10.218 "sudo su - mqm -c 'runmqsc IBQP1 < /home/nkhanna/doc-asn-pmm-publisher/runmqsc-PP.mqsc'"
+5724-H72 (C) Copyright IBM Corp. 1994, 2011.  ALL RIGHTS RESERVED.
+Starting MQSC for queue manager IBQP1.
+
+
+     1 : DEFINE QALIAS(SEND.MWW.PMM.EVENT_ASN_IN.IBM_DS.PP) TARGET(MWW.PMM.EVENT_ASN_IN.IBM_DS.PP)
+AMQ8150: WebSphere MQ object already exists.
+     2 : DEFINE QLOCAL(MWW.PMM.EVENT_ASN_IN.BO.IBM_DS.PP) DESCR('doc-asn-pmm-publisher backout queue')
+AMQ8150: WebSphere MQ object already exists.
+     3 : DEFINE QLOCAL(MWW.PMM.EVENT_ASN_IN.IBM_DS.PP) BOTHRESH(5) BOQNAME(MWW.PMM.EVENT_ASN_IN.BO.IBM_DS.PP)
+AMQ8150: WebSphere MQ object already exists.
+     4 : DEFINE QALIAS(RECV.MWW.PMM.EVENT_ASN_IN.IBM_IB.PP) TARGET(MWW.PMM.EVENT_ASN_IN.IBM_DS.PP)
+AMQ8150: WebSphere MQ object already exists.
+     5 : DEFINE TOPIC(MWW.PMM.ASN.IBM_IB.PP) TOPICSTR('/MWW/ASN/V1/PP')
+AMQ8150: WebSphere MQ object already exists.
+5 MQSC commands read.
+No commands have a syntax error.
+5 valid MQSC commands could not be processed.
+>>> BAR <<<
+..\cygmin64\bin\ssh.exe -i ../resources/nkhanna-10.100.10.218-id_rsa nkhanna@10.100.10.218 "mkdir -p /home/nkhanna/doc-asn-pmm-publisher/"
+..\cygmin64\bin\scp.exe -i ../resources/nkhanna-10.100.10.218-id_rsa ../deployment/doc-asn-pmm-publisher/doc-asn-pmm-publisher-PP.bar nkhanna@10.100.10.218:/home/nkhanna/doc-asn-pmm-publisher/
+..\cygmin64\bin\ssh.exe -i ../resources/nkhanna-10.100.10.218-id_rsa nkhanna@10.100.10.218 "chmod 640 /home/nkhanna/doc-asn-pmm-publisher/doc-asn-pmm-publisher-PP.bar"
+..\cygmin64\bin\ssh.exe -i ../resources/nkhanna-10.100.10.218-id_rsa nkhanna@10.100.10.218 "sudo su - dbkadm -c 'mqsideploy IBNP1 -e IBSP1 -a /home/nkhanna/doc-asn-pmm-publisher/doc-asn-pmm-publisher-PP.bar'"
+
+MQSI 9.0.0.1
+/opt/ibm/mqsi/9.0.0.1
+
+BIP1039I: Deploying BAR file '/home/nkhanna/doc-asn-pmm-publisher/doc-asn-pmm-publisher-PP.bar' to broker 'IBNP1' (execution group 'IBSP1') ...
+BIP1092I: The broker successfully processed the deployment request.
+Status: project 'doc-asn-pmm-publisher' for collection 'caldc' was processed
+Status: project 'doc-asn-wms-subscriber' for collection 'caldc' processing..
+>>> MQSC <<<
+..\cygmin64\bin\ssh.exe -i ../resources/nkhanna-10.100.10.218-id_rsa nkhanna@10.100.10.218 "mkdir -p /home/nkhanna/doc-asn-wms-subscriber/"
+..\cygmin64\bin\scp.exe -i ../resources/nkhanna-10.100.10.218-id_rsa ../source/doc-asn-wms-subscriber/runmqsc-PP.mqsc nkhanna@10.100.10.218:/home/nkhanna/doc-asn-wms-subscriber/
+..\cygmin64\bin\ssh.exe -i ../resources/nkhanna-10.100.10.218-id_rsa nkhanna@10.100.10.218 "chmod 640 /home/nkhanna/doc-asn-wms-subscriber/runmqsc-PP.mqsc"
+..\cygmin64\bin\ssh.exe -i ../resources/nkhanna-10.100.10.218-id_rsa nkhanna@10.100.10.218 "sudo su - mqm -c 'runmqsc IBQP1 < /home/nkhanna/doc-asn-wms-subscriber/runmqsc-PP.mqsc'"
+5724-H72 (C) Copyright IBM Corp. 1994, 2011.  ALL RIGHTS RESERVED.
+Starting MQSC for queue manager IBQP1.
+
+
+     1 : DEFINE QALIAS(SEND.ALL.WMS.SUB_ASN_IN.IBM_IB.PP) TARGET(ALL.WMS.SUB_ASN_IN.IBM_IB.PP)
+AMQ8150: WebSphere MQ object already exists.
+     2 : DEFINE SUB(ALL.WMS.SUB_ASN_IN.IBM_IB.PP) TOPICSTR('/MWW/ASN/V1/PP') DESTCLAS(PROVIDED) WSCHEMA(CHAR) DEST(SEND.ALL.WMS.SUB_ASN_IN.IBM_IB.PP)
+AMQ8475: Subscription already exists.
+     3 : DEFINE QLOCAL(ALL.WMS.SUB_ASN_IN.BO.IBM_IB.PP) DESCR('doc-asn-wms-subscriber backout queue')
+AMQ8150: WebSphere MQ object already exists.
+     4 : DEFINE QLOCAL(ALL.WMS.SUB_ASN_IN.IBM_IB.PP) BOTHRESH(5) BOQNAME(ALL.WMS.SUB_ASN_IN.BO.IBM_IB.PP)
+AMQ8150: WebSphere MQ object already exists.
+     5 : DEFINE QALIAS(RECV.ALL.WMS.SUB_ASN_IN.IBM_IB.PP) TARGET(ALL.WMS.SUB_ASN_IN.IBM_IB.PP)
+AMQ8150: WebSphere MQ object already exists.
+     6 : DEFINE QALIAS(SEND.ALL.WMS.SUB_ASN_OUT.IBM_IB.PP) TARGET(ALL.WMS.CALDC_IN.IBM_IB.PP)
+AMQ8150: WebSphere MQ object already exists.
+       : * DEFINE QLOCAL(ALL.WMS.CALDC_IN.IBM_IB.PP)
+6 MQSC commands read.
+No commands have a syntax error.
+6 valid MQSC commands could not be processed.
+>>> BAR <<<
+..\cygmin64\bin\ssh.exe -i ../resources/nkhanna-10.100.10.218-id_rsa nkhanna@10.100.10.218 "mkdir -p /home/nkhanna/doc-asn-wms-subscriber/"
+..\cygmin64\bin\scp.exe -i ../resources/nkhanna-10.100.10.218-id_rsa ../deployment/doc-asn-wms-subscriber/doc-asn-wms-subscriber-PP.bar nkhanna@10.100.10.218:/home/nkhanna/doc-asn-wms-subscriber/
+..\cygmin64\bin\ssh.exe -i ../resources/nkhanna-10.100.10.218-id_rsa nkhanna@10.100.10.218 "chmod 640 /home/nkhanna/doc-asn-wms-subscriber/doc-asn-wms-subscriber-PP.bar"
+..\cygmin64\bin\ssh.exe -i ../resources/nkhanna-10.100.10.218-id_rsa nkhanna@10.100.10.218 "sudo su - dbkadm -c 'mqsideploy IBNP1 -e IBSP1 -a /home/nkhanna/doc-asn-wms-subscriber/doc-asn-wms-subscriber-PP.bar'"
+
+MQSI 9.0.0.1
+/opt/ibm/mqsi/9.0.0.1
+
+BIP1039I: Deploying BAR file '/home/nkhanna/doc-asn-wms-subscriber/doc-asn-wms-subscriber-PP.bar' to broker 'IBNP1' (execution group 'IBSP1') ...
+BIP1092I: The broker successfully processed the deployment request.
+Status: project 'doc-asn-wms-subscriber' for collection 'caldc' was processed
+Status: project 'doc-invent-snap-comp-pmm-inbound' for collection 'caldc' processing..
+>>> MQSC <<<
+..\cygmin64\bin\ssh.exe -i ../resources/nkhanna-10.100.10.218-id_rsa nkhanna@10.100.10.218 "mkdir -p /home/nkhanna/doc-invent-snap-comp-pmm-inbound/"
+..\cygmin64\bin\scp.exe -i ../resources/nkhanna-10.100.10.218-id_rsa ../source/doc-invent-snap-comp-pmm-inbound/runmqsc-PP.mqsc nkhanna@10.100.10.218:/home/nkhanna/doc-invent-snap-comp-pmm-inbound/
+..\cygmin64\bin\ssh.exe -i ../resources/nkhanna-10.100.10.218-id_rsa nkhanna@10.100.10.218 "chmod 640 /home/nkhanna/doc-invent-snap-comp-pmm-inbound/runmqsc-PP.mqsc"
+..\cygmin64\bin\ssh.exe -i ../resources/nkhanna-10.100.10.218-id_rsa nkhanna@10.100.10.218 "sudo su - mqm -c 'runmqsc IBQP1 < /home/nkhanna/doc-invent-snap-comp-pmm-inbound/runmqsc-PP.mqsc'"
+5724-H72 (C) Copyright IBM Corp. 1994, 2011.  ALL RIGHTS RESERVED.
+Starting MQSC for queue manager IBQP1.
+
+
+       : ** Sender from core-pix-caldc/misdc-wms-outbound (in configuration\WM_PIX_TRAN_TYPE.sql)
+     1 : DEFINE QALIAS(SEND.MKS.PMM.PIX_INVENT_SNAP_COMP_IN.IBM_IB.PP) TARGET(MKS.PMM.PIX_INVENT_SNAP_COMP_IN.IBM_IB.PP)
+AMQ8150: WebSphere MQ object already exists.
+     2 : DEFINE QLOCAL(MKS.PMM.PIX_INVENT_SNAP_COMP_IN.BO.IBM_IB.PP) DESCR('doc-invent-snap-comp-pmm-inbound backout queue')
+AMQ8150: WebSphere MQ object already exists.
+     3 : DEFINE QLOCAL(MKS.PMM.PIX_INVENT_SNAP_COMP_IN.IBM_IB.PP) BOTHRESH(5) BOQNAME(MKS.PMM.PIX_INVENT_SNAP_COMP_IN.BO.IBM_IB.PP)
+AMQ8150: WebSphere MQ object already exists.
+     4 : DEFINE QALIAS(RECV.MKS.PMM.PIX_INVENT_SNAP_COMP_IN.IBM_IB.PP) TARGET(MKS.PMM.PIX_INVENT_SNAP_COMP_IN.IBM_IB.PP)
+AMQ8150: WebSphere MQ object already exists.
+4 MQSC commands read.
+No commands have a syntax error.
+4 valid MQSC commands could not be processed.
+>>> BAR <<<
+..\cygmin64\bin\ssh.exe -i ../resources/nkhanna-10.100.10.218-id_rsa nkhanna@10.100.10.218 "mkdir -p /home/nkhanna/doc-invent-snap-comp-pmm-inbound/"
+..\cygmin64\bin\scp.exe -i ../resources/nkhanna-10.100.10.218-id_rsa ../deployment/doc-invent-snap-comp-pmm-inbound/doc-invent-snap-comp-pmm-inbound-PP.bar nkhanna@10.100.10.218:/home/nkhanna/doc-invent-snap-comp-pmm-inbound/
+..\cygmin64\bin\ssh.exe -i ../resources/nkhanna-10.100.10.218-id_rsa nkhanna@10.100.10.218 "chmod 640 /home/nkhanna/doc-invent-snap-comp-pmm-inbound/doc-invent-snap-comp-pmm-inbound-PP.bar"
+..\cygmin64\bin\ssh.exe -i ../resources/nkhanna-10.100.10.218-id_rsa nkhanna@10.100.10.218 "sudo su - dbkadm -c 'mqsideploy IBNP1 -e IBSP1 -a /home/nkhanna/doc-invent-snap-comp-pmm-inbound/doc-invent-snap-comp-pmm-inbound-PP.bar'"
+
+MQSI 9.0.0.1
+/opt/ibm/mqsi/9.0.0.1
+
+BIP1039I: Deploying BAR file '/home/nkhanna/doc-invent-snap-comp-pmm-inbound/doc-invent-snap-comp-pmm-inbound-PP.bar' to broker 'IBNP1' (execution group 'IBSP1') ...
+BIP1092I: The broker successfully processed the deployment request.
+Status: project 'doc-invent-snap-comp-pmm-inbound' for collection 'caldc' was processed
+Status: project 'doc-invent-snap-pmm-inbound' for collection 'caldc' processing..
+>>> MQSC <<<
+..\cygmin64\bin\ssh.exe -i ../resources/nkhanna-10.100.10.218-id_rsa nkhanna@10.100.10.218 "mkdir -p /home/nkhanna/doc-invent-snap-pmm-inbound/"
+..\cygmin64\bin\scp.exe -i ../resources/nkhanna-10.100.10.218-id_rsa ../source/doc-invent-snap-pmm-inbound/runmqsc-PP.mqsc nkhanna@10.100.10.218:/home/nkhanna/doc-invent-snap-pmm-inbound/
+..\cygmin64\bin\ssh.exe -i ../resources/nkhanna-10.100.10.218-id_rsa nkhanna@10.100.10.218 "chmod 640 /home/nkhanna/doc-invent-snap-pmm-inbound/runmqsc-PP.mqsc"
+..\cygmin64\bin\ssh.exe -i ../resources/nkhanna-10.100.10.218-id_rsa nkhanna@10.100.10.218 "sudo su - mqm -c 'runmqsc IBQP1 < /home/nkhanna/doc-invent-snap-pmm-inbound/runmqsc-PP.mqsc'"
+5724-H72 (C) Copyright IBM Corp. 1994, 2011.  ALL RIGHTS RESERVED.
+Starting MQSC for queue manager IBQP1.
+
+
+       : ** Sender from core-pix-caldc/misdc-wms-outbound (in configuration\WM_PIX_TRAN_TYPE.sql)
+     1 : DEFINE QALIAS(SEND.MKS.PMM.PIX_INVENT_SNAP_IN.IBM_IB.PP) TARGET(MKS.PMM.PIX_INVENT_SNAP_IN.IBM_IB.PP)
+AMQ8150: WebSphere MQ object already exists.
+     2 : DEFINE QLOCAL(MKS.PMM.PIX_INVENT_SNAP_IN.BO.IBM_IB.PP) DESCR('doc-invent-snap-pmm-inbound backout queue')
+AMQ8150: WebSphere MQ object already exists.
+     3 : DEFINE QLOCAL(MKS.PMM.PIX_INVENT_SNAP_IN.IBM_IB.PP) BOTHRESH(5) BOQNAME(MKS.PMM.PIX_INVENT_SNAP_IN.BO.IBM_IB.PP)
+AMQ8150: WebSphere MQ object already exists.
+     4 : DEFINE QALIAS(RECV.MKS.PMM.PIX_INVENT_SNAP_IN.IBM_IB.PP) TARGET(MKS.PMM.PIX_INVENT_SNAP_IN.IBM_IB.PP)
+AMQ8150: WebSphere MQ object already exists.
+4 MQSC commands read.
+No commands have a syntax error.
+4 valid MQSC commands could not be processed.
+>>> BAR <<<
+..\cygmin64\bin\ssh.exe -i ../resources/nkhanna-10.100.10.218-id_rsa nkhanna@10.100.10.218 "mkdir -p /home/nkhanna/doc-invent-snap-pmm-inbound/"
+..\cygmin64\bin\scp.exe -i ../resources/nkhanna-10.100.10.218-id_rsa ../deployment/doc-invent-snap-pmm-inbound/doc-invent-snap-pmm-inbound-PP.bar nkhanna@10.100.10.218:/home/nkhanna/doc-invent-snap-pmm-inbound/
+..\cygmin64\bin\ssh.exe -i ../resources/nkhanna-10.100.10.218-id_rsa nkhanna@10.100.10.218 "chmod 640 /home/nkhanna/doc-invent-snap-pmm-inbound/doc-invent-snap-pmm-inbound-PP.bar"
+..\cygmin64\bin\ssh.exe -i ../resources/nkhanna-10.100.10.218-id_rsa nkhanna@10.100.10.218 "sudo su - dbkadm -c 'mqsideploy IBNP1 -e IBSP1 -a /home/nkhanna/doc-invent-snap-pmm-inbound/doc-invent-snap-pmm-inbound-PP.bar'"
+
+MQSI 9.0.0.1
+/opt/ibm/mqsi/9.0.0.1
+
+BIP1039I: Deploying BAR file '/home/nkhanna/doc-invent-snap-pmm-inbound/doc-invent-snap-pmm-inbound-PP.bar' to broker 'IBNP1' (execution group 'IBSP1') ...
+BIP1092I: The broker successfully processed the deployment request.
+Status: project 'doc-invent-snap-pmm-inbound' for collection 'caldc' was processed
+Status: project 'doc-invoice-match-pmm-publisher' for collection 'caldc' processing..
+>>> MQSC <<<
+..\cygmin64\bin\ssh.exe -i ../resources/nkhanna-10.100.10.218-id_rsa nkhanna@10.100.10.218 "mkdir -p /home/nkhanna/doc-invoice-match-pmm-publisher/"
+..\cygmin64\bin\scp.exe -i ../resources/nkhanna-10.100.10.218-id_rsa ../source/doc-invoice-match-pmm-publisher/runmqsc-PP.mqsc nkhanna@10.100.10.218:/home/nkhanna/doc-invoice-match-pmm-publisher/
+..\cygmin64\bin\ssh.exe -i ../resources/nkhanna-10.100.10.218-id_rsa nkhanna@10.100.10.218 "chmod 640 /home/nkhanna/doc-invoice-match-pmm-publisher/runmqsc-PP.mqsc"
+..\cygmin64\bin\ssh.exe -i ../resources/nkhanna-10.100.10.218-id_rsa nkhanna@10.100.10.218 "sudo su - mqm -c 'runmqsc IBQP1 < /home/nkhanna/doc-invoice-match-pmm-publisher/runmqsc-PP.mqsc'"
+5724-H72 (C) Copyright IBM Corp. 1994, 2011.  ALL RIGHTS RESERVED.
+Starting MQSC for queue manager IBQP1.
+
+
+     1 : DEFINE QALIAS(SEND.MWW.PMM.EVENT_INVOICE_MATCH_IN.IBM_DS.PP) TARGET(MWW.PMM.EVENT_INVOICE_MATCH_IN.IBM_DS.PP)
+AMQ8150: WebSphere MQ object already exists.
+     2 : DEFINE QLOCAL(EVENT_IN_BO_DS) DESCR('doc-invoice-match-pmm-publisher backout queue')
+AMQ8150: WebSphere MQ object already exists.
+     3 : DEFINE QLOCAL(MWW.PMM.EVENT_INVOICE_MATCH_IN.IBM_DS.PP) BOTHRESH(5) BOQNAME(EVENT_IN_BO_DS)
+AMQ8150: WebSphere MQ object already exists.
+     4 : DEFINE QALIAS(RECV.MWW.PMM.EVENT_INVOICE_MATCH_IN.IBM_IB.PP) TARGET(MWW.PMM.EVENT_INVOICE_MATCH_IN.IBM_DS.PP)
+AMQ8150: WebSphere MQ object already exists.
+     5 : DEFINE QALIAS(SEND.MWW.PMM.PUB_INVOICE_MATCH_OUT.IBM_IB.PP) TARGET(MWW.PMM.INVOICE_MATCH.IBM_IB.PP)
+AMQ8150: WebSphere MQ object already exists.
+       : * DEFINE QLOCAL(INVOICE_MATCH)
+       : * DEFINE TOPIC(INVOICE_MATCH) TOPICSTR('INVOICE_MATCH_TOPIC')
+5 MQSC commands read.
+No commands have a syntax error.
+5 valid MQSC commands could not be processed.
+>>> BAR <<<
+..\cygmin64\bin\ssh.exe -i ../resources/nkhanna-10.100.10.218-id_rsa nkhanna@10.100.10.218 "mkdir -p /home/nkhanna/doc-invoice-match-pmm-publisher/"
+..\cygmin64\bin\scp.exe -i ../resources/nkhanna-10.100.10.218-id_rsa ../deployment/doc-invoice-match-pmm-publisher/doc-invoice-match-pmm-publisher-PP.bar nkhanna@10.100.10.218:/home/nkhanna/doc-invoice-match-pmm-publisher/
+..\cygmin64\bin\ssh.exe -i ../resources/nkhanna-10.100.10.218-id_rsa nkhanna@10.100.10.218 "chmod 640 /home/nkhanna/doc-invoice-match-pmm-publisher/doc-invoice-match-pmm-publisher-PP.bar"
+..\cygmin64\bin\ssh.exe -i ../resources/nkhanna-10.100.10.218-id_rsa nkhanna@10.100.10.218 "sudo su - dbkadm -c 'mqsideploy IBNP1 -e IBSP1 -a /home/nkhanna/doc-invoice-match-pmm-publisher/doc-invoice-match-pmm-publisher-PP.bar'"
+
+MQSI 9.0.0.1
+/opt/ibm/mqsi/9.0.0.1
+
+BIP1039I: Deploying BAR file '/home/nkhanna/doc-invoice-match-pmm-publisher/doc-invoice-match-pmm-publisher-PP.bar' to broker 'IBNP1' (execution group 'IBSP1') ...
+BIP1092I: The broker successfully processed the deployment request.
+Status: project 'doc-invoice-match-pmm-publisher' for collection 'caldc' was processed
+Status: project 'doc-invoice-match-wms-subscriber' for collection 'caldc' processing..
+>>> MQSC <<<
+..\cygmin64\bin\ssh.exe -i ../resources/nkhanna-10.100.10.218-id_rsa nkhanna@10.100.10.218 "mkdir -p /home/nkhanna/doc-invoice-match-wms-subscriber/"
+..\cygmin64\bin\scp.exe -i ../resources/nkhanna-10.100.10.218-id_rsa ../source/doc-invoice-match-wms-subscriber/runmqsc-PP.mqsc nkhanna@10.100.10.218:/home/nkhanna/doc-invoice-match-wms-subscriber/
+..\cygmin64\bin\ssh.exe -i ../resources/nkhanna-10.100.10.218-id_rsa nkhanna@10.100.10.218 "chmod 640 /home/nkhanna/doc-invoice-match-wms-subscriber/runmqsc-PP.mqsc"
+..\cygmin64\bin\ssh.exe -i ../resources/nkhanna-10.100.10.218-id_rsa nkhanna@10.100.10.218 "sudo su - mqm -c 'runmqsc IBQP1 < /home/nkhanna/doc-invoice-match-wms-subscriber/runmqsc-PP.mqsc'"
+5724-H72 (C) Copyright IBM Corp. 1994, 2011.  ALL RIGHTS RESERVED.
+Starting MQSC for queue manager IBQP1.
+
+
+     1 : DEFINE QLOCAL(MWW.PMM.SUB_INVOICE_MATCH_IN.BO.IBM_IB.PP) DESCR('doc-invoice-match-wms-subscriber backout queue')
+AMQ8150: WebSphere MQ object already exists.
+     2 : DEFINE QLOCAL(MWW.PMM.INVOICE_MATCH.IBM_IB.PP) BOTHRESH(5) BOQNAME(MWW.PMM.SUB_INVOICE_MATCH_IN.BO.IBM_IB.PP)
+AMQ8150: WebSphere MQ object already exists.
+     3 : DEFINE QALIAS(RECV.MWW.PMM.SUB_INVOICE_MATCH_IN.IBM_IB.PP) TARGET(MWW.PMM.INVOICE_MATCH.IBM_IB.PP)
+AMQ8150: WebSphere MQ object already exists.
+     4 : DEFINE QALIAS(SEND.MWW.PMM.SUB_INVOICE_MATCH_OUT.IBM_IB.PP) TARGET(ALL.WMS.CALDC_IN.IBM_IB.PP)
+AMQ8150: WebSphere MQ object already exists.
+       : * DEFINE QLOCAL(ALL.WMS.CALDC_IN.IBM_IB.PP)
+4 MQSC commands read.
+No commands have a syntax error.
+4 valid MQSC commands could not be processed.
+>>> BAR <<<
+..\cygmin64\bin\ssh.exe -i ../resources/nkhanna-10.100.10.218-id_rsa nkhanna@10.100.10.218 "mkdir -p /home/nkhanna/doc-invoice-match-wms-subscriber/"
+..\cygmin64\bin\scp.exe -i ../resources/nkhanna-10.100.10.218-id_rsa ../deployment/doc-invoice-match-wms-subscriber/doc-invoice-match-wms-subscriber-PP.bar nkhanna@10.100.10.218:/home/nkhanna/doc-invoice-match-wms-subscriber/
+..\cygmin64\bin\ssh.exe -i ../resources/nkhanna-10.100.10.218-id_rsa nkhanna@10.100.10.218 "chmod 640 /home/nkhanna/doc-invoice-match-wms-subscriber/doc-invoice-match-wms-subscriber-PP.bar"
+..\cygmin64\bin\ssh.exe -i ../resources/nkhanna-10.100.10.218-id_rsa nkhanna@10.100.10.218 "sudo su - dbkadm -c 'mqsideploy IBNP1 -e IBSP1 -a /home/nkhanna/doc-invoice-match-wms-subscriber/doc-invoice-match-wms-subscriber-PP.bar'"
+
+MQSI 9.0.0.1
+/opt/ibm/mqsi/9.0.0.1
+
+BIP1039I: Deploying BAR file '/home/nkhanna/doc-invoice-match-wms-subscriber/doc-invoice-match-wms-subscriber-PP.bar' to broker 'IBNP1' (execution group 'IBSP1') ...
+BIP1092I: The broker successfully processed the deployment request.
+Status: project 'doc-invoice-match-wms-subscriber' for collection 'caldc' was processed
+Status: project 'doc-invoice-ship-caldc-wms-outbound' for collection 'caldc' processing..
+>>> MQSC <<<
+..\cygmin64\bin\ssh.exe -i ../resources/nkhanna-10.100.10.218-id_rsa nkhanna@10.100.10.218 "mkdir -p /home/nkhanna/doc-invoice-ship-caldc-wms-outbound/"
+..\cygmin64\bin\scp.exe -i ../resources/nkhanna-10.100.10.218-id_rsa ../source/doc-invoice-ship-caldc-wms-outbound/runmqsc-PP.mqsc nkhanna@10.100.10.218:/home/nkhanna/doc-invoice-ship-caldc-wms-outbound/
+..\cygmin64\bin\ssh.exe -i ../resources/nkhanna-10.100.10.218-id_rsa nkhanna@10.100.10.218 "chmod 640 /home/nkhanna/doc-invoice-ship-caldc-wms-outbound/runmqsc-PP.mqsc"
+..\cygmin64\bin\ssh.exe -i ../resources/nkhanna-10.100.10.218-id_rsa nkhanna@10.100.10.218 "sudo su - mqm -c 'runmqsc IBQP1 < /home/nkhanna/doc-invoice-ship-caldc-wms-outbound/runmqsc-PP.mqsc'"
+5724-H72 (C) Copyright IBM Corp. 1994, 2011.  ALL RIGHTS RESERVED.
+Starting MQSC for queue manager IBQP1.
+
+
+     1 : DEFINE QALIAS(SEND.ALL.WMS.EVENT_INVOICE_CALDC_IN.IBM_DS.PP) TARGET(ALL.WMS.EVENT_INVOICE_CALDC_IN.IBM_DS.PP)
+AMQ8150: WebSphere MQ object already exists.
+     2 : DEFINE QLOCAL(ALL.WMS.EVENT_INVOICE_CALDC_IN.BO.IBM_DS.PP) DESCR('doc-invoice-ship-caldc-wms-outbound backout queue')
+AMQ8150: WebSphere MQ object already exists.
+     3 : DEFINE QLOCAL(ALL.WMS.EVENT_INVOICE_CALDC_IN.IBM_DS.PP) BOTHRESH(5) BOQNAME(ALL.WMS.EVENT_INVOICE_CALDC_IN.BO.IBM_DS.PP)
+AMQ8150: WebSphere MQ object already exists.
+     4 : DEFINE QALIAS(RECV.ALL.WMS.EVENT_INVOICE_CALDC_IN.IBM_IB.PP) TARGET(ALL.WMS.EVENT_INVOICE_CALDC_IN.IBM_DS.PP)
+AMQ8150: WebSphere MQ object already exists.
+     5 : DEFINE QALIAS(SEND.ALL.WMS.INVOICE_SHIP_IN.IBM_IB.PP) TARGET(MWW.PMM.INVOICE_SHIP_IN.IBM_IB.PP)
+AMQ8150: WebSphere MQ object already exists.
+       : * DEFINE QLOCAL(ALL.WMS.INVOICE_SHIP_IN.IBM_IB.PP)
+     6 : DEFINE QALIAS(SEND.ALL.WMS.INVOICE_CALDC_ERROR_IN.IBM_IB.PP) TARGET(ALL.WMS.INVOICE_CALDC_ERROR_IN.IBM_IB.PP)
+AMQ8150: WebSphere MQ object already exists.
+     7 : DEFINE QLOCAL(ALL.WMS.INVOICE_CALDC_ERROR_IN.IBM_IB.PP)
+AMQ8150: WebSphere MQ object already exists.
+7 MQSC commands read.
+No commands have a syntax error.
+7 valid MQSC commands could not be processed.
+>>> BAR <<<
+..\cygmin64\bin\ssh.exe -i ../resources/nkhanna-10.100.10.218-id_rsa nkhanna@10.100.10.218 "mkdir -p /home/nkhanna/doc-invoice-ship-caldc-wms-outbound/"
+..\cygmin64\bin\scp.exe -i ../resources/nkhanna-10.100.10.218-id_rsa ../deployment/doc-invoice-ship-caldc-wms-outbound/doc-invoice-ship-caldc-wms-outbound-PP.bar nkhanna@10.100.10.218:/home/nkhanna/doc-invoice-ship-caldc-wms-outbound/
+..\cygmin64\bin\ssh.exe -i ../resources/nkhanna-10.100.10.218-id_rsa nkhanna@10.100.10.218 "chmod 640 /home/nkhanna/doc-invoice-ship-caldc-wms-outbound/doc-invoice-ship-caldc-wms-outbound-PP.bar"
+..\cygmin64\bin\ssh.exe -i ../resources/nkhanna-10.100.10.218-id_rsa nkhanna@10.100.10.218 "sudo su - dbkadm -c 'mqsideploy IBNP1 -e IBSP1 -a /home/nkhanna/doc-invoice-ship-caldc-wms-outbound/doc-invoice-ship-caldc-wms-outbound-PP.bar'"
+
+MQSI 9.0.0.1
+/opt/ibm/mqsi/9.0.0.1
+
+BIP1039I: Deploying BAR file '/home/nkhanna/doc-invoice-ship-caldc-wms-outbound/doc-invoice-ship-caldc-wms-outbound-PP.bar' to broker 'IBNP1' (execution group 'IBSP1') ...
+BIP1092I: The broker successfully processed the deployment request.
+Status: project 'doc-invoice-ship-caldc-wms-outbound' for collection 'caldc' was processed
+Status: project 'doc-invoice-ship-misdc-wms-outbound' for collection 'caldc' processing..
+>>> MQSC <<<
+..\cygmin64\bin\ssh.exe -i ../resources/nkhanna-10.100.10.218-id_rsa nkhanna@10.100.10.218 "mkdir -p /home/nkhanna/doc-invoice-ship-misdc-wms-outbound/"
+..\cygmin64\bin\scp.exe -i ../resources/nkhanna-10.100.10.218-id_rsa ../source/doc-invoice-ship-misdc-wms-outbound/runmqsc-PP.mqsc nkhanna@10.100.10.218:/home/nkhanna/doc-invoice-ship-misdc-wms-outbound/
+..\cygmin64\bin\ssh.exe -i ../resources/nkhanna-10.100.10.218-id_rsa nkhanna@10.100.10.218 "chmod 640 /home/nkhanna/doc-invoice-ship-misdc-wms-outbound/runmqsc-PP.mqsc"
+..\cygmin64\bin\ssh.exe -i ../resources/nkhanna-10.100.10.218-id_rsa nkhanna@10.100.10.218 "sudo su - mqm -c 'runmqsc IBQP1 < /home/nkhanna/doc-invoice-ship-misdc-wms-outbound/runmqsc-PP.mqsc'"
+5724-H72 (C) Copyright IBM Corp. 1994, 2011.  ALL RIGHTS RESERVED.
+Starting MQSC for queue manager IBQP1.
+
+
+     1 : DEFINE QALIAS(SEND.ALL.WMS.EVENT_INVOICE_MISDC_IN.IBM_DS.PP) TARGET(ALL.WMS.EVENT_INVOICE_MISDC_IN.IBM_DS.PP)
+AMQ8150: WebSphere MQ object already exists.
+     2 : DEFINE QLOCAL(ALL.WMS.EVENT_INVOICE_MISDC_IN.BO.IBM_DS.PP) DESCR('doc-invoice-ship-misdc-wms-outbound backout queue')
+AMQ8150: WebSphere MQ object already exists.
+     3 : DEFINE QLOCAL(ALL.WMS.EVENT_INVOICE_MISDC_IN.IBM_DS.PP) BOTHRESH(5) BOQNAME(ALL.WMS.EVENT_INVOICE_MISDC_IN.BO.IBM_DS.PP)
+AMQ8150: WebSphere MQ object already exists.
+     4 : DEFINE QALIAS(RECV.ALL.WMS.EVENT_INVOICE_MISDC_IN.IBM_IB.PP) TARGET(ALL.WMS.EVENT_INVOICE_MISDC_IN.IBM_DS.PP)
+AMQ8150: WebSphere MQ object already exists.
+     5 : DEFINE QALIAS(SEND.ALL.WMS.INVOICE_SHIP_IN.IBM_IB.PP) TARGET(MWW.PMM.INVOICE_SHIP_IN.IBM_IB.PP)
+AMQ8150: WebSphere MQ object already exists.
+       : * DEFINE QLOCAL(ALL.WMS.INVOICE_SHIP_IN.IBM_IB.PP)
+     6 : DEFINE QALIAS(SEND.ALL.WMS.INVOICE_MISDC_ERROR_IN.IBM_IB.PP) TARGET(ALL.WMS.INVOICE_MISDC_ERROR_IN.IBM_IB.PP)
+AMQ8150: WebSphere MQ object already exists.
+     7 : DEFINE QLOCAL(ALL.WMS.INVOICE_MISDC_ERROR_IN.IBM_IB.PP)
+AMQ8150: WebSphere MQ object already exists.
+7 MQSC commands read.
+No commands have a syntax error.
+7 valid MQSC commands could not be processed.
+>>> BAR <<<
+..\cygmin64\bin\ssh.exe -i ../resources/nkhanna-10.100.10.218-id_rsa nkhanna@10.100.10.218 "mkdir -p /home/nkhanna/doc-invoice-ship-misdc-wms-outbound/"
+..\cygmin64\bin\scp.exe -i ../resources/nkhanna-10.100.10.218-id_rsa ../deployment/doc-invoice-ship-misdc-wms-outbound/doc-invoice-ship-misdc-wms-outbound-PP.bar nkhanna@10.100.10.218:/home/nkhanna/doc-invoice-ship-misdc-wms-outbound/
+..\cygmin64\bin\ssh.exe -i ../resources/nkhanna-10.100.10.218-id_rsa nkhanna@10.100.10.218 "chmod 640 /home/nkhanna/doc-invoice-ship-misdc-wms-outbound/doc-invoice-ship-misdc-wms-outbound-PP.bar"
+..\cygmin64\bin\ssh.exe -i ../resources/nkhanna-10.100.10.218-id_rsa nkhanna@10.100.10.218 "sudo su - dbkadm -c 'mqsideploy IBNP1 -e IBSP1 -a /home/nkhanna/doc-invoice-ship-misdc-wms-outbound/doc-invoice-ship-misdc-wms-outbound-PP.bar'"
+
+MQSI 9.0.0.1
+/opt/ibm/mqsi/9.0.0.1
+
+BIP1039I: Deploying BAR file '/home/nkhanna/doc-invoice-ship-misdc-wms-outbound/doc-invoice-ship-misdc-wms-outbound-PP.bar' to broker 'IBNP1' (execution group 'IBSP1') ...
+BIP1092I: The broker successfully processed the deployment request.
+Status: project 'doc-invoice-ship-misdc-wms-outbound' for collection 'caldc' was processed
+Status: project 'doc-invoice-ship-pmm-inbound' for collection 'caldc' processing..
+>>> MQSC <<<
+..\cygmin64\bin\ssh.exe -i ../resources/nkhanna-10.100.10.218-id_rsa nkhanna@10.100.10.218 "mkdir -p /home/nkhanna/doc-invoice-ship-pmm-inbound/"
+..\cygmin64\bin\scp.exe -i ../resources/nkhanna-10.100.10.218-id_rsa ../source/doc-invoice-ship-pmm-inbound/runmqsc-PP.mqsc nkhanna@10.100.10.218:/home/nkhanna/doc-invoice-ship-pmm-inbound/
+..\cygmin64\bin\ssh.exe -i ../resources/nkhanna-10.100.10.218-id_rsa nkhanna@10.100.10.218 "chmod 640 /home/nkhanna/doc-invoice-ship-pmm-inbound/runmqsc-PP.mqsc"
+..\cygmin64\bin\ssh.exe -i ../resources/nkhanna-10.100.10.218-id_rsa nkhanna@10.100.10.218 "sudo su - mqm -c 'runmqsc IBQP1 < /home/nkhanna/doc-invoice-ship-pmm-inbound/runmqsc-PP.mqsc'"
+5724-H72 (C) Copyright IBM Corp. 1994, 2011.  ALL RIGHTS RESERVED.
+Starting MQSC for queue manager IBQP1.
+
+
+     1 : DEFINE QALIAS(SEND.MWW.PMM.INVOICE_SHIP_IN.IBM_IB.PP) TARGET(MWW.PMM.INVOICE_SHIP_IN.IBM_IB.PP)
+AMQ8150: WebSphere MQ object already exists.
+     2 : DEFINE QLOCAL(INVOICE_SHIP_BO) DESCR('doc-invoice-ship-pmm-inbound backout queue')
+AMQ8150: WebSphere MQ object already exists.
+     3 : DEFINE QLOCAL(MWW.PMM.INVOICE_SHIP_IN.IBM_IB.PP) BOTHRESH(5) BOQNAME(INVOICE_SHIP_BO)
+AMQ8150: WebSphere MQ object already exists.
+     4 : DEFINE QALIAS(RECV.MWW.PMM.INVOICE_SHIP_IN.IBM_IB.PP) TARGET(MWW.PMM.INVOICE_SHIP_IN.IBM_IB.PP)
+AMQ8150: WebSphere MQ object already exists.
+4 MQSC commands read.
+No commands have a syntax error.
+4 valid MQSC commands could not be processed.
+>>> BAR <<<
+..\cygmin64\bin\ssh.exe -i ../resources/nkhanna-10.100.10.218-id_rsa nkhanna@10.100.10.218 "mkdir -p /home/nkhanna/doc-invoice-ship-pmm-inbound/"
+..\cygmin64\bin\scp.exe -i ../resources/nkhanna-10.100.10.218-id_rsa ../deployment/doc-invoice-ship-pmm-inbound/doc-invoice-ship-pmm-inbound-PP.bar nkhanna@10.100.10.218:/home/nkhanna/doc-invoice-ship-pmm-inbound/
+..\cygmin64\bin\ssh.exe -i ../resources/nkhanna-10.100.10.218-id_rsa nkhanna@10.100.10.218 "chmod 640 /home/nkhanna/doc-invoice-ship-pmm-inbound/doc-invoice-ship-pmm-inbound-PP.bar"
+..\cygmin64\bin\ssh.exe -i ../resources/nkhanna-10.100.10.218-id_rsa nkhanna@10.100.10.218 "sudo su - dbkadm -c 'mqsideploy IBNP1 -e IBSP1 -a /home/nkhanna/doc-invoice-ship-pmm-inbound/doc-invoice-ship-pmm-inbound-PP.bar'"
+
+MQSI 9.0.0.1
+/opt/ibm/mqsi/9.0.0.1
+
+BIP1039I: Deploying BAR file '/home/nkhanna/doc-invoice-ship-pmm-inbound/doc-invoice-ship-pmm-inbound-PP.bar' to broker 'IBNP1' (execution group 'IBSP1') ...
+BIP1092I: The broker successfully processed the deployment request.
+Status: project 'doc-invoice-ship-pmm-inbound' for collection 'caldc' was processed
+Status: project 'doc-transfer-asn-wms-subscriber' for collection 'caldc' processing..
+>>> MQSC <<<
+..\cygmin64\bin\ssh.exe -i ../resources/nkhanna-10.100.10.218-id_rsa nkhanna@10.100.10.218 "mkdir -p /home/nkhanna/doc-transfer-asn-wms-subscriber/"
+..\cygmin64\bin\scp.exe -i ../resources/nkhanna-10.100.10.218-id_rsa ../source/doc-transfer-asn-wms-subscriber/runmqsc-PP.mqsc nkhanna@10.100.10.218:/home/nkhanna/doc-transfer-asn-wms-subscriber/
+..\cygmin64\bin\ssh.exe -i ../resources/nkhanna-10.100.10.218-id_rsa nkhanna@10.100.10.218 "chmod 640 /home/nkhanna/doc-transfer-asn-wms-subscriber/runmqsc-PP.mqsc"
+..\cygmin64\bin\ssh.exe -i ../resources/nkhanna-10.100.10.218-id_rsa nkhanna@10.100.10.218 "sudo su - mqm -c 'runmqsc IBQP1 < /home/nkhanna/doc-transfer-asn-wms-subscriber/runmqsc-PP.mqsc'"
+5724-H72 (C) Copyright IBM Corp. 1994, 2011.  ALL RIGHTS RESERVED.
+Starting MQSC for queue manager IBQP1.
+
+
+     1 : DEFINE QALIAS(SEND.ALL.WMS.SUB_XFER_ASN_IN.IBM_IB.PP) TARGET(ALL.WMS.SUB_XFER_ASN_IN.IBM_IB.PP)
+AMQ8150: WebSphere MQ object already exists.
+     2 : DEFINE SUB(ALL.WMS.SUB_XFER_ASN_IN.IBM_IB.PP) TOPICSTR('/MWW/XFER/V1/PP') DESTCLAS(PROVIDED) WSCHEMA(CHAR) DEST(SEND.ALL.WMS.SUB_XFER_ASN_IN.IBM_IB.PP)
+AMQ8475: Subscription already exists.
+     3 : DEFINE QLOCAL(SUB_IN_BO) DESCR('doc-transfer-asn-wms-subscriber backout queue')
+AMQ8150: WebSphere MQ object already exists.
+     4 : DEFINE QLOCAL(ALL.WMS.SUB_XFER_ASN_IN.IBM_IB.PP) BOTHRESH(5) BOQNAME(SUB_IN_BO)
+AMQ8150: WebSphere MQ object already exists.
+     5 : DEFINE QALIAS(RECV.ALL.WMS.SUB_XFER_ASN_IN.IBM_IB.PP) TARGET(ALL.WMS.SUB_XFER_ASN_IN.IBM_IB.PP)
+AMQ8150: WebSphere MQ object already exists.
+     6 : DEFINE QALIAS(SEND.ALL.WMS.SUB_XFER_ASN_OUT.IBM_IB.PP) TARGET(ALL.WMS.CALDC_IN.IBM_IB.PP)
+AMQ8150: WebSphere MQ object already exists.
+       : * DEFINE QLOCAL(ALL.WMS.CALDC_IN.IBM_IB.PP)
+6 MQSC commands read.
+No commands have a syntax error.
+6 valid MQSC commands could not be processed.
+>>> BAR <<<
+..\cygmin64\bin\ssh.exe -i ../resources/nkhanna-10.100.10.218-id_rsa nkhanna@10.100.10.218 "mkdir -p /home/nkhanna/doc-transfer-asn-wms-subscriber/"
+..\cygmin64\bin\scp.exe -i ../resources/nkhanna-10.100.10.218-id_rsa ../deployment/doc-transfer-asn-wms-subscriber/doc-transfer-asn-wms-subscriber-PP.bar nkhanna@10.100.10.218:/home/nkhanna/doc-transfer-asn-wms-subscriber/
+..\cygmin64\bin\ssh.exe -i ../resources/nkhanna-10.100.10.218-id_rsa nkhanna@10.100.10.218 "chmod 640 /home/nkhanna/doc-transfer-asn-wms-subscriber/doc-transfer-asn-wms-subscriber-PP.bar"
+..\cygmin64\bin\ssh.exe -i ../resources/nkhanna-10.100.10.218-id_rsa nkhanna@10.100.10.218 "sudo su - dbkadm -c 'mqsideploy IBNP1 -e IBSP1 -a /home/nkhanna/doc-transfer-asn-wms-subscriber/doc-transfer-asn-wms-subscriber-PP.bar'"
+
+MQSI 9.0.0.1
+/opt/ibm/mqsi/9.0.0.1
+
+BIP1039I: Deploying BAR file '/home/nkhanna/doc-transfer-asn-wms-subscriber/doc-transfer-asn-wms-subscriber-PP.bar' to broker 'IBNP1' (execution group 'IBSP1') ...
+BIP1092I: The broker successfully processed the deployment request.
+Status: project 'doc-transfer-asn-wms-subscriber' for collection 'caldc' was processed
+Status: project 'doc-transfer-dist-wms-subscriber' for collection 'caldc' processing..
+>>> MQSC <<<
+..\cygmin64\bin\ssh.exe -i ../resources/nkhanna-10.100.10.218-id_rsa nkhanna@10.100.10.218 "mkdir -p /home/nkhanna/doc-transfer-dist-wms-subscriber/"
+..\cygmin64\bin\scp.exe -i ../resources/nkhanna-10.100.10.218-id_rsa ../source/doc-transfer-dist-wms-subscriber/runmqsc-PP.mqsc nkhanna@10.100.10.218:/home/nkhanna/doc-transfer-dist-wms-subscriber/
+..\cygmin64\bin\ssh.exe -i ../resources/nkhanna-10.100.10.218-id_rsa nkhanna@10.100.10.218 "chmod 640 /home/nkhanna/doc-transfer-dist-wms-subscriber/runmqsc-PP.mqsc"
+..\cygmin64\bin\ssh.exe -i ../resources/nkhanna-10.100.10.218-id_rsa nkhanna@10.100.10.218 "sudo su - mqm -c 'runmqsc IBQP1 < /home/nkhanna/doc-transfer-dist-wms-subscriber/runmqsc-PP.mqsc'"
+5724-H72 (C) Copyright IBM Corp. 1994, 2011.  ALL RIGHTS RESERVED.
+Starting MQSC for queue manager IBQP1.
+
+
+     1 : DEFINE QALIAS(SEND.ALL.WMS.SUB_XFER_DIST_IN.IBM_IB.PP) TARGET(ALL.WMS.SUB_XFER_DIST_IN.IBM_IB.PP)
+AMQ8150: WebSphere MQ object already exists.
+     2 : DEFINE SUB(ALL.WMS.SUB_XFER_DIST_IN.IBM_IB.PP) TOPICSTR('/MWW/XFER/V1/PP') DESTCLAS(PROVIDED) WSCHEMA(CHAR) DEST(SEND.ALL.WMS.SUB_XFER_DIST_IN.IBM_IB.PP)
+AMQ8475: Subscription already exists.
+     3 : DEFINE QLOCAL(ALL.WMS.SUB_XFER_DIST_IN.BO.IBM_IB.PP) DESCR('doc-transfer-dist-wms-subscriber backout queue')
+AMQ8150: WebSphere MQ object already exists.
+     4 : DEFINE QLOCAL(ALL.WMS.SUB_XFER_DIST_IN.IBM_IB.PP) BOTHRESH(5) BOQNAME(ALL.WMS.SUB_XFER_DIST_IN.BO.IBM_IB.PP)
+AMQ8150: WebSphere MQ object already exists.
+     5 : DEFINE QALIAS(RECV.ALL.WMS.SUB_XFER_DIST_IN.IBM_IB.PP) TARGET(ALL.WMS.SUB_XFER_DIST_IN.IBM_IB.PP)
+AMQ8150: WebSphere MQ object already exists.
+     6 : DEFINE QALIAS(SEND.ALL.WMS.SUB_XFER_DIST_OUT.IBM_IB.PP) TARGET(ALL.WMS.CALDC_IN.IBM_IB.PP)
+AMQ8150: WebSphere MQ object already exists.
+       : * DEFINE QLOCAL(ALL.WMS.CALDC_IN.IBM_IB.PP)
+6 MQSC commands read.
+No commands have a syntax error.
+6 valid MQSC commands could not be processed.
+>>> BAR <<<
+..\cygmin64\bin\ssh.exe -i ../resources/nkhanna-10.100.10.218-id_rsa nkhanna@10.100.10.218 "mkdir -p /home/nkhanna/doc-transfer-dist-wms-subscriber/"
+..\cygmin64\bin\scp.exe -i ../resources/nkhanna-10.100.10.218-id_rsa ../deployment/doc-transfer-dist-wms-subscriber/doc-transfer-dist-wms-subscriber-PP.bar nkhanna@10.100.10.218:/home/nkhanna/doc-transfer-dist-wms-subscriber/
+..\cygmin64\bin\ssh.exe -i ../resources/nkhanna-10.100.10.218-id_rsa nkhanna@10.100.10.218 "chmod 640 /home/nkhanna/doc-transfer-dist-wms-subscriber/doc-transfer-dist-wms-subscriber-PP.bar"
+..\cygmin64\bin\ssh.exe -i ../resources/nkhanna-10.100.10.218-id_rsa nkhanna@10.100.10.218 "sudo su - dbkadm -c 'mqsideploy IBNP1 -e IBSP1 -a /home/nkhanna/doc-transfer-dist-wms-subscriber/doc-transfer-dist-wms-subscriber-PP.bar'"
+
+MQSI 9.0.0.1
+/opt/ibm/mqsi/9.0.0.1
+
+BIP1039I: Deploying BAR file '/home/nkhanna/doc-transfer-dist-wms-subscriber/doc-transfer-dist-wms-subscriber-PP.bar' to broker 'IBNP1' (execution group 'IBSP1') ...
+BIP1092I: The broker successfully processed the deployment request.
+Status: project 'doc-transfer-dist-wms-subscriber' for collection 'caldc' was processed
+Status: project 'doc-transfer-pmm-publisher' for collection 'caldc' processing..
+>>> MQSC <<<
+..\cygmin64\bin\ssh.exe -i ../resources/nkhanna-10.100.10.218-id_rsa nkhanna@10.100.10.218 "mkdir -p /home/nkhanna/doc-transfer-pmm-publisher/"
+..\cygmin64\bin\scp.exe -i ../resources/nkhanna-10.100.10.218-id_rsa ../source/doc-transfer-pmm-publisher/runmqsc-PP.mqsc nkhanna@10.100.10.218:/home/nkhanna/doc-transfer-pmm-publisher/
+..\cygmin64\bin\ssh.exe -i ../resources/nkhanna-10.100.10.218-id_rsa nkhanna@10.100.10.218 "chmod 640 /home/nkhanna/doc-transfer-pmm-publisher/runmqsc-PP.mqsc"
+..\cygmin64\bin\ssh.exe -i ../resources/nkhanna-10.100.10.218-id_rsa nkhanna@10.100.10.218 "sudo su - mqm -c 'runmqsc IBQP1 < /home/nkhanna/doc-transfer-pmm-publisher/runmqsc-PP.mqsc'"
+5724-H72 (C) Copyright IBM Corp. 1994, 2011.  ALL RIGHTS RESERVED.
+Starting MQSC for queue manager IBQP1.
+
+
+     1 : DEFINE QALIAS(SEND.MWW.PMM.EVENT_XFER_IN.IBM_DS.PP) TARGET(MWW.PMM.EVENT_XFER_IN.IBM_DS.PP)
+AMQ8150: WebSphere MQ object already exists.
+     2 : DEFINE QLOCAL(MWW.PMM.EVENT_XFER_IN.BO.IBM_DS.PP) DESCR('doc-transfer-pmm-publisher backout queue')
+AMQ8150: WebSphere MQ object already exists.
+     3 : DEFINE QLOCAL(MWW.PMM.EVENT_XFER_IN.IBM_DS.PP) BOTHRESH(5) BOQNAME(MWW.PMM.EVENT_XFER_IN.BO.IBM_DS.PP)
+AMQ8150: WebSphere MQ object already exists.
+     4 : DEFINE QALIAS(RECV.MWW.PMM.EVENT_XFER_IN.IBM_IB.PP) TARGET(MWW.PMM.EVENT_XFER_IN.IBM_DS.PP)
+AMQ8150: WebSphere MQ object already exists.
+     5 : DEFINE TOPIC(MWW.PMM.XFER.IBM_IB.PP) TOPICSTR('/MWW/XFER/V1/PP')
+AMQ8150: WebSphere MQ object already exists.
+     6 : DEFINE QLOCAL(ALL.EAI.XFER_RECURSE_IN.IBM_IB.PP)
+AMQ8150: WebSphere MQ object already exists.
+     7 : DEFINE QLOCAL(ALL.EAI.XFER_RECURSE.IBM_IB.PP)
+AMQ8150: WebSphere MQ object already exists.
+     8 : DEFINE QLOCAL(ALL.EAI.XFER_RECURSE_OUT.IBM_IB.PP)
+AMQ8150: WebSphere MQ object already exists.
+8 MQSC commands read.
+No commands have a syntax error.
+8 valid MQSC commands could not be processed.
+>>> BAR <<<
+..\cygmin64\bin\ssh.exe -i ../resources/nkhanna-10.100.10.218-id_rsa nkhanna@10.100.10.218 "mkdir -p /home/nkhanna/doc-transfer-pmm-publisher/"
+..\cygmin64\bin\scp.exe -i ../resources/nkhanna-10.100.10.218-id_rsa ../deployment/doc-transfer-pmm-publisher/doc-transfer-pmm-publisher-PP.bar nkhanna@10.100.10.218:/home/nkhanna/doc-transfer-pmm-publisher/
+..\cygmin64\bin\ssh.exe -i ../resources/nkhanna-10.100.10.218-id_rsa nkhanna@10.100.10.218 "chmod 640 /home/nkhanna/doc-transfer-pmm-publisher/doc-transfer-pmm-publisher-PP.bar"
+..\cygmin64\bin\ssh.exe -i ../resources/nkhanna-10.100.10.218-id_rsa nkhanna@10.100.10.218 "sudo su - dbkadm -c 'mqsideploy IBNP1 -e IBSP1 -a /home/nkhanna/doc-transfer-pmm-publisher/doc-transfer-pmm-publisher-PP.bar'"
+
+MQSI 9.0.0.1
+/opt/ibm/mqsi/9.0.0.1
+
+BIP1039I: Deploying BAR file '/home/nkhanna/doc-transfer-pmm-publisher/doc-transfer-pmm-publisher-PP.bar' to broker 'IBNP1' (execution group 'IBSP1') ...
+BIP1092I: The broker successfully processed the deployment request.
+Status: project 'doc-transfer-pmm-publisher' for collection 'caldc' was processed
+Status: project 'trx-distrib-adjust-pmm-inbound' for collection 'caldc' processing..
+>>> MQSC <<<
+..\cygmin64\bin\ssh.exe -i ../resources/nkhanna-10.100.10.218-id_rsa nkhanna@10.100.10.218 "mkdir -p /home/nkhanna/trx-distrib-adjust-pmm-inbound/"
+..\cygmin64\bin\scp.exe -i ../resources/nkhanna-10.100.10.218-id_rsa ../source/trx-distrib-adjust-pmm-inbound/runmqsc-PP.mqsc nkhanna@10.100.10.218:/home/nkhanna/trx-distrib-adjust-pmm-inbound/
+..\cygmin64\bin\ssh.exe -i ../resources/nkhanna-10.100.10.218-id_rsa nkhanna@10.100.10.218 "chmod 640 /home/nkhanna/trx-distrib-adjust-pmm-inbound/runmqsc-PP.mqsc"
+..\cygmin64\bin\ssh.exe -i ../resources/nkhanna-10.100.10.218-id_rsa nkhanna@10.100.10.218 "sudo su - mqm -c 'runmqsc IBQP1 < /home/nkhanna/trx-distrib-adjust-pmm-inbound/runmqsc-PP.mqsc'"
+5724-H72 (C) Copyright IBM Corp. 1994, 2011.  ALL RIGHTS RESERVED.
+Starting MQSC for queue manager IBQP1.
+
+
+       : ** Sender from core-pix-caldc/misdc-wms-outbound (in configuration\WM_PIX_TRAN_TYPE.sql)
+     1 : DEFINE QALIAS(SEND.MKS.PMM.PIX_DISTRIB_ADJUST_IN.IBM_IB.PP) TARGET(MKS.PMM.PIX_DISTRIB_ADJUST_IN.IBM_IB.PP)
+AMQ8150: WebSphere MQ object already exists.
+     2 : DEFINE QLOCAL(MKS.PMM.PIX_DISTRIB_ADJUST_IN.BO.IBM_IB.PP) DESCR('trx-distrib-adjust-pmm-inbound backout queue')
+AMQ8150: WebSphere MQ object already exists.
+     3 : DEFINE QLOCAL(MKS.PMM.PIX_DISTRIB_ADJUST_IN.IBM_IB.PP) BOTHRESH(5) BOQNAME(MKS.PMM.PIX_DISTRIB_ADJUST_IN.BO.IBM_IB.PP)
+AMQ8150: WebSphere MQ object already exists.
+       : ** Receiver from core-pix-caldc-wms-outbound
+     4 : DEFINE QALIAS(RECV.MKS.PMM.PIX_DISTRIB_ADJUST_IN.IBM_IB.PP) TARGET(MKS.PMM.PIX_DISTRIB_ADJUST_IN.IBM_IB.PP)
+AMQ8150: WebSphere MQ object already exists.
+4 MQSC commands read.
+No commands have a syntax error.
+4 valid MQSC commands could not be processed.
+>>> BAR <<<
+..\cygmin64\bin\ssh.exe -i ../resources/nkhanna-10.100.10.218-id_rsa nkhanna@10.100.10.218 "mkdir -p /home/nkhanna/trx-distrib-adjust-pmm-inbound/"
+..\cygmin64\bin\scp.exe -i ../resources/nkhanna-10.100.10.218-id_rsa ../deployment/trx-distrib-adjust-pmm-inbound/trx-distrib-adjust-pmm-inbound-PP.bar nkhanna@10.100.10.218:/home/nkhanna/trx-distrib-adjust-pmm-inbound/
+..\cygmin64\bin\ssh.exe -i ../resources/nkhanna-10.100.10.218-id_rsa nkhanna@10.100.10.218 "chmod 640 /home/nkhanna/trx-distrib-adjust-pmm-inbound/trx-distrib-adjust-pmm-inbound-PP.bar"
+..\cygmin64\bin\ssh.exe -i ../resources/nkhanna-10.100.10.218-id_rsa nkhanna@10.100.10.218 "sudo su - dbkadm -c 'mqsideploy IBNP1 -e IBSP1 -a /home/nkhanna/trx-distrib-adjust-pmm-inbound/trx-distrib-adjust-pmm-inbound-PP.bar'"
+
+MQSI 9.0.0.1
+/opt/ibm/mqsi/9.0.0.1
+
+BIP1039I: Deploying BAR file '/home/nkhanna/trx-distrib-adjust-pmm-inbound/trx-distrib-adjust-pmm-inbound-PP.bar' to broker 'IBNP1' (execution group 'IBSP1') ...
+BIP1092I: The broker successfully processed the deployment request.
+Status: project 'trx-distrib-adjust-pmm-inbound' for collection 'caldc' was processed
+Status: project 'trx-invent-adjust-pmm-inbound' for collection 'caldc' processing..
+>>> MQSC <<<
+..\cygmin64\bin\ssh.exe -i ../resources/nkhanna-10.100.10.218-id_rsa nkhanna@10.100.10.218 "mkdir -p /home/nkhanna/trx-invent-adjust-pmm-inbound/"
+..\cygmin64\bin\scp.exe -i ../resources/nkhanna-10.100.10.218-id_rsa ../source/trx-invent-adjust-pmm-inbound/runmqsc-PP.mqsc nkhanna@10.100.10.218:/home/nkhanna/trx-invent-adjust-pmm-inbound/
+..\cygmin64\bin\ssh.exe -i ../resources/nkhanna-10.100.10.218-id_rsa nkhanna@10.100.10.218 "chmod 640 /home/nkhanna/trx-invent-adjust-pmm-inbound/runmqsc-PP.mqsc"
+..\cygmin64\bin\ssh.exe -i ../resources/nkhanna-10.100.10.218-id_rsa nkhanna@10.100.10.218 "sudo su - mqm -c 'runmqsc IBQP1 < /home/nkhanna/trx-invent-adjust-pmm-inbound/runmqsc-PP.mqsc'"
+5724-H72 (C) Copyright IBM Corp. 1994, 2011.  ALL RIGHTS RESERVED.
+Starting MQSC for queue manager IBQP1.
+
+
+       : ** Sender from core-pix-caldc/misdc-wms-outbound (in configuration\WM_PIX_TRAN_TYPE.sql)
+     1 : DEFINE QALIAS(SEND.MKS.PMM.PIX_INVENT_ADJUST_IN.IBM_IB.PP) TARGET(MKS.PMM.PIX_INVENT_ADJUST_IN.IBM_IB.PP)
+AMQ8150: WebSphere MQ object already exists.
+     2 : DEFINE QLOCAL(MKS.PMM.PIX_INVENT_ADJUST_IN.BO.IBM_IB.PP) DESCR('trx-invent-adjust-pmm-inbound backout queue')
+AMQ8150: WebSphere MQ object already exists.
+     3 : DEFINE QLOCAL(MKS.PMM.PIX_INVENT_ADJUST_IN.IBM_IB.PP) BOTHRESH(5) BOQNAME(MKS.PMM.PIX_INVENT_ADJUST_IN.BO.IBM_IB.PP)
+AMQ8150: WebSphere MQ object already exists.
+       : ** Receiver from core-pix-caldc-wms-outbound
+     4 : DEFINE QALIAS(RECV.MKS.PMM.PIX_INVENT_ADJUST_IN.IBM_IB.PP) TARGET(MKS.PMM.PIX_INVENT_ADJUST_IN.IBM_IB.PP)
+AMQ8150: WebSphere MQ object already exists.
+4 MQSC commands read.
+No commands have a syntax error.
+4 valid MQSC commands could not be processed.
+>>> BAR <<<
+..\cygmin64\bin\ssh.exe -i ../resources/nkhanna-10.100.10.218-id_rsa nkhanna@10.100.10.218 "mkdir -p /home/nkhanna/trx-invent-adjust-pmm-inbound/"
+..\cygmin64\bin\scp.exe -i ../resources/nkhanna-10.100.10.218-id_rsa ../deployment/trx-invent-adjust-pmm-inbound/trx-invent-adjust-pmm-inbound-PP.bar nkhanna@10.100.10.218:/home/nkhanna/trx-invent-adjust-pmm-inbound/
+..\cygmin64\bin\ssh.exe -i ../resources/nkhanna-10.100.10.218-id_rsa nkhanna@10.100.10.218 "chmod 640 /home/nkhanna/trx-invent-adjust-pmm-inbound/trx-invent-adjust-pmm-inbound-PP.bar"
+..\cygmin64\bin\ssh.exe -i ../resources/nkhanna-10.100.10.218-id_rsa nkhanna@10.100.10.218 "sudo su - dbkadm -c 'mqsideploy IBNP1 -e IBSP1 -a /home/nkhanna/trx-invent-adjust-pmm-inbound/trx-invent-adjust-pmm-inbound-PP.bar'"
+
+MQSI 9.0.0.1
+/opt/ibm/mqsi/9.0.0.1
+
+BIP1039I: Deploying BAR file '/home/nkhanna/trx-invent-adjust-pmm-inbound/trx-invent-adjust-pmm-inbound-PP.bar' to broker 'IBNP1' (execution group 'IBSP1') ...
+BIP1092I: The broker successfully processed the deployment request.
+Status: project 'trx-invent-adjust-pmm-inbound' for collection 'caldc' was processed
+Status: project 'trx-pix-receipt-pmm-inbound' for collection 'caldc' processing..
+>>> MQSC <<<
+..\cygmin64\bin\ssh.exe -i ../resources/nkhanna-10.100.10.218-id_rsa nkhanna@10.100.10.218 "mkdir -p /home/nkhanna/trx-pix-receipt-pmm-inbound/"
+..\cygmin64\bin\scp.exe -i ../resources/nkhanna-10.100.10.218-id_rsa ../source/trx-pix-receipt-pmm-inbound/runmqsc-PP.mqsc nkhanna@10.100.10.218:/home/nkhanna/trx-pix-receipt-pmm-inbound/
+..\cygmin64\bin\ssh.exe -i ../resources/nkhanna-10.100.10.218-id_rsa nkhanna@10.100.10.218 "chmod 640 /home/nkhanna/trx-pix-receipt-pmm-inbound/runmqsc-PP.mqsc"
+..\cygmin64\bin\ssh.exe -i ../resources/nkhanna-10.100.10.218-id_rsa nkhanna@10.100.10.218 "sudo su - mqm -c 'runmqsc IBQP1 < /home/nkhanna/trx-pix-receipt-pmm-inbound/runmqsc-PP.mqsc'"
+5724-H72 (C) Copyright IBM Corp. 1994, 2011.  ALL RIGHTS RESERVED.
+Starting MQSC for queue manager IBQP1.
+
+
+       : ** Sender from core-pix-caldc/misdc-wms-outbound (in configuration\WM_PIX_TRAN_TYPE.sql)
+     1 : DEFINE QALIAS(SEND.MKS.PMM.PIX_RECEIPT_IN.IBM_IB.PP) TARGET(MKS.PMM.PIX_RECEIPT_IN.IBM_IB.PP)
+AMQ8150: WebSphere MQ object already exists.
+     2 : DEFINE QLOCAL(MKS.PMM.PIX_RECEIPT_IN.BO.IBM_IB.PP) DESCR('trx-pix-receipt-pmm-inbound backout queue')
+AMQ8150: WebSphere MQ object already exists.
+     3 : DEFINE QLOCAL(MKS.PMM.PIX_RECEIPT_IN.IBM_IB.PP) BOTHRESH(5) BOQNAME(MKS.PMM.PIX_RECEIPT_IN.BO.IBM_IB.PP)
+AMQ8150: WebSphere MQ object already exists.
+       : ** Receiver from core-pix-caldc-wms-outbound
+     4 : DEFINE QALIAS(RECV.MKS.PMM.PIX_RECEIPT_IN.IBM_IB.PP) TARGET(MKS.PMM.PIX_RECEIPT_IN.IBM_IB.PP)
+AMQ8150: WebSphere MQ object already exists.
+4 MQSC commands read.
+No commands have a syntax error.
+4 valid MQSC commands could not be processed.
+>>> BAR <<<
+..\cygmin64\bin\ssh.exe -i ../resources/nkhanna-10.100.10.218-id_rsa nkhanna@10.100.10.218 "mkdir -p /home/nkhanna/trx-pix-receipt-pmm-inbound/"
+..\cygmin64\bin\scp.exe -i ../resources/nkhanna-10.100.10.218-id_rsa ../deployment/trx-pix-receipt-pmm-inbound/trx-pix-receipt-pmm-inbound-PP.bar nkhanna@10.100.10.218:/home/nkhanna/trx-pix-receipt-pmm-inbound/
+..\cygmin64\bin\ssh.exe -i ../resources/nkhanna-10.100.10.218-id_rsa nkhanna@10.100.10.218 "chmod 640 /home/nkhanna/trx-pix-receipt-pmm-inbound/trx-pix-receipt-pmm-inbound-PP.bar"
+..\cygmin64\bin\ssh.exe -i ../resources/nkhanna-10.100.10.218-id_rsa nkhanna@10.100.10.218 "sudo su - dbkadm -c 'mqsideploy IBNP1 -e IBSP1 -a /home/nkhanna/trx-pix-receipt-pmm-inbound/trx-pix-receipt-pmm-inbound-PP.bar'"
+
+MQSI 9.0.0.1
+/opt/ibm/mqsi/9.0.0.1
+
+BIP1039I: Deploying BAR file '/home/nkhanna/trx-pix-receipt-pmm-inbound/trx-pix-receipt-pmm-inbound-PP.bar' to broker 'IBNP1' (execution group 'IBSP1') ...
+BIP1092I: The broker successfully processed the deployment request.
+Status: project 'trx-pix-receipt-pmm-inbound' for collection 'caldc' was processed
+Status: project '*' for collection 'caldc' was deployed [PASS]

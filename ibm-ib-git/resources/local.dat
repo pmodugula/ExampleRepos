@@ -1,0 +1,5 @@
+@REM common-library-java DO NOT UN-REM
+common-library-jars
+common-library-msgnode
+common-library-msgnode-log4j-java
+core-cache-library-java

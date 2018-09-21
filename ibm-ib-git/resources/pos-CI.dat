@@ -1,0 +1,9 @@
+@REM File: pos-CI.dat
+@REM Version: 0.1.1
+@REM Date: 28-April 2015
+@REM Author: Rhett Whaley
+
+trx-sales-pmm-subscriber
+trx-sales-pmm-inbound
+trx-sales-aspect-subscriber
+trx-sales-aspect-inbound

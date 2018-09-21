@@ -1,0 +1,124 @@
+@REM conf-mqsc-commands
+@REM conf-jms-commands
+@REM conf-mqsi-commands
+@REM conf-odbc-datasources
+@REM conf-iib-schema
+@REM conf-unix-commands
+
+@REM core-configuration-handler
+@REM core-bridge-ems-to-mq
+@REM core-bridge-mq-to-wms-inbound
+
+
+@REM dat-store-pmm-publisher
+dat-store-pmm-publisher-fgl
+dat-store-pmm-publisher-mww
+@REM dat-store-wms-subscriber
+dat-store-wms-subscriber-caldc
+dat-store-wms-subscriber-misdc
+
+
+@REM dat-vendor-pmm-publisher
+dat-vendor-pmm-publisher-fgl
+dat-vendor-pmm-publisher-mww
+@REM dat-vendor-wms-subscriber
+dat-vendor-wms-subscriber-caldc
+dat-vendor-wms-subscriber-misdc
+
+
+dat-productitemsize-pmm-publisher-fgl
+
+
+
+@REM etc-wms-inbound-caldc
+dat-wms-inbound-caldc
+doc-wms-inbound-caldc
+doc-wms-inbound-caldc-bulk
+
+@REM etc-wms-inbound-misdc
+dat-wms-inbound-misdc
+doc-wms-inbound-misdc
+
+
+@REM core-pix-caldc-wms-outbound
+trx-pix-wms-outbound-caldc
+@REM core-pix-misdc-wms-outbound
+trx-pix-wms-outbound-misdc
+
+trx-pixconsign-wms-to-ems
+trx-pixdockcheckin-wms-to-ems
+trx-pixdistribadj-wms-to-ems
+trx-pixinventadj-wms-to-ems
+trx-pixinventsnapcomp-wms-to-ems
+trx-pixinventsnap-wms-to-ems
+trx-pixreceipt-wms-to-ems
+
+
+@REM any-object-sys-library_subscriber::SBU=FGL ANY=DOC OBJECT=INVOICE_SHIP SYS=PMM
+@REM any-object-sys-subscriber::SBU=FGL ANY=DOC OBJECT=INVOICE_SHIP SYS=PMM
+@REM doc-invoice-ship-pmm-subscriber
+
+etc-pmm-inbound-router
+etc-pmm-inbound-fgl
+etc-pmm-inbound-mww
+
+@REM any-object-sys-library_subscriber
+@REM any-object-sys-subscriber
+@REM doc-invent-snap-comp-pmm-subscriber
+trx-pixinventsnapcomp-wms-outbound
+trx-pixinventsnapcomp-pmm-inbound
+
+@REM any-object-sys-library_subscriber
+@REM any-object-sys-subscriber
+@REM doc-invent-snap-pmm-subscriber
+trx-pixinventsnap-wms-outbound
+trx-pixinventsnap-pmm-inbound
+
+@REM any-object-sys-library_subscriber
+@REM any-object-sys-subscriber
+@REM trx-distrib-adjust-pmm-subscriber
+trx-pixdistribadj-wms-outbound
+trx-pixdistribadj-pmm-inbound
+
+@REM any-object-sys-library_subscriber
+@REM any-object-sys-subscriber
+@REM trx-invent-adjust-pmm-subsciber
+trx-pixinventadj-wms-outbound
+trx-pixinventadj-pmm-inbound
+
+@REM trx-pix-receipt-pmm-subscriber
+trx-pixreceipt-wms-outbound
+trx-pixreceipt-pmm-inbound
+
+
+@REM doc-po-pmm-publisher
+@REM doc-po-wms-subscriber
+
+
+@REM dat-product-pmm-publisher
+@REM dat-product-spp-pmm-publisher
+@REM dat-product-spp-wms-subscriber
+@REM dat-product-wms-subscriber
+@REM any-object-sys-library_publisher::SBU=FGL ANY=DAT OBJECT=PRODUCTSIZE SYS=PMM
+@REM any-object-sys-publisher::SBU=FGL ANY=DAT OBJECT=PRODUCT_SIZE SYS=PMM
+@REM dat-productsize-pmm-publisher
+@REM any-object-sys-library_subscriber::SBU=FGL ANY=DAT OBJECT=PRODUCTSIZE SYS=WMS
+@REM any-object-bswp-subscriber::SBU=FGL ANY=DAT OBJECT=PRODUCTSIZE SYS=WMS
+@REM dat-productsize-wms-subscriber
+
+
+@REM doc-asn-pmm-publisher
+@REM doc-asn-wms-subscriber
+
+
+@REM doc-invoice-match-pmm-publisher
+@REM doc-invoice-match-wms-subscriber
+
+
+@REM doc-invoice-ship-caldc-wms-outbound
+@REM doc-invoice-ship-misdc-wms-outbound
+
+
+@REM doc-transfer-pmm-publisher
+@REM doc-transfer-asn-wms-subscriber
+@REM doc-transfer-dist-wms-subscriber

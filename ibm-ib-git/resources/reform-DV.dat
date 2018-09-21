@@ -1,0 +1,26 @@
+@REM any-object-sys-library_publisher::SBU=FRN ANY=DAT OBJECT=BUYER SYS=AX
+@REM any-object-sys-publisher::SBU=FRN ANY=DAT OBJECT=BUYER SYS=AX
+dat-buyer-ax-publisher
+
+@REM any-object-sys-library_subscriber::SBU=FRN ANY=DAT OBJECT=BUYER SYS=BSWP
+@REM any-object-bswp-subscriber::SBU=FRN ANY=DAT OBJECT=BUYER SYS=AX
+dat-buyer-bswp-subscriber
+
+etc-bswp-inbound
+
+@REM any-object-sys-library_publisher::SBU=FRN ANY=DAT OBJECT=VENDOR SYS=JDE
+@REM any-object-sys-publisher::SBU=FRN ANY=DAT OBJECT=VENDOR SYS=JDE
+dat-vendor-jde-publisher
+
+@REM any-object-sys-library_subscriber::SBU=FRN ANY=DAT OBJECT=VENDOR SYS=AX
+@REM any-object-sys-subscriber::SBU=FRN ANY=DAT OBJECT=VENDOR SYS=AX
+dat-vendor-ax-subscriber
+
+
+dat-policyagreement-bswp-publisher
+dat-policyagreement-ax-subscriber
+dat-product-ax-publisher
+dat-product-bswp-subscriber
+dat-product-fwp-subscriber
+etc-fwp-inbound
+

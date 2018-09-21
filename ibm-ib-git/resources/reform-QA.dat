@@ -1,0 +1,9 @@
+dat-buyer-ax-publisher
+dat-buyer-bswp-subscriber
+dat-policyagreement-ax-subscriber
+dat-policyagreement-bswp-publisher
+dat-product-ax-publisher
+dat-product-bswp-subscriber
+etc-bswp-inbound
+dat-vendor-jde-publisher
+dat-vendor-ax-subscriber

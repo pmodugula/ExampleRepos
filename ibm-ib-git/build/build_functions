@@ -1,0 +1,304 @@
+#
+# source this file to load common functions
+
+_MQSI_LOG_FORMAT='    MQSI> '
+_MQSI_LOG_WRAP=100
+
+##############################
+# OS Version check
+#
+osVersion() {
+  trace "osVersion($*)"
+  UNAME=$(uname)
+  trace "osVersion: Uname returned $UNAME"
+  _rc=$?
+  if [ $_rc -ne 0 ]; then
+    echo "unknown"
+    return 1
+  fi
+  case "$(uname)" in
+    MINGW*)
+      trace "osVersion: Matched ^MINGW. Returning win-msys"
+      echo win-msys
+      ;;
+    CYGWIN*)
+      trace "osVersion: Matched ^CYGWIN. Returning win-cygwin"
+      echo win-cygwin
+      ;;
+    Linux)
+      trace "osVersion: Matched ^Linux. Returning linux"
+      echo linux
+      ;;
+    Darwin)
+      trace "osVersion: Mac OSX. Returning Mac"
+      echo Mac
+      ;;
+    *)
+      echo "unknown"
+      return 1
+      ;;
+  esac
+  return 0
+}
+
+##########################
+# match a valid configuration file
+# .sh file, if it exists, supercedes windows .bat or .cmd file of the same name
+# output:
+#  output: name of config file or blank if not found
+# rc:
+#  0 - exists and is unix file
+#  1 - exists and is dos file
+#  2 - does not exist
+getAlternateConfig() {
+  trace "getAlternateConfig($*)"
+  CONFIG_FILE=$1
+  ALTERNATE_SUFFIX=(.bat .cmd)
+  debug "getAlternateConfig: passed in config file $CONFIG_FILE"
+  if [ -f "$CONFIG_FILE" ]; then
+    debug "getAlternateConfig: config file exists"
+    echo $CONFIG_FILE
+    return 0
+  else
+    debug "getAlternateConfig: config file not found. Looking for alternate"
+    CONFIG_FILE_PREFIX=$(sed 's/\(.*\)\.sh$/\1/g;' <<< "$CONFIG_FILE")
+    for suffix in "${ALTERNATE_SUFFIX[@]}"; do
+      WIN_CONFIG_FILE="${CONFIG_FILE_PREFIX}${suffix}"
+      debug "getAlternateConfig: Checking if $WIN_CONFIG_FILE exists"
+      if [ -f "$WIN_CONFIG_FILE" ]; then
+        debug "getAlternateConfig: $WIN_CONFIG_FILE exists"
+        echo $WIN_CONFIG_FILE
+        return 1
+      fi
+    done
+  fi
+  debug "getAlternateConfig: no match found"
+  echo ""
+  return 2 
+}
+
+commandShell() {
+  trace "commandShell($*)"
+  OSVER=$(osVersion)
+  if [ "$OSVER" = "win-cygwin" ]; then
+    trace "commandShell: matched cygwin. return \"cmd /c\""
+    echo -n "cmd /c "
+  elif [ "$OSVER" = "win-msys" ]; then
+    trace "commandShell: matched msys. return \"cmd //c\""
+    echo -n "cmd //c "
+  fi
+}
+
+getAlternateExecutable() {
+  trace "getAlternateExecutable($*)"
+  ALTERNATE_SUFFIX=(.sh .bat .cmd)
+  FILE=$1
+  if [ -f "$FILE" ] && [ -x "$FILE" ]; then
+    debug "getAlternateExecutable: Passed in file $FILE exists"
+    echo $1
+  fi
+  NEWFILE=${FILE%%.*}
+  ALTFILE=${NEWFILE}
+  for ext in ${ALTERNATE_SUFFIX[@]}; do
+    ALTFILE="${NEWFILE}$ext"
+    trace "getAlternateExecutable: Checking for $ALTFILE"
+    if [ -f "$ALTFILE" ] && [ -x "$ALTFILE" ]; then
+      debug "getAlternateExecutable: $ALTFILE exists"
+      echo $ALTFILE
+    fi
+  done
+  debug "getAlternateExecutable: no match found"
+}
+
+############################
+# source the specified config file
+# rc:
+#  0/1 - success/fail
+sourceConfig() {
+  trace "sourceConfig($*)"
+  CONFIG_FILE=$1
+  CONFIG_FILE=$(getAlternateConfig "$CONFIG_FILE")
+  _rc=$?
+  case $_rc in
+    0)
+      . $CONFIG_FILE
+      return 0
+      ;;
+    1)
+      _sourceDosConfig "$CONFIG_FILE"
+      return $?
+      ;;
+    2)
+      return 1
+      ;;
+  esac
+}
+
+##########################################
+# source a dos batch file
+# convert dos paths to unix paths using cygpath
+# convert %VARS% to $VARS
+_sourceDosConfig() {
+  trace "_sourceDosConfig($*)"
+  CONFIG_FILE=$1
+  debug "_sourceDosConfig: reading file $CONFIG_FILE" 1>&2
+  OSVER=$(osVersion)
+  while read -r -u 4 dcfgline || [ "$dcfgline" ]; do
+    if [ -n "$(grep -E '^\s*@REM' <<< $dcfgline)" ]; then continue; fi
+    if [ -n "$(grep -E '^\s*REM'  <<< $dcfgline)" ]; then continue; fi
+    if [ -n "$(grep -E '^\s*$'    <<< $dcfgline)" ]; then continue; fi
+    if [ -n "$(grep -E '^SET ' <<< $dcfgline)" ]; then
+      dcfgline="$(tr -d '\r' <<< $dcfgline)"
+      trace "_sourceDosConfig: parsing $dcfgline"
+      mapping=$(sed 's/^SET //g;' <<< $dcfgline)
+      mapping=$(sed 's/\s*"\([^"]*\)"/\1/g;' <<< $mapping)
+      # trace "_sourceDosConfig: $mapping"
+      if [ -n "$(grep '=' <<< $dcfgline)" ]; then
+        lhs="$(sed 's/^\([^=]*\)=.*/\1/g;' <<< $mapping)"
+        rhs="$(sed 's/^[^=]*=\(.*\)/\1/g;' <<< $mapping)"
+        # trace "_sourceDosConfig: rhs = $rhs"
+        # trace "_sourceDosConfig: lhs = $lhs"
+        if [ -n "$(grep '\\' <<< $rhs)" ]; then
+          # trace "_sourceDosConfig: rhs contains backslash"
+          _PATH_ARRAY=()
+          if [ -n "$(grep ';' <<< $rhs)" ]; then
+            IFS=';' read -ra _PATH_ARRAY <<< "$rhs"
+          else
+            _PATH_ARRAY+=("$rhs")
+          fi
+          # trace "_sourceDosConfig: _PATH_ARRAY = ${_PATH_ARRAY[*]}"
+          _TARGET_PATH=""
+          for item in "${_PATH_ARRAY[@]}"; do
+            # trace "_sourceDosConfig: item = $item"
+            if [ "$OSVER" = "win-cygwin" ]; then
+              _item=$(cygpath -u "$item")
+              trace "_sourceDosConfig: cyg converted $item to $_item"
+            else
+              _item="$(sed 's/\\/\//g;' <<< $item)"
+              trace "_sourceDosConfig: msys converted $item to $_item"
+            fi
+            if [ -n "${_TARGET_PATH}" ]; then
+              _TARGET_PATH="${_TARGET_PATH}:${_item}"
+            else
+              _TARGET_PATH=${_item}
+            fi
+          done
+          rhs=${_TARGET_PATH}
+        fi
+        mapping="$lhs=$rhs"
+      fi
+      mapping=$(sed 's/\([^=]*\)=\(.*\)/\1="\2"/g;' <<< $mapping)
+      mapping=$(sed 's/%\([^%]*\)%/\${\1}/g;' <<< $mapping)
+      mapping=$(sed 's/\\/\//g;' <<< $mapping)
+      mapping=$(tr '^' '\\' <<< $mapping)
+      debug "_sourceDosConfig: eval: $mapping"
+      eval "$mapping"
+    fi
+  done 4< "$CONFIG_FILE"
+  return 0
+}
+
+###############################
+# source mqsi profile and exect mqsi command in command shell
+#
+execMQSICommand() {
+  debug "execMQSICommand()"
+  inf "execMQSICommand: $*"
+  inf "execMQSICommand: running from $(pwd)"
+  OSVER=$(osVersion)
+  mqsiprofile=$(locateMQSIProfile)
+  if [ -n "$mqsiprofile" ]; then
+    debug "execMQSICommand: exec using  mqsiprofile"
+    # TODO: can't use this for linux (semicolon instead)
+    if [ "${OSVER%%-*}" = "win" ]; then
+      trace "execMQSICommand: running on windows"
+      $(commandShell) "$mqsiprofile" 2>&1 \& $* 2>&1
+    else
+      trace "execMQSICommand: running on linux"
+      echo "$(. "$mqsiprofile" 2>&1; $* 2>&1)"
+    fi
+  else
+    debug "execMQSICommand: exec without mqsiprofile"
+    if [ "${OSVER%%-*}" = "win" ]; then
+      trace "execMQSICommand: running on windows"
+      $commandShell $* 2>&1
+    else
+      trace "execMQSICommand: running on linux"
+      $* 2>&1
+    fi
+  fi
+}
+
+################################
+# look for mqsi profile
+# include some common installation root directories
+locateMQSIProfile() {
+  trace "locateMQSIProfile($*)"
+  OSVER=${OSVER:-$(osVersion))}
+  if [ "${OSVER%%-*}" = "win" ]; then
+    if [ -n "$PROGRAMFILES" ]; then
+      ALTBASE=("$PROGRAMFILES\\IBM\\MQSI" "$PROGRAMW6432\\IBM\\MQSI")
+    else
+      ALTBASE=("C:\\Program Files\\IBM\\MQSI" "C:\\Program Files (x86)\\IBM\\MQSI")
+    fi
+    _SEP='\'
+    _PROFSCRIPT="mqsiprofile.cmd"
+  # elif [ "${OSVER%%-*}" = "linux" ]; then
+  else
+    ALTBASE=("/opt/ibm/mqsi" "/opt/IBM/MQSI" "/opt/ibm/MQSI" "opt/IBM/mqsi" "/opt")
+    _SEP='/'
+    _PROFSCRIPT="mqsiprofile"
+  fi
+  if [ -n "$MQSI_FILEPATH" ] && [ -d "${MQSI_FILEPATH}" ]; then
+    if [ -e "${MQSI_FILEPATH}${_SEP}bin${_SEP}${_PROFSCRIPT}" ]; then
+      debug "locateMQSIProfile: MQSI_FILEPATH is already set: $MQSI_FILEPATH"
+      echo "${MQSI_FILEPATH}${_SEP}bin${_SEP}${_PROFSCRIPT}"
+    fi
+  else
+    # walk through possible prefixes
+    for progdir in "${ALTBASE[@]}"; do
+      if [ -d "$progdir" ]; then
+        mqsilatest=$(ls "${progdir}" | grep -E '[1-9][0-9]*(\.[0-9]+)+' |sort -r | head -1)
+        if [ -z "$mqsilatest" ]; then continue; fi
+        debug "locateMQSIProfile: latest version $mqsilatest"
+        if [ -d "${progdir}${_SEP}${mqsilatest}/bin" ] && [ -e "${progdir}${_SEP}${mqsilatest}${_SEP}bin${_SEP}${_PROFSCRIPT}" ]; then
+          debug "locateMQSIProfile: derived MQSI path: ${progdir}${_SEP}${mqsilatest}"
+          echo "${progdir}${_SEP}${mqsilatest}${_SEP}bin${_SEP}${_PROFSCRIPT}"
+          return 0
+        fi
+      fi
+    done
+  fi
+}
+
+
+#######################################
+# Logger Code
+#
+exec 3>&2 # logging stream (file descriptor 3) defaults to STDERR
+verbosity=${_LOGLEVEL:-3} # default to show warnings
+silent_lvl=0
+err_lvl=1
+wrn_lvl=2
+inf_lvl=3
+dbg_lvl=4
+trc_lvl=5
+
+notify() { log $silent_lvl " NOTE: $1"; } # Always prints
+error()  { log $err_lvl    "ERROR: $1"; }
+warn()   { log $wrn_lvl    " WARN: $1"; }
+inf()    { log $inf_lvl    " INFO: $1"; } # inf b/c function "info" already exists
+debug()  { log $dbg_lvl    "DEBUG: $1"; }
+trace()  { log $trc_lvl    "TRACE: $1"; }
+log() {
+  if [ $verbosity -ge $1 ]; then
+    _PAD=${_PAD:-  }
+    datestring=`date +'%Y-%m-%d %H:%M:%S'`
+    # Expand escaped characters, wrap at 70 chars, indent wrapped lines
+    if [ -n "$_WRAP" ] && [ "$_WRAP" -gt 0 ]; then
+      echo "$datestring $2" | fold -w${_WRAP} -s | sed "2,\$s/^/${_PAD}/" >&3
+    else
+      echo "$datestring $2" | sed "2,\$s/^/${_PAD}/" >&3
+    fi
+  fi
+}

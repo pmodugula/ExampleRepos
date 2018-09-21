@@ -1,0 +1,10 @@
+@REM File: IBN2.dat
+@REM Version: 0.1.0
+@REM Date: 28-Nov 2014
+@REM Author: Alex Russell
+
+@REM common-library-java DO NOT UN-REM
+common-library-msgnode
+common-library-msgnode-log4j-java
+common-library-jars
+core-cache-library-java

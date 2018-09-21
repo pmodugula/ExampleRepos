@@ -1,0 +1,1640 @@
+Status: project 'core-bridge-ems-to-mq' for collection 'caldc' processing..
+Successfully compiled message set project: C:/eai/ibm-ib-ppbr/source/common-asn-library-xml
+Successfully compiled Java project: C:/eai/ibm-ib-ppbr/source/common-library-java
+Successfully compiled message set project: C:/eai/ibm-ib-ppbr/source/common-wms-library-xml
+BIP0986I Command completed successfully.
+
+
+
+
+Successfully compiled message set project: C:/eai/ibm-ib-ppbr/source/common-asn-library-xml
+Successfully compiled Java project: C:/eai/ibm-ib-ppbr/source/common-library-java
+Successfully compiled Java project: C:/eai/ibm-ib-ppbr/source/common-library-msgnode-log4j-java
+Successfully compiled message set project: C:/eai/ibm-ib-ppbr/source/common-wms-library-xml
+BIP0986I Command completed successfully.
+
+
+
+
+Successfully added file 'core\bridge\ems_to_mq\consumer.msgflow' to the broker archive.
+Successfully added file 'common\discovery.subflow' to the broker archive.
+Successfully added file 'common\package.esql' to the broker archive.
+Successfully added file 'common\queue.subflow' to the broker archive.
+Successfully added file 'common\schema.esql' to the broker archive.
+Successfully added file 'common\throw.subflow' to the broker archive.
+Successfully added file 'EaiCore\package.esql' to the broker archive.
+Successfully added file 'java\lang\System\package.esql' to the broker archive.
+Successfully added file 'common-library-java.jar' to the broker archive.
+Library file 'common-library.libzip' successfully added to the broker archive.
+Successfully added file 'core\log\audit.esql' to the broker archive.
+Successfully added file 'core\log\audit.subflow' to the broker archive.
+Successfully added file 'core\log\business.esql' to the broker archive.
+Successfully added file 'core\log\business.subflow' to the broker archive.
+Successfully added file 'core\log\handler.esql' to the broker archive.
+Successfully added file 'core\log\schema.esql' to the broker archive.
+Successfully added file 'core\log\technical\exception.subflow' to the broker archive.
+Successfully added file 'core\log\technical\message.subflow' to the broker archive.
+Successfully added file 'core\log\technical.esql' to the broker archive.
+Successfully added file 'core\log\technical.subflow' to the broker archive.
+Successfully added file 'core\log\_handler.subflow' to the broker archive.
+Library file 'core-log-handler-library.libzip' successfully added to the broker archive.
+Successfully added file 'core\message\postprocessor.esql' to the broker archive.
+Successfully added file 'core\message\preprocessor.esql' to the broker archive.
+Successfully added file 'core\message\_postprocessor.subflow' to the broker archive.
+Successfully added file 'core\message\_preprocessor.subflow' to the broker archive.
+Library file 'core-message-processor-library.libzip' successfully added to the broker archive.
+Application file 'core-bridge-ems-to-mq.appzip' successfully added to the broker archive.
+BIP1845I: Command completed successfully.
+Status: project 'core-bridge-ems-to-mq' for collection 'caldc' was processed
+Status: project 'core-bridge-mq-to-wms-inbound' for collection 'caldc' processing..
+Successfully compiled message set project: C:/eai/ibm-ib-ppbr/source/common-asn-library-xml
+Successfully compiled Java project: C:/eai/ibm-ib-ppbr/source/common-library-java
+Successfully compiled message set project: C:/eai/ibm-ib-ppbr/source/common-wms-library-xml
+BIP0986I Command completed successfully.
+
+
+
+
+Successfully compiled message set project: C:/eai/ibm-ib-ppbr/source/common-asn-library-xml
+Successfully compiled Java project: C:/eai/ibm-ib-ppbr/source/common-library-java
+Successfully compiled Java project: C:/eai/ibm-ib-ppbr/source/common-library-msgnode-log4j-java
+Successfully compiled message set project: C:/eai/ibm-ib-ppbr/source/common-wms-library-xml
+BIP0986I Command completed successfully.
+
+
+
+
+Successfully added file 'core\bridge\mq_to_wms\consumer.esql' to the broker archive.
+Successfully added file 'core\bridge\mq_to_wms\consumer.msgflow' to the broker archive.
+Successfully added file 'core\bridge\mq_to_wms\mq_to_wms_AuditChangeEvent.esql' to the broker archive.
+Successfully added file 'core\bridge\mq_to_wms\_consumer.subflow' to the broker archive.
+Successfully added file 'common\discovery.subflow' to the broker archive.
+Successfully added file 'common\package.esql' to the broker archive.
+Successfully added file 'common\queue.subflow' to the broker archive.
+Successfully added file 'common\schema.esql' to the broker archive.
+Successfully added file 'common\throw.subflow' to the broker archive.
+Successfully added file 'EaiCore\package.esql' to the broker archive.
+Successfully added file 'java\lang\System\package.esql' to the broker archive.
+Successfully added file 'common-library-java.jar' to the broker archive.
+Library file 'common-library.libzip' successfully added to the broker archive.
+Successfully added file 'com\marks\WMStaging_Application_Compute.esql' to the broker archive.
+Successfully added file 'com\marks\WMStaging_Procedures.esql' to the broker archive.
+Successfully added file 'common\wms\get_batch_control_sequence.subflow' to the broker archive.
+Successfully added file 'common\wms\wms.esql' to the broker archive.
+Successfully added file 'schema.esql' to the broker archive.
+Successfully added file 'WMStaging_DCRouting_Compute.esql' to the broker archive.
+Successfully added file 'common-wms-library-xml.xsdzip' to the broker archive.
+Library file 'common-wms-library.libzip' successfully added to the broker archive.
+Successfully added file 'Tables\CCINPT00.xsd' to the broker archive.
+Successfully added file 'Tables\I1INPT00.xsd' to the broker archive.
+Successfully added file 'Tables\I2INPT00.xsd' to the broker archive.
+Successfully added file 'Tables\I3INPT00.xsd' to the broker archive.
+Successfully added file 'Tables\I5INPT00.xsd' to the broker archive.
+Successfully added file 'Tables\I6INPT00.xsd' to the broker archive.
+Successfully added file 'Tables\I8INPT00.xsd' to the broker archive.
+Successfully added file 'Tables\I9INPT00.xsd' to the broker archive.
+Successfully added file 'Tables\IBINPT00.xsd' to the broker archive.
+Successfully added file 'Tables\IDINPT00.xsd' to the broker archive.
+Successfully added file 'Tables\IFINPT00.xsd' to the broker archive.
+Successfully added file 'Tables\IGINPT00.xsd' to the broker archive.
+Successfully added file 'Tables\IJINPT00.xsd' to the broker archive.
+Successfully added file 'Tables\IRINPT00.xsd' to the broker archive.
+Successfully added file 'Tables\PXSTYL00.xsd' to the broker archive.
+Successfully added file 'Tables\ShippingInvoice.xsd' to the broker archive.
+Successfully added file 'WMStaging.xsd' to the broker archive.
+Library file 'common-wms-library-message-model.libzip' successfully added to the broker archive.
+Successfully added file 'core\log\audit.esql' to the broker archive.
+Successfully added file 'core\log\audit.subflow' to the broker archive.
+Successfully added file 'core\log\business.esql' to the broker archive.
+Successfully added file 'core\log\business.subflow' to the broker archive.
+Successfully added file 'core\log\handler.esql' to the broker archive.
+Successfully added file 'core\log\schema.esql' to the broker archive.
+Successfully added file 'core\log\technical\exception.subflow' to the broker archive.
+Successfully added file 'core\log\technical\message.subflow' to the broker archive.
+Successfully added file 'core\log\technical.esql' to the broker archive.
+Successfully added file 'core\log\technical.subflow' to the broker archive.
+Successfully added file 'core\log\_handler.subflow' to the broker archive.
+Library file 'core-log-handler-library.libzip' successfully added to the broker archive.
+Successfully added file 'core\message\postprocessor.esql' to the broker archive.
+Successfully added file 'core\message\preprocessor.esql' to the broker archive.
+Successfully added file 'core\message\_postprocessor.subflow' to the broker archive.
+Successfully added file 'core\message\_preprocessor.subflow' to the broker archive.
+Library file 'core-message-processor-library.libzip' successfully added to the broker archive.
+Application file 'core-bridge-mq-to-wms-inbound.appzip' successfully added to the broker archive.
+BIP1845I: Command completed successfully.
+Status: project 'core-bridge-mq-to-wms-inbound' for collection 'caldc' was processed
+Status: project 'core-caldc-wms-inbound' for collection 'caldc' processing..
+Successfully added file 'com\marks\WMStaging_Application_CalDC.msgflow' to the broker archive.
+Successfully added file 'com\marks\WMStaging_Application_CalDC_Compute.esql' to the broker archive.
+Successfully added file 'common\discovery.subflow' to the broker archive.
+Successfully added file 'common\package.esql' to the broker archive.
+Successfully added file 'common\queue.subflow' to the broker archive.
+Successfully added file 'common\schema.esql' to the broker archive.
+Successfully added file 'common\throw.subflow' to the broker archive.
+Successfully added file 'EaiCore\package.esql' to the broker archive.
+Successfully added file 'java\lang\System\package.esql' to the broker archive.
+Successfully added file 'common-library-java.jar' to the broker archive.
+Library file 'common-library.libzip' successfully added to the broker archive.
+Successfully added file 'core\log\audit.esql' to the broker archive.
+Successfully added file 'core\log\audit.subflow' to the broker archive.
+Successfully added file 'core\log\business.esql' to the broker archive.
+Successfully added file 'core\log\business.subflow' to the broker archive.
+Successfully added file 'core\log\handler.esql' to the broker archive.
+Successfully added file 'core\log\schema.esql' to the broker archive.
+Successfully added file 'core\log\technical\exception.subflow' to the broker archive.
+Successfully added file 'core\log\technical\message.subflow' to the broker archive.
+Successfully added file 'core\log\technical.esql' to the broker archive.
+Successfully added file 'core\log\technical.subflow' to the broker archive.
+Successfully added file 'core\log\_handler.subflow' to the broker archive.
+Library file 'core-log-handler-library.libzip' successfully added to the broker archive.
+Successfully added file 'core\message\postprocessor.esql' to the broker archive.
+Successfully added file 'core\message\preprocessor.esql' to the broker archive.
+Successfully added file 'core\message\_postprocessor.subflow' to the broker archive.
+Successfully added file 'core\message\_preprocessor.subflow' to the broker archive.
+Library file 'core-message-processor-library.libzip' successfully added to the broker archive.
+Successfully added file 'com\marks\WMStaging_Application_Compute.esql' to the broker archive.
+Successfully added file 'com\marks\WMStaging_Procedures.esql' to the broker archive.
+Successfully added file 'common\wms\get_batch_control_sequence.subflow' to the broker archive.
+Successfully added file 'common\wms\wms.esql' to the broker archive.
+Successfully added file 'schema.esql' to the broker archive.
+Successfully added file 'WMStaging_DCRouting_Compute.esql' to the broker archive.
+Successfully added file 'common-wms-library-xml.xsdzip' to the broker archive.
+Library file 'common-wms-library.libzip' successfully added to the broker archive.
+Application file 'core-caldc-wms-inbound.appzip' successfully added to the broker archive.
+BIP1845I: Command completed successfully.
+Status: project 'core-caldc-wms-inbound' for collection 'caldc' was processed
+Status: project 'core-misdc-wms-inbound' for collection 'caldc' processing..
+Successfully added file 'com\marks\WMStaging_Application_MisDC.msgflow' to the broker archive.
+Successfully added file 'com\marks\WMStaging_Application_MisDC_Compute.esql' to the broker archive.
+Successfully added file 'common\discovery.subflow' to the broker archive.
+Successfully added file 'common\package.esql' to the broker archive.
+Successfully added file 'common\queue.subflow' to the broker archive.
+Successfully added file 'common\schema.esql' to the broker archive.
+Successfully added file 'common\throw.subflow' to the broker archive.
+Successfully added file 'EaiCore\package.esql' to the broker archive.
+Successfully added file 'java\lang\System\package.esql' to the broker archive.
+Successfully added file 'common-library-java.jar' to the broker archive.
+Library file 'common-library.libzip' successfully added to the broker archive.
+Successfully added file 'core\log\audit.esql' to the broker archive.
+Successfully added file 'core\log\audit.subflow' to the broker archive.
+Successfully added file 'core\log\business.esql' to the broker archive.
+Successfully added file 'core\log\business.subflow' to the broker archive.
+Successfully added file 'core\log\handler.esql' to the broker archive.
+Successfully added file 'core\log\schema.esql' to the broker archive.
+Successfully added file 'core\log\technical\exception.subflow' to the broker archive.
+Successfully added file 'core\log\technical\message.subflow' to the broker archive.
+Successfully added file 'core\log\technical.esql' to the broker archive.
+Successfully added file 'core\log\technical.subflow' to the broker archive.
+Successfully added file 'core\log\_handler.subflow' to the broker archive.
+Library file 'core-log-handler-library.libzip' successfully added to the broker archive.
+Successfully added file 'core\message\postprocessor.esql' to the broker archive.
+Successfully added file 'core\message\preprocessor.esql' to the broker archive.
+Successfully added file 'core\message\_postprocessor.subflow' to the broker archive.
+Successfully added file 'core\message\_preprocessor.subflow' to the broker archive.
+Library file 'core-message-processor-library.libzip' successfully added to the broker archive.
+Successfully added file 'com\marks\WMStaging_Application_Compute.esql' to the broker archive.
+Successfully added file 'com\marks\WMStaging_Procedures.esql' to the broker archive.
+Successfully added file 'common\wms\get_batch_control_sequence.subflow' to the broker archive.
+Successfully added file 'common\wms\wms.esql' to the broker archive.
+Successfully added file 'schema.esql' to the broker archive.
+Successfully added file 'WMStaging_DCRouting_Compute.esql' to the broker archive.
+Successfully added file 'common-wms-library-xml.xsdzip' to the broker archive.
+Library file 'common-wms-library.libzip' successfully added to the broker archive.
+Application file 'core-misdc-wms-inbound.appzip' successfully added to the broker archive.
+BIP1845I: Command completed successfully.
+Status: project 'core-misdc-wms-inbound' for collection 'caldc' was processed
+Status: project 'core-pix-caldc-wms-outbound' for collection 'caldc' processing..
+Successfully compiled message set project: C:/eai/ibm-ib-ppbr/source/common-asn-library-xml
+Successfully compiled Java project: C:/eai/ibm-ib-ppbr/source/common-library-java
+Successfully compiled message set project: C:/eai/ibm-ib-ppbr/source/common-wms-library-xml
+BIP0986I Command completed successfully.
+
+
+
+
+Successfully compiled message set project: C:/eai/ibm-ib-ppbr/source/common-asn-library-xml
+Successfully compiled Java project: C:/eai/ibm-ib-ppbr/source/common-library-java
+Successfully compiled message set project: C:/eai/ibm-ib-ppbr/source/common-wms-library-xml
+Successfully compiled Java project: C:/eai/ibm-ib-ppbr/source/core-configuration-loader-system-java
+BIP0986I Command completed successfully.
+
+
+
+
+Successfully added file 'core\pix\caldc\wms\dispatcher.esql' to the broker archive.
+Successfully added file 'core\pix\caldc\wms\dispatcher.msgflow' to the broker archive.
+Successfully added file 'core\pix\caldc\wms\_dispatcher.subflow' to the broker archive.
+Successfully added file 'common\discovery.subflow' to the broker archive.
+Successfully added file 'common\package.esql' to the broker archive.
+Successfully added file 'common\queue.subflow' to the broker archive.
+Successfully added file 'common\schema.esql' to the broker archive.
+Successfully added file 'common\throw.subflow' to the broker archive.
+Successfully added file 'EaiCore\package.esql' to the broker archive.
+Successfully added file 'java\lang\System\package.esql' to the broker archive.
+Successfully added file 'common-library-java.jar' to the broker archive.
+Library file 'common-library.libzip' successfully added to the broker archive.
+Successfully added file 'core\configuration\core_configuration.esql' to the broker archive.
+Successfully added file 'core_configuration_handler.subflow' to the broker archive.
+Successfully added file 'core_configuration_internal.subflow' to the broker archive.
+Successfully added file 'core_configuration_query_queue.subflow' to the broker archive.
+Successfully added file 'core_configuration_via_queue.subflow' to the broker archive.
+Library file 'core-configuration-handler-library.libzip' successfully added to the broker archive.
+Successfully added file 'core_configuration_loader_database.esql' to the broker archive.
+Successfully added file 'core_configuration_loader_database.subflow' to the broker archive.
+Library file 'core-configuration-loader-database.libzip' successfully added to the broker archive.
+Successfully added file 'CoreConfigurationLoader.xsd' to the broker archive.
+Successfully added file 'core_configuration_loader_file.esql' to the broker archive.
+Successfully added file 'core_configuration_loader_file.subflow' to the broker archive.
+Successfully added file 'IBMdefined\CommaSeparatedFormat.xsd' to the broker archive.
+Library file 'core-configuration-loader-file.libzip' successfully added to the broker archive.
+Successfully added file 'core\configuration\loader\core_configuration_loader.esql' to the broker archive.
+Successfully added file '_core_configuration_loader.subflow' to the broker archive.
+Library file 'core-configuration-loader-library.libzip' successfully added to the broker archive.
+Successfully added file 'core_configuration_loader_system.esql' to the broker archive.
+Successfully added file 'core_configuration_loader_system.subflow' to the broker archive.
+Successfully added file 'core-configuration-loader-system-java.jar' to the broker archive.
+Library file 'core-configuration-loader-system.libzip' successfully added to the broker archive.
+Successfully added file 'core\log\audit.esql' to the broker archive.
+Successfully added file 'core\log\audit.subflow' to the broker archive.
+Successfully added file 'core\log\business.esql' to the broker archive.
+Successfully added file 'core\log\business.subflow' to the broker archive.
+Successfully added file 'core\log\handler.esql' to the broker archive.
+Successfully added file 'core\log\schema.esql' to the broker archive.
+Successfully added file 'core\log\technical\exception.subflow' to the broker archive.
+Successfully added file 'core\log\technical\message.subflow' to the broker archive.
+Successfully added file 'core\log\technical.esql' to the broker archive.
+Successfully added file 'core\log\technical.subflow' to the broker archive.
+Successfully added file 'core\log\_handler.subflow' to the broker archive.
+Library file 'core-log-handler-library.libzip' successfully added to the broker archive.
+Successfully added file 'core\message\postprocessor.esql' to the broker archive.
+Successfully added file 'core\message\preprocessor.esql' to the broker archive.
+Successfully added file 'core\message\_postprocessor.subflow' to the broker archive.
+Successfully added file 'core\message\_preprocessor.subflow' to the broker archive.
+Library file 'core-message-processor-library.libzip' successfully added to the broker archive.
+Successfully added file 'checkPXCO_Field_Compute.esql' to the broker archive.
+Successfully added file 'PIX_Dispatcher_CommonProc.esql' to the broker archive.
+Successfully added file 'PIX_Dispatcher_Filter.esql' to the broker archive.
+Successfully added file 'PIX_Dispatcher_PIXRoutingTable.esql' to the broker archive.
+Library file 'core-pix-wms-library.libzip' successfully added to the broker archive.
+Application file 'core-pix-caldc-wms-outbound.appzip' successfully added to the broker archive.
+BIP1845I: Command completed successfully.
+Status: project 'core-pix-caldc-wms-outbound' for collection 'caldc' was processed
+Status: project 'core-pix-misdc-wms-outbound' for collection 'caldc' processing..
+Successfully compiled message set project: C:/eai/ibm-ib-ppbr/source/common-asn-library-xml
+Successfully compiled Java project: C:/eai/ibm-ib-ppbr/source/common-library-java
+Successfully compiled message set project: C:/eai/ibm-ib-ppbr/source/common-wms-library-xml
+BIP0986I Command completed successfully.
+
+
+
+
+Successfully compiled message set project: C:/eai/ibm-ib-ppbr/source/common-asn-library-xml
+Successfully compiled Java project: C:/eai/ibm-ib-ppbr/source/common-library-java
+Successfully compiled message set project: C:/eai/ibm-ib-ppbr/source/common-wms-library-xml
+Successfully compiled Java project: C:/eai/ibm-ib-ppbr/source/core-configuration-loader-system-java
+BIP0986I Command completed successfully.
+
+
+
+
+Successfully added file 'core\pix\misdc\wms\dispatcher.esql' to the broker archive.
+Successfully added file 'core\pix\misdc\wms\dispatcher.msgflow' to the broker archive.
+Successfully added file '_dispatcher.subflow' to the broker archive.
+Successfully added file 'common\discovery.subflow' to the broker archive.
+Successfully added file 'common\package.esql' to the broker archive.
+Successfully added file 'common\queue.subflow' to the broker archive.
+Successfully added file 'common\schema.esql' to the broker archive.
+Successfully added file 'common\throw.subflow' to the broker archive.
+Successfully added file 'EaiCore\package.esql' to the broker archive.
+Successfully added file 'java\lang\System\package.esql' to the broker archive.
+Successfully added file 'common-library-java.jar' to the broker archive.
+Library file 'common-library.libzip' successfully added to the broker archive.
+Successfully added file 'core\configuration\core_configuration.esql' to the broker archive.
+Successfully added file 'core_configuration_handler.subflow' to the broker archive.
+Successfully added file 'core_configuration_internal.subflow' to the broker archive.
+Successfully added file 'core_configuration_query_queue.subflow' to the broker archive.
+Successfully added file 'core_configuration_via_queue.subflow' to the broker archive.
+Library file 'core-configuration-handler-library.libzip' successfully added to the broker archive.
+Successfully added file 'core_configuration_loader_database.esql' to the broker archive.
+Successfully added file 'core_configuration_loader_database.subflow' to the broker archive.
+Library file 'core-configuration-loader-database.libzip' successfully added to the broker archive.
+Successfully added file 'CoreConfigurationLoader.xsd' to the broker archive.
+Successfully added file 'core_configuration_loader_file.esql' to the broker archive.
+Successfully added file 'core_configuration_loader_file.subflow' to the broker archive.
+Successfully added file 'IBMdefined\CommaSeparatedFormat.xsd' to the broker archive.
+Library file 'core-configuration-loader-file.libzip' successfully added to the broker archive.
+Successfully added file 'core\configuration\loader\core_configuration_loader.esql' to the broker archive.
+Successfully added file '_core_configuration_loader.subflow' to the broker archive.
+Library file 'core-configuration-loader-library.libzip' successfully added to the broker archive.
+Successfully added file 'core_configuration_loader_system.esql' to the broker archive.
+Successfully added file 'core_configuration_loader_system.subflow' to the broker archive.
+Successfully added file 'core-configuration-loader-system-java.jar' to the broker archive.
+Library file 'core-configuration-loader-system.libzip' successfully added to the broker archive.
+Successfully added file 'core\log\audit.esql' to the broker archive.
+Successfully added file 'core\log\audit.subflow' to the broker archive.
+Successfully added file 'core\log\business.esql' to the broker archive.
+Successfully added file 'core\log\business.subflow' to the broker archive.
+Successfully added file 'core\log\handler.esql' to the broker archive.
+Successfully added file 'core\log\schema.esql' to the broker archive.
+Successfully added file 'core\log\technical\exception.subflow' to the broker archive.
+Successfully added file 'core\log\technical\message.subflow' to the broker archive.
+Successfully added file 'core\log\technical.esql' to the broker archive.
+Successfully added file 'core\log\technical.subflow' to the broker archive.
+Successfully added file 'core\log\_handler.subflow' to the broker archive.
+Library file 'core-log-handler-library.libzip' successfully added to the broker archive.
+Successfully added file 'core\message\postprocessor.esql' to the broker archive.
+Successfully added file 'core\message\preprocessor.esql' to the broker archive.
+Successfully added file 'core\message\_postprocessor.subflow' to the broker archive.
+Successfully added file 'core\message\_preprocessor.subflow' to the broker archive.
+Library file 'core-message-processor-library.libzip' successfully added to the broker archive.
+Successfully added file 'checkPXCO_Field_Compute.esql' to the broker archive.
+Successfully added file 'PIX_Dispatcher_CommonProc.esql' to the broker archive.
+Successfully added file 'PIX_Dispatcher_Filter.esql' to the broker archive.
+Successfully added file 'PIX_Dispatcher_PIXRoutingTable.esql' to the broker archive.
+Library file 'core-pix-wms-library.libzip' successfully added to the broker archive.
+Application file 'core-pix-misdc-wms-outbound.appzip' successfully added to the broker archive.
+BIP1845I: Command completed successfully.
+Status: project 'core-pix-misdc-wms-outbound' for collection 'caldc' was processed
+Status: project 'dat-po-pmm-publisher' for collection 'caldc' processing..
+Successfully added file 'com\fglsports\mww\purchaseorder\PMM_PO_Publisher.msgflow' to the broker archive.
+Successfully added file 'com\fglsports\mww\purchaseorder\PMM_PO_Publisher_Compute.esql' to the broker archive.
+Successfully added file 'com\fglsports\mww\purchaseorder\PurchaseOrderCommonProcedures.esql' to the broker archive.
+Successfully added file 'common\discovery.subflow' to the broker archive.
+Successfully added file 'common\package.esql' to the broker archive.
+Successfully added file 'common\queue.subflow' to the broker archive.
+Successfully added file 'common\schema.esql' to the broker archive.
+Successfully added file 'common\throw.subflow' to the broker archive.
+Successfully added file 'EaiCore\package.esql' to the broker archive.
+Successfully added file 'java\lang\System\package.esql' to the broker archive.
+Successfully added file 'common-library-java.jar' to the broker archive.
+Library file 'common-library.libzip' successfully added to the broker archive.
+Successfully added file 'com\marks\WMStaging_Application_Compute.esql' to the broker archive.
+Successfully added file 'com\marks\WMStaging_Procedures.esql' to the broker archive.
+Successfully added file 'common\wms\get_batch_control_sequence.subflow' to the broker archive.
+Successfully added file 'common\wms\wms.esql' to the broker archive.
+Successfully added file 'schema.esql' to the broker archive.
+Successfully added file 'WMStaging_DCRouting_Compute.esql' to the broker archive.
+Successfully added file 'common-wms-library-xml.xsdzip' to the broker archive.
+Library file 'common-wms-library.libzip' successfully added to the broker archive.
+Successfully added file 'core\log\audit.esql' to the broker archive.
+Successfully added file 'core\log\audit.subflow' to the broker archive.
+Successfully added file 'core\log\business.esql' to the broker archive.
+Successfully added file 'core\log\business.subflow' to the broker archive.
+Successfully added file 'core\log\handler.esql' to the broker archive.
+Successfully added file 'core\log\schema.esql' to the broker archive.
+Successfully added file 'core\log\technical\exception.subflow' to the broker archive.
+Successfully added file 'core\log\technical\message.subflow' to the broker archive.
+Successfully added file 'core\log\technical.esql' to the broker archive.
+Successfully added file 'core\log\technical.subflow' to the broker archive.
+Successfully added file 'core\log\_handler.subflow' to the broker archive.
+Library file 'core-log-handler-library.libzip' successfully added to the broker archive.
+Successfully added file 'core\message\postprocessor.esql' to the broker archive.
+Successfully added file 'core\message\preprocessor.esql' to the broker archive.
+Successfully added file 'core\message\_postprocessor.subflow' to the broker archive.
+Successfully added file 'core\message\_preprocessor.subflow' to the broker archive.
+Library file 'core-message-processor-library.libzip' successfully added to the broker archive.
+Application file 'dat-po-pmm-publisher.appzip' successfully added to the broker archive.
+BIP1845I: Command completed successfully.
+Status: project 'dat-po-pmm-publisher' for collection 'caldc' was processed
+Status: project 'dat-po-wms-subscriber' for collection 'caldc' processing..
+Successfully added file 'com\fglsports\mww\purchaseorder\WM_PO_Subscriber.msgflow' to the broker archive.
+Successfully added file 'com\fglsports\mww\purchaseorder\WM_PO_Subscriber_Compute.esql' to the broker archive.
+Successfully added file 'common\discovery.subflow' to the broker archive.
+Successfully added file 'common\package.esql' to the broker archive.
+Successfully added file 'common\queue.subflow' to the broker archive.
+Successfully added file 'common\schema.esql' to the broker archive.
+Successfully added file 'common\throw.subflow' to the broker archive.
+Successfully added file 'EaiCore\package.esql' to the broker archive.
+Successfully added file 'java\lang\System\package.esql' to the broker archive.
+Successfully added file 'common-library-java.jar' to the broker archive.
+Library file 'common-library.libzip' successfully added to the broker archive.
+Successfully added file 'com\marks\WMStaging_Application_Compute.esql' to the broker archive.
+Successfully added file 'com\marks\WMStaging_Procedures.esql' to the broker archive.
+Successfully added file 'common\wms\get_batch_control_sequence.subflow' to the broker archive.
+Successfully added file 'common\wms\wms.esql' to the broker archive.
+Successfully added file 'schema.esql' to the broker archive.
+Successfully added file 'WMStaging_DCRouting_Compute.esql' to the broker archive.
+Successfully added file 'common-wms-library-xml.xsdzip' to the broker archive.
+Library file 'common-wms-library.libzip' successfully added to the broker archive.
+Successfully added file 'core\log\audit.esql' to the broker archive.
+Successfully added file 'core\log\audit.subflow' to the broker archive.
+Successfully added file 'core\log\business.esql' to the broker archive.
+Successfully added file 'core\log\business.subflow' to the broker archive.
+Successfully added file 'core\log\handler.esql' to the broker archive.
+Successfully added file 'core\log\schema.esql' to the broker archive.
+Successfully added file 'core\log\technical\exception.subflow' to the broker archive.
+Successfully added file 'core\log\technical\message.subflow' to the broker archive.
+Successfully added file 'core\log\technical.esql' to the broker archive.
+Successfully added file 'core\log\technical.subflow' to the broker archive.
+Successfully added file 'core\log\_handler.subflow' to the broker archive.
+Library file 'core-log-handler-library.libzip' successfully added to the broker archive.
+Successfully added file 'core\message\postprocessor.esql' to the broker archive.
+Successfully added file 'core\message\preprocessor.esql' to the broker archive.
+Successfully added file 'core\message\_postprocessor.subflow' to the broker archive.
+Successfully added file 'core\message\_preprocessor.subflow' to the broker archive.
+Library file 'core-message-processor-library.libzip' successfully added to the broker archive.
+Successfully added file 'com\fglsports\mww\purchaseorder\PMM_PO_CommonProcedures.esql' to the broker archive.
+Library file 'dat-po-library.libzip' successfully added to the broker archive.
+Application file 'dat-po-wms-subscriber.appzip' successfully added to the broker archive.
+BIP1845I: Command completed successfully.
+Status: project 'dat-po-wms-subscriber' for collection 'caldc' was processed
+Status: project 'dat-product-pmm-publisher' for collection 'caldc' processing..
+Successfully compiled message set project: C:/eai/ibm-ib-ppbr/source/common-asn-library-xml
+Successfully compiled Java project: C:/eai/ibm-ib-ppbr/source/common-library-java
+Successfully compiled message set project: C:/eai/ibm-ib-ppbr/source/common-wms-library-xml
+BIP0986I Command completed successfully.
+
+
+
+
+Successfully added file 'com\fglsports\mww\product\ProductMaster.esql' to the broker archive.
+Successfully added file 'com\fglsports\mww\product\ProductMaster.msgflow' to the broker archive.
+Successfully added file 'common\discovery.subflow' to the broker archive.
+Successfully added file 'common\package.esql' to the broker archive.
+Successfully added file 'common\queue.subflow' to the broker archive.
+Successfully added file 'common\schema.esql' to the broker archive.
+Successfully added file 'common\throw.subflow' to the broker archive.
+Successfully added file 'EaiCore\package.esql' to the broker archive.
+Successfully added file 'java\lang\System\package.esql' to the broker archive.
+Successfully added file 'common-library-java.jar' to the broker archive.
+Library file 'common-library.libzip' successfully added to the broker archive.
+Successfully added file 'core\log\audit.esql' to the broker archive.
+Successfully added file 'core\log\audit.subflow' to the broker archive.
+Successfully added file 'core\log\business.esql' to the broker archive.
+Successfully added file 'core\log\business.subflow' to the broker archive.
+Successfully added file 'core\log\handler.esql' to the broker archive.
+Successfully added file 'core\log\schema.esql' to the broker archive.
+Successfully added file 'core\log\technical\exception.subflow' to the broker archive.
+Successfully added file 'core\log\technical\message.subflow' to the broker archive.
+Successfully added file 'core\log\technical.esql' to the broker archive.
+Successfully added file 'core\log\technical.subflow' to the broker archive.
+Successfully added file 'core\log\_handler.subflow' to the broker archive.
+Library file 'core-log-handler-library.libzip' successfully added to the broker archive.
+Successfully added file 'core\message\postprocessor.esql' to the broker archive.
+Successfully added file 'core\message\preprocessor.esql' to the broker archive.
+Successfully added file 'core\message\_postprocessor.subflow' to the broker archive.
+Successfully added file 'core\message\_preprocessor.subflow' to the broker archive.
+Library file 'core-message-processor-library.libzip' successfully added to the broker archive.
+Successfully added file 'com\fglsports\mww\product\changeSKU.subflow' to the broker archive.
+Successfully added file 'com\fglsports\mww\product\changeSKU_Assemble_SKUProductDetails.esql' to the broker archive.
+Successfully added file 'com\fglsports\mww\product\changeStyle.subflow' to the broker archive.
+Successfully added file 'com\fglsports\mww\product\changeStyle_Assemble_Style.esql' to the broker archive.
+Successfully added file 'com\fglsports\mww\product\changeStyle_SplitSKUDimensions.esql' to the broker archive.
+Successfully added file 'com\fglsports\mww\product\changeUPC.subflow' to the broker archive.
+Successfully added file 'com\fglsports\mww\product\changeUPC_PrepareSKU.esql' to the broker archive.
+Successfully added file 'com\fglsports\mww\product\changeUPC_SendUPC.esql' to the broker archive.
+Successfully added file 'com\fglsports\mww\product\CreateProductArtsXML_Compute.esql' to the broker archive.
+Successfully added file 'com\fglsports\mww\product\deleteSKU.subflow' to the broker archive.
+Successfully added file 'com\fglsports\mww\product\deleteSKU_Compute.esql' to the broker archive.
+Successfully added file 'com\fglsports\mww\product\getAdditionalFields.subflow' to the broker archive.
+Successfully added file 'com\fglsports\mww\product\getAdditionalFields_getAdditionalFields.esql' to the broker archive.
+Successfully added file 'com\fglsports\mww\product\getAttributes.subflow' to the broker archive.
+Successfully added file 'com\fglsports\mww\product\getAttributes_getAttributes.esql' to the broker archive.
+Successfully added file 'com\fglsports\mww\product\getCommonProductData.esql' to the broker archive.
+Successfully added file 'com\fglsports\mww\product\getCommonProductData.subflow' to the broker archive.
+Successfully added file 'com\fglsports\mww\product\getDeleteSKUList.subflow' to the broker archive.
+Successfully added file 'com\fglsports\mww\product\getDeleteSKUList_getDeleteSKUList.esql' to the broker archive.
+Successfully added file 'com\fglsports\mww\product\getEngDescForStyle.subflow' to the broker archive.
+Successfully added file 'com\fglsports\mww\product\getEngDescForStyle_getEngDescForStyle.esql' to the broker archive.
+Successfully added file 'com\fglsports\mww\product\getpdx.subflow' to the broker archive.
+Successfully added file 'com\fglsports\mww\product\getpdx_getpdx.esql' to the broker archive.
+Successfully added file 'com\fglsports\mww\product\GetProductCommonData.subflow' to the broker archive.
+Successfully added file 'com\fglsports\mww\product\getProductCost.subflow' to the broker archive.
+Successfully added file 'com\fglsports\mww\product\getProductCost_getProductCost.esql' to the broker archive.
+Successfully added file 'com\fglsports\mww\product\getProductDetails.subflow' to the broker archive.
+Successfully added file 'com\fglsports\mww\product\getProductDetails_getProductDetails.esql' to the broker archive.
+Successfully added file 'com\fglsports\mww\product\getProductHierarchies.subflow' to the broker archive.
+Successfully added file 'com\fglsports\mww\product\getProductHierarchies_getProductHierarchies.esql' to the broker archive.
+Successfully added file 'com\fglsports\mww\product\getProductPrice.subflow' to the broker archive.
+Successfully added file 'com\fglsports\mww\product\getProductPrice_getProductPrice.esql' to the broker archive.
+Successfully added file 'com\fglsports\mww\product\GetProductSKU.subflow' to the broker archive.
+Successfully added file 'com\fglsports\mww\product\GetProductSKU_Compute.esql' to the broker archive.
+Successfully added file 'com\fglsports\mww\product\getSKU.subflow' to the broker archive.
+Successfully added file 'com\fglsports\mww\product\GetSKUDimension.subflow' to the broker archive.
+Successfully added file 'com\fglsports\mww\product\getSKUDimensions.subflow' to the broker archive.
+Successfully added file 'com\fglsports\mww\product\getSKUDimensions_getSKUDimensions.esql' to the broker archive.
+Successfully added file 'com\fglsports\mww\product\GetSKUDimension_Compute.esql' to the broker archive.
+Successfully added file 'com\fglsports\mww\product\getSKUEngDec.subflow' to the broker archive.
+Successfully added file 'com\fglsports\mww\product\getSKUEngDec_getSKUEngDec.esql' to the broker archive.
+Successfully added file 'com\fglsports\mww\product\getSKUProductDetails.subflow' to the broker archive.
+Successfully added file 'com\fglsports\mww\product\getSKU_getSKU.esql' to the broker archive.
+Successfully added file 'com\fglsports\mww\product\GetStyleCommonData.subflow' to the broker archive.
+Successfully added file 'com\fglsports\mww\product\getStyleDetails.esql' to the broker archive.
+Successfully added file 'com\fglsports\mww\product\getStyleDetails.subflow' to the broker archive.
+Successfully added file 'com\fglsports\mww\product\getUPC.subflow' to the broker archive.
+Successfully added file 'com\fglsports\mww\product\GetUPC_Compute.esql' to the broker archive.
+Successfully added file 'com\fglsports\mww\product\getUPC_getUPC.esql' to the broker archive.
+Successfully added file 'com\fglsports\mww\product\getVendorDetails.subflow' to the broker archive.
+Successfully added file 'com\fglsports\mww\product\getVendorDetails_getVendorDetails.esql' to the broker archive.
+Successfully added file 'com\fglsports\mww\product\ProcessSKUMessage.subflow' to the broker archive.
+Successfully added file 'com\fglsports\mww\product\ProcessSKUMessage_Compute.esql' to the broker archive.
+Successfully added file 'com\fglsports\mww\product\ProcessStyleMessage.subflow' to the broker archive.
+Successfully added file 'com\fglsports\mww\product\ProcessStyleMessage_Compute.esql' to the broker archive.
+Successfully added file 'com\fglsports\mww\product\ProcessStyleMessage_Filter.esql' to the broker archive.
+Successfully added file 'com\fglsports\mww\product\ProcessUPCMessage.subflow' to the broker archive.
+Successfully added file 'com\fglsports\mww\product\ProductMaster.esql' to the broker archive.
+Successfully added file 'com\fglsports\mww\product\ProductMasterCommonProcedures.esql' to the broker archive.
+Successfully added file 'com\fglsports\mww\spp\addUPCToCasePack_SendAddUPC.esql' to the broker archive.
+Successfully added file 'com\fglsports\mww\spp\addUPCToCasePack_SplitSppList.esql' to the broker archive.
+Successfully added file 'com\fglsports\mww\spp\changeCasePack.subflow' to the broker archive.
+Successfully added file 'com\fglsports\mww\spp\changeCasePack_getSPPInfo.esql' to the broker archive.
+Successfully added file 'com\fglsports\mww\spp\changeCasePack_SendSPP.esql' to the broker archive.
+Successfully added file 'com\fglsports\mww\spp\changeSKUToCasePack.subflow' to the broker archive.
+Successfully added file 'com\fglsports\mww\spp\changeSKUToCasePack_QuerySPP.esql' to the broker archive.
+Successfully added file 'com\fglsports\mww\spp\changeSKUToCasePack_SendChangeSKU.esql' to the broker archive.
+Successfully added file 'com\fglsports\mww\spp\changeUPCToCasePack.esql' to the broker archive.
+Successfully added file 'com\fglsports\mww\spp\changeUPCToCasePack.subflow' to the broker archive.
+Successfully added file 'com\fglsports\mww\spp\changeUPCToCasePack_Compute.esql' to the broker archive.
+Successfully added file 'com\fglsports\mww\spp\changeUPCToCasePack_Filter.esql' to the broker archive.
+Successfully added file 'com\fglsports\mww\spp\changeUPCToCasePack_IsActive.esql' to the broker archive.
+Successfully added file 'com\fglsports\mww\spp\deleteCasePack.subflow' to the broker archive.
+Successfully added file 'com\fglsports\mww\spp\deleteCasePack_getDeleteSPPInfo.esql' to the broker archive.
+Successfully added file 'com\fglsports\mww\spp\deleteCasePack_SendDeleteSPP.esql' to the broker archive.
+Successfully added file 'com\fglsports\mww\spp\getChangedSKUInfo.subflow' to the broker archive.
+Successfully added file 'com\fglsports\mww\spp\getChangedSKUInfo_getChangedSKUInfo.esql' to the broker archive.
+Successfully added file 'com\fglsports\mww\spp\getSppListForSKU.subflow' to the broker archive.
+Successfully added file 'com\fglsports\mww\spp\getSppListForSKU_getSppListForSKU.esql' to the broker archive.
+Successfully added file 'com\fglsports\mww\spp\Set_SPPUPC_Header.esql' to the broker archive.
+Successfully added file 'com\fglsports\mww\spp\Set_SPPUPC_Header_Compute.esql' to the broker archive.
+Successfully added file 'CreateProductArtsXML.subflow' to the broker archive.
+Successfully added file 'getProductAttribute.subflow' to the broker archive.
+Successfully added file 'GetProductStyle.subflow' to the broker archive.
+Library file 'dat-product-library.libzip' successfully added to the broker archive.
+Successfully added file 'AdditionalField.xsd' to the broker archive.
+Successfully added file 'ArtsBusinessUnitAddress.xsd' to the broker archive.
+Successfully added file 'ArtsRetail.xml' to the broker archive.
+Successfully added file 'ArtsRetail.xsd' to the broker archive.
+Successfully added file 'ArtsRetailProduct.xsd' to the broker archive.
+Successfully added file 'ArtsRetailStoreTelephone.xsd' to the broker archive.
+Successfully added file 'Copy of EaiExchange.xml' to the broker archive.
+Successfully added file 'DescriptionType.xsd' to the broker archive.
+Successfully added file 'Eai.xml' to the broker archive.
+Successfully added file 'Eai.xsd' to the broker archive.
+Successfully added file 'EaiEtlMeta.xsd' to the broker archive.
+Successfully added file 'EaiExchange.xml' to the broker archive.
+Successfully added file 'EaiExchange.xsd' to the broker archive.
+Successfully added file 'EaiExchange1.xml' to the broker archive.
+Successfully added file 'EaiExchange2.xml' to the broker archive.
+Successfully added file 'IBMdefined\soap.xsd' to the broker archive.
+Successfully added file 'Item.xsd' to the broker archive.
+Successfully added file 'MerchandiseHierarchy.xsd' to the broker archive.
+Successfully added file 'Product.xsd' to the broker archive.
+Successfully added file 'ProductAttributeType.xsd' to the broker archive.
+Successfully added file 'ProductCasePack.xsd' to the broker archive.
+Successfully added file 'ProductCommonDataType.xsd' to the broker archive.
+Successfully added file 'ProductHierarchy.xsd' to the broker archive.
+Successfully added file 'ProductPrice.xsd' to the broker archive.
+Successfully added file 'ProductUPC.xsd' to the broker archive.
+Successfully added file 'Style.xsd' to the broker archive.
+Successfully added file 'StyleCommonData.xsd' to the broker archive.
+Successfully added file 'StylePrepackItem.xsd' to the broker archive.
+Successfully added file 'Vendor.xsd' to the broker archive.
+Successfully added file 'VendorStatus.xsd' to the broker archive.
+Library file 'dat-product-library-message-model.libzip' successfully added to the broker archive.
+Application file 'dat-product-pmm-publisher.appzip' successfully added to the broker archive.
+BIP1845I: Command completed successfully.
+Status: project 'dat-product-pmm-publisher' for collection 'caldc' was processed
+Status: project 'dat-product-spp-pmm-publisher' for collection 'caldc' processing..
+Successfully added file 'com\fglsports\mww\spp\SppMaster.msgflow' to the broker archive.
+Successfully added file 'com\fglsports\mww\spp\SppMaster_DecideType.esql' to the broker archive.
+Successfully added file 'common\discovery.subflow' to the broker archive.
+Successfully added file 'common\package.esql' to the broker archive.
+Successfully added file 'common\queue.subflow' to the broker archive.
+Successfully added file 'common\schema.esql' to the broker archive.
+Successfully added file 'common\throw.subflow' to the broker archive.
+Successfully added file 'EaiCore\package.esql' to the broker archive.
+Successfully added file 'java\lang\System\package.esql' to the broker archive.
+Successfully added file 'common-library-java.jar' to the broker archive.
+Library file 'common-library.libzip' successfully added to the broker archive.
+Successfully added file 'core\log\audit.esql' to the broker archive.
+Successfully added file 'core\log\audit.subflow' to the broker archive.
+Successfully added file 'core\log\business.esql' to the broker archive.
+Successfully added file 'core\log\business.subflow' to the broker archive.
+Successfully added file 'core\log\handler.esql' to the broker archive.
+Successfully added file 'core\log\schema.esql' to the broker archive.
+Successfully added file 'core\log\technical\exception.subflow' to the broker archive.
+Successfully added file 'core\log\technical\message.subflow' to the broker archive.
+Successfully added file 'core\log\technical.esql' to the broker archive.
+Successfully added file 'core\log\technical.subflow' to the broker archive.
+Successfully added file 'core\log\_handler.subflow' to the broker archive.
+Library file 'core-log-handler-library.libzip' successfully added to the broker archive.
+Successfully added file 'core\message\postprocessor.esql' to the broker archive.
+Successfully added file 'core\message\preprocessor.esql' to the broker archive.
+Successfully added file 'core\message\_postprocessor.subflow' to the broker archive.
+Successfully added file 'core\message\_preprocessor.subflow' to the broker archive.
+Library file 'core-message-processor-library.libzip' successfully added to the broker archive.
+Successfully added file 'com\fglsports\mww\product\changeSKU.subflow' to the broker archive.
+Successfully added file 'com\fglsports\mww\product\changeSKU_Assemble_SKUProductDetails.esql' to the broker archive.
+Successfully added file 'com\fglsports\mww\product\changeStyle.subflow' to the broker archive.
+Successfully added file 'com\fglsports\mww\product\changeStyle_Assemble_Style.esql' to the broker archive.
+Successfully added file 'com\fglsports\mww\product\changeStyle_SplitSKUDimensions.esql' to the broker archive.
+Successfully added file 'com\fglsports\mww\product\changeUPC.subflow' to the broker archive.
+Successfully added file 'com\fglsports\mww\product\changeUPC_PrepareSKU.esql' to the broker archive.
+Successfully added file 'com\fglsports\mww\product\changeUPC_SendUPC.esql' to the broker archive.
+Successfully added file 'com\fglsports\mww\product\CreateProductArtsXML_Compute.esql' to the broker archive.
+Successfully added file 'com\fglsports\mww\product\deleteSKU.subflow' to the broker archive.
+Successfully added file 'com\fglsports\mww\product\deleteSKU_Compute.esql' to the broker archive.
+Successfully added file 'com\fglsports\mww\product\getAdditionalFields.subflow' to the broker archive.
+Successfully added file 'com\fglsports\mww\product\getAdditionalFields_getAdditionalFields.esql' to the broker archive.
+Successfully added file 'com\fglsports\mww\product\getAttributes.subflow' to the broker archive.
+Successfully added file 'com\fglsports\mww\product\getAttributes_getAttributes.esql' to the broker archive.
+Successfully added file 'com\fglsports\mww\product\getCommonProductData.esql' to the broker archive.
+Successfully added file 'com\fglsports\mww\product\getCommonProductData.subflow' to the broker archive.
+Successfully added file 'com\fglsports\mww\product\getDeleteSKUList.subflow' to the broker archive.
+Successfully added file 'com\fglsports\mww\product\getDeleteSKUList_getDeleteSKUList.esql' to the broker archive.
+Successfully added file 'com\fglsports\mww\product\getEngDescForStyle.subflow' to the broker archive.
+Successfully added file 'com\fglsports\mww\product\getEngDescForStyle_getEngDescForStyle.esql' to the broker archive.
+Successfully added file 'com\fglsports\mww\product\getpdx.subflow' to the broker archive.
+Successfully added file 'com\fglsports\mww\product\getpdx_getpdx.esql' to the broker archive.
+Successfully added file 'com\fglsports\mww\product\GetProductCommonData.subflow' to the broker archive.
+Successfully added file 'com\fglsports\mww\product\getProductCost.subflow' to the broker archive.
+Successfully added file 'com\fglsports\mww\product\getProductCost_getProductCost.esql' to the broker archive.
+Successfully added file 'com\fglsports\mww\product\getProductDetails.subflow' to the broker archive.
+Successfully added file 'com\fglsports\mww\product\getProductDetails_getProductDetails.esql' to the broker archive.
+Successfully added file 'com\fglsports\mww\product\getProductHierarchies.subflow' to the broker archive.
+Successfully added file 'com\fglsports\mww\product\getProductHierarchies_getProductHierarchies.esql' to the broker archive.
+Successfully added file 'com\fglsports\mww\product\getProductPrice.subflow' to the broker archive.
+Successfully added file 'com\fglsports\mww\product\getProductPrice_getProductPrice.esql' to the broker archive.
+Successfully added file 'com\fglsports\mww\product\GetProductSKU.subflow' to the broker archive.
+Successfully added file 'com\fglsports\mww\product\GetProductSKU_Compute.esql' to the broker archive.
+Successfully added file 'com\fglsports\mww\product\getSKU.subflow' to the broker archive.
+Successfully added file 'com\fglsports\mww\product\GetSKUDimension.subflow' to the broker archive.
+Successfully added file 'com\fglsports\mww\product\getSKUDimensions.subflow' to the broker archive.
+Successfully added file 'com\fglsports\mww\product\getSKUDimensions_getSKUDimensions.esql' to the broker archive.
+Successfully added file 'com\fglsports\mww\product\GetSKUDimension_Compute.esql' to the broker archive.
+Successfully added file 'com\fglsports\mww\product\getSKUEngDec.subflow' to the broker archive.
+Successfully added file 'com\fglsports\mww\product\getSKUEngDec_getSKUEngDec.esql' to the broker archive.
+Successfully added file 'com\fglsports\mww\product\getSKUProductDetails.subflow' to the broker archive.
+Successfully added file 'com\fglsports\mww\product\getSKU_getSKU.esql' to the broker archive.
+Successfully added file 'com\fglsports\mww\product\GetStyleCommonData.subflow' to the broker archive.
+Successfully added file 'com\fglsports\mww\product\getStyleDetails.esql' to the broker archive.
+Successfully added file 'com\fglsports\mww\product\getStyleDetails.subflow' to the broker archive.
+Successfully added file 'com\fglsports\mww\product\getUPC.subflow' to the broker archive.
+Successfully added file 'com\fglsports\mww\product\GetUPC_Compute.esql' to the broker archive.
+Successfully added file 'com\fglsports\mww\product\getUPC_getUPC.esql' to the broker archive.
+Successfully added file 'com\fglsports\mww\product\getVendorDetails.subflow' to the broker archive.
+Successfully added file 'com\fglsports\mww\product\getVendorDetails_getVendorDetails.esql' to the broker archive.
+Successfully added file 'com\fglsports\mww\product\ProcessSKUMessage.subflow' to the broker archive.
+Successfully added file 'com\fglsports\mww\product\ProcessSKUMessage_Compute.esql' to the broker archive.
+Successfully added file 'com\fglsports\mww\product\ProcessStyleMessage.subflow' to the broker archive.
+Successfully added file 'com\fglsports\mww\product\ProcessStyleMessage_Compute.esql' to the broker archive.
+Successfully added file 'com\fglsports\mww\product\ProcessStyleMessage_Filter.esql' to the broker archive.
+Successfully added file 'com\fglsports\mww\product\ProcessUPCMessage.subflow' to the broker archive.
+Successfully added file 'com\fglsports\mww\product\ProductMaster.esql' to the broker archive.
+Successfully added file 'com\fglsports\mww\product\ProductMasterCommonProcedures.esql' to the broker archive.
+Successfully added file 'com\fglsports\mww\spp\addUPCToCasePack_SendAddUPC.esql' to the broker archive.
+Successfully added file 'com\fglsports\mww\spp\addUPCToCasePack_SplitSppList.esql' to the broker archive.
+Successfully added file 'com\fglsports\mww\spp\changeCasePack.subflow' to the broker archive.
+Successfully added file 'com\fglsports\mww\spp\changeCasePack_getSPPInfo.esql' to the broker archive.
+Successfully added file 'com\fglsports\mww\spp\changeCasePack_SendSPP.esql' to the broker archive.
+Successfully added file 'com\fglsports\mww\spp\changeSKUToCasePack.subflow' to the broker archive.
+Successfully added file 'com\fglsports\mww\spp\changeSKUToCasePack_QuerySPP.esql' to the broker archive.
+Successfully added file 'com\fglsports\mww\spp\changeSKUToCasePack_SendChangeSKU.esql' to the broker archive.
+Successfully added file 'com\fglsports\mww\spp\changeUPCToCasePack.esql' to the broker archive.
+Successfully added file 'com\fglsports\mww\spp\changeUPCToCasePack.subflow' to the broker archive.
+Successfully added file 'com\fglsports\mww\spp\changeUPCToCasePack_Compute.esql' to the broker archive.
+Successfully added file 'com\fglsports\mww\spp\changeUPCToCasePack_Filter.esql' to the broker archive.
+Successfully added file 'com\fglsports\mww\spp\changeUPCToCasePack_IsActive.esql' to the broker archive.
+Successfully added file 'com\fglsports\mww\spp\deleteCasePack.subflow' to the broker archive.
+Successfully added file 'com\fglsports\mww\spp\deleteCasePack_getDeleteSPPInfo.esql' to the broker archive.
+Successfully added file 'com\fglsports\mww\spp\deleteCasePack_SendDeleteSPP.esql' to the broker archive.
+Successfully added file 'com\fglsports\mww\spp\getChangedSKUInfo.subflow' to the broker archive.
+Successfully added file 'com\fglsports\mww\spp\getChangedSKUInfo_getChangedSKUInfo.esql' to the broker archive.
+Successfully added file 'com\fglsports\mww\spp\getSppListForSKU.subflow' to the broker archive.
+Successfully added file 'com\fglsports\mww\spp\getSppListForSKU_getSppListForSKU.esql' to the broker archive.
+Successfully added file 'com\fglsports\mww\spp\Set_SPPUPC_Header.esql' to the broker archive.
+Successfully added file 'com\fglsports\mww\spp\Set_SPPUPC_Header_Compute.esql' to the broker archive.
+Successfully added file 'CreateProductArtsXML.subflow' to the broker archive.
+Successfully added file 'getProductAttribute.subflow' to the broker archive.
+Successfully added file 'GetProductStyle.subflow' to the broker archive.
+Library file 'dat-product-library.libzip' successfully added to the broker archive.
+Application file 'dat-product-spp-pmm-publisher.appzip' successfully added to the broker archive.
+BIP1845I: Command completed successfully.
+Status: project 'dat-product-spp-pmm-publisher' for collection 'caldc' was processed
+Status: project 'dat-product-spp-wms-subscriber' for collection 'caldc' processing..
+Successfully added file 'com\fglsports\mww\product\Process_SPP_CommonProcedures.esql' to the broker archive.
+Successfully added file 'com\fglsports\mww\product\Process_UPC_Changes_Compute.esql' to the broker archive.
+Successfully added file 'com\fglsports\mww\product\Process_UPC_SKUComponents_Compute.esql' to the broker archive.
+Successfully added file 'com\fglsports\mww\product\ProductSubscriber_Compute.esql' to the broker archive.
+Successfully added file 'com\fglsports\mww\product\ProductSubscriber_ConvertStyleToWM.esql' to the broker archive.
+Successfully added file 'com\fglsports\mww\product\ProductSubscriber_RouteProduct.esql' to the broker archive.
+Successfully added file 'com\fglsports\mww\product\SetProduct_Environment_Variables_Compute.esql' to the broker archive.
+Successfully added file 'com\fglsports\mww\product\SetStylePrepack_Environment_Variables_Compute.esql' to the broker archive.
+Successfully added file 'com\fglsports\mww\product\StylePrepack_Subscriber.msgflow' to the broker archive.
+Successfully added file 'com\fglsports\mww\product\Subscriber_Process_SKU_Components_BOM_Compute.esql' to the broker archive.
+Successfully added file 'com\fglsports\mww\product\Subscriber_Process_SKU_Components_Changes_Filter.esql' to the broker archive.
+Successfully added file 'com\fglsports\mww\product\Subscriber_Process_SPPUPC_Changes_Compute.esql' to the broker archive.
+Successfully added file 'com\fglsports\mww\product\Subscriber_Process_UPC_SPP_Compute.esql' to the broker archive.
+Successfully added file 'Process_WM_UPC_For_SPP.subflow' to the broker archive.
+Successfully added file 'Process_WM_UPC_For_SPP_Compute.esql' to the broker archive.
+Successfully added file 'Process_WM_UPC_For_SPP_Filter.esql' to the broker archive.
+Successfully added file 'Process_WM_UPC_For_SPP_Mapping.map' to the broker archive.
+Successfully added file 'Subscriber_Process_SKU_Components_BOM.subflow' to the broker archive.
+Successfully added file 'Subscriber_Process_SKU_Components_BOM_Compute.esql' to the broker archive.
+Successfully added file 'Subscriber_Process_SKU_Components_Changes.subflow' to the broker archive.
+Successfully added file 'Subscriber_Process_SKU_Components_UPC.subflow' to the broker archive.
+Successfully added file 'Subscriber_Process_SKU_Compute.esql' to the broker archive.
+Successfully added file 'Subscriber_Process_SPPUPC_Changes.subflow' to the broker archive.
+Successfully added file 'Subscriber_Process_SPP_Changes.subflow' to the broker archive.
+Successfully added file 'Subscriber_Process_UPC_Changes.subflow' to the broker archive.
+Successfully added file 'Subscriber_Process_UPC_Compute.esql' to the broker archive.
+Successfully added file 'Subscriber_Process_UPC_Map_Exhange_To_WM_UPC.map' to the broker archive.
+Successfully added file 'Subscriber_Process_UPC_SPPComponents.subflow' to the broker archive.
+Successfully added file 'Subscriber_Process_UPC_SPPComponents_Mapping.map' to the broker archive.
+Successfully added file 'common\discovery.subflow' to the broker archive.
+Successfully added file 'common\package.esql' to the broker archive.
+Successfully added file 'common\queue.subflow' to the broker archive.
+Successfully added file 'common\schema.esql' to the broker archive.
+Successfully added file 'common\throw.subflow' to the broker archive.
+Successfully added file 'EaiCore\package.esql' to the broker archive.
+Successfully added file 'java\lang\System\package.esql' to the broker archive.
+Successfully added file 'common-library-java.jar' to the broker archive.
+Library file 'common-library.libzip' successfully added to the broker archive.
+Successfully added file 'com\marks\WMStaging_Application_Compute.esql' to the broker archive.
+Successfully added file 'com\marks\WMStaging_Procedures.esql' to the broker archive.
+Successfully added file 'common\wms\get_batch_control_sequence.subflow' to the broker archive.
+Successfully added file 'common\wms\wms.esql' to the broker archive.
+Successfully added file 'schema.esql' to the broker archive.
+Successfully added file 'WMStaging_DCRouting_Compute.esql' to the broker archive.
+Successfully added file 'common-wms-library-xml.xsdzip' to the broker archive.
+Library file 'common-wms-library.libzip' successfully added to the broker archive.
+Successfully added file 'core\log\audit.esql' to the broker archive.
+Successfully added file 'core\log\audit.subflow' to the broker archive.
+Successfully added file 'core\log\business.esql' to the broker archive.
+Successfully added file 'core\log\business.subflow' to the broker archive.
+Successfully added file 'core\log\handler.esql' to the broker archive.
+Successfully added file 'core\log\schema.esql' to the broker archive.
+Successfully added file 'core\log\technical\exception.subflow' to the broker archive.
+Successfully added file 'core\log\technical\message.subflow' to the broker archive.
+Successfully added file 'core\log\technical.esql' to the broker archive.
+Successfully added file 'core\log\technical.subflow' to the broker archive.
+Successfully added file 'core\log\_handler.subflow' to the broker archive.
+Library file 'core-log-handler-library.libzip' successfully added to the broker archive.
+Successfully added file 'core\message\postprocessor.esql' to the broker archive.
+Successfully added file 'core\message\preprocessor.esql' to the broker archive.
+Successfully added file 'core\message\_postprocessor.subflow' to the broker archive.
+Successfully added file 'core\message\_preprocessor.subflow' to the broker archive.
+Library file 'core-message-processor-library.libzip' successfully added to the broker archive.
+Successfully added file 'AdditionalField.xsd' to the broker archive.
+Successfully added file 'ArtsBusinessUnitAddress.xsd' to the broker archive.
+Successfully added file 'ArtsRetail.xml' to the broker archive.
+Successfully added file 'ArtsRetail.xsd' to the broker archive.
+Successfully added file 'ArtsRetailProduct.xsd' to the broker archive.
+Successfully added file 'ArtsRetailStoreTelephone.xsd' to the broker archive.
+Successfully added file 'Copy of EaiExchange.xml' to the broker archive.
+Successfully added file 'DescriptionType.xsd' to the broker archive.
+Successfully added file 'Eai.xml' to the broker archive.
+Successfully added file 'Eai.xsd' to the broker archive.
+Successfully added file 'EaiEtlMeta.xsd' to the broker archive.
+Successfully added file 'EaiExchange.xml' to the broker archive.
+Successfully added file 'EaiExchange.xsd' to the broker archive.
+Successfully added file 'EaiExchange1.xml' to the broker archive.
+Successfully added file 'EaiExchange2.xml' to the broker archive.
+Successfully added file 'IBMdefined\soap.xsd' to the broker archive.
+Successfully added file 'Item.xsd' to the broker archive.
+Successfully added file 'MerchandiseHierarchy.xsd' to the broker archive.
+Successfully added file 'Product.xsd' to the broker archive.
+Successfully added file 'ProductAttributeType.xsd' to the broker archive.
+Successfully added file 'ProductCasePack.xsd' to the broker archive.
+Successfully added file 'ProductCommonDataType.xsd' to the broker archive.
+Successfully added file 'ProductHierarchy.xsd' to the broker archive.
+Successfully added file 'ProductPrice.xsd' to the broker archive.
+Successfully added file 'ProductUPC.xsd' to the broker archive.
+Successfully added file 'Style.xsd' to the broker archive.
+Successfully added file 'StyleCommonData.xsd' to the broker archive.
+Successfully added file 'StylePrepackItem.xsd' to the broker archive.
+Successfully added file 'Vendor.xsd' to the broker archive.
+Successfully added file 'VendorStatus.xsd' to the broker archive.
+Library file 'dat-product-library-message-model.libzip' successfully added to the broker archive.
+Successfully added file 'com\fglsports\mww\product\Create_WMStaging_XML_Compute.esql' to the broker archive.
+Successfully added file 'com\fglsports\mww\product\Process_WM_Item.subflow' to the broker archive.
+Successfully added file 'com\fglsports\mww\product\Process_WM_Item_Compute.esql' to the broker archive.
+Successfully added file 'com\fglsports\mww\product\Product_SPP_Subscriber_Common_Procedures.esql' to the broker archive.
+Successfully added file 'com\fglsports\mww\product\Subscriber_Filter.esql' to the broker archive.
+Successfully added file 'com\fglsports\mww\product\Subscriber_Process_UPC_GetBatchControlNumber.esql' to the broker archive.
+Successfully added file 'com\fglsports\mww\product\WM_Subscriber_Procedure.esql' to the broker archive.
+Library file 'dat-product-spp-subscriber-library.libzip' successfully added to the broker archive.
+Successfully added file 'Tables\CCINPT00.xsd' to the broker archive.
+Successfully added file 'Tables\I1INPT00.xsd' to the broker archive.
+Successfully added file 'Tables\I2INPT00.xsd' to the broker archive.
+Successfully added file 'Tables\I3INPT00.xsd' to the broker archive.
+Successfully added file 'Tables\I5INPT00.xsd' to the broker archive.
+Successfully added file 'Tables\I6INPT00.xsd' to the broker archive.
+Successfully added file 'Tables\I8INPT00.xsd' to the broker archive.
+Successfully added file 'Tables\I9INPT00.xsd' to the broker archive.
+Successfully added file 'Tables\IBINPT00.xsd' to the broker archive.
+Successfully added file 'Tables\IDINPT00.xsd' to the broker archive.
+Successfully added file 'Tables\IFINPT00.xsd' to the broker archive.
+Successfully added file 'Tables\IGINPT00.xsd' to the broker archive.
+Successfully added file 'Tables\IJINPT00.xsd' to the broker archive.
+Successfully added file 'Tables\IRINPT00.xsd' to the broker archive.
+Successfully added file 'Tables\PXSTYL00.xsd' to the broker archive.
+Successfully added file 'Tables\ShippingInvoice.xsd' to the broker archive.
+Successfully added file 'WMStaging.xsd' to the broker archive.
+Library file 'common-wms-library-message-model.libzip' successfully added to the broker archive.
+Application file 'dat-product-spp-wms-subscriber.appzip' successfully added to the broker archive.
+BIP1845I: Command completed successfully.
+Status: project 'dat-product-spp-wms-subscriber' for collection 'caldc' was processed
+Status: project 'dat-product-wms-subscriber' for collection 'caldc' processing..
+Successfully compiled message set project: C:/eai/ibm-ib-ppbr/source/common-asn-library-xml
+Successfully compiled Java project: C:/eai/ibm-ib-ppbr/source/common-library-java
+Successfully compiled message set project: C:/eai/ibm-ib-ppbr/source/common-wms-library-xml
+BIP0986I Command completed successfully.
+
+
+
+
+Successfully added file 'com\fglsports\mww\product\ConvertSKU_CasePackToWM_Compute.esql' to the broker archive.
+Successfully added file 'com\fglsports\mww\product\Create_Product_WMStaging_From_UPC_Message_Compute.esql' to the broker archive.
+Successfully added file 'com\fglsports\mww\product\Create_WMStaging_From_SKU_Message_Compute.esql' to the broker archive.
+Successfully added file 'com\fglsports\mww\product\ProductSubscriber.msgflow' to the broker archive.
+Successfully added file 'com\fglsports\mww\product\ProductSubscriber_Compute.esql' to the broker archive.
+Successfully added file 'com\fglsports\mww\product\ProductSubscriber_ConvertStyleToWM.esql' to the broker archive.
+Successfully added file 'com\fglsports\mww\product\ProductSubscriber_RouteProduct.esql' to the broker archive.
+Successfully added file 'com\fglsports\mww\product\SetProduct_Environment_Variables_Compute.esql' to the broker archive.
+Successfully added file 'Subscriber_Process_ALL_UPCs_For_SKU.subflow' to the broker archive.
+Successfully added file 'Subscriber_Process_SKU.subflow' to the broker archive.
+Successfully added file 'Subscriber_Process_SKU_Compute.esql' to the broker archive.
+Successfully added file 'Subscriber_Process_UPC.subflow' to the broker archive.
+Successfully added file 'Subscriber_Process_UPC_Compute.esql' to the broker archive.
+Successfully added file 'Subscriber_Process_UPC_Map_Exhange_To_WM_UPC.map' to the broker archive.
+Successfully added file 'common\discovery.subflow' to the broker archive.
+Successfully added file 'common\package.esql' to the broker archive.
+Successfully added file 'common\queue.subflow' to the broker archive.
+Successfully added file 'common\schema.esql' to the broker archive.
+Successfully added file 'common\throw.subflow' to the broker archive.
+Successfully added file 'EaiCore\package.esql' to the broker archive.
+Successfully added file 'java\lang\System\package.esql' to the broker archive.
+Successfully added file 'common-library-java.jar' to the broker archive.
+Library file 'common-library.libzip' successfully added to the broker archive.
+Successfully added file 'core\log\audit.esql' to the broker archive.
+Successfully added file 'core\log\audit.subflow' to the broker archive.
+Successfully added file 'core\log\business.esql' to the broker archive.
+Successfully added file 'core\log\business.subflow' to the broker archive.
+Successfully added file 'core\log\handler.esql' to the broker archive.
+Successfully added file 'core\log\schema.esql' to the broker archive.
+Successfully added file 'core\log\technical\exception.subflow' to the broker archive.
+Successfully added file 'core\log\technical\message.subflow' to the broker archive.
+Successfully added file 'core\log\technical.esql' to the broker archive.
+Successfully added file 'core\log\technical.subflow' to the broker archive.
+Successfully added file 'core\log\_handler.subflow' to the broker archive.
+Library file 'core-log-handler-library.libzip' successfully added to the broker archive.
+Successfully added file 'core\message\postprocessor.esql' to the broker archive.
+Successfully added file 'core\message\preprocessor.esql' to the broker archive.
+Successfully added file 'core\message\_postprocessor.subflow' to the broker archive.
+Successfully added file 'core\message\_preprocessor.subflow' to the broker archive.
+Library file 'core-message-processor-library.libzip' successfully added to the broker archive.
+Successfully added file 'AdditionalField.xsd' to the broker archive.
+Successfully added file 'ArtsBusinessUnitAddress.xsd' to the broker archive.
+Successfully added file 'ArtsRetail.xml' to the broker archive.
+Successfully added file 'ArtsRetail.xsd' to the broker archive.
+Successfully added file 'ArtsRetailProduct.xsd' to the broker archive.
+Successfully added file 'ArtsRetailStoreTelephone.xsd' to the broker archive.
+Successfully added file 'Copy of EaiExchange.xml' to the broker archive.
+Successfully added file 'DescriptionType.xsd' to the broker archive.
+Successfully added file 'Eai.xml' to the broker archive.
+Successfully added file 'Eai.xsd' to the broker archive.
+Successfully added file 'EaiEtlMeta.xsd' to the broker archive.
+Successfully added file 'EaiExchange.xml' to the broker archive.
+Successfully added file 'EaiExchange.xsd' to the broker archive.
+Successfully added file 'EaiExchange1.xml' to the broker archive.
+Successfully added file 'EaiExchange2.xml' to the broker archive.
+Successfully added file 'IBMdefined\soap.xsd' to the broker archive.
+Successfully added file 'Item.xsd' to the broker archive.
+Successfully added file 'MerchandiseHierarchy.xsd' to the broker archive.
+Successfully added file 'Product.xsd' to the broker archive.
+Successfully added file 'ProductAttributeType.xsd' to the broker archive.
+Successfully added file 'ProductCasePack.xsd' to the broker archive.
+Successfully added file 'ProductCommonDataType.xsd' to the broker archive.
+Successfully added file 'ProductHierarchy.xsd' to the broker archive.
+Successfully added file 'ProductPrice.xsd' to the broker archive.
+Successfully added file 'ProductUPC.xsd' to the broker archive.
+Successfully added file 'Style.xsd' to the broker archive.
+Successfully added file 'StyleCommonData.xsd' to the broker archive.
+Successfully added file 'StylePrepackItem.xsd' to the broker archive.
+Successfully added file 'Vendor.xsd' to the broker archive.
+Successfully added file 'VendorStatus.xsd' to the broker archive.
+Library file 'dat-product-library-message-model.libzip' successfully added to the broker archive.
+Successfully added file 'com\fglsports\mww\product\Create_WMStaging_XML_Compute.esql' to the broker archive.
+Successfully added file 'com\fglsports\mww\product\Process_WM_Item.subflow' to the broker archive.
+Successfully added file 'com\fglsports\mww\product\Process_WM_Item_Compute.esql' to the broker archive.
+Successfully added file 'com\fglsports\mww\product\Product_SPP_Subscriber_Common_Procedures.esql' to the broker archive.
+Successfully added file 'com\fglsports\mww\product\Subscriber_Filter.esql' to the broker archive.
+Successfully added file 'com\fglsports\mww\product\Subscriber_Process_UPC_GetBatchControlNumber.esql' to the broker archive.
+Successfully added file 'com\fglsports\mww\product\WM_Subscriber_Procedure.esql' to the broker archive.
+Library file 'dat-product-spp-subscriber-library.libzip' successfully added to the broker archive.
+Successfully added file 'Tables\CCINPT00.xsd' to the broker archive.
+Successfully added file 'Tables\I1INPT00.xsd' to the broker archive.
+Successfully added file 'Tables\I2INPT00.xsd' to the broker archive.
+Successfully added file 'Tables\I3INPT00.xsd' to the broker archive.
+Successfully added file 'Tables\I5INPT00.xsd' to the broker archive.
+Successfully added file 'Tables\I6INPT00.xsd' to the broker archive.
+Successfully added file 'Tables\I8INPT00.xsd' to the broker archive.
+Successfully added file 'Tables\I9INPT00.xsd' to the broker archive.
+Successfully added file 'Tables\IBINPT00.xsd' to the broker archive.
+Successfully added file 'Tables\IDINPT00.xsd' to the broker archive.
+Successfully added file 'Tables\IFINPT00.xsd' to the broker archive.
+Successfully added file 'Tables\IGINPT00.xsd' to the broker archive.
+Successfully added file 'Tables\IJINPT00.xsd' to the broker archive.
+Successfully added file 'Tables\IRINPT00.xsd' to the broker archive.
+Successfully added file 'Tables\PXSTYL00.xsd' to the broker archive.
+Successfully added file 'Tables\ShippingInvoice.xsd' to the broker archive.
+Successfully added file 'WMStaging.xsd' to the broker archive.
+Library file 'common-wms-library-message-model.libzip' successfully added to the broker archive.
+Successfully added file 'com\marks\WMStaging_Application_Compute.esql' to the broker archive.
+Successfully added file 'com\marks\WMStaging_Procedures.esql' to the broker archive.
+Successfully added file 'common\wms\get_batch_control_sequence.subflow' to the broker archive.
+Successfully added file 'common\wms\wms.esql' to the broker archive.
+Successfully added file 'schema.esql' to the broker archive.
+Successfully added file 'WMStaging_DCRouting_Compute.esql' to the broker archive.
+Successfully added file 'common-wms-library-xml.xsdzip' to the broker archive.
+Library file 'common-wms-library.libzip' successfully added to the broker archive.
+Application file 'dat-product-wms-subscriber.appzip' successfully added to the broker archive.
+BIP1845I: Command completed successfully.
+Status: project 'dat-product-wms-subscriber' for collection 'caldc' was processed
+Status: project 'doc-asn-pmm-publisher' for collection 'caldc' processing..
+Successfully added file 'com\fglsports\mww\asn\ASNCommonProcedures_Publisher.esql' to the broker archive.
+Successfully added file 'com\fglsports\mww\asn\ASN_Publisher_PMM_Compute.esql' to the broker archive.
+Successfully added file 'doc\asn\pmm\cartondelete.esql' to the broker archive.
+Successfully added file 'doc\asn\pmm\cartondelete.subflow' to the broker archive.
+Successfully added file 'doc\asn\pmm\details.esql' to the broker archive.
+Successfully added file 'doc\asn\pmm\details.subflow' to the broker archive.
+Successfully added file 'doc\asn\pmm\publisher.esql' to the broker archive.
+Successfully added file 'doc\asn\pmm\publisher.msgflow' to the broker archive.
+Successfully added file 'doc\asn\pmm\shipmentdelete.esql' to the broker archive.
+Successfully added file 'doc\asn\pmm\shipmentdelete.subflow' to the broker archive.
+Successfully added file 'doc\asn\pmm\_publisher.subflow' to the broker archive.
+Successfully added file 'com\fglsports\mww\asn\PMM_ASN_CommonProcedures.esql' to the broker archive.
+Successfully added file 'common-asn-library-xml.xsdzip' to the broker archive.
+Library file 'common-asn-library.libzip' successfully added to the broker archive.
+Successfully added file 'common\discovery.subflow' to the broker archive.
+Successfully added file 'common\package.esql' to the broker archive.
+Successfully added file 'common\queue.subflow' to the broker archive.
+Successfully added file 'common\schema.esql' to the broker archive.
+Successfully added file 'common\throw.subflow' to the broker archive.
+Successfully added file 'EaiCore\package.esql' to the broker archive.
+Successfully added file 'java\lang\System\package.esql' to the broker archive.
+Successfully added file 'common-library-java.jar' to the broker archive.
+Library file 'common-library.libzip' successfully added to the broker archive.
+Successfully added file 'core\log\audit.esql' to the broker archive.
+Successfully added file 'core\log\audit.subflow' to the broker archive.
+Successfully added file 'core\log\business.esql' to the broker archive.
+Successfully added file 'core\log\business.subflow' to the broker archive.
+Successfully added file 'core\log\handler.esql' to the broker archive.
+Successfully added file 'core\log\schema.esql' to the broker archive.
+Successfully added file 'core\log\technical\exception.subflow' to the broker archive.
+Successfully added file 'core\log\technical\message.subflow' to the broker archive.
+Successfully added file 'core\log\technical.esql' to the broker archive.
+Successfully added file 'core\log\technical.subflow' to the broker archive.
+Successfully added file 'core\log\_handler.subflow' to the broker archive.
+Library file 'core-log-handler-library.libzip' successfully added to the broker archive.
+Successfully added file 'core\message\postprocessor.esql' to the broker archive.
+Successfully added file 'core\message\preprocessor.esql' to the broker archive.
+Successfully added file 'core\message\_postprocessor.subflow' to the broker archive.
+Successfully added file 'core\message\_preprocessor.subflow' to the broker archive.
+Library file 'core-message-processor-library.libzip' successfully added to the broker archive.
+Application file 'doc-asn-pmm-publisher.appzip' successfully added to the broker archive.
+BIP1845I: Command completed successfully.
+Status: project 'doc-asn-pmm-publisher' for collection 'caldc' was processed
+Status: project 'doc-asn-wms-subscriber' for collection 'caldc' processing..
+Successfully compiled message set project: C:/eai/ibm-ib-ppbr/source/common-asn-library-xml
+Successfully compiled Java project: C:/eai/ibm-ib-ppbr/source/common-library-java
+Successfully compiled message set project: C:/eai/ibm-ib-ppbr/source/common-wms-library-xml
+BIP0986I Command completed successfully.
+
+
+
+
+Successfully added file 'doc\asn\wms\subscriber.esql' to the broker archive.
+Successfully added file 'doc\asn\wms\subscriber.msgflow' to the broker archive.
+Successfully added file 'doc\asn\wms\_subscriber.subflow' to the broker archive.
+Successfully added file 'com\fglsports\mww\asn\PMM_ASN_CommonProcedures.esql' to the broker archive.
+Successfully added file 'common-asn-library-xml.xsdzip' to the broker archive.
+Library file 'common-asn-library.libzip' successfully added to the broker archive.
+Successfully added file 'common\discovery.subflow' to the broker archive.
+Successfully added file 'common\package.esql' to the broker archive.
+Successfully added file 'common\queue.subflow' to the broker archive.
+Successfully added file 'common\schema.esql' to the broker archive.
+Successfully added file 'common\throw.subflow' to the broker archive.
+Successfully added file 'EaiCore\package.esql' to the broker archive.
+Successfully added file 'java\lang\System\package.esql' to the broker archive.
+Successfully added file 'common-library-java.jar' to the broker archive.
+Library file 'common-library.libzip' successfully added to the broker archive.
+Successfully added file 'com\marks\WMStaging_Application_Compute.esql' to the broker archive.
+Successfully added file 'com\marks\WMStaging_Procedures.esql' to the broker archive.
+Successfully added file 'common\wms\get_batch_control_sequence.subflow' to the broker archive.
+Successfully added file 'common\wms\wms.esql' to the broker archive.
+Successfully added file 'schema.esql' to the broker archive.
+Successfully added file 'WMStaging_DCRouting_Compute.esql' to the broker archive.
+Successfully added file 'common-wms-library-xml.xsdzip' to the broker archive.
+Library file 'common-wms-library.libzip' successfully added to the broker archive.
+Successfully added file 'core\log\audit.esql' to the broker archive.
+Successfully added file 'core\log\audit.subflow' to the broker archive.
+Successfully added file 'core\log\business.esql' to the broker archive.
+Successfully added file 'core\log\business.subflow' to the broker archive.
+Successfully added file 'core\log\handler.esql' to the broker archive.
+Successfully added file 'core\log\schema.esql' to the broker archive.
+Successfully added file 'core\log\technical\exception.subflow' to the broker archive.
+Successfully added file 'core\log\technical\message.subflow' to the broker archive.
+Successfully added file 'core\log\technical.esql' to the broker archive.
+Successfully added file 'core\log\technical.subflow' to the broker archive.
+Successfully added file 'core\log\_handler.subflow' to the broker archive.
+Library file 'core-log-handler-library.libzip' successfully added to the broker archive.
+Successfully added file 'core\message\postprocessor.esql' to the broker archive.
+Successfully added file 'core\message\preprocessor.esql' to the broker archive.
+Successfully added file 'core\message\_postprocessor.subflow' to the broker archive.
+Successfully added file 'core\message\_preprocessor.subflow' to the broker archive.
+Library file 'core-message-processor-library.libzip' successfully added to the broker archive.
+Application file 'doc-asn-wms-subscriber.appzip' successfully added to the broker archive.
+BIP1845I: Command completed successfully.
+Status: project 'doc-asn-wms-subscriber' for collection 'caldc' was processed
+Status: project 'doc-invent-snap-comp-pmm-inbound' for collection 'caldc' processing..
+Successfully compiled message set project: C:/eai/ibm-ib-ppbr/source/common-asn-library-xml
+Successfully compiled Java project: C:/eai/ibm-ib-ppbr/source/common-library-java
+Successfully compiled message set project: C:/eai/ibm-ib-ppbr/source/common-wms-library-xml
+BIP0986I Command completed successfully.
+
+
+
+
+Successfully compiled message set project: C:/eai/ibm-ib-ppbr/source/common-asn-library-xml
+Successfully compiled Java project: C:/eai/ibm-ib-ppbr/source/common-library-java
+Successfully compiled message set project: C:/eai/ibm-ib-ppbr/source/common-wms-library-xml
+Successfully compiled Java project: C:/eai/ibm-ib-ppbr/source/core-configuration-loader-system-java
+BIP0986I Command completed successfully.
+
+
+
+
+Successfully added file 'data\inv\snap\comp\pmm\inbound.msgflow' to the broker archive.
+Successfully added file 'data\inv\snap\comp\pmm\pmm.esql' to the broker archive.
+Successfully added file 'data\inv\snap\comp\pmm\_inbound.subflow' to the broker archive.
+Successfully added file 'common\discovery.subflow' to the broker archive.
+Successfully added file 'common\package.esql' to the broker archive.
+Successfully added file 'common\queue.subflow' to the broker archive.
+Successfully added file 'common\schema.esql' to the broker archive.
+Successfully added file 'common\throw.subflow' to the broker archive.
+Successfully added file 'EaiCore\package.esql' to the broker archive.
+Successfully added file 'java\lang\System\package.esql' to the broker archive.
+Successfully added file 'common-library-java.jar' to the broker archive.
+Library file 'common-library.libzip' successfully added to the broker archive.
+Successfully added file 'com\marks\WMStaging_Application_Compute.esql' to the broker archive.
+Successfully added file 'com\marks\WMStaging_Procedures.esql' to the broker archive.
+Successfully added file 'common\wms\get_batch_control_sequence.subflow' to the broker archive.
+Successfully added file 'common\wms\wms.esql' to the broker archive.
+Successfully added file 'schema.esql' to the broker archive.
+Successfully added file 'WMStaging_DCRouting_Compute.esql' to the broker archive.
+Successfully added file 'common-wms-library-xml.xsdzip' to the broker archive.
+Library file 'common-wms-library.libzip' successfully added to the broker archive.
+Successfully added file 'core\log\audit.esql' to the broker archive.
+Successfully added file 'core\log\audit.subflow' to the broker archive.
+Successfully added file 'core\log\business.esql' to the broker archive.
+Successfully added file 'core\log\business.subflow' to the broker archive.
+Successfully added file 'core\log\handler.esql' to the broker archive.
+Successfully added file 'core\log\schema.esql' to the broker archive.
+Successfully added file 'core\log\technical\exception.subflow' to the broker archive.
+Successfully added file 'core\log\technical\message.subflow' to the broker archive.
+Successfully added file 'core\log\technical.esql' to the broker archive.
+Successfully added file 'core\log\technical.subflow' to the broker archive.
+Successfully added file 'core\log\_handler.subflow' to the broker archive.
+Library file 'core-log-handler-library.libzip' successfully added to the broker archive.
+Successfully added file 'core\message\postprocessor.esql' to the broker archive.
+Successfully added file 'core\message\preprocessor.esql' to the broker archive.
+Successfully added file 'core\message\_postprocessor.subflow' to the broker archive.
+Successfully added file 'core\message\_preprocessor.subflow' to the broker archive.
+Library file 'core-message-processor-library.libzip' successfully added to the broker archive.
+Application file 'doc-invent-snap-comp-pmm-inbound.appzip' successfully added to the broker archive.
+BIP1845I: Command completed successfully.
+Status: project 'doc-invent-snap-comp-pmm-inbound' for collection 'caldc' was processed
+Status: project 'doc-invent-snap-pmm-inbound' for collection 'caldc' processing..
+Successfully compiled message set project: C:/eai/ibm-ib-ppbr/source/common-asn-library-xml
+Successfully compiled Java project: C:/eai/ibm-ib-ppbr/source/common-library-java
+Successfully compiled message set project: C:/eai/ibm-ib-ppbr/source/common-wms-library-xml
+BIP0986I Command completed successfully.
+
+
+
+
+Successfully compiled message set project: C:/eai/ibm-ib-ppbr/source/common-asn-library-xml
+Successfully compiled Java project: C:/eai/ibm-ib-ppbr/source/common-library-java
+Successfully compiled message set project: C:/eai/ibm-ib-ppbr/source/common-wms-library-xml
+Successfully compiled Java project: C:/eai/ibm-ib-ppbr/source/core-configuration-loader-system-java
+BIP0986I Command completed successfully.
+
+
+
+
+Successfully added file 'data\inv\snap\pmm\inbound.msgflow' to the broker archive.
+Successfully added file 'data\inv\snap\pmm\pmm.esql' to the broker archive.
+Successfully added file 'data\inv\snap\pmm\_inbound.subflow' to the broker archive.
+Successfully added file 'common\discovery.subflow' to the broker archive.
+Successfully added file 'common\package.esql' to the broker archive.
+Successfully added file 'common\queue.subflow' to the broker archive.
+Successfully added file 'common\schema.esql' to the broker archive.
+Successfully added file 'common\throw.subflow' to the broker archive.
+Successfully added file 'EaiCore\package.esql' to the broker archive.
+Successfully added file 'java\lang\System\package.esql' to the broker archive.
+Successfully added file 'common-library-java.jar' to the broker archive.
+Library file 'common-library.libzip' successfully added to the broker archive.
+Successfully added file 'com\marks\WMStaging_Application_Compute.esql' to the broker archive.
+Successfully added file 'com\marks\WMStaging_Procedures.esql' to the broker archive.
+Successfully added file 'common\wms\get_batch_control_sequence.subflow' to the broker archive.
+Successfully added file 'common\wms\wms.esql' to the broker archive.
+Successfully added file 'schema.esql' to the broker archive.
+Successfully added file 'WMStaging_DCRouting_Compute.esql' to the broker archive.
+Successfully added file 'common-wms-library-xml.xsdzip' to the broker archive.
+Library file 'common-wms-library.libzip' successfully added to the broker archive.
+Successfully added file 'core\log\audit.esql' to the broker archive.
+Successfully added file 'core\log\audit.subflow' to the broker archive.
+Successfully added file 'core\log\business.esql' to the broker archive.
+Successfully added file 'core\log\business.subflow' to the broker archive.
+Successfully added file 'core\log\handler.esql' to the broker archive.
+Successfully added file 'core\log\schema.esql' to the broker archive.
+Successfully added file 'core\log\technical\exception.subflow' to the broker archive.
+Successfully added file 'core\log\technical\message.subflow' to the broker archive.
+Successfully added file 'core\log\technical.esql' to the broker archive.
+Successfully added file 'core\log\technical.subflow' to the broker archive.
+Successfully added file 'core\log\_handler.subflow' to the broker archive.
+Library file 'core-log-handler-library.libzip' successfully added to the broker archive.
+Successfully added file 'core\message\postprocessor.esql' to the broker archive.
+Successfully added file 'core\message\preprocessor.esql' to the broker archive.
+Successfully added file 'core\message\_postprocessor.subflow' to the broker archive.
+Successfully added file 'core\message\_preprocessor.subflow' to the broker archive.
+Library file 'core-message-processor-library.libzip' successfully added to the broker archive.
+Application file 'doc-invent-snap-pmm-inbound.appzip' successfully added to the broker archive.
+BIP1845I: Command completed successfully.
+Status: project 'doc-invent-snap-pmm-inbound' for collection 'caldc' was processed
+Status: project 'doc-invoice-match-pmm-publisher' for collection 'caldc' processing..
+Successfully added file 'doc\invoice\match\pmm\mod_publisher_Filter.esql' to the broker archive.
+Successfully added file 'doc\invoice\match\pmm\publisher.msgflow' to the broker archive.
+Successfully added file 'doc\invoice\match\pmm\_publisher.esql' to the broker archive.
+Successfully added file 'doc\invoice\match\pmm\_publisher.subflow' to the broker archive.
+Successfully added file 'common\discovery.subflow' to the broker archive.
+Successfully added file 'common\package.esql' to the broker archive.
+Successfully added file 'common\queue.subflow' to the broker archive.
+Successfully added file 'common\schema.esql' to the broker archive.
+Successfully added file 'common\throw.subflow' to the broker archive.
+Successfully added file 'EaiCore\package.esql' to the broker archive.
+Successfully added file 'java\lang\System\package.esql' to the broker archive.
+Successfully added file 'common-library-java.jar' to the broker archive.
+Library file 'common-library.libzip' successfully added to the broker archive.
+Successfully added file 'com\marks\WMStaging_Application_Compute.esql' to the broker archive.
+Successfully added file 'com\marks\WMStaging_Procedures.esql' to the broker archive.
+Successfully added file 'common\wms\get_batch_control_sequence.subflow' to the broker archive.
+Successfully added file 'common\wms\wms.esql' to the broker archive.
+Successfully added file 'schema.esql' to the broker archive.
+Successfully added file 'WMStaging_DCRouting_Compute.esql' to the broker archive.
+Successfully added file 'common-wms-library-xml.xsdzip' to the broker archive.
+Library file 'common-wms-library.libzip' successfully added to the broker archive.
+Successfully added file 'core\log\audit.esql' to the broker archive.
+Successfully added file 'core\log\audit.subflow' to the broker archive.
+Successfully added file 'core\log\business.esql' to the broker archive.
+Successfully added file 'core\log\business.subflow' to the broker archive.
+Successfully added file 'core\log\handler.esql' to the broker archive.
+Successfully added file 'core\log\schema.esql' to the broker archive.
+Successfully added file 'core\log\technical\exception.subflow' to the broker archive.
+Successfully added file 'core\log\technical\message.subflow' to the broker archive.
+Successfully added file 'core\log\technical.esql' to the broker archive.
+Successfully added file 'core\log\technical.subflow' to the broker archive.
+Successfully added file 'core\log\_handler.subflow' to the broker archive.
+Library file 'core-log-handler-library.libzip' successfully added to the broker archive.
+Successfully added file 'core\message\postprocessor.esql' to the broker archive.
+Successfully added file 'core\message\preprocessor.esql' to the broker archive.
+Successfully added file 'core\message\_postprocessor.subflow' to the broker archive.
+Successfully added file 'core\message\_preprocessor.subflow' to the broker archive.
+Library file 'core-message-processor-library.libzip' successfully added to the broker archive.
+Application file 'doc-invoice-match-pmm-publisher.appzip' successfully added to the broker archive.
+BIP1845I: Command completed successfully.
+Status: project 'doc-invoice-match-pmm-publisher' for collection 'caldc' was processed
+Status: project 'doc-invoice-match-wms-subscriber' for collection 'caldc' processing..
+Successfully added file 'doc\invoice\match\wms\subscriber.esql' to the broker archive.
+Successfully added file 'doc\invoice\match\wms\subscriber.msgflow' to the broker archive.
+Successfully added file 'doc\invoice\match\wms\_subscriber.subflow' to the broker archive.
+Successfully added file 'common\discovery.subflow' to the broker archive.
+Successfully added file 'common\package.esql' to the broker archive.
+Successfully added file 'common\queue.subflow' to the broker archive.
+Successfully added file 'common\schema.esql' to the broker archive.
+Successfully added file 'common\throw.subflow' to the broker archive.
+Successfully added file 'EaiCore\package.esql' to the broker archive.
+Successfully added file 'java\lang\System\package.esql' to the broker archive.
+Successfully added file 'common-library-java.jar' to the broker archive.
+Library file 'common-library.libzip' successfully added to the broker archive.
+Successfully added file 'com\marks\WMStaging_Application_Compute.esql' to the broker archive.
+Successfully added file 'com\marks\WMStaging_Procedures.esql' to the broker archive.
+Successfully added file 'common\wms\get_batch_control_sequence.subflow' to the broker archive.
+Successfully added file 'common\wms\wms.esql' to the broker archive.
+Successfully added file 'schema.esql' to the broker archive.
+Successfully added file 'WMStaging_DCRouting_Compute.esql' to the broker archive.
+Successfully added file 'common-wms-library-xml.xsdzip' to the broker archive.
+Library file 'common-wms-library.libzip' successfully added to the broker archive.
+Successfully added file 'core\log\audit.esql' to the broker archive.
+Successfully added file 'core\log\audit.subflow' to the broker archive.
+Successfully added file 'core\log\business.esql' to the broker archive.
+Successfully added file 'core\log\business.subflow' to the broker archive.
+Successfully added file 'core\log\handler.esql' to the broker archive.
+Successfully added file 'core\log\schema.esql' to the broker archive.
+Successfully added file 'core\log\technical\exception.subflow' to the broker archive.
+Successfully added file 'core\log\technical\message.subflow' to the broker archive.
+Successfully added file 'core\log\technical.esql' to the broker archive.
+Successfully added file 'core\log\technical.subflow' to the broker archive.
+Successfully added file 'core\log\_handler.subflow' to the broker archive.
+Library file 'core-log-handler-library.libzip' successfully added to the broker archive.
+Successfully added file 'core\message\postprocessor.esql' to the broker archive.
+Successfully added file 'core\message\preprocessor.esql' to the broker archive.
+Successfully added file 'core\message\_postprocessor.subflow' to the broker archive.
+Successfully added file 'core\message\_preprocessor.subflow' to the broker archive.
+Library file 'core-message-processor-library.libzip' successfully added to the broker archive.
+Application file 'doc-invoice-match-wms-subscriber.appzip' successfully added to the broker archive.
+BIP1845I: Command completed successfully.
+Status: project 'doc-invoice-match-wms-subscriber' for collection 'caldc' was processed
+Status: project 'doc-invoice-ship-caldc-wms-outbound' for collection 'caldc' processing..
+Successfully compiled message set project: C:/eai/ibm-ib-ppbr/source/common-asn-library-xml
+Successfully compiled Java project: C:/eai/ibm-ib-ppbr/source/common-library-java
+Successfully compiled message set project: C:/eai/ibm-ib-ppbr/source/common-wms-library-xml
+Successfully compiled Java project: C:/eai/ibm-ib-ppbr/source/core-configuration-loader-system-java
+BIP0986I Command completed successfully.
+
+
+
+
+Successfully added file 'WMS_ShippingInvoice_Dispatcher.msgflow' to the broker archive.
+Successfully added file 'WMS_ShippingInvoice_Dispatcher_Compute.esql' to the broker archive.
+Successfully added file 'common\discovery.subflow' to the broker archive.
+Successfully added file 'common\package.esql' to the broker archive.
+Successfully added file 'common\queue.subflow' to the broker archive.
+Successfully added file 'common\schema.esql' to the broker archive.
+Successfully added file 'common\throw.subflow' to the broker archive.
+Successfully added file 'EaiCore\package.esql' to the broker archive.
+Successfully added file 'java\lang\System\package.esql' to the broker archive.
+Successfully added file 'common-library-java.jar' to the broker archive.
+Library file 'common-library.libzip' successfully added to the broker archive.
+Successfully added file 'core\log\audit.esql' to the broker archive.
+Successfully added file 'core\log\audit.subflow' to the broker archive.
+Successfully added file 'core\log\business.esql' to the broker archive.
+Successfully added file 'core\log\business.subflow' to the broker archive.
+Successfully added file 'core\log\handler.esql' to the broker archive.
+Successfully added file 'core\log\schema.esql' to the broker archive.
+Successfully added file 'core\log\technical\exception.subflow' to the broker archive.
+Successfully added file 'core\log\technical\message.subflow' to the broker archive.
+Successfully added file 'core\log\technical.esql' to the broker archive.
+Successfully added file 'core\log\technical.subflow' to the broker archive.
+Successfully added file 'core\log\_handler.subflow' to the broker archive.
+Library file 'core-log-handler-library.libzip' successfully added to the broker archive.
+Successfully added file 'core\message\postprocessor.esql' to the broker archive.
+Successfully added file 'core\message\preprocessor.esql' to the broker archive.
+Successfully added file 'core\message\_postprocessor.subflow' to the broker archive.
+Successfully added file 'core\message\_preprocessor.subflow' to the broker archive.
+Library file 'core-message-processor-library.libzip' successfully added to the broker archive.
+Successfully added file 'getShippingInvoiceRules.esql' to the broker archive.
+Successfully added file 'WMS_ShippingInvoice_Dispatcher_Compute.esql' to the broker archive.
+Library file 'doc-invoice-ship-wms-library.libzip' successfully added to the broker archive.
+Application file 'doc-invoice-ship-caldc-wms-outbound.appzip' successfully added to the broker archive.
+BIP1845I: Command completed successfully.
+Status: project 'doc-invoice-ship-caldc-wms-outbound' for collection 'caldc' was processed
+Status: project 'doc-invoice-ship-misdc-wms-outbound' for collection 'caldc' processing..
+Successfully compiled message set project: C:/eai/ibm-ib-ppbr/source/common-asn-library-xml
+Successfully compiled Java project: C:/eai/ibm-ib-ppbr/source/common-library-java
+Successfully compiled message set project: C:/eai/ibm-ib-ppbr/source/common-wms-library-xml
+Successfully compiled Java project: C:/eai/ibm-ib-ppbr/source/core-configuration-loader-system-java
+BIP0986I Command completed successfully.
+
+
+
+
+Successfully added file 'WMS_ShippingInvoice_Dispatcher.msgflow' to the broker archive.
+Successfully added file 'WMS_ShippingInvoice_MisDC_Dispatcher.esql' to the broker archive.
+Successfully added file 'common\discovery.subflow' to the broker archive.
+Successfully added file 'common\package.esql' to the broker archive.
+Successfully added file 'common\queue.subflow' to the broker archive.
+Successfully added file 'common\schema.esql' to the broker archive.
+Successfully added file 'common\throw.subflow' to the broker archive.
+Successfully added file 'EaiCore\package.esql' to the broker archive.
+Successfully added file 'java\lang\System\package.esql' to the broker archive.
+Successfully added file 'common-library-java.jar' to the broker archive.
+Library file 'common-library.libzip' successfully added to the broker archive.
+Successfully added file 'core\log\audit.esql' to the broker archive.
+Successfully added file 'core\log\audit.subflow' to the broker archive.
+Successfully added file 'core\log\business.esql' to the broker archive.
+Successfully added file 'core\log\business.subflow' to the broker archive.
+Successfully added file 'core\log\handler.esql' to the broker archive.
+Successfully added file 'core\log\schema.esql' to the broker archive.
+Successfully added file 'core\log\technical\exception.subflow' to the broker archive.
+Successfully added file 'core\log\technical\message.subflow' to the broker archive.
+Successfully added file 'core\log\technical.esql' to the broker archive.
+Successfully added file 'core\log\technical.subflow' to the broker archive.
+Successfully added file 'core\log\_handler.subflow' to the broker archive.
+Library file 'core-log-handler-library.libzip' successfully added to the broker archive.
+Successfully added file 'core\message\postprocessor.esql' to the broker archive.
+Successfully added file 'core\message\preprocessor.esql' to the broker archive.
+Successfully added file 'core\message\_postprocessor.subflow' to the broker archive.
+Successfully added file 'core\message\_preprocessor.subflow' to the broker archive.
+Library file 'core-message-processor-library.libzip' successfully added to the broker archive.
+Successfully added file 'getShippingInvoiceRules.esql' to the broker archive.
+Successfully added file 'WMS_ShippingInvoice_Dispatcher_Compute.esql' to the broker archive.
+Library file 'doc-invoice-ship-wms-library.libzip' successfully added to the broker archive.
+Application file 'doc-invoice-ship-misdc-wms-outbound.appzip' successfully added to the broker archive.
+BIP1845I: Command completed successfully.
+Status: project 'doc-invoice-ship-misdc-wms-outbound' for collection 'caldc' was processed
+Status: project 'doc-invoice-ship-pmm-inbound' for collection 'caldc' processing..
+Successfully added file 'doc\invoice\ship\pmm\inbound.esql' to the broker archive.
+Successfully added file 'doc\invoice\ship\pmm\inbound.msgflow' to the broker archive.
+Successfully added file 'doc\invoice\ship\pmm\_inbound.subflow' to the broker archive.
+Successfully added file 'common\discovery.subflow' to the broker archive.
+Successfully added file 'common\package.esql' to the broker archive.
+Successfully added file 'common\queue.subflow' to the broker archive.
+Successfully added file 'common\schema.esql' to the broker archive.
+Successfully added file 'common\throw.subflow' to the broker archive.
+Successfully added file 'EaiCore\package.esql' to the broker archive.
+Successfully added file 'java\lang\System\package.esql' to the broker archive.
+Successfully added file 'common-library-java.jar' to the broker archive.
+Library file 'common-library.libzip' successfully added to the broker archive.
+Successfully added file 'com\marks\WMStaging_Application_Compute.esql' to the broker archive.
+Successfully added file 'com\marks\WMStaging_Procedures.esql' to the broker archive.
+Successfully added file 'common\wms\get_batch_control_sequence.subflow' to the broker archive.
+Successfully added file 'common\wms\wms.esql' to the broker archive.
+Successfully added file 'schema.esql' to the broker archive.
+Successfully added file 'WMStaging_DCRouting_Compute.esql' to the broker archive.
+Successfully added file 'common-wms-library-xml.xsdzip' to the broker archive.
+Library file 'common-wms-library.libzip' successfully added to the broker archive.
+Successfully added file 'core\log\audit.esql' to the broker archive.
+Successfully added file 'core\log\audit.subflow' to the broker archive.
+Successfully added file 'core\log\business.esql' to the broker archive.
+Successfully added file 'core\log\business.subflow' to the broker archive.
+Successfully added file 'core\log\handler.esql' to the broker archive.
+Successfully added file 'core\log\schema.esql' to the broker archive.
+Successfully added file 'core\log\technical\exception.subflow' to the broker archive.
+Successfully added file 'core\log\technical\message.subflow' to the broker archive.
+Successfully added file 'core\log\technical.esql' to the broker archive.
+Successfully added file 'core\log\technical.subflow' to the broker archive.
+Successfully added file 'core\log\_handler.subflow' to the broker archive.
+Library file 'core-log-handler-library.libzip' successfully added to the broker archive.
+Successfully added file 'core\message\postprocessor.esql' to the broker archive.
+Successfully added file 'core\message\preprocessor.esql' to the broker archive.
+Successfully added file 'core\message\_postprocessor.subflow' to the broker archive.
+Successfully added file 'core\message\_preprocessor.subflow' to the broker archive.
+Library file 'core-message-processor-library.libzip' successfully added to the broker archive.
+Application file 'doc-invoice-ship-pmm-inbound.appzip' successfully added to the broker archive.
+BIP1845I: Command completed successfully.
+Status: project 'doc-invoice-ship-pmm-inbound' for collection 'caldc' was processed
+Status: project 'doc-transfer-asn-wms-subscriber' for collection 'caldc' processing..
+Successfully added file 'doc\transfer\asn\wms\subscriber.esql' to the broker archive.
+Successfully added file 'doc\transfer\asn\wms\subscriber.msgflow' to the broker archive.
+Successfully added file 'doc\transfer\asn\wms\_subscriber.subflow' to the broker archive.
+Successfully added file 'common\discovery.subflow' to the broker archive.
+Successfully added file 'common\package.esql' to the broker archive.
+Successfully added file 'common\queue.subflow' to the broker archive.
+Successfully added file 'common\schema.esql' to the broker archive.
+Successfully added file 'common\throw.subflow' to the broker archive.
+Successfully added file 'EaiCore\package.esql' to the broker archive.
+Successfully added file 'java\lang\System\package.esql' to the broker archive.
+Successfully added file 'common-library-java.jar' to the broker archive.
+Library file 'common-library.libzip' successfully added to the broker archive.
+Successfully added file 'com\marks\WMStaging_Application_Compute.esql' to the broker archive.
+Successfully added file 'com\marks\WMStaging_Procedures.esql' to the broker archive.
+Successfully added file 'common\wms\get_batch_control_sequence.subflow' to the broker archive.
+Successfully added file 'common\wms\wms.esql' to the broker archive.
+Successfully added file 'schema.esql' to the broker archive.
+Successfully added file 'WMStaging_DCRouting_Compute.esql' to the broker archive.
+Successfully added file 'common-wms-library-xml.xsdzip' to the broker archive.
+Library file 'common-wms-library.libzip' successfully added to the broker archive.
+Successfully added file 'core\log\audit.esql' to the broker archive.
+Successfully added file 'core\log\audit.subflow' to the broker archive.
+Successfully added file 'core\log\business.esql' to the broker archive.
+Successfully added file 'core\log\business.subflow' to the broker archive.
+Successfully added file 'core\log\handler.esql' to the broker archive.
+Successfully added file 'core\log\schema.esql' to the broker archive.
+Successfully added file 'core\log\technical\exception.subflow' to the broker archive.
+Successfully added file 'core\log\technical\message.subflow' to the broker archive.
+Successfully added file 'core\log\technical.esql' to the broker archive.
+Successfully added file 'core\log\technical.subflow' to the broker archive.
+Successfully added file 'core\log\_handler.subflow' to the broker archive.
+Library file 'core-log-handler-library.libzip' successfully added to the broker archive.
+Successfully added file 'core\message\postprocessor.esql' to the broker archive.
+Successfully added file 'core\message\preprocessor.esql' to the broker archive.
+Successfully added file 'core\message\_postprocessor.subflow' to the broker archive.
+Successfully added file 'core\message\_preprocessor.subflow' to the broker archive.
+Library file 'core-message-processor-library.libzip' successfully added to the broker archive.
+Application file 'doc-transfer-asn-wms-subscriber.appzip' successfully added to the broker archive.
+BIP1845I: Command completed successfully.
+Status: project 'doc-transfer-asn-wms-subscriber' for collection 'caldc' was processed
+Status: project 'doc-transfer-dist-wms-subscriber' for collection 'caldc' processing..
+Successfully compiled message set project: C:/eai/ibm-ib-ppbr/source/common-asn-library-xml
+Successfully compiled Java project: C:/eai/ibm-ib-ppbr/source/common-library-java
+Successfully compiled message set project: C:/eai/ibm-ib-ppbr/source/common-wms-library-xml
+BIP0986I Command completed successfully.
+
+
+
+
+Successfully added file 'doc\transfer\dist\wms\mod_subscriber_get_PMG_PO_NUMBER.esql' to the broker archive.
+Successfully added file 'doc\transfer\dist\wms\subscriber.esql' to the broker archive.
+Successfully added file 'doc\transfer\dist\wms\subscriber.msgflow' to the broker archive.
+Successfully added file 'doc\transfer\dist\wms\_subscriber.subflow' to the broker archive.
+Successfully added file 'common\discovery.subflow' to the broker archive.
+Successfully added file 'common\package.esql' to the broker archive.
+Successfully added file 'common\queue.subflow' to the broker archive.
+Successfully added file 'common\schema.esql' to the broker archive.
+Successfully added file 'common\throw.subflow' to the broker archive.
+Successfully added file 'EaiCore\package.esql' to the broker archive.
+Successfully added file 'java\lang\System\package.esql' to the broker archive.
+Successfully added file 'common-library-java.jar' to the broker archive.
+Library file 'common-library.libzip' successfully added to the broker archive.
+Successfully added file 'com\marks\WMStaging_Application_Compute.esql' to the broker archive.
+Successfully added file 'com\marks\WMStaging_Procedures.esql' to the broker archive.
+Successfully added file 'common\wms\get_batch_control_sequence.subflow' to the broker archive.
+Successfully added file 'common\wms\wms.esql' to the broker archive.
+Successfully added file 'schema.esql' to the broker archive.
+Successfully added file 'WMStaging_DCRouting_Compute.esql' to the broker archive.
+Successfully added file 'common-wms-library-xml.xsdzip' to the broker archive.
+Library file 'common-wms-library.libzip' successfully added to the broker archive.
+Successfully added file 'core\log\audit.esql' to the broker archive.
+Successfully added file 'core\log\audit.subflow' to the broker archive.
+Successfully added file 'core\log\business.esql' to the broker archive.
+Successfully added file 'core\log\business.subflow' to the broker archive.
+Successfully added file 'core\log\handler.esql' to the broker archive.
+Successfully added file 'core\log\schema.esql' to the broker archive.
+Successfully added file 'core\log\technical\exception.subflow' to the broker archive.
+Successfully added file 'core\log\technical\message.subflow' to the broker archive.
+Successfully added file 'core\log\technical.esql' to the broker archive.
+Successfully added file 'core\log\technical.subflow' to the broker archive.
+Successfully added file 'core\log\_handler.subflow' to the broker archive.
+Library file 'core-log-handler-library.libzip' successfully added to the broker archive.
+Successfully added file 'core\message\postprocessor.esql' to the broker archive.
+Successfully added file 'core\message\preprocessor.esql' to the broker archive.
+Successfully added file 'core\message\_postprocessor.subflow' to the broker archive.
+Successfully added file 'core\message\_preprocessor.subflow' to the broker archive.
+Library file 'core-message-processor-library.libzip' successfully added to the broker archive.
+Application file 'doc-transfer-dist-wms-subscriber.appzip' successfully added to the broker archive.
+BIP1845I: Command completed successfully.
+Status: project 'doc-transfer-dist-wms-subscriber' for collection 'caldc' was processed
+Status: project 'doc-transfer-pmm-publisher' for collection 'caldc' processing..
+Successfully added file 'doc\transfer\pmm\additionalfields.subflow' to the broker archive.
+Successfully added file 'doc\transfer\pmm\attributes.subflow' to the broker archive.
+Successfully added file 'doc\transfer\pmm\cost.subflow' to the broker archive.
+Successfully added file 'doc\transfer\pmm\dimensions.subflow' to the broker archive.
+Successfully added file 'doc\transfer\pmm\english.subflow' to the broker archive.
+Successfully added file 'doc\transfer\pmm\hierarchies.subflow' to the broker archive.
+Successfully added file 'doc\transfer\pmm\price.subflow' to the broker archive.
+Successfully added file 'doc\transfer\pmm\publisher.esql' to the broker archive.
+Successfully added file 'doc\transfer\pmm\publisher2.esql' to the broker archive.
+Successfully added file 'doc\transfer\pmm\publisher2.msgflow' to the broker archive.
+Successfully added file 'doc\transfer\pmm\publisher2_inner.msgflow' to the broker archive.
+Successfully added file 'doc\transfer\pmm\publisher_was_msgflow.subflow' to the broker archive.
+Successfully added file 'doc\transfer\pmm\upc.subflow' to the broker archive.
+Successfully added file 'doc\transfer\pmm\vendor.subflow' to the broker archive.
+Successfully added file 'doc\transfer\pmm\_publisher.subflow' to the broker archive.
+Successfully added file 'doc\transfer\pmm\_publisher2.subflow' to the broker archive.
+Successfully added file 'doc\transfer\pmm\_publisher_inner.subflow' to the broker archive.
+Successfully added file 'common\discovery.subflow' to the broker archive.
+Successfully added file 'common\package.esql' to the broker archive.
+Successfully added file 'common\queue.subflow' to the broker archive.
+Successfully added file 'common\schema.esql' to the broker archive.
+Successfully added file 'common\throw.subflow' to the broker archive.
+Successfully added file 'EaiCore\package.esql' to the broker archive.
+Successfully added file 'java\lang\System\package.esql' to the broker archive.
+Successfully added file 'common-library-java.jar' to the broker archive.
+Library file 'common-library.libzip' successfully added to the broker archive.
+Successfully added file 'core\log\audit.esql' to the broker archive.
+Successfully added file 'core\log\audit.subflow' to the broker archive.
+Successfully added file 'core\log\business.esql' to the broker archive.
+Successfully added file 'core\log\business.subflow' to the broker archive.
+Successfully added file 'core\log\handler.esql' to the broker archive.
+Successfully added file 'core\log\schema.esql' to the broker archive.
+Successfully added file 'core\log\technical\exception.subflow' to the broker archive.
+Successfully added file 'core\log\technical\message.subflow' to the broker archive.
+Successfully added file 'core\log\technical.esql' to the broker archive.
+Successfully added file 'core\log\technical.subflow' to the broker archive.
+Successfully added file 'core\log\_handler.subflow' to the broker archive.
+Library file 'core-log-handler-library.libzip' successfully added to the broker archive.
+Successfully added file 'core\message\postprocessor.esql' to the broker archive.
+Successfully added file 'core\message\preprocessor.esql' to the broker archive.
+Successfully added file 'core\message\_postprocessor.subflow' to the broker archive.
+Successfully added file 'core\message\_preprocessor.subflow' to the broker archive.
+Library file 'core-message-processor-library.libzip' successfully added to the broker archive.
+Application file 'doc-transfer-pmm-publisher.appzip' successfully added to the broker archive.
+BIP1845I: Command completed successfully.
+Status: project 'doc-transfer-pmm-publisher' for collection 'caldc' was processed
+Status: project 'trx-distrib-adjust-pmm-inbound' for collection 'caldc' processing..
+Successfully added file 'doc\adjust\dist\pmm\inbound.esql' to the broker archive.
+Successfully added file 'doc\adjust\dist\pmm\inbound.msgflow' to the broker archive.
+Successfully added file 'doc\adjust\dist\pmm\_inbound.subflow' to the broker archive.
+Successfully added file 'common\discovery.subflow' to the broker archive.
+Successfully added file 'common\package.esql' to the broker archive.
+Successfully added file 'common\queue.subflow' to the broker archive.
+Successfully added file 'common\schema.esql' to the broker archive.
+Successfully added file 'common\throw.subflow' to the broker archive.
+Successfully added file 'EaiCore\package.esql' to the broker archive.
+Successfully added file 'java\lang\System\package.esql' to the broker archive.
+Successfully added file 'common-library-java.jar' to the broker archive.
+Library file 'common-library.libzip' successfully added to the broker archive.
+Successfully added file 'com\marks\WMStaging_Application_Compute.esql' to the broker archive.
+Successfully added file 'com\marks\WMStaging_Procedures.esql' to the broker archive.
+Successfully added file 'common\wms\get_batch_control_sequence.subflow' to the broker archive.
+Successfully added file 'common\wms\wms.esql' to the broker archive.
+Successfully added file 'schema.esql' to the broker archive.
+Successfully added file 'WMStaging_DCRouting_Compute.esql' to the broker archive.
+Successfully added file 'common-wms-library-xml.xsdzip' to the broker archive.
+Library file 'common-wms-library.libzip' successfully added to the broker archive.
+Successfully added file 'core\log\audit.esql' to the broker archive.
+Successfully added file 'core\log\audit.subflow' to the broker archive.
+Successfully added file 'core\log\business.esql' to the broker archive.
+Successfully added file 'core\log\business.subflow' to the broker archive.
+Successfully added file 'core\log\handler.esql' to the broker archive.
+Successfully added file 'core\log\schema.esql' to the broker archive.
+Successfully added file 'core\log\technical\exception.subflow' to the broker archive.
+Successfully added file 'core\log\technical\message.subflow' to the broker archive.
+Successfully added file 'core\log\technical.esql' to the broker archive.
+Successfully added file 'core\log\technical.subflow' to the broker archive.
+Successfully added file 'core\log\_handler.subflow' to the broker archive.
+Library file 'core-log-handler-library.libzip' successfully added to the broker archive.
+Successfully added file 'core\message\postprocessor.esql' to the broker archive.
+Successfully added file 'core\message\preprocessor.esql' to the broker archive.
+Successfully added file 'core\message\_postprocessor.subflow' to the broker archive.
+Successfully added file 'core\message\_preprocessor.subflow' to the broker archive.
+Library file 'core-message-processor-library.libzip' successfully added to the broker archive.
+Application file 'trx-distrib-adjust-pmm-inbound.appzip' successfully added to the broker archive.
+BIP1845I: Command completed successfully.
+Status: project 'trx-distrib-adjust-pmm-inbound' for collection 'caldc' was processed
+Status: project 'trx-invent-adjust-pmm-inbound' for collection 'caldc' processing..
+Successfully added file 'trx\invent\adjust\pmm\inbound.esql' to the broker archive.
+Successfully added file 'trx\invent\adjust\pmm\inbound.msgflow' to the broker archive.
+Successfully added file 'trx\invent\adjust\pmm\_inbound.subflow' to the broker archive.
+Successfully added file 'common\discovery.subflow' to the broker archive.
+Successfully added file 'common\package.esql' to the broker archive.
+Successfully added file 'common\queue.subflow' to the broker archive.
+Successfully added file 'common\schema.esql' to the broker archive.
+Successfully added file 'common\throw.subflow' to the broker archive.
+Successfully added file 'EaiCore\package.esql' to the broker archive.
+Successfully added file 'java\lang\System\package.esql' to the broker archive.
+Successfully added file 'common-library-java.jar' to the broker archive.
+Library file 'common-library.libzip' successfully added to the broker archive.
+Successfully added file 'com\marks\WMStaging_Application_Compute.esql' to the broker archive.
+Successfully added file 'com\marks\WMStaging_Procedures.esql' to the broker archive.
+Successfully added file 'common\wms\get_batch_control_sequence.subflow' to the broker archive.
+Successfully added file 'common\wms\wms.esql' to the broker archive.
+Successfully added file 'schema.esql' to the broker archive.
+Successfully added file 'WMStaging_DCRouting_Compute.esql' to the broker archive.
+Successfully added file 'common-wms-library-xml.xsdzip' to the broker archive.
+Library file 'common-wms-library.libzip' successfully added to the broker archive.
+Successfully added file 'core\log\audit.esql' to the broker archive.
+Successfully added file 'core\log\audit.subflow' to the broker archive.
+Successfully added file 'core\log\business.esql' to the broker archive.
+Successfully added file 'core\log\business.subflow' to the broker archive.
+Successfully added file 'core\log\handler.esql' to the broker archive.
+Successfully added file 'core\log\schema.esql' to the broker archive.
+Successfully added file 'core\log\technical\exception.subflow' to the broker archive.
+Successfully added file 'core\log\technical\message.subflow' to the broker archive.
+Successfully added file 'core\log\technical.esql' to the broker archive.
+Successfully added file 'core\log\technical.subflow' to the broker archive.
+Successfully added file 'core\log\_handler.subflow' to the broker archive.
+Library file 'core-log-handler-library.libzip' successfully added to the broker archive.
+Successfully added file 'core\message\postprocessor.esql' to the broker archive.
+Successfully added file 'core\message\preprocessor.esql' to the broker archive.
+Successfully added file 'core\message\_postprocessor.subflow' to the broker archive.
+Successfully added file 'core\message\_preprocessor.subflow' to the broker archive.
+Library file 'core-message-processor-library.libzip' successfully added to the broker archive.
+Application file 'trx-invent-adjust-pmm-inbound.appzip' successfully added to the broker archive.
+BIP1845I: Command completed successfully.
+Status: project 'trx-invent-adjust-pmm-inbound' for collection 'caldc' was processed
+Status: project 'trx-pix-receipt-pmm-inbound' for collection 'caldc' processing..
+Successfully added file 'pix\receipt\pmm\inbound.esql' to the broker archive.
+Successfully added file 'pix\receipt\pmm\inbound.msgflow' to the broker archive.
+Successfully added file 'pix\receipt\pmm\_inbound.subflow' to the broker archive.
+Successfully added file 'common\discovery.subflow' to the broker archive.
+Successfully added file 'common\package.esql' to the broker archive.
+Successfully added file 'common\queue.subflow' to the broker archive.
+Successfully added file 'common\schema.esql' to the broker archive.
+Successfully added file 'common\throw.subflow' to the broker archive.
+Successfully added file 'EaiCore\package.esql' to the broker archive.
+Successfully added file 'java\lang\System\package.esql' to the broker archive.
+Successfully added file 'common-library-java.jar' to the broker archive.
+Library file 'common-library.libzip' successfully added to the broker archive.
+Successfully added file 'com\marks\WMStaging_Application_Compute.esql' to the broker archive.
+Successfully added file 'com\marks\WMStaging_Procedures.esql' to the broker archive.
+Successfully added file 'common\wms\get_batch_control_sequence.subflow' to the broker archive.
+Successfully added file 'common\wms\wms.esql' to the broker archive.
+Successfully added file 'schema.esql' to the broker archive.
+Successfully added file 'WMStaging_DCRouting_Compute.esql' to the broker archive.
+Successfully added file 'common-wms-library-xml.xsdzip' to the broker archive.
+Library file 'common-wms-library.libzip' successfully added to the broker archive.
+Successfully added file 'core\log\audit.esql' to the broker archive.
+Successfully added file 'core\log\audit.subflow' to the broker archive.
+Successfully added file 'core\log\business.esql' to the broker archive.
+Successfully added file 'core\log\business.subflow' to the broker archive.
+Successfully added file 'core\log\handler.esql' to the broker archive.
+Successfully added file 'core\log\schema.esql' to the broker archive.
+Successfully added file 'core\log\technical\exception.subflow' to the broker archive.
+Successfully added file 'core\log\technical\message.subflow' to the broker archive.
+Successfully added file 'core\log\technical.esql' to the broker archive.
+Successfully added file 'core\log\technical.subflow' to the broker archive.
+Successfully added file 'core\log\_handler.subflow' to the broker archive.
+Library file 'core-log-handler-library.libzip' successfully added to the broker archive.
+Successfully added file 'core\message\postprocessor.esql' to the broker archive.
+Successfully added file 'core\message\preprocessor.esql' to the broker archive.
+Successfully added file 'core\message\_postprocessor.subflow' to the broker archive.
+Successfully added file 'core\message\_preprocessor.subflow' to the broker archive.
+Library file 'core-message-processor-library.libzip' successfully added to the broker archive.
+Application file 'trx-pix-receipt-pmm-inbound.appzip' successfully added to the broker archive.
+BIP1845I: Command completed successfully.
+Status: project 'trx-pix-receipt-pmm-inbound' for collection 'caldc' was processed
+Status: project '*' for collection 'caldc' was built [PASS]
